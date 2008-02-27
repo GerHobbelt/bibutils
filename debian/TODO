@@ -1,0 +1,10 @@
+# Hey emacs: -*- readme-debian -*-   
+
+TODO for bibutils 
+
+* Consider not generating bibutils.1 during build process
+* set shared library version number in some more transparent way than
+  with a patch
+* suggest to upstream harmonizing bibutils.dbk and rest of package (GPL-2 vs 
+  GPL-2+).
+ -- David Bremner <bremner@unb.ca>, Thu, 14 Feb 2008 10:56:12 +0100
