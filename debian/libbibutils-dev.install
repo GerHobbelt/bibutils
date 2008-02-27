@@ -1,4 +1,3 @@
-lib/libbibutils.la	usr/lib
 lib/.libs/libbibutils.a usr/lib
 lib/.libs/libbibutils.so usr/lib
 lib/bibl.h usr/include/bibutils
