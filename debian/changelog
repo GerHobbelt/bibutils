@@ -1,6 +1,13 @@
+bibutils (3.40-2) unstable; urgency=low
+
+  * moved to unversioned -dev package
+  * closed ITP (Closes: #452577)
+
+ -- David Bremner <bremner@unb.ca>  Wed, 27 Feb 2008 16:34:07 +0100
+
 bibutils (3.40-1) unstable; urgency=low
 
-  *  New upstream release (Closes: #452577)  
+  *  New upstream release   
   *  new command xml2ads
   *  xml2word renamed to xml2wordbib
   *  use bibutils.dbk shipped by upstream
