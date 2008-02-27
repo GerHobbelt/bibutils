@@ -5,6 +5,8 @@ Maintainer: David Bremner <bremner@unb.ca>
 Build-Depends: debhelper (>= 5),   xsltproc, docbook-xsl, docbook-xml, quilt, libtool
 Standards-Version: 3.7.3
 Homepage: http://www.scripps.edu/~cdputnam/software/bibutils/
+Vcs-Svn: svn://svn.debian.org/pkg-science/bibutils/
+Vcs-Browser: http://svn.debian.org/wsvn/pkg-science/bibutils/
 
 Package: bibutils
 Architecture: any
@@ -15,7 +17,7 @@ Description: interconvert various bibliographic data formats
  Pubmed XML, ISI web of science, US Library of Congress MODS, RIS, and 
  Word 2007 bibliography.
 
-Package: libbibutils0-dev
+Package: libbibutils-dev
 Section: libdevel
 Architecture: any
 Depends: libbibutils0 (= ${binary:Version})
