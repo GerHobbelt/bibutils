@@ -2,10 +2,11 @@
 
 TODO for bibutils 
 
+* Add a paragraph to long description describing (some of?) the tools.
 * Consider not generating bibutils.1 during build process
 * set shared library version number in some more transparent way than
   with a patch
 * suggest to upstream harmonizing bibutils.dbk and rest of package (GPL-2 vs 
   GPL-2+).
 * create -dbg package
- -- David Bremner <bremner@unb.ca>, Wed, 27 Feb 2008 11:15:48 +0100
+ -- David Bremner <bremner@unb.ca>, Thu, 28 Feb 2008 17:08:48 +0100
