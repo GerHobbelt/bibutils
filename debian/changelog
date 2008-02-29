@@ -1,3 +1,9 @@
+bibutils (3.40-4) UNRELEASED; urgency=low
+
+  * remove obsolete libbibutils0-dev.dirs
+
+ -- David Bremner <bremner@unb.ca>  Fri, 29 Feb 2008 21:32:23 +0100
+
 bibutils (3.40-3) unstable; urgency=low
 
   * updated long descriptions
