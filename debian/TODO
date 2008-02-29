@@ -3,10 +3,9 @@
 TODO for bibutils 
 
 * Consider not generating bibutils.1 during build process
-* send shared library creation patches upstream
 * set shared library version number in some more transparent way than
   with a patch
 * suggest to upstream harmonizing bibutils.dbk and rest of package (GPL-2 vs 
   GPL-2+).
 * create -dbg package
- -- David Bremner <bremner@unb.ca>, Fri, 29 Feb 2008 21:09:52 +0100
+ -- David Bremner <bremner@unb.ca>, Fri, 29 Feb 2008 21:32:17 +0100
