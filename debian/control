@@ -14,7 +14,13 @@ Depends: ${shlibs:Depends}, ${misc:Depends}, libbibutils0
 Description: interconvert various bibliographic data formats
  Convert between the following bibliographic data formats: BibTeX,
  COPAC, EndNote refer, EndNote XML, Pubmed XML, ISI web of science, US
- Library of Congress MODS, RIS, and Word 2007 bibliography.
+ Library of Congress MODS XML, RIS, and Word 2007 bibliography.
+ .
+ This package provides command line tools bib2xml, copac2xml, end2xml
+ endx2xml, isi2xml, med2xml, ris2xml which convert to MODS XML format,
+ modsclean which reformats MODS XML, and a matching set of commands
+ xml2ads, xml2bib, xml2end, xml2isi, xml2ris, xml2wordbib which convert 
+ from MODS XML.
 
 Package: libbibutils-dev
 Section: libdevel
