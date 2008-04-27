@@ -1,3 +1,4 @@
+extern_c.patch -p0
 pkg-config.patch -p0
 test-makefile.patch -p0
 libtoolize-lib.patch -p0
