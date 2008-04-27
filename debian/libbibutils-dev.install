@@ -8,3 +8,4 @@ lib/lists.h usr/include/bibutils
 lib/newstr.h usr/include/bibutils
 lib/strsearch.h usr/include/bibutils
 lib/reftypes.h usr/include/bibutils
+lib/bibutils.pc usr/lib/pkgconfig
