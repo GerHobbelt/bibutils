@@ -1,19 +1,20 @@
 --- lib/Makefile.orig
 +++ lib/Makefile
-@@ -1,5 +1,10 @@
+@@ -1,5 +1,11 @@
 -#CC = gcc -Wall 
 -#RANLIB = echo
 +LD=ld
 +CC = gcc
 +RANLIB = echo
++CFLAGS ?= -Wall -O2 -g
 +
 +.SUFFIXES: .lo
 +.c.lo:
-+	 libtool --mode=compile $(CC) -c -O -g -o $@ $<
++	 libtool --mode=compile $(CC) -c $(CFLAGS) -o $@ $<
  
  BIB_OBJS = bbl.o fields.o lists.o name.o title.o reftypes.o
  
-@@ -20,13 +25,16 @@
+@@ -20,13 +26,16 @@
  BIBUTILS_OBJS = $(SIMPLE_OBJS) $(NEWSTR_OBJS) $(CONTAIN_OBJS) \
  	$(INPUT_OBJS) $(OUTPUT_OBJS) name.o title.o bibl.o serialno.o bibutils.o
  
@@ -33,7 +34,7 @@
  
  libbibprogs.a: $(BIBPROGS_OBJS)
  	ar -cr libbibprogs.a $(BIBPROGS_OBJS)
-@@ -39,6 +47,6 @@
+@@ -39,6 +48,6 @@
  	/bin/rm -f *.o core
  
  realclean:
