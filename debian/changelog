@@ -1,4 +1,4 @@
-bibutils (3.40-4~rc2) unstable; urgency=low
+bibutils (3.40-4) unstable; urgency=low
 
   * added reftypes.h (Closes: #477654)
   * remove obsolete libbibutils0-dev.dirs
@@ -7,7 +7,7 @@ bibutils (3.40-4~rc2) unstable; urgency=low
     Fischer.
   * added support for CFLAGS to libtoolized lib/Makefile
 
- -- David Bremner <bremner@unb.ca>  Mon, 28 Apr 2008 08:31:38 +0200
+ -- David Bremner <bremner@unb.ca>  Tue, 29 Apr 2008 07:07:06 +0200
 
 bibutils (3.40-3) unstable; urgency=low
 
