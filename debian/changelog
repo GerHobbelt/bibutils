@@ -1,3 +1,10 @@
+bibutils (3.40-5) UNRELEASED; urgency=low
+
+  * UNRELEASED
+  * update Vcs-Git and Vcs-Browser
+
+ -- David Bremner <bremner@unb.ca>  Thu, 22 May 2008 10:56:00 +0200
+
 bibutils (3.40-4) unstable; urgency=low
 
   * added reftypes.h (Closes: #477654)
