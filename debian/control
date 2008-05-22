@@ -5,8 +5,8 @@ Maintainer: David Bremner <bremner@unb.ca>
 Build-Depends: debhelper (>= 5),   xsltproc, docbook-xsl, docbook-xml, quilt, libtool
 Standards-Version: 3.7.3
 Homepage: http://www.scripps.edu/~cdputnam/software/bibutils/
-Vcs-Svn: svn://svn.debian.org/pkg-science/bibutils/
-Vcs-Browser: http://svn.debian.org/wsvn/pkg-science/bibutils/
+Vcs-Git: git://git.debian.org/git/debian-science/packages/bibutils/
+Vcs-Browser: http://git.debian.org/?p=debian-science/packages/bibutils.git
 
 Package: bibutils
 Architecture: any
