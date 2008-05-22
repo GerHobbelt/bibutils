@@ -7,6 +7,10 @@
 #ifndef BIBUTILS_H
 #define BIBUTILS_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 #include <stdio.h>
 #include "lists.h"
 #include "bibl.h"
@@ -77,6 +81,10 @@ extern void bibl_initparams( param *p, int readmode, int writemode );
 extern int bibl_read( bibl *b, FILE *fp, char *filename, int mode, param *p );
 extern int bibl_write( bibl *b, FILE *fp, int mode, param *p );
 extern void bibl_reporterr( int err );
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif
 
