@@ -3,7 +3,7 @@
 #
 
 CFLAGS     = -I ../lib
-LIBDIR     = -L../lib/.libs -L../lib
+LIBDIR     = -L../lib
 LIBS       = -lbibprogs -lbibutils 
 PROGS      = bib2xml copac2xml end2xml endx2xml isi2xml med2xml ris2xml \
              xml2ads xml2bib xml2end xml2isi xml2ris xml2wordbib modsclean
