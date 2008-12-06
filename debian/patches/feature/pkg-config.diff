@@ -1,0 +1,26 @@
+From: David Bremner <bremner@unb.ca>
+Subject: pkg-config
+
+
+---
+ lib/bibutils.pc |   10 ++++++++++
+ 1 files changed, 10 insertions(+), 0 deletions(-)
+
+diff --git a/lib/bibutils.pc b/lib/bibutils.pc
+new file mode 100644
+index 0000000..d927d9d
+--- /dev/null
++++ b/lib/bibutils.pc
+@@ -0,0 +1,10 @@
++prefix=/usr
++exec_prefix=\${prefix}
++libdir=\${prefix}/lib
++includedir=\${prefix}/include
++
++Name: bibutils
++Description: Converter library for various bibliography formats
++Version: 3.40
++Libs: -L\${libdir} -lbibutils
++Cflags: -I\${includedir}
+-- 
+tg: (164982d..) feature/pkg-config (depends on: master)

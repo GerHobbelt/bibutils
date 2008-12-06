@@ -1,6 +1,7 @@
-extern_c.patch -p0
-pkg-config.patch -p0
-test-makefile.patch -p0
-libtoolize-lib.patch -p0
-bibutils.dbk.patch -p0
-bin-makefile.patch -p0
+debian/bin-makefile.diff -p1
+debian/libtoolize-lib.diff -p1
+debian/test-makefile.diff -p1
+feature/bibutils.dbk.diff -p1
+feature/extern_c.diff -p1
+feature/medline-tagname.diff -p1
+feature/pkg-config.diff -p1
