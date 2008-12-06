@@ -15,17 +15,17 @@
 #include "newstr.h"
 #include "newstr_conv.h"
 #include "fields.h"
-#include "lists.h"
+#include "list.h"
 #include "name.h"
 #include "title.h"
 #include "reftypes.h"
 #include "bibtexin.h"
 
-extern lists asis;
-extern lists corps;
+extern list asis;
+extern list corps;
 
-lists find    = { 0, 0, NULL };
-lists replace = { 0, 0, NULL };
+list find    = { 0, 0, 0, NULL };
+list replace = { 0, 0, 0, NULL };
 
 /*
  * readf can "read too far", so we store this information in line, thus
@@ -121,8 +121,10 @@ process_bibtexline( char *p, newstr *tag, newstr *data )
 }
 
 static void
-bibtex_cleantoken( newstr *s )
+bibtex_cleantoken( newstr *s, param *p )
 {
+
+	if ( p && p->latexin==0 ) return;
 
 	/* 'textcomp' annotations */
 	newstr_findreplace( s, "\\textit", "" );
@@ -160,10 +162,13 @@ bibtex_addstring( char *p )
 	p = skip_ws( p );
 	if ( *p=='(' || *p=='{' ) p++;
 	p = process_bibtexline( p, &s1, &s2 );
-	lists_add( &find, s1.data );
 	newstr_findreplace( &s2, "\\ ", " " );
-	bibtex_cleantoken( &s2 );
-	lists_add( &replace, s2.data );
+	bibtex_cleantoken( &s2, NULL );
+	if ( s1.data ) {
+		list_add( &find, s1.data );
+		if ( s2.data ) list_add( &replace, s2.data );
+		else list_add( &replace, "" );
+	}
 	newstr_free( &s1 );
 	newstr_free( &s2 );
 }
@@ -191,7 +196,7 @@ bibtex_removeprotection( newstr *data )
 }
 
 static void
-bibtex_split( lists *tokens, newstr *s )
+bibtex_split( list *tokens, newstr *s )
 {
 	newstr currtok;
 	int nquotes = 0, nbrackets = 0;
@@ -209,13 +214,13 @@ bibtex_split( lists *tokens, newstr *s )
 			nbrackets--;
 			newstr_addchar( &currtok, '}' );
 		} else if ( s->data[i]=='#' && !nquotes && !nbrackets ) {
-			lists_add( tokens, currtok.data );
+			if ( currtok.len ) list_add( tokens, currtok.data );
 			newstr_empty( &currtok );
 		} else if ( !is_ws( s->data[i] ) || nquotes || nbrackets ) {
 			newstr_addchar( &currtok, s->data[i] );
 		}
 	}
-	if ( currtok.len ) lists_add( tokens, currtok.data );
+	if ( currtok.len ) list_add( tokens, currtok.data );
 	for ( i=0; i<tokens->n; ++i ) {
 		newstr_trimendingws( &(tokens->str[i]) );
 	}
@@ -357,11 +362,12 @@ bibtex_addtitleurl( fields *info, newstr *in )
 }
 
 static void
-bibtex_cleandata( newstr *s, fields *info )
+bibtex_cleandata( newstr *s, fields *info, param *p )
 {
-	lists tokens = { 0, 0, NULL };
+	list tokens;
 	int i;
 	if ( !s->len ) return;
+	list_init( &tokens );
 	bibtex_split( &tokens, s );
 	for ( i=0; i<tokens.n; ++i ) {
 		if ( !bibtex_protected( &(tokens.str[i] ) ) ) {
@@ -370,7 +376,7 @@ bibtex_cleandata( newstr *s, fields *info )
 			if (!strncasecmp(tokens.str[i].data,"\\href{", 6)) {
 				bibtex_addtitleurl( info, &(tokens.str[i]) );
 			}
-			bibtex_cleantoken( &(tokens.str[i]) );
+			bibtex_cleantoken( &(tokens.str[i]), p );
 		}
 	}
 	newstr_empty( s );
@@ -379,7 +385,7 @@ bibtex_cleandata( newstr *s, fields *info )
 			bibtex_removeprotection( &(tokens.str[i]));
 		newstr_strcat( s, tokens.str[i].data ); 
 	}
-	lists_free( &tokens );
+	list_free( &tokens );
 }
 
 static long
@@ -439,14 +445,14 @@ bibtexin_crossref( bibl *bin )
 }
 
 static void
-bibtexin_cleanref( fields *bibin )
+bibtexin_cleanref( fields *bibin, param *p )
 {
 	newstr *t, *d;
 	int i;
 	for ( i=0; i<bibin->nfields; ++i ) {
 		t = &( bibin->tag[i] );
 		d = &( bibin->data[i] );
-		bibtex_cleandata( d, bibin );
+		bibtex_cleandata( d, bibin, p );
 		if ( !strsearch( t->data, "AUTHORS" ) ) {
 			newstr_findreplace( d, "\n", " " );
 			newstr_findreplace( d, "\r", " " );
@@ -461,11 +467,11 @@ bibtexin_cleanref( fields *bibin )
 }
 
 void
-bibtexin_cleanf( bibl *bin )
+bibtexin_cleanf( bibl *bin, param *p )
 {
 	long i;
         for ( i=0; i<bin->nrefs; ++i )
-		bibtexin_cleanref( bin->ref[i] );
+		bibtexin_cleanref( bin->ref[i], p );
 	bibtexin_crossref( bin );
 }
 
