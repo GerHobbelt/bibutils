@@ -3,4 +3,5 @@ debian/libtoolize-lib.diff -p1
 debian/test-makefile.diff -p1
 feature/bibutils.dbk.diff -p1
 feature/extern_c.diff -p1
+feature/medline-tagname.diff -p1
 feature/pkg-config.diff -p1
