@@ -33,10 +33,10 @@
 typedef struct convert_rules {
 	int  (*readf)(FILE*,char*,int,int*,newstr*,newstr*,int*);
 	int  (*processf)(fields*,char*,char*,long);
-	void (*cleanf)(bibl*);
+	void (*cleanf)(bibl*,param*);
 	int  (*typef) (fields*,char*,int,variants*,int);
 	void (*convertf)(fields*,fields*,int,int,variants*,int);
-	void (*headerf)(FILE*,int);
+	void (*headerf)(FILE*,param*);
 	void (*footerf)(FILE*);
 	void (*writef)(fields*,FILE*,int,unsigned long);
 	variants *all;
@@ -55,6 +55,7 @@ bibl_initparams( param *p, int readmode, int writemode )
 	p->latexout         = 0;
 	p->utf8in           = 0;
 	p->utf8out          = 0;
+	p->utf8bom          = 0;
 	p->xmlout           = 0;
 	p->verbose          = 0;
 	p->addcount         = 0;
@@ -84,10 +85,14 @@ bibl_initparams( param *p, int readmode, int writemode )
 	if ( writemode == BIBL_BIBTEXOUT ) {
 		p->latexout = 1;
 	} else if ( writemode == BIBL_MODSOUT ) {
-		if ( !p->utf8out ) p->xmlout = 1;
+		/* default to UTF8 Unicode with BOM written */
 		p->charsetout = BIBL_CHARSET_UNICODE;
+		p->utf8out = 1;
+		p->utf8bom = 1;
+		p->xmlout = 1;
 	} else if ( writemode == BIBL_WORD2007OUT ) {
-		if ( !p->utf8out ) p->xmlout = 1;
+		if ( !p->utf8out ) p->xmlout = 3;
+		else p->xmlout = 1;
 		p->charsetout = BIBL_CHARSET_UNICODE;
 	} else p->xmlout = 0;
 
@@ -338,7 +343,7 @@ generate_citekey( fields *info, int nref )
 }
 
 static void
-resolve_citekeys( bibl *b, lists *citekeys, int *dup )
+resolve_citekeys( bibl *b, list *citekeys, int *dup )
 {
 	char abc[]="abcdefghijklmnopqrstuvwxyz";
 	newstr tmp;
@@ -351,7 +356,8 @@ resolve_citekeys( bibl *b, lists *citekeys, int *dup )
 		nsame = 0;
 		for ( j=i; j<citekeys->n; ++j ) {
 			if ( dup[j]!=i ) continue;
-			newstr_strcpy( &tmp, citekeys->str[j].data );
+/*			newstr_strcpy( &tmp, citekeys->str[j].data ); */
+			newstr_newstrcpy( &tmp, &(citekeys->str[j]) );
 			ntmp = nsame;
 			while ( ntmp >= 26 ) {
 				newstr_addchar( &tmp, 'a' );
@@ -363,14 +369,15 @@ resolve_citekeys( bibl *b, lists *citekeys, int *dup )
 			dup[j] = -1;
 			n = fields_find( b->ref[j], "REFNUM", -1 );
 			if ( n!=-1 )
-				newstr_strcpy( &((b->ref[j])->data[n]), tmp.data);
+				newstr_newstrcpy(&((b->ref[j])->data[n]),&tmp);
+/*				newstr_strcpy( &((b->ref[j])->data[n]), tmp.data);*/
 		}
 	}
 	newstr_free( &tmp );
 }
 
 static void
-get_citekeys( bibl *b, lists *citekeys )
+get_citekeys( bibl *b, list *citekeys )
 {
 	fields *info;
 	int i, n;
@@ -378,13 +385,15 @@ get_citekeys( bibl *b, lists *citekeys )
 		info = b->ref[i];
 		n = fields_find( info, "REFNUM", -1 );
 		if ( n==-1 ) n = generate_citekey( info, i );
-		if ( n!=-1 ) lists_add( citekeys, info->data[n].data );
-		else lists_add( citekeys, "" );
+		if ( n!=-1 && info->data[n].data )
+			list_add( citekeys, info->data[n].data );
+		else
+			list_add( citekeys, "" );
 	}
 }
 
 static int 
-dup_citekeys( bibl *b, lists *citekeys )
+dup_citekeys( bibl *b, list *citekeys )
 {
 	int i, j, *dup, ndup=0;
 	dup = ( int * ) malloc( sizeof( int ) * citekeys->n );
@@ -409,11 +418,11 @@ dup_citekeys( bibl *b, lists *citekeys )
 static void
 uniqueify_citekeys( bibl *b )
 {
-	lists citekeys;
-	lists_init( &citekeys );
+	list citekeys;
+	list_init( &citekeys );
 	get_citekeys( b, &citekeys );
 	dup_citekeys( b, &citekeys );
-	lists_free( &citekeys );
+	list_free( &citekeys );
 }
 
 static int 
@@ -422,7 +431,7 @@ convert_ref( bibl *bin, char *fname, bibl *bout, convert_rules *r, param *p )
 	fields *rin, *rout;
 	long i;
 	int reftype;
-	if ( r->cleanf ) r->cleanf( bin );
+	if ( r->cleanf ) r->cleanf( bin, p );
 	for ( i=0; i<bin->nrefs; ++i ) {
 		rin = bin->ref[i];
 		rout = fields_new();
@@ -432,7 +441,6 @@ convert_ref( bibl *bin, char *fname, bibl *bout, convert_rules *r, param *p )
 		else reftype = 0;
 		r->convertf( rin, rout, reftype, p->verbose, r->all, r->nall );
 		if ( r->all ) process_alwaysadd( rout, reftype, r );
-/*		if ( p->verbose>1 ) */
 		if ( p->verbose ) 
 			bibl_verbose1( rout, rin, fname, i+1 );
 		bibl_addref( bout, rout );
@@ -455,7 +463,7 @@ rules_init( convert_rules *r, int mode )
 			r->nall     = bibtex_nall;
 			break;
 		case BIBL_BIBTEXOUT:
-			r->headerf = NULL;
+			r->headerf = bibtexout_writeheader;
 			r->footerf = NULL;
 			r->writef  = bibtexout_write;
 			break;
@@ -478,12 +486,12 @@ rules_init( convert_rules *r, int mode )
 			r->nall     = end_nall;
 			break;
 		case BIBL_ENDNOTEOUT:
-			r->headerf = NULL;
+			r->headerf = endout_writeheader;
 			r->footerf = NULL;
 			r->writef  = endout_write;
 			break;
 		case BIBL_ADSABSOUT:
-			r->headerf = NULL;
+			r->headerf = adsout_writeheader;
 			r->footerf = NULL;
 			r->writef  = adsout_write;
 			break;
@@ -497,7 +505,7 @@ rules_init( convert_rules *r, int mode )
 			r->nall     = ris_nall;
 			break;
 		case BIBL_RISOUT:
-			r->headerf = NULL;
+			r->headerf = risout_writeheader;
 			r->footerf = NULL;
 			r->writef  = risout_write;
 			break;
@@ -511,9 +519,9 @@ rules_init( convert_rules *r, int mode )
 			r->nall     = isi_nall;
 			break;
 		case BIBL_ISIOUT:
-			r->headerf  = NULL;
+			r->headerf  = isiout_writeheader;
 			r->footerf  = NULL;
-			r->writef   = isi_write;
+			r->writef   = isiout_write;
 			break;
 		case BIBL_COPACIN:
 			r->readf    = copacin_readf;
@@ -643,12 +651,12 @@ output_bibl( FILE *fp, bibl *b, convert_rules *r, param *p, int mode )
 {
 	long i;
 	if ( !p->singlerefperfile && r->headerf )
-		r->headerf( fp, p->format_opts );
+		r->headerf( fp, p );
 	for ( i=0; i<b->nrefs; ++i ) {
 		if ( p->singlerefperfile ) { 
 			fp = singlerefname( b->ref[i], i, mode );
 			if ( fp ) {
-				if ( r->headerf ) r->headerf(fp,p->format_opts);
+				if ( r->headerf ) r->headerf( fp, p );
 			} else return BIBL_ERR_CANTOPEN;
 		}
 		r->writef( b->ref[i], fp, p->format_opts, i );
@@ -668,6 +676,7 @@ bibl_setwriteparams( param *np, param *op, int mode )
 	if ( !op ) bibl_initparams( np, 0, mode );
 	else {
 		np->utf8out = op->utf8out;
+		np->utf8bom = op->utf8bom;
 		np->charsetout = op->charsetout;
 		np->charsetout_src = op->charsetout_src;
 		np->latexout = op->latexout;

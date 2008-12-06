@@ -1,7 +1,92 @@
 
 BIBUTILS
 
+3.43
+11/24/08
+
+BIB2XML
++ Fix recognition of em-dash by placing it before en-dash in conversion
+  list.
++ Add -nl or --no-latex to prevent conversion of latex character
+  combinations
+
+BIBUTILS
++ Move "list.h" include from bibutils.h to bibutils.c
+
+MODSOUT
++ Ensure that bibutils handles records with empty MODS attributes
+
+3.42
+10/31/08
+
+MODSOUT
++ Change default to UTF8 unicode characters written directly (not
+  via XML entities) and writing BOM.  Add command-line switch
+  -x or --xml-entities to write XML entities instead to BIB2XML
+  END2XML ENDX2XML MED2XML RIS2XML, etc.
+
+XML2ADS
++ Fix unicode output to add Byte Order Mark by default
++ Add -nb or --no-bom switch to turn off Byte Order Mark for unicode if
+  the user doesn't want it
+  
+XML2BIB
++ For users who want the bibtex file format, but not the latex encryption
+  of characters, add -nl or --no-latex to command-line switches
++ Fix unicode output to add Byte Order Mark by default
++ Add -nb or --no-bom switch to turn off Byte Order Mark for unicode if
+  the user doesn't want it
+
+XML2END
++ Fix unicode output to add Byte Order Mark by default
++ Add -nb or --no-bom switch to turn off Byte Order Mark for unicode if
+  the user doesn't want it
+
+XML2ISI
++ Fix unicode output to add Byte Order Mark by default
++ Add -nb or --no-bom switch to turn off Byte Order Mark for unicode if
+  the user doesn't want it
+
+XML2RIS
++ Fix unicode output to add Byte Order Mark by default
++ Add -nb or --no-bom switch to turn off Byte Order Mark for unicode if
+  the user doesn't want it
+
+XML2WORD2007
++ Add -nb or --no-bom switch to turn off Byte Order Mark for unicode if
+  the user doesn't want it
++ Fix the recognition of incollection items as book sections.
+
+
+3.41
+6/16/08
+
+BUILD
++ Fix bug in makedeb.csh
++ Fix site-specific compiler definition for SunOS5 target.
++ Add Linux x86_64 target for configuration.
+
+MODSIN
++ Fix NULL pointer dereference for "detail" elements lacking a type
+  attribute.  (Noticed and hunted down by Thomas Fischer.)
+
+RIS2XML
++ Fix bug where "AB  - " with a newline before the abstract was
+  not recognized as an abstracted.  (Reported by Thomas Braun
+  and Richard Mathar.)
+
+XML2ADS
++ Updates from Richard Mathar fixing R-tag output, merging keywords,
+  fixing date, adding title, and replacing double dash.
++ Update journals to current list from:
+  http://adsabs.harvard.edu/abs_doc/journals1.html
+
+XML2BIB
++ Fix character priority so unicode/utf8 takes precedence over latex
+  (Patch from Luc Pardon)
+
 3.40
+2/10/08
 
 MODSIN
 + Fix crash where placeTerm tag doesn't have attribute (Thanks to
