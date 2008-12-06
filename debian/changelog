@@ -1,3 +1,9 @@
+bibutils (3.43-1) UNRELEASED; urgency=low
+
+  * New Upstream Version
+
+ -- David Bremner <bremner@unb.ca>  Sat, 06 Dec 2008 16:58:10 -0400
+
 bibutils (3.40-5) UNRELEASED; urgency=low
 
   * UNRELEASED
