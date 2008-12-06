@@ -11,15 +11,15 @@
 #include <string.h>
 #include <ctype.h>
 #include "newstr.h"
-#include "lists.h"
+#include "list.h"
 #include "strsearch.h"
 #include "bibl.h"
 #include "bibutils.h"
 #include "bibprogs.h"
+#include "endout.h"
 
 char  progname[] = "xml2end";
-lists asis = { 0, 0, NULL };
-lists corps = { 0, 0, NULL };
+list asis, corps;
 
 void
 tellversion( void )
@@ -40,6 +40,7 @@ help( void )
 	fprintf(stderr,"usage: %s xml_file > endnote_file\n\n",progname);
         fprintf(stderr,"  xml_file can be replaced with file list or omitted to use as a filter\n\n");
 
+	fprintf(stderr,"  -nb, --no-bom   do not write Byte Order Mark in UTF8 output\n");
 	fprintf(stderr,"  -s, --single-refperfile one reference per output file\n");
 	fprintf(stderr,"  -h, --help     display this help\n");
 	fprintf(stderr,"  --verbose      for verbose output\n");
@@ -47,6 +48,36 @@ help( void )
 	fprintf(stderr,"  -v, --version  display version\n\n");
 
 	fprintf(stderr,"http://www.scripps.edu/~cdputnam/software/bibutils for more details\n\n");
+}
+
+
+/* Must process charset info first so switches are order independent */
+void
+process_charsets( int *argc, char *argv[], param *p )
+{
+	int i, j, subtract;
+	i = 1;
+	while ( i<*argc ) {
+		subtract = 0;
+		if ( args_match( argv[i], "-i", "--input-encoding" ) ) {
+			args_encoding( *argc, argv, i, &(p->charsetin), 
+					&(p->utf8in), progname );
+			p->charsetin_src = BIBL_SRC_USER;
+			subtract = 2;
+		} else if ( args_match( argv[i], "-o", "--output-encoding" ) ) {
+			args_encoding( *argc, argv, i, &(p->charsetout),
+					&(p->utf8out), progname );
+			if ( p->charsetout==BIBL_CHARSET_UNICODE )
+				p->utf8bom = 1;
+			p->charsetout_src = BIBL_SRC_USER;
+			subtract = 2;
+		}
+		if ( subtract ) {
+			for ( j=i+subtract; j<*argc; ++j )
+				argv[j-subtract] = argv[j];
+			*argc -= subtract;
+		} else i++;
+	}
 }
 
 void
@@ -65,16 +96,9 @@ process_args( int *argc, char *argv[], param *p )
 		} else if ( args_match( argv[i], "-s", "--single-refperfile")){
 			p->singlerefperfile = 1;
 			subtract = 1;
-		} else if ( args_match( argv[i], "-i", "--input-encoding" ) ) {
-			args_encoding( *argc, argv, i, &(p->charsetin),
-				&(p->utf8in), progname );
-			p->charsetin_src = BIBL_SRC_USER;
-			subtract = 2;
-		} else if ( args_match( argv[i], "-o", "--output-encoding" )){
-			args_encoding( *argc, argv, i, &(p->charsetout),
-				&(p->utf8out), progname );
-			p->charsetout_src = BIBL_SRC_USER;
-			subtract = 2;
+		} else if ( args_match( argv[i], "-nb", "--no-bom" ) ) {
+			p->utf8bom = 0;
+			subtract = 1;
 		} else if ( args_match( argv[i], "--verbose", "" ) ) {
 			p->verbose = 1;
 			subtract = 1;
@@ -99,8 +123,12 @@ main( int argc, char *argv[] )
 	bibl b;
 	int err, i;
 
+	list_init( &asis );
+	list_init( &corps );
+
 	bibl_init( &b );
 	bibl_initparams( &p, BIBL_MODSIN, BIBL_ENDNOTEOUT );
+	process_charsets( &argc, argv, &p );
 	process_args( &argc, argv, &p );
 
 	if (argc==1) {
