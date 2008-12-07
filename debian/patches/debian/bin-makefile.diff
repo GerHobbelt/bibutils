@@ -1,0 +1,23 @@
+From: David Bremner <bremner@unb.ca>
+Subject: bin-makefile
+
+
+---
+ bin/Makefile |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/bin/Makefile b/bin/Makefile
+index 58a45fa..3442756 100644
+--- a/bin/Makefile
++++ b/bin/Makefile
+@@ -3,7 +3,7 @@
+ #
+ 
+ CFLAGS     = -I ../lib
+-LIBDIR     = -L../lib
++LIBDIR     = -L../lib/.libs -L../lib
+ LIBS       = -lbibprogs -lbibutils 
+ PROGS      = bib2xml copac2xml end2xml endx2xml isi2xml med2xml ris2xml \
+              xml2ads xml2bib xml2end xml2isi xml2ris xml2wordbib modsclean
+-- 
+tg: (b0172d5..) debian/bin-makefile (depends on: master)
