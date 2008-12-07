@@ -1,6 +1,0 @@
-extern_c.patch -p0
-pkg-config.patch -p0
-test-makefile.patch -p0
-libtoolize-lib.patch -p0
-bibutils.dbk.patch -p0
-bin-makefile.patch -p0
