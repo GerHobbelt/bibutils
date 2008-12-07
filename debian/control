@@ -1,7 +1,8 @@
 Source: bibutils
 Section: text
 Priority: optional
-Maintainer: David Bremner <bremner@unb.ca>
+Maintainer: Debian Science Maintainers <debian-science-maintainers@lists.alioth.debian.org>
+Uploaders: David Bremner <bremner@unb.ca>
 Build-Depends: debhelper (>= 5),   xsltproc, docbook-xsl, docbook-xml, quilt, libtool
 Standards-Version: 3.7.3
 Homepage: http://www.scripps.edu/~cdputnam/software/bibutils/
