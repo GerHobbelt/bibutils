@@ -4,7 +4,7 @@ lib/bibl.h usr/include/bibutils
 lib/bibtexout.h usr/include/bibutils
 lib/bibutils.h usr/include/bibutils
 lib/fields.h usr/include/bibutils
-lib/lists.h usr/include/bibutils
+lib/list.h usr/include/bibutils
 lib/newstr.h usr/include/bibutils
 lib/strsearch.h usr/include/bibutils
 lib/reftypes.h usr/include/bibutils
