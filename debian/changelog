@@ -1,15 +1,10 @@
 bibutils (3.43-1) UNRELEASED; urgency=low
 
   * New Upstream Version
-
- -- David Bremner <bremner@unb.ca>  Sat, 06 Dec 2008 16:58:10 -0400
-
-bibutils (3.40-5) UNRELEASED; urgency=low
-
-  * UNRELEASED
-  * update Vcs-Git and Vcs-Browser
-
- -- David Bremner <bremner@unb.ca>  Thu, 22 May 2008 10:56:00 +0200
+  * Convert to topgit (Closes: #485243)
+  * Update Vcs-Git and Vcs-Browser
+  
+ -- David Bremner <bremner@unb.ca>  Sat, 06 Dec 2008 18:52:39 -0400
 
 bibutils (3.40-4) unstable; urgency=low
 
