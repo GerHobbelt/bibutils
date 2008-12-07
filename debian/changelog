@@ -6,6 +6,7 @@ bibutils (3.43-1) UNRELEASED; urgency=low
   * Change maintainer to debian-science-maintainers@lists.alioth.debian.org
   * Update Vcs-Git and Vcs-Browser
   * Converted packaging to topgit
+  * Upgraded to standards version 3.8.0 (added debian/README.source)
   
  -- David Bremner <bremner@unb.ca>  Sat, 06 Dec 2008 20:07:17 -0400
 
