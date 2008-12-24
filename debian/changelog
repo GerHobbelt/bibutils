@@ -1,4 +1,4 @@
-bibutils (3.43-1) UNRELEASED; urgency=low
+bibutils (4.1-1) UNRELEASED; urgency=low
 
   * New Upstream Version
   * Convert to topgit (Closes: #485243)
@@ -8,7 +8,7 @@ bibutils (3.43-1) UNRELEASED; urgency=low
   * Converted packaging to topgit
   * Upgraded to standards version 3.8.0 (added debian/README.source)
   
- -- David Bremner <bremner@unb.ca>  Sat, 06 Dec 2008 20:07:17 -0400
+ -- David Bremner <bremner@unb.ca>  Wed, 24 Dec 2008 10:50:55 -0400
 
 bibutils (3.40-4) unstable; urgency=low
 
