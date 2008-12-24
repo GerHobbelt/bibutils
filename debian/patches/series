@@ -1,7 +1,3 @@
 debian/bin-makefile.diff -p1
 debian/libtoolize-lib.diff -p1
 debian/test-makefile.diff -p1
-feature/bibutils.dbk-typo-fix.diff -p1
-feature/extern_c.diff -p1
-feature/medline-tagname.diff -p1
-feature/pkg-config.diff -p1
