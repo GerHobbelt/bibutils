@@ -1,0 +1,88 @@
+From: David Bremner <bremner@unb.ca>
+Subject: [PATCH] debian/libtoolize
+
+Use libtool to create a shared library
+
+Signed-off-by: David Bremner <bremner@unb.ca>
+
+---
+ bin/Makefile  |    2 +-
+ lib/Makefile  |   25 ++++++++++++++++++-------
+ test/Makefile |    4 ++--
+ 3 files changed, 21 insertions(+), 10 deletions(-)
+
+diff --git a/bin/Makefile b/bin/Makefile
+index c5b5f57..f3ae3a2 100644
+--- a/bin/Makefile
++++ b/bin/Makefile
+@@ -3,7 +3,7 @@
+ #
+ 
+ CFLAGS     = -I ../lib
+-LIBDIR     = -L../lib
++LIBDIR     = -L../lib/.libs -L../lib
+ PROGS      = bib2xml biblatex2xml copac2xml end2xml endx2xml isi2xml med2xml \
+              ris2xml \
+              xml2ads xml2bib xml2end xml2isi xml2ris xml2wordbib modsclean
+diff --git a/lib/Makefile b/lib/Makefile
+index 1d4ef90..ad12631 100644
+--- a/lib/Makefile
++++ b/lib/Makefile
+@@ -1,5 +1,11 @@
+-#CC = gcc -Wall 
+-#RANLIB = echo
++LD=ld
++CC = gcc
++RANLIB = echo
++CFLAGS ?= -Wall -O2 -g
++
++.SUFFIXES: .lo
++.c.lo:
++	 libtool --mode=compile $(CC) -c $(CFLAGS) -o $@ $<
+ 
+ BIB_OBJS = bbl.o fields.o list.o name.o title.o reftypes.o
+ 
+@@ -21,16 +27,21 @@ OUTPUT_OBJS   = bibtexout.o endout.o isiout.o modsout.o risout.o wordout.o \
+ BIBUTILS_OBJS = $(SIMPLE_OBJS) $(NEWSTR_OBJS) $(CONTAIN_OBJS) \
+ 	$(INPUT_OBJS) $(OUTPUT_OBJS) name.o title.o bibl.o serialno.o bibutils.o
+ 
+-all:  libbibutils.a
++BIBUTILS_LO=$(subst .o,.lo,$(BIBUTILS_OBJS))
++BIBPROGS_OBJS = bibprogs.o compiledate.o
++
++all:  libbibutils.a libbibprogs.a
++
++libbibutils.a: libbibutils.la
++	ln -s .libs/libbibutils.a .
+ 
+-libbibutils.a: $(BIBUTILS_OBJS)
+-	ar -cr libbibutils.a $(BIBUTILS_OBJS)
+-	$(RANLIB) libbibutils.a
++libbibutils.la: $(BIBUTILS_LO)
++	libtool --mode=link  $(CC)  -version-info 0:0:0 -rpath /usr/lib -o libbibutils.la $(BIBUTILS_LO)
+ 
+ clean: 
+ 	/bin/rm -f *.o core
+ 
+ realclean:
+-	/bin/rm -f *.o *.a core
++	/bin/rm -rf *.o *.lo *.la *.a .libs core
+ 
+ test:
+diff --git a/test/Makefile b/test/Makefile
+index c0f005b..afda36f 100644
+--- a/test/Makefile
++++ b/test/Makefile
+@@ -3,8 +3,8 @@
+ #
+ 
+ CFLAGS     = -Wall -I ../lib
+-LIBDIR     = -L../lib
+-LIBS       = -lbibutils 
++LIBDIR     = -L../lib/.libs
++LIBS       = -static -lbibutils
+ PROGS      = newstr_test entities_test utf8_test
+ 
+ all: $(PROGS)
+-- 
+tg: (3de4e40..) debian/libtoolize (depends on: master)
