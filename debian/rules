@@ -32,6 +32,7 @@ test-stamp: build-stamp
 build-stamp:  $(QUILT_STAMPFN) bibutils.1
 	dh_testdir
 	$(MAKE)
+	$(MAKE) install
 	touch $@
 
 bibutils.dbk: $(QUILT_STAMPFN)
