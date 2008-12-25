@@ -52,7 +52,7 @@ clean:  unpatch
 	make -f debian/rules unpatch
 	# this is here so we don't have to repatch before clean
 	rm -rf lib/.libs lib/*.lo lib/*.la
-	dh_clean bibutils.1 
+	dh_clean bibutils.1 Makefile
 
 
 install: build
