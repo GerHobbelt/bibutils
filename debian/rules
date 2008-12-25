@@ -29,9 +29,12 @@ test-stamp: build-stamp
 	cd test && make all && make test
 	touch $@
 
-build-stamp:  $(QUILT_STAMPFN) bibutils.1
+configure-stamp: $(QUILT_STAMPFN)
+	./configure
+	touch $@
+
+build-stamp: configure-stamp bibutils.1
 	dh_testdir
-	$(MAKE)
 	$(MAKE) install
 	touch $@
 
