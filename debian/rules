@@ -7,7 +7,7 @@
 # This special exception was added by Craig Small in version 0.37 of dh-make.
 include /usr/share/quilt/quilt.make
 
-TG_BRANCHES=debian/bin-makefile debian/libtoolize-lib debian/test-makefile
+TG_BRANCHES=debian/libtoolize
 -include /usr/share/topgit/tg2quilt.mk
 
 # Uncomment this to turn on verbose mode.
