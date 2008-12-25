@@ -29,9 +29,16 @@ test-stamp: build-stamp
 	cd test && make all && make test
 	touch $@
 
-build-stamp:  $(QUILT_STAMPFN) bibutils.1
+configure-stamp: $(QUILT_STAMPFN)
+	# do the sed ourselves to avoid build dependency on csh
+	sed -e 's/REPLACE_CC/CC="cc -Wall"/' \
+	    -e 's/REPLACE_RANLIB/RANLIB="ranlib"/'  \
+	    -e "s|REPLACE_INSTALLDIR|${INSTALLDIR}|"  \
+	    -e 's/REPLACE_POSTFIX//' < Makefile_start > Makefile
+	touch $@
+
+build-stamp: configure-stamp bibutils.1
 	dh_testdir
-	$(MAKE)
 	$(MAKE) install
 	touch $@
 
@@ -44,12 +51,12 @@ bibutils.1: bibutils.dbk
 clean:  unpatch
 	dh_testdir
 	dh_testroot
-	rm -f build-stamp test-stamp
+	rm -f configure-stamp build-stamp test-stamp
 	$(MAKE) -f Makefile_start realclean
 	make -f debian/rules unpatch
 	# this is here so we don't have to repatch before clean
 	rm -rf lib/.libs lib/*.lo lib/*.la
-	dh_clean bibutils.1 
+	dh_clean bibutils.1 Makefile
 
 
 install: build
