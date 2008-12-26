@@ -21,6 +21,11 @@ XP=xsltproc -''-nonet
 DEB_HOST_GNU_TYPE   ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
 DEB_BUILD_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
 
+# what to pass to libtool
+SO_CURRENT=1
+SO_REVISION=0
+SO_AGE=0
+SOVERSION=$(SO_CURRENT):$(SO_REVISION):$(SO_AGE)
 
 build: test-stamp
 
@@ -39,7 +44,7 @@ configure-stamp: $(QUILT_STAMPFN)
 
 build-stamp: configure-stamp bibutils.1
 	dh_testdir
-	$(MAKE) install
+	$(MAKE) SOVERSION=$(SOVERSION) install
 	touch $@
 
 bibutils.dbk: $(QUILT_STAMPFN)
