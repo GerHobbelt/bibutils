@@ -36,7 +36,7 @@ libbibutils.a: libbibutils.la
 	ln -s .libs/libbibutils.a .
 
 libbibutils.la: $(BIBUTILS_LO)
-	libtool --mode=link  $(CC)  -version-info 0:0:0 -rpath /usr/lib -o libbibutils.la $(BIBUTILS_LO)
+	libtool --mode=link  $(CC)  -version-info $(SOVERSION) -rpath /usr/lib -o libbibutils.la $(BIBUTILS_LO)
 
 clean: 
 	/bin/rm -f *.o core
