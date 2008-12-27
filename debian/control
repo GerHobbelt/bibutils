@@ -11,7 +11,7 @@ Vcs-Browser: http://git.debian.org/?p=debian-science/packages/bibutils.git
 
 Package: bibutils
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, libbibutils0
+Depends: ${shlibs:Depends}, ${misc:Depends}, libbibutils1
 Description: interconvert various bibliographic data formats
  Convert between the following bibliographic data formats: BibTeX,
  COPAC, EndNote refer, EndNote XML, Pubmed XML, ISI web of science, US
@@ -26,7 +26,7 @@ Description: interconvert various bibliographic data formats
 Package: libbibutils-dev
 Section: libdevel
 Architecture: any
-Depends: libbibutils0 (= ${binary:Version})
+Depends: libbibutils1 (= ${binary:Version})
 Description: bibliography file converter, development kit
  Convert between the following bibliographic data formats: BibTeX,
  COPAC, EndNote refer, EndNote XML, Pubmed XML, ISI web of science, US
@@ -34,7 +34,7 @@ Description: bibliography file converter, development kit
  .
  This package contains the static library and headers for use by developers.
 
-Package: libbibutils0
+Package: libbibutils1
 Section: libs
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
