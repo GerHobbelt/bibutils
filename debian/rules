@@ -52,7 +52,7 @@ bibutils.1: bibutils.dbk
 clean:  unpatch
 	dh_testdir
 	dh_testroot
-	rm -f build-stamp test-stamp
+	rm -f configure-stamp build-stamp test-stamp
 	$(MAKE) -f Makefile_start realclean
 	make -f debian/rules unpatch
 	# this is here so we don't have to repatch before clean
@@ -86,7 +86,7 @@ binary-arch: build install
 	dh_fixperms
 	dh_makeshlibs
 	dh_installdeb
-	dh_shlibdeps -Llibbibutils0 -l${CURDIR}/debian/libbibutils0/usr/lib
+	dh_shlibdeps # -Llibbibutils0 -l${CURDIR}/debian/libbibutils0/usr/lib
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb
