@@ -35,7 +35,11 @@ test-stamp: build-stamp
 	touch $@
 
 configure-stamp: $(QUILT_STAMPFN)
-	./configure
+	# do the sed ourselves to avoid build dependency on csh
+	sed -e 's/REPLACE_CC/CC="cc -Wall"/' \
+	    -e 's/REPLACE_RANLIB/RANLIB="ranlib"/'  \
+	    -e "s|REPLACE_INSTALLDIR|${INSTALLDIR}|"  \
+	    -e 's/REPLACE_POSTFIX//' < Makefile_start > Makefile
 	touch $@
 
 build-stamp: configure-stamp bibutils.1
