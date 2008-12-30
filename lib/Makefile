@@ -30,7 +30,7 @@ BIBUTILS_OBJS = $(SIMPLE_OBJS) $(NEWSTR_OBJS) $(CONTAIN_OBJS) \
 BIBUTILS_LO=$(subst .o,.lo,$(BIBUTILS_OBJS))
 BIBPROGS_OBJS = bibprogs.o compiledate.o
 
-all:  libbibutils.a libbibprogs.a
+all:  libbibutils.a 
 
 libbibutils.a: libbibutils.la
 	ln -s .libs/libbibutils.a .
