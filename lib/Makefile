@@ -33,7 +33,7 @@ BIBPROGS_OBJS = bibprogs.o compiledate.o
 all:  libbibutils.a 
 
 libbibutils.a: libbibutils.la
-	ln -s .libs/libbibutils.a .
+	rm -f libbibutils.a && ln -s .libs/libbibutils.a .
 
 libbibutils.la: $(BIBUTILS_LO)
 	libtool --mode=link  $(CC)  -version-info $(SOVERSION) -rpath /usr/lib -o libbibutils.la $(BIBUTILS_LO)
