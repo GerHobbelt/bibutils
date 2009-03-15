@@ -6,11 +6,25 @@ Use libtool to create a shared library
 Signed-off-by: David Bremner <bremner@unb.ca>
 
 ---
- bin/Makefile  |    2 +-
- lib/Makefile  |   25 ++++++++++++++++++-------
- test/Makefile |    4 ++--
- 3 files changed, 21 insertions(+), 10 deletions(-)
+ Makefile_start |    2 +-
+ bin/Makefile   |    2 +-
+ lib/Makefile   |   25 ++++++++++++++++++-------
+ test/Makefile  |    4 ++--
+ 4 files changed, 22 insertions(+), 11 deletions(-)
 
+diff --git a/Makefile_start b/Makefile_start
+index 7c40c1a..7f34098 100644
+--- a/Makefile_start
++++ b/Makefile_start
+@@ -10,7 +10,7 @@ PROGRAMS=bib2xml ris2xml end2xml endx2xml med2xml isi2xml copac2xml \
+ 	xml2ads xml2bib xml2end xml2isi xml2ris xml2wordbib modsclean
+ 
+ all : FORCE
+-	cd lib; make -k $(CC) -k $(RANLIB); cd ..
++	cd lib; make -k $(CC) -k $(RANLIB) SOVERSION=$(SOVERSION); cd ..
+ 	cd bin; make -k $(CC) -k VERSION="$(VERSION)" -k DATE="$(DATE)"; cd ..
+ 
+ clean: FORCE
 diff --git a/bin/Makefile b/bin/Makefile
 index c5b5f57..f3ae3a2 100644
 --- a/bin/Makefile
@@ -25,7 +39,7 @@ index c5b5f57..f3ae3a2 100644
               ris2xml \
               xml2ads xml2bib xml2end xml2isi xml2ris xml2wordbib modsclean
 diff --git a/lib/Makefile b/lib/Makefile
-index 1d4ef90..ad12631 100644
+index 1d4ef90..5f54ba8 100644
 --- a/lib/Makefile
 +++ b/lib/Makefile
 @@ -1,5 +1,11 @@
@@ -50,16 +64,16 @@ index 1d4ef90..ad12631 100644
 +BIBUTILS_LO=$(subst .o,.lo,$(BIBUTILS_OBJS))
 +BIBPROGS_OBJS = bibprogs.o compiledate.o
 +
-+all:  libbibutils.a libbibprogs.a
++all:  libbibutils.a 
 +
 +libbibutils.a: libbibutils.la
-+	ln -s .libs/libbibutils.a .
++	rm -f libbibutils.a && ln -s .libs/libbibutils.a .
  
 -libbibutils.a: $(BIBUTILS_OBJS)
 -	ar -cr libbibutils.a $(BIBUTILS_OBJS)
 -	$(RANLIB) libbibutils.a
 +libbibutils.la: $(BIBUTILS_LO)
-+	libtool --mode=link  $(CC)  -version-info 0:0:0 -rpath /usr/lib -o libbibutils.la $(BIBUTILS_LO)
++	libtool --mode=link  $(CC)  -version-info $(SOVERSION) -rpath /usr/lib -o libbibutils.la $(BIBUTILS_LO)
  
  clean: 
  	/bin/rm -f *.o core
@@ -85,4 +99,4 @@ index c0f005b..afda36f 100644
  
  all: $(PROGS)
 -- 
-tg: (3de4e40..) debian/libtoolize (depends on: master)
+tg: (ed40d01..) debian/libtoolize (depends on: master)
