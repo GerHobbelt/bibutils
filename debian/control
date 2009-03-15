@@ -26,7 +26,7 @@ Description: interconvert various bibliographic data formats
 Package: libbibutils-dev
 Section: libdevel
 Architecture: any
-Depends: libbibutils1 (= ${binary:Version})
+Depends: libbibutils1 (= ${binary:Version}), ${misc:Depends}
 Description: bibliography file converter, development kit
  Convert between the following bibliographic data formats: BibTeX,
  COPAC, EndNote refer, EndNote XML, Pubmed XML, ISI web of science, US
