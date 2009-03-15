@@ -42,6 +42,9 @@ configure-stamp: $(QUILT_STAMPFN)
 	    -e 's/REPLACE_POSTFIX//' < Makefile_start > Makefile
 	touch $@
 
+override_dh_auto_configure:
+	echo 'skipping dh_auto_configure'
+
 build-stamp: configure-stamp bibutils.1
 	dh_testdir
 	$(MAKE) SOVERSION=$(SOVERSION) install
