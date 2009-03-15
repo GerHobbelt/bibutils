@@ -4,6 +4,7 @@ libbibutils.so.1 libbibutils1 #MINVER#
  adobestd@Base 3.40
  adobesym@Base 3.40
  adsout_write@Base 3.40
+ adsout_writeheader@Base 4.1
  allcharconvert@Base 3.40
  applecro@Base 3.40
  applecyr@Base 3.40
@@ -15,16 +16,28 @@ libbibutils.so.1 libbibutils1 #MINVER#
  appletur@Base 3.40
  atarist@Base 3.40
  bibl_addref@Base 3.40
+ bibl_addtoasis@Base 4.1
+ bibl_addtocorps@Base 4.1
  bibl_copy@Base 3.40
  bibl_free@Base 3.40
+ bibl_freeparams@Base 4.1
  bibl_init@Base 3.40
  bibl_initparams@Base 3.40
  bibl_read@Base 3.40
+ bibl_readasis@Base 4.1
+ bibl_readcorps@Base 4.1
  bibl_reporterr@Base 3.40
  bibl_verbose0@Base 3.40
  bibl_verbose1@Base 3.40
  bibl_verbose2@Base 3.40
  bibl_write@Base 3.40
+ biblatex_all@Base 4.1
+ biblatex_nall@Base 4.1
+ biblatexin_cleanf@Base 4.1
+ biblatexin_convertf@Base 4.1
+ biblatexin_processf@Base 4.1
+ biblatexin_readf@Base 4.1
+ biblatexin_typef@Base 4.1
  bibtex_all@Base 3.40
  bibtex_nall@Base 3.40
  bibtexin_cleanf@Base 3.40
@@ -33,6 +46,7 @@ libbibutils.so.1 libbibutils1 #MINVER#
  bibtexin_readf@Base 3.40
  bibtexin_typef@Base 3.40
  bibtexout_write@Base 3.40
+ bibtexout_writeheader@Base 4.1
  copac_all@Base 3.40
  copac_nall@Base 3.40
  copacin_convertf@Base 3.40
@@ -80,6 +94,7 @@ libbibutils.so.1 libbibutils1 #MINVER#
  endin_readf@Base 3.40
  endin_typef@Base 3.40
  endout_write@Base 3.40
+ endout_writeheader@Base 4.1
  endxmlin_contributor@Base 3.40
  endxmlin_data@Base 3.40
  endxmlin_datar@Base 3.40
@@ -96,20 +111,27 @@ libbibutils.so.1 libbibutils1 #MINVER#
  fields_new@Base 3.40
  fields_setused@Base 3.40
  find@Base 3.40
+ gb18030_decode@Base 4.1
+ gb18030_encode@Base 4.1
+ gb18030_enums@Base 4.1
+ gb18030_to_unicode@Base 4.1
  get_charset@Base 3.40
  get_reftype@Base 3.40
  hp48@Base 3.40
  hproman8@Base 3.40
  html_entities@Base 3.40
  identifier_types@Base 3.40
+ is_doi@Base 4.1
  is_ws@Base 3.40
  isi_all@Base 3.40
  isi_nall@Base 3.40
- isi_write@Base 3.40
+#MISSING: 4.1# isi_write@Base 3.40
  isiin_convertf@Base 3.40
  isiin_processf@Base 3.40
  isiin_readf@Base 3.40
  isiin_typef@Base 3.40
+ isiout_write@Base 4.1
+ isiout_writeheader@Base 4.1
  iso646@Base 3.40
  iso646_ca@Base 3.40
  iso646_ch@Base 3.40
@@ -139,15 +161,30 @@ libbibutils.so.1 libbibutils1 #MINVER#
  iso8859_9@Base 3.40
  koi8_r@Base 3.40
  latex2char@Base 3.40
+ list_add@Base 4.1
  list_charsets@Base 3.40
- lists_add@Base 3.40
- lists_empty@Base 3.40
- lists_fill@Base 3.40
- lists_find@Base 3.40
- lists_free@Base 3.40
- lists_getcharptr@Base 3.40
- lists_getstr@Base 3.40
- lists_init@Base 3.40
+ list_copy@Base 4.1
+ list_dup@Base 4.1
+ list_empty@Base 4.1
+ list_fill@Base 4.1
+ list_find@Base 4.1
+ list_find_or_add@Base 4.1
+ list_findnocase@Base 4.1
+ list_free@Base 4.1
+ list_getstr@Base 4.1
+ list_getstr_char@Base 4.1
+ list_init@Base 4.1
+ list_sort@Base 4.1
+#MISSING: 4.1# lists_add@Base 3.40
+#MISSING: 4.1# lists_empty@Base 3.40
+#MISSING: 4.1# lists_fill@Base 3.40
+#MISSING: 4.1# lists_find@Base 3.40
+#MISSING: 4.1# lists_free@Base 3.40
+#MISSING: 4.1# lists_getcharptr@Base 3.40
+#MISSING: 4.1# lists_getstr@Base 3.40
+#MISSING: 4.1# lists_init@Base 3.40
+ marc_findgenre@Base 4.1
+ marc_findresource@Base 4.1
  medin_convertf@Base 3.40
  medin_processf@Base 3.40
  medin_readf@Base 3.40
@@ -173,6 +210,7 @@ libbibutils.so.1 libbibutils1 #MINVER#
  newstr_free@Base 3.40
  newstr_init@Base 3.40
  newstr_new@Base 3.40
+ newstr_newstrcat@Base 4.1
  newstr_newstrcpy@Base 3.40
  newstr_prepend@Base 3.40
  newstr_segcat@Base 3.40
@@ -185,6 +223,7 @@ libbibutils.so.1 libbibutils1 #MINVER#
  newstr_toupper@Base 3.40
  newstr_trimendingws@Base 3.40
  nextstep@Base 3.40
+ ngb18030_enums@Base 4.1
  nidentifier_types@Base 3.40
  process_findoldtag@Base 3.40
  replace@Base 3.40
@@ -195,6 +234,7 @@ libbibutils.so.1 libbibutils1 #MINVER#
  risin_readf@Base 3.40
  risin_typef@Base 3.40
  risout_write@Base 3.40
+ risout_writeheader@Base 4.1
  skip_notws@Base 3.40
  skip_ws@Base 3.40
  strsearch@Base 3.40
@@ -205,6 +245,7 @@ libbibutils.so.1 libbibutils1 #MINVER#
  uni2latex@Base 3.40
  utf8_decode@Base 3.40
  utf8_encode@Base 3.40
+ utf8_writebom@Base 4.1
  wordout_write@Base 3.40
  wordout_writefooter@Base 3.40
  wordout_writeheader@Base 3.40
