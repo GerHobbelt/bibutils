@@ -22,7 +22,7 @@ License: GPL-2+
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
     02110-1301, USA.
 
-Files: lib/adsabs_journals.c
+Files: lib/adsout_journals.c
 Copyright: NASA Astrophysics Data System Project
 License: GPL-2+
     From: Alberto Accomazzi <aaccomazzi@cfa.harvard.edu>
@@ -96,17 +96,16 @@ License: GPL-2+
     Harvard-Smithsonian Center for Astrophysics      www.cfa.harvard.edu
     60 Garden St, MS 67, Cambridge, MA 02138, USA
 
+Files: bibutils.dbk
+Copyright: 2007 David Bremner <bremner@unb.ca>
+	   2007 Christopher Putnam <cdputnam@ucsd.edu>
+License: GPL-2
+  The man page is licensed under version 2 of the GNU General Public License
  
 Files: debian/*
 Copyright: 2007 David Bremner <bremner@unb.ca>
 License: GPL-2+
  The Debian packaging is licensed under the same terms as the upstream source.
-
-Files: debian/bibutils.dbk
-Copyright: 2007 David Bremner <bremner@unb.ca>
-	   2007 Christopher Putnam <cdputnam@ucsd.edu>
-License: GPL-2
-  The man page is licensed under version 2 of the GNU General Public License
 
 On Debian systems, the complete text of version 2 of the GNU General
    Public License can be found in file "/usr/share/common-licenses/GPL-2".
