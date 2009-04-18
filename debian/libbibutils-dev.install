@@ -1,4 +1,4 @@
-lib/.libs/libbibutils.a usr/lib
+lib/libbibutils.a usr/lib
 lib/.libs/libbibutils.so usr/lib
 lib/bibl.h usr/include/bibutils
 lib/bibtexout.h usr/include/bibutils
