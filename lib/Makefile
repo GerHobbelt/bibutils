@@ -30,10 +30,11 @@ BIBUTILS_OBJS = $(SIMPLE_OBJS) $(NEWSTR_OBJS) $(CONTAIN_OBJS) \
 BIBUTILS_LO=$(subst .o,.lo,$(BIBUTILS_OBJS))
 BIBPROGS_OBJS = bibprogs.o compiledate.o
 
-all:  libbibutils.a 
+all:  libbibutils.a libbibutils.la
 
-libbibutils.a: libbibutils.la
-	rm -f libbibutils.a && ln -s .libs/libbibutils.a .
+libbibutils.a: $(BIBUTILS_OBJS)
+	ar -cr libbibutils.a $(BIBUTILS_OBJS)	
+	$(RANLIB) libibutils.a
 
 libbibutils.la: $(BIBUTILS_LO)
 	libtool --mode=link  $(CC)  -version-info $(SOVERSION) -rpath /usr/lib -o libbibutils.la $(BIBUTILS_LO)
