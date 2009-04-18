@@ -3,7 +3,7 @@
 #
 
 CFLAGS     = -Wall -I ../lib
-LIBDIR     = -L../lib/.libs
+LIBDIR     = -L../lib
 LIBS       = -static -lbibutils
 PROGS      = newstr_test entities_test utf8_test
 
