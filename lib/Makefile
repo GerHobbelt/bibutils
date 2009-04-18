@@ -2,6 +2,7 @@ LD=ld
 CC = gcc
 RANLIB = echo
 CFLAGS ?= -Wall -O2 -g
+SOVERSION ?= 0:0:0
 
 .SUFFIXES: .lo
 .c.lo:
@@ -33,14 +34,14 @@ BIBPROGS_OBJS = bibprogs.o compiledate.o
 all:  libbibutils.a libbibutils.la
 
 libbibutils.a: $(BIBUTILS_OBJS)
-	ar -cr libbibutils.a $(BIBUTILS_OBJS)	
-	$(RANLIB) libibutils.a
+	ar -cr $@ $(BIBUTILS_OBJS)	
+	$(RANLIB) $@
 
-libbibutils.la: $(BIBUTILS_LO)
-	libtool --mode=link  $(CC)  -version-info $(SOVERSION) -rpath /usr/lib -o libbibutils.la $(BIBUTILS_LO)
+libbibutils.la: $(BIBUTILS_LO) $(BIBUTILS_OBJS)
+	libtool --mode=link  $(CC) -version-info $(SOVERSION) -rpath /usr/lib -o $@ $(BIBUTILS_LO)
 
 clean: 
-	/bin/rm -f *.o core
+	/bin/rm -f *.o core *.a *.la
 
 realclean:
 	/bin/rm -rf *.o *.lo *.la *.a .libs core
