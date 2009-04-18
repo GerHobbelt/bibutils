@@ -29,6 +29,8 @@ SOVERSION=$(SO_CURRENT):$(SO_REVISION):$(SO_AGE)
 
 build: test-stamp
 
+configure: configure-stamp
+
 test-stamp: build-stamp
 	dh_testdir
 	cd test && make all && make test
