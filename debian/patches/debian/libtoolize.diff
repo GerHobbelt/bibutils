@@ -8,9 +8,9 @@ Signed-off-by: David Bremner <bremner@unb.ca>
 ---
  Makefile_start |    2 +-
  bin/Makefile   |    2 +-
- lib/Makefile   |   25 ++++++++++++++++++-------
- test/Makefile  |    4 ++--
- 4 files changed, 22 insertions(+), 11 deletions(-)
+ lib/Makefile   |   27 ++++++++++++++++++++-------
+ test/Makefile  |    2 +-
+ 4 files changed, 23 insertions(+), 10 deletions(-)
 
 diff --git a/Makefile_start b/Makefile_start
 index 7c40c1a..7f34098 100644
@@ -39,16 +39,17 @@ index c5b5f57..f3ae3a2 100644
               ris2xml \
               xml2ads xml2bib xml2end xml2isi xml2ris xml2wordbib modsclean
 diff --git a/lib/Makefile b/lib/Makefile
-index 1d4ef90..5f54ba8 100644
+index 1d4ef90..92e0db3 100644
 --- a/lib/Makefile
 +++ b/lib/Makefile
-@@ -1,5 +1,11 @@
+@@ -1,5 +1,12 @@
 -#CC = gcc -Wall 
 -#RANLIB = echo
 +LD=ld
 +CC = gcc
 +RANLIB = echo
 +CFLAGS ?= -Wall -O2 -g
++SOVERSION ?= 0:0:0
 +
 +.SUFFIXES: .lo
 +.c.lo:
@@ -56,7 +57,7 @@ index 1d4ef90..5f54ba8 100644
  
  BIB_OBJS = bbl.o fields.o list.o name.o title.o reftypes.o
  
-@@ -21,16 +27,21 @@ OUTPUT_OBJS   = bibtexout.o endout.o isiout.o modsout.o risout.o wordout.o \
+@@ -21,16 +28,22 @@ OUTPUT_OBJS   = bibtexout.o endout.o isiout.o modsout.o risout.o wordout.o \
  BIBUTILS_OBJS = $(SIMPLE_OBJS) $(NEWSTR_OBJS) $(CONTAIN_OBJS) \
  	$(INPUT_OBJS) $(OUTPUT_OBJS) name.o title.o bibl.o serialno.o bibutils.o
  
@@ -64,19 +65,20 @@ index 1d4ef90..5f54ba8 100644
 +BIBUTILS_LO=$(subst .o,.lo,$(BIBUTILS_OBJS))
 +BIBPROGS_OBJS = bibprogs.o compiledate.o
 +
-+all:  libbibutils.a 
-+
-+libbibutils.a: libbibutils.la
-+	rm -f libbibutils.a && ln -s .libs/libbibutils.a .
++all:  libbibutils.a libbibutils.la
  
--libbibutils.a: $(BIBUTILS_OBJS)
+ libbibutils.a: $(BIBUTILS_OBJS)
 -	ar -cr libbibutils.a $(BIBUTILS_OBJS)
 -	$(RANLIB) libbibutils.a
-+libbibutils.la: $(BIBUTILS_LO)
-+	libtool --mode=link  $(CC)  -version-info $(SOVERSION) -rpath /usr/lib -o libbibutils.la $(BIBUTILS_LO)
++	ar -cr $@ $(BIBUTILS_OBJS)	
++	$(RANLIB) $@
++
++libbibutils.la: $(BIBUTILS_LO) $(BIBUTILS_OBJS)
++	libtool --mode=link  $(CC) -version-info $(SOVERSION) -rpath /usr/lib -o $@ $(BIBUTILS_LO)
  
  clean: 
- 	/bin/rm -f *.o core
+-	/bin/rm -f *.o core
++	/bin/rm -f *.o core *.a *.la
  
  realclean:
 -	/bin/rm -f *.o *.a core
@@ -84,16 +86,14 @@ index 1d4ef90..5f54ba8 100644
  
  test:
 diff --git a/test/Makefile b/test/Makefile
-index c0f005b..afda36f 100644
+index c0f005b..43604dd 100644
 --- a/test/Makefile
 +++ b/test/Makefile
-@@ -3,8 +3,8 @@
- #
+@@ -4,7 +4,7 @@
  
  CFLAGS     = -Wall -I ../lib
--LIBDIR     = -L../lib
+ LIBDIR     = -L../lib
 -LIBS       = -lbibutils 
-+LIBDIR     = -L../lib/.libs
 +LIBS       = -static -lbibutils
  PROGS      = newstr_test entities_test utf8_test
  
