@@ -1,14 +1,13 @@
-bibutils (4.1-1) UNRELEASED; urgency=low
+bibutils (4.1-1) unstable; urgency=low
 
-  * New Upstream Version
+  * New Upstream Version (Closes: #506960)
   * Convert to topgit (Closes: #485243)
-  * Patch by Rafael Laboissiere for medline tags (Closes: #506960)
   * Change maintainer to debian-science-maintainers@lists.alioth.debian.org
   * Update Vcs-Git and Vcs-Browser
   * Converted packaging to topgit
-  * Upgraded to standards version 3.8.0 (added debian/README.source)
+  * Upgraded to standards version 3.8.1 (added debian/README.source)
   
- -- David Bremner <bremner@unb.ca>  Wed, 24 Dec 2008 10:50:55 -0400
+ -- David Bremner <bremner@unb.ca>  Sun, 15 Mar 2009 12:48:29 -0300
 
 bibutils (3.40-4) unstable; urgency=low
 
