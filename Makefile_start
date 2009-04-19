@@ -10,8 +10,8 @@ PROGRAMS=bib2xml ris2xml end2xml endx2xml med2xml isi2xml copac2xml \
 	xml2ads xml2bib xml2end xml2isi xml2ris xml2wordbib modsclean
 
 all : FORCE
-	cd lib; make -k $(CC) -k $(RANLIB) SOVERSION=$(SOVERSION); cd ..
-	cd bin; make -k $(CC) -k VERSION="$(VERSION)" -k DATE="$(DATE)"; cd ..
+	cd lib; make -k $(RANLIB) SOVERSION=$(SOVERSION); cd ..
+	cd bin; make -k $(CC) VERSION="$(VERSION)" -k DATE="$(DATE)"; cd ..
 
 clean: FORCE
 	cd lib     ; make clean ; cd ..
