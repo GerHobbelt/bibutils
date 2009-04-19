@@ -38,7 +38,7 @@ libbibutils.a: $(BIBUTILS_OBJS)
 	$(RANLIB) $@
 
 libbibutils.la: $(BIBUTILS_LO) $(BIBUTILS_OBJS)
-	libtool --mode=link  $(CC) -version-info $(SOVERSION) -rpath /usr/lib -o $@ $(BIBUTILS_LO)
+	libtool --mode=link  $(CC) -version-info $(SOVERSION) -shared -rpath /usr/lib -o $@ $(BIBUTILS_LO)
 
 clean: 
 	/bin/rm -f *.o core *.a *.la
