@@ -1,3 +1,10 @@
+bibutils (4.1-2) unstable; urgency=low
+
+  * make /usr/lib/libbibutils.so point to /usr/lib/libbibutils.so.1 (the
+    soname)
+
+ -- David Bremner <bremner@unb.ca>  Sun, 21 Jun 2009 14:46:42 -0300
+
 bibutils (4.1-1) unstable; urgency=low
 
   * New Upstream Version (Closes: #506960)
