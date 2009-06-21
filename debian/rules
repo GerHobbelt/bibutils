@@ -26,6 +26,7 @@ SO_CURRENT=1
 SO_REVISION=0
 SO_AGE=0
 SOVERSION=$(SO_CURRENT):$(SO_REVISION):$(SO_AGE)
+SONAME="libbibutils.so."$(SO_CURRENT)
 
 build: test-stamp
 
@@ -68,9 +69,10 @@ clean:  unpatch
 	rm -rf lib/.libs lib/*.lo lib/*.la
 	dh_clean bibutils.1 Makefile
 
-
 install: build
 	dh install
+	#this is a bit crude, but dh_install and dh_link are both being too clever.
+	mkdir -p debian/libbibutils-dev/usr/lib && ln -sf $(SONAME) debian/libbibutils-dev/usr/lib/libbibutils.so
 
 # Build architecture-independent files here.
 binary-indep: build install
