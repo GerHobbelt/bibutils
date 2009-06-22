@@ -1,0 +1,6 @@
+bibutils.1 
+lib/*.lo 
+lib/*.la
+lib/*.so
+Makefile
+
