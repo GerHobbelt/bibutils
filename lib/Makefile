@@ -37,13 +37,19 @@ libbibutils.a: $(BIBUTILS_OBJS)
 	ar -cr $@ $(BIBUTILS_OBJS)	
 	$(RANLIB) $@
 
-libbibutils.la: $(BIBUTILS_LO) $(BIBUTILS_OBJS)
+SOLIB=$(shell find .libs -type f -name 'libbibutils.so.*') 
+SONAME=$(shell objdump -p $(SOLIB) | sed -n 's/^[ ]*SONAME[ ]*\(.*\)/\1/p' )
+
+libbibutils.so: libbibutils.la
+	ln -sf $(SONAME) $@
+
+libbibutils.la: $(BIBUTILS_LO) 
 	libtool --mode=link  $(CC) -version-info $(SOVERSION) -shared -rpath /usr/lib -o $@ $(BIBUTILS_LO)
 
 clean: 
-	/bin/rm -f *.o core *.a *.la
+	/bin/rm -fr *.o core *.a *.la *.lo .libs
 
 realclean:
-	/bin/rm -rf *.o *.lo *.la *.a .libs core
+	/bin/rm -rf *.o *.lo *.la *.lo *.a .libs core
 
 test:
