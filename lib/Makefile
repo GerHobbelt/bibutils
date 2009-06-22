@@ -37,12 +37,6 @@ libbibutils.a: $(BIBUTILS_OBJS)
 	ar -cr $@ $(BIBUTILS_OBJS)	
 	$(RANLIB) $@
 
-SOLIB=$(shell find .libs -type f -name 'libbibutils.so.*') 
-SONAME=$(shell objdump -p $(SOLIB) | sed -n 's/^[ ]*SONAME[ ]*\(.*\)/\1/p' )
-
-libbibutils.so: libbibutils.la
-	ln -sf $(SONAME) $@
-
 libbibutils.la: $(BIBUTILS_LO) 
 	libtool --mode=link  $(CC) -version-info $(SOVERSION) -shared -rpath /usr/lib -o $@ $(BIBUTILS_LO)
 
