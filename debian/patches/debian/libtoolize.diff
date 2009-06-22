@@ -13,7 +13,7 @@ Signed-off-by: David Bremner <bremner@unb.ca>
  4 files changed, 25 insertions(+), 12 deletions(-)
 
 diff --git a/Makefile_start b/Makefile_start
-index 7c40c1a..e0270ba 100644
+index 7c40c1a..3ed655d 100644
 --- a/Makefile_start
 +++ b/Makefile_start
 @@ -2,7 +2,7 @@ POSTFIX=REPLACE_POSTFIX
@@ -21,7 +21,7 @@ index 7c40c1a..e0270ba 100644
  RANLIB=REPLACE_RANLIB
  INSTALLDIR=REPLACE_INSTALLDIR
 -
-+SOVERSION ?= 0.0.0
++SOVERSION ?= 0:0:0
  VERSION=4.1
  DATE=12/21/08
  
@@ -50,7 +50,7 @@ index c5b5f57..f3ae3a2 100644
               ris2xml \
               xml2ads xml2bib xml2end xml2isi xml2ris xml2wordbib modsclean
 diff --git a/lib/Makefile b/lib/Makefile
-index 1d4ef90..2c543d9 100644
+index 1d4ef90..5bbdcc5 100644
 --- a/lib/Makefile
 +++ b/lib/Makefile
 @@ -1,5 +1,12 @@
@@ -84,16 +84,16 @@ index 1d4ef90..2c543d9 100644
 +	ar -cr $@ $(BIBUTILS_OBJS)	
 +	$(RANLIB) $@
 +
-+libbibutils.la: $(BIBUTILS_LO) $(BIBUTILS_OBJS)
++libbibutils.la: $(BIBUTILS_LO) 
 +	libtool --mode=link  $(CC) -version-info $(SOVERSION) -shared -rpath /usr/lib -o $@ $(BIBUTILS_LO)
  
  clean: 
 -	/bin/rm -f *.o core
-+	/bin/rm -f *.o core *.a *.la
++	/bin/rm -fr *.o core *.a *.la *.lo .libs
  
  realclean:
 -	/bin/rm -f *.o *.a core
-+	/bin/rm -rf *.o *.lo *.la *.a .libs core
++	/bin/rm -rf *.o *.lo *.la *.lo *.a .libs core
  
  test:
 diff --git a/test/Makefile b/test/Makefile
@@ -110,4 +110,4 @@ index c0f005b..43604dd 100644
  
  all: $(PROGS)
 -- 
-tg: (2bf8532..) debian/libtoolize (depends on: master)
+tg: (7221d3c..) debian/libtoolize (depends on: master)
