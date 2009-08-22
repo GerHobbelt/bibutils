@@ -1,0 +1,6 @@
+From: David Bremner <bremner@unb.ca>
+Subject: [PATCH] debian/libtoolize
+
+Use libtool to create a shared library
+
+Signed-off-by: David Bremner <bremner@unb.ca>

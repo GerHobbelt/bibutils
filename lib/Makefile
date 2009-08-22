@@ -1,5 +1,12 @@
-#CC = gcc -Wall 
-#RANLIB = echo
+LD=ld
+CC = gcc
+RANLIB = echo
+CFLAGS ?= -Wall -O2 -g
+SOVERSION ?= 0:0:0
+
+.SUFFIXES: .lo
+.c.lo:
+	 libtool --mode=compile $(CC) -c $(CFLAGS) -o $@ $<
 
 BIB_OBJS = bbl.o fields.o list.o name.o title.o doi.o reftypes.o
 
@@ -22,16 +29,22 @@ OUTPUT_OBJS   = bibtexout.o endout.o isiout.o modsout.o risout.o wordout.o \
 BIBUTILS_OBJS = $(SIMPLE_OBJS) $(NEWSTR_OBJS) $(CONTAIN_OBJS) \
 	$(INPUT_OBJS) $(OUTPUT_OBJS) name.o title.o doi.o bibl.o serialno.o bibutils.o
 
-all:  libbibutils.a
+BIBUTILS_LO=$(subst .o,.lo,$(BIBUTILS_OBJS))
+BIBPROGS_OBJS = bibprogs.o compiledate.o
+
+all:  libbibutils.a libbibutils.la
 
 libbibutils.a: $(BIBUTILS_OBJS)
-	ar -cr libbibutils.a $(BIBUTILS_OBJS)
-	$(RANLIB) libbibutils.a
+	ar -cr $@ $(BIBUTILS_OBJS)	
+	$(RANLIB) $@
+
+libbibutils.la: $(BIBUTILS_LO) 
+	libtool --mode=link  $(CC) -version-info $(SOVERSION) -shared -rpath /usr/lib -o $@ $(BIBUTILS_LO)
 
 clean: 
-	/bin/rm -f *.o core
+	/bin/rm -fr *.o core *.a *.la *.lo .libs
 
 realclean:
-	/bin/rm -f *.o *.a core
+	/bin/rm -rf *.o *.lo *.la *.lo *.a .libs core
 
 test:
