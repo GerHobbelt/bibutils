@@ -28,59 +28,26 @@ SO_AGE=0
 SOVERSION=$(SO_CURRENT):$(SO_REVISION):$(SO_AGE)
 SONAME="libbibutils.so."$(SO_CURRENT)
 
-build: test-stamp
+INSTALLDIR=$(CURDIR)/debian/tmp/bin
 
-configure: configure-stamp
+%:
+	dh --with quilt  $@
 
-test-stamp: build-stamp
-	dh_testdir
-	cd test && make all && make test
-	touch $@
-
-configure-stamp: $(QUILT_STAMPFN)
+override_dh_auto_configure:
 	# do the sed ourselves to avoid build dependency on csh
 	sed -e 's/REPLACE_CC/CC="cc -Wall"/' \
 	    -e 's/REPLACE_RANLIB/RANLIB="ranlib"/'  \
 	    -e "s|REPLACE_INSTALLDIR|${INSTALLDIR}|"  \
 	    -e 's/REPLACE_POSTFIX//' < Makefile_start > Makefile
-	touch $@
 
-override_dh_auto_configure:
-	echo 'skipping dh_auto_configure'
+override_dh_auto_build:
+	$(MAKE) SOVERSION=$(SOVERSION) all
+	$(XP) -o bibutils.1 $(DB2MAN) bibutils.dbk
+	make -C test all
+	make -C test test
 
-build-stamp: configure-stamp bibutils.1
-	dh_testdir
+override_dh_auto_install:
+	mkdir -p ${INSTALLDIR}
 	$(MAKE) SOVERSION=$(SOVERSION) install
-	touch $@
-
-bibutils.dbk: $(QUILT_STAMPFN)
-
-bibutils.1: bibutils.dbk
-	$(XP) -o $@ $(DB2MAN) $<
 
 
-clean:  unpatch
-	dh_testdir
-	dh_testroot
-	rm -f configure-stamp build-stamp test-stamp
-	$(MAKE) -f Makefile_start realclean
-	make -f debian/rules unpatch
-	# this is here so we don't have to repatch before clean
-	rm -rf lib/.libs 
-	dh_clean
-
-install: build
-	dh install
-	#this is a bit crude, but dh_install and dh_link are both being too clever.
-	mkdir -p debian/libbibutils-dev/usr/lib && ln -sf $(SONAME) debian/libbibutils-dev/usr/lib/libbibutils.so
-
-# Build architecture-independent files here.
-binary-indep: build install
-# We have nothing to do by default.
-
-# Build architecture-dependent files here.
-binary-arch: build install
-	dh binary-arch
-
-binary: binary-indep binary-arch
-.PHONY: build clean binary-indep binary-arch binary install 
