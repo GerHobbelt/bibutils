@@ -29,6 +29,7 @@ SOVERSION=$(SO_CURRENT):$(SO_REVISION):$(SO_AGE)
 SONAME="libbibutils.so."$(SO_CURRENT)
 
 INSTALLDIR=$(CURDIR)/debian/tmp/bin
+DEVLIB=${CURDIR}/debian/libbibutils-dev/usr/lib
 
 %:
 	dh --with quilt  $@
@@ -49,5 +50,5 @@ override_dh_auto_build:
 override_dh_auto_install:
 	mkdir -p ${INSTALLDIR}
 	$(MAKE) SOVERSION=$(SOVERSION) install
-
+	mkdir -p ${DEVLIB} && ln -s ${DEVLIB}/${SONAME} ${DEVLIB}/libbibutils.so
 
