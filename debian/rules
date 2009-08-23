@@ -50,5 +50,5 @@ override_dh_auto_build:
 override_dh_auto_install:
 	mkdir -p ${INSTALLDIR}
 	$(MAKE) SOVERSION=$(SOVERSION) install
-	mkdir -p ${DEVLIB} && ln -s ${DEVLIB}/${SONAME} ${DEVLIB}/libbibutils.so
+	mkdir -p ${DEVLIB} && ln -s ${SONAME} ${DEVLIB}/libbibutils.so
 
