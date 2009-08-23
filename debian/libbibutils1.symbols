@@ -14,6 +14,7 @@ libbibutils.so.1 libbibutils1 #MINVER#
  applerom@Base 4.1
  applerum@Base 4.1
  appletur@Base 4.1
+ arxiv_to_url@Base 4.3
  atarist@Base 4.1
  bibl_addref@Base 4.1
  bibl_addtoasis@Base 4.1
@@ -82,13 +83,18 @@ libbibutils.so.1 libbibutils1 #MINVER#
  cp895@Base 4.1
  decmcs@Base 4.1
  decode_entity@Base 4.1
+ doi_to_url@Base 4.3
  ebc037@Base 4.1
  ebc1026@Base 4.1
  ebc1047@Base 4.1
  ebc500@Base 4.1
  ebc875@Base 4.1
+ ebiin_convertf@Base 4.3
+ ebiin_processf@Base 4.3
+ ebiin_readf@Base 4.3
  end_all@Base 4.1
  end_nall@Base 4.1
+ endin_cleanf@Base 4.3
  endin_convertf@Base 4.1
  endin_processf@Base 4.1
  endin_readf@Base 4.1
@@ -215,7 +221,9 @@ libbibutils.so.1 libbibutils1 #MINVER#
  newstr_trimendingws@Base 4.1
  nextstep@Base 4.1
  ngb18030_enums@Base 4.1
+ ngenres@Base 4.3
  nidentifier_types@Base 4.1
+ pmid_to_url@Base 4.3
  process_findoldtag@Base 4.1
  replace@Base 4.1
  ris_all@Base 4.1
@@ -237,6 +245,9 @@ libbibutils.so.1 libbibutils1 #MINVER#
  utf8_decode@Base 4.1
  utf8_encode@Base 4.1
  utf8_writebom@Base 4.1
+ wordin_convertf@Base 4.3
+ wordin_processf@Base 4.3
+ wordin_readf@Base 4.3
  wordout_write@Base 4.1
  wordout_writefooter@Base 4.1
  wordout_writeheader@Base 4.1
