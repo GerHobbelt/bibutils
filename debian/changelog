@@ -4,6 +4,7 @@ bibutils (4.3-1) unstable; urgency=low
   * make /usr/lib/libbibutils.so point to /usr/lib/libbibutils.so.1 (the
     soname)
   * Link binaries dynamically again
+  * Update to new standars version 3.8.3 (no changes)
   
  -- David Bremner <bremner@unb.ca>  Sun, 23 Aug 2009 10:17:54 -0400
 
