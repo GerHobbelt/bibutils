@@ -6,14 +6,14 @@ Use libtool to create a shared library
 Signed-off-by: David Bremner <bremner@unb.ca>
 
 ---
- Makefile_start |    6 +++---
- bin/Makefile   |    2 +-
- lib/Makefile   |   27 ++++++++++++++++++++-------
+ Makefile_start |    6 ++--
+ bin/Makefile   |   71 ++++++++++++++++++++++++++++---------------------------
+ lib/Makefile   |   27 +++++++++++++++-----
  test/Makefile  |    2 +-
- 4 files changed, 25 insertions(+), 12 deletions(-)
+ 4 files changed, 60 insertions(+), 46 deletions(-)
 
 diff --git a/Makefile_start b/Makefile_start
-index 7c40c1a..3ed655d 100644
+index 2400829..0ef0446 100644
 --- a/Makefile_start
 +++ b/Makefile_start
 @@ -2,7 +2,7 @@ POSTFIX=REPLACE_POSTFIX
@@ -22,8 +22,8 @@ index 7c40c1a..3ed655d 100644
  INSTALLDIR=REPLACE_INSTALLDIR
 -
 +SOVERSION ?= 0:0:0
- VERSION=4.1
- DATE=12/21/08
+ VERSION=4.3
+ DATE=07/31/09
  
 @@ -10,8 +10,8 @@ PROGRAMS=bib2xml ris2xml end2xml endx2xml med2xml isi2xml copac2xml \
  	xml2ads xml2bib xml2end xml2isi xml2ris xml2wordbib modsclean
@@ -37,20 +37,116 @@ index 7c40c1a..3ed655d 100644
  clean: FORCE
  	cd lib     ; make clean ; cd ..
 diff --git a/bin/Makefile b/bin/Makefile
-index c5b5f57..f3ae3a2 100644
+index c9d37f0..eccb792 100644
 --- a/bin/Makefile
 +++ b/bin/Makefile
-@@ -3,7 +3,7 @@
+@@ -3,6 +3,7 @@
  #
  
  CFLAGS     = -I ../lib
--LIBDIR     = -L../lib
-+LIBDIR     = -L../lib/.libs -L../lib
++LDFLAGS	   = -L../lib/.libs -lbibutils
+ LIBDIR     = -L../lib
  PROGS      = bib2xml biblatex2xml copac2xml end2xml endx2xml isi2xml med2xml \
-              ris2xml \
-              xml2ads xml2bib xml2end xml2isi xml2ris xml2wordbib modsclean
+              ris2xml ebi2xml wordbib2xml \
+@@ -13,61 +14,61 @@ all: $(PROGS)
+ args.o : args.c
+ 	$(CC) $^ -DCURR_VERSION="\"$(VERSION)\"" -DCURR_DATE="\"$(DATE)\"" $(CFLAGS) -c -o $@
+ 
+-bib2xml : bib2xml.o bibprog.o tomods.o args.o ../lib/libbibutils.a
+-	$(CC) $^ -o $@
++bib2xml : bib2xml.o bibprog.o tomods.o args.o
++#	$(CC) $^ -o $@
+ 
+-biblatex2xml : biblatex2xml.o bibprog.o tomods.o args.o ../lib/libbibutils.a
+-	$(CC) $^ -o $@
++biblatex2xml : biblatex2xml.o bibprog.o tomods.o args.o
++#	$(CC) $^ -o $@
+ 
+-copac2xml : copac2xml.o bibprog.o tomods.o args.o  ../lib/libbibutils.a
+-	$(CC) $^ -o $@
++copac2xml : copac2xml.o bibprog.o tomods.o args.o 
++#	$(CC) $^ -o $@
+ 
+-ebi2xml : ebi2xml.o bibprog.o tomods.o args.o ../lib/libbibutils.a
+-	$(CC) $^ -o $@
++ebi2xml : ebi2xml.o bibprog.o tomods.o args.o
++#	$(CC) $^ -o $@
+ 
+-end2xml : end2xml.o bibprog.o tomods.o args.o ../lib/libbibutils.a
+-	$(CC) $^ -o $@
++end2xml : end2xml.o bibprog.o tomods.o args.o
++#	$(CC) $^ -o $@
+ 
+-endx2xml : endx2xml.o bibprog.o tomods.o args.o ../lib/libbibutils.a
+-	$(CC) $^ -o $@
++endx2xml : endx2xml.o bibprog.o tomods.o args.o
++#	$(CC) $^ -o $@
+ 
+-isi2xml : isi2xml.o bibprog.o tomods.o args.o ../lib/libbibutils.a
+-	$(CC) $^ -o $@
++isi2xml : isi2xml.o bibprog.o tomods.o args.o
++#	$(CC) $^ -o $@
+ 
+-med2xml : med2xml.o bibprog.o tomods.o args.o ../lib/libbibutils.a
+-	$(CC) $^ -o $@
++med2xml : med2xml.o bibprog.o tomods.o args.o
++#	$(CC) $^ -o $@
+ 
+-wordbib2xml : wordbib2xml.o bibprog.o tomods.o args.o ../lib/libbibutils.a
+-	$(CC) $^ -o $@
++wordbib2xml : wordbib2xml.o bibprog.o tomods.o args.o
++#	$(CC) $^ -o $@
+ 
+-ris2xml : ris2xml.o bibprog.o tomods.o args.o ../lib/libbibutils.a
+-	$(CC) $^ -o $@
++ris2xml : ris2xml.o bibprog.o tomods.o args.o
++#	$(CC) $^ -o $@
+ 
+-xml2ads : xml2ads.o bibprog.o args.o ../lib/libbibutils.a
+-	$(CC) $^ -o $@
++xml2ads : xml2ads.o bibprog.o args.o
++#	$(CC) $^ -o $@
+ 
+-xml2bib : xml2bib.o bibprog.o args.o ../lib/libbibutils.a
+-	$(CC) $^ -o $@
++xml2bib : xml2bib.o bibprog.o args.o
++#	$(CC) $^ -o $@
+ 
+-xml2end : xml2end.o bibprog.o args.o ../lib/libbibutils.a
+-	$(CC) $^ -o $@
++xml2end : xml2end.o bibprog.o args.o
++#	$(CC) $^ -o $@
+ 
+-xml2isi : xml2isi.o bibprog.o args.o ../lib/libbibutils.a
+-	$(CC) $^ -o $@
++xml2isi : xml2isi.o bibprog.o args.o
++#	$(CC) $^ -o $@
+ 
+-xml2ris : xml2ris.o bibprog.o args.o ../lib/libbibutils.a
+-	$(CC) $^ -o $@
++xml2ris : xml2ris.o bibprog.o args.o
++#	$(CC) $^ -o $@
+ 
+-xml2wordbib : xml2wordbib.o bibprog.o args.o ../lib/libbibutils.a
+-	$(CC) $^ -o $@
++xml2wordbib : xml2wordbib.o bibprog.o args.o
++#	$(CC) $^ -o $@
+ 
+-modsclean : modsclean.o bibprog.o tomods.o args.o ../lib/libbibutils.a
+-	$(CC) $^ -o $@
++modsclean : modsclean.o bibprog.o tomods.o args.o
++#	$(CC) $^ -o $@
+ 
+ test:
+ 
+ clean:
+-	rm -f *.o core 
++	rm -f *.o core
+ 
+ realclean:
+ 	rm -f *.o core $(PROGS)
 diff --git a/lib/Makefile b/lib/Makefile
-index 1d4ef90..5bbdcc5 100644
+index c2751ac..68d1f39 100644
 --- a/lib/Makefile
 +++ b/lib/Makefile
 @@ -1,5 +1,12 @@
@@ -66,11 +162,11 @@ index 1d4ef90..5bbdcc5 100644
 +.c.lo:
 +	 libtool --mode=compile $(CC) -c $(CFLAGS) -o $@ $<
  
- BIB_OBJS = bbl.o fields.o list.o name.o title.o reftypes.o
+ BIB_OBJS = bbl.o fields.o list.o name.o title.o doi.o reftypes.o
  
-@@ -21,16 +28,22 @@ OUTPUT_OBJS   = bibtexout.o endout.o isiout.o modsout.o risout.o wordout.o \
+@@ -22,16 +29,22 @@ OUTPUT_OBJS   = bibtexout.o endout.o isiout.o modsout.o risout.o wordout.o \
  BIBUTILS_OBJS = $(SIMPLE_OBJS) $(NEWSTR_OBJS) $(CONTAIN_OBJS) \
- 	$(INPUT_OBJS) $(OUTPUT_OBJS) name.o title.o bibl.o serialno.o bibutils.o
+ 	$(INPUT_OBJS) $(OUTPUT_OBJS) name.o title.o doi.o bibl.o serialno.o bibutils.o
  
 -all:  libbibutils.a
 +BIBUTILS_LO=$(subst .o,.lo,$(BIBUTILS_OBJS))
@@ -110,4 +206,4 @@ index c0f005b..43604dd 100644
  
  all: $(PROGS)
 -- 
-tg: (7221d3c..) debian/libtoolize (depends on: master)
+tg: (b06ca14..) debian/libtoolize (depends on: master)
