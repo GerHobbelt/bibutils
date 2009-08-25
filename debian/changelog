@@ -1,6 +1,7 @@
 bibutils (4.3-2) unstable; urgency=low
 
   * add versioned build dependency on quilt to support dh --quilt
+  * add DM-Upload-Allowed flag
 
  -- David Bremner <bremner@unb.ca>  Mon, 24 Aug 2009 21:21:10 -0400
 
