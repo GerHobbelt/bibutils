@@ -3,11 +3,13 @@ Section: text
 Priority: optional
 Maintainer: Debian Science Maintainers <debian-science-maintainers@lists.alioth.debian.org>
 Uploaders: David Bremner <bremner@unb.ca>
-Build-Depends: debhelper (>= 7.0.50),   xsltproc, docbook-xsl, docbook-xml, quilt, libtool
+Build-Depends: debhelper (>= 7.0.50),   xsltproc, docbook-xsl, docbook-xml, 
+	       quilt (>=0.46-7), libtool
 Standards-Version: 3.8.3
 Homepage: http://www.scripps.edu/~cdputnam/software/bibutils/
 Vcs-Git: git://git.debian.org/git/debian-science/packages/bibutils/
 Vcs-Browser: http://git.debian.org/?p=debian-science/packages/bibutils.git
+DM-Upload-Allowed: yes
 
 Package: bibutils
 Architecture: any
