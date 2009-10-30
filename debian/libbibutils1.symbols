@@ -111,6 +111,7 @@ libbibutils.so.1 libbibutils1 #MINVER#
  fields_add_tagsuffix@Base 4.1
  fields_clearused@Base 4.1
  fields_find@Base 4.1
+ fields_find_firstof@Base 4.5
  fields_free@Base 4.1
  fields_init@Base 4.1
  fields_maxlevel@Base 4.1
