@@ -59,7 +59,8 @@ endin_readf( FILE *fp, char *buf, int bufsize, int *bufpos, newstr *line, newstr
 		/* Skip <feff> Unicode header information */
 		/* <feff> = ef bb bf */
 		up = (unsigned char* ) p;
-		if ( *up==239 && *(up+1)==187 && *(up+2)==191 ) {
+		if ( line->len > 2 && up[0]==0xEF && up[1]==0xBB &&
+				up[2]==0xBF ) {
 			*fcharset = CHARSET_UNICODE;
 			p += 3;
 		}
@@ -178,6 +179,7 @@ addtype( fields *info, char *data, int level )
 		{ "HEARING", "HEARING" },
 		{ "STATUTE", "STATUTE" },
 		{ "CHART OR TABLE", "CHART" },
+		{ "WEB PAGE", "WEBPAGE" },
 	};
 	int  ntypes = sizeof( types ) / sizeof( lookups );
 	int  i, found=0;
@@ -273,18 +275,18 @@ adddate( fields *info, char *tag, char *newtag, char *p, int level )
  * if !%B & !%J & !%R & !%I - journal article
  */
 int
-endin_typef( fields *endin, char *filename, int nrefs, param *p, variants *all,
-		int nall )
+endin_typef( fields *endin, char *filename, int nrefs, param *p, 
+	variants *all, int nall )
 {
 	char *refnum = "";
 	int n, reftype, nrefnum, nj, nv, nb, nr, nt, ni;
 	n = fields_find( endin, "%0", 0 );
 	nrefnum = fields_find( endin, "%F", 0 );
 	if ( nrefnum!=-1 ) refnum = endin->data[nrefnum].data;
-	if ( n!=-1 )
-		reftype = get_reftype( endin->data[n].data, nrefs, p->progname,
-			all, nall, refnum );
-	else {
+	if ( n!=-1 ) {
+		reftype = get_reftype( endin->data[n].data, nrefs, 
+			p->progname, all, nall, refnum );
+	} else {
 		nj = fields_find( endin, "%J", 0 );
 		nv = fields_find( endin, "%V", 0 );
 		nb = fields_find( endin, "%B", 0 );
@@ -431,7 +433,8 @@ endin_convertf( fields *endin, fields *info, int reftype, param *p, variants *al
 		else if ( process==TYPE )
 			addtype( info, d->data, level );
 		else if ( process==TITLE )
-			title_process( info, newtag, d->data, level );
+			title_process( info, newtag, d->data, level, 
+					p->nosplittitle );
 		else if ( process==PERSON )
 			name_add( info, newtag, d->data, level, 
 					&(p->asis), &(p->corps) );
