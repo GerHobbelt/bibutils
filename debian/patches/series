@@ -1,1 +1,2 @@
 debian/mkshlibs.diff -p1
+fix/name_comma.diff -p1
