@@ -8,7 +8,8 @@
 include /usr/share/quilt/quilt.make
 
 TG_BRANCHES=debian/mkshlibs fix/name_comma
--include /usr/share/topgit/tg2quilt.mk
+# wildcard is to avoid a warning from dh when topgit is not installed
+include $(wildcard /usr/share/topgit/tg2quilt.mk)
 
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
