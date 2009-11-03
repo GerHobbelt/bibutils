@@ -173,8 +173,7 @@ static void
 bibtex_addstring( char *p )
 {
 	newstr s1, s2;
-	newstr_init( &s1 );
-	newstr_init( &s2 );
+	newstrs_init( &s1, &s2, NULL );
 	p = skip_ws( p );
 	if ( *p=='(' || *p=='{' ) p++;
 	p = process_bibtexline( p, &s1, &s2 );
@@ -185,8 +184,7 @@ bibtex_addstring( char *p )
 		if ( s2.data ) list_add( &replace, s2.data );
 		else list_add( &replace, "" );
 	}
-	newstr_free( &s1 );
-	newstr_free( &s2 );
+	newstrs_free( &s1, &s2, NULL );
 }
 
 static int
@@ -317,8 +315,7 @@ static void
 process_cite( fields *bibin, char *p, char *filename, long nref )
 {
 	newstr tag, data;
-	newstr_init( &tag );
-	newstr_init( &data );
+	newstrs_init( &tag, &data, NULL );
 	p = process_bibtextype( p, &data );
 	if ( data.len ) fields_add( bibin, "TYPE", data.data, 0 );
 	if ( *p ) p = process_bibtexid ( p, &data );
@@ -329,11 +326,9 @@ process_cite( fields *bibin, char *p, char *filename, long nref )
 		/* no anonymous or empty fields allowed */
 		if ( tag.len && data.len )
 			fields_add( bibin, tag.data, data.data, 0 );
-		newstr_empty( &tag );
-		newstr_empty( &data );
+		newstrs_empty( &tag, &data, NULL );
 	}
-	newstr_free( &tag );
-	newstr_free( &data );
+	newstrs_free( &tag, &data, NULL );
 }
 
 static void
@@ -517,9 +512,7 @@ process_pages( fields *info, newstr *s, int level )
 	char *p, *q;
 	newstr sp, ep;
 
-	newstr_init( &sp );
-	newstr_init( &ep );
-
+	newstrs_init( &sp, &ep, NULL );
 	newstr_findreplace( s, " ", "" );
 
 	p = q = s->data;
@@ -536,8 +529,7 @@ process_pages( fields *info, newstr *s, int level )
 	if ( ep.len>0 )
 		fields_add( info, "PAGEEND", ep.data, level );
 
-	newstr_free(&sp);
-	newstr_free(&ep);
+	newstrs_free( &sp, &ep, NULL );
 }
 
 static void

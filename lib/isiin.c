@@ -111,11 +111,9 @@ isiin_processf( fields *isiin, char *p, char *filename, long nref )
 {
 	newstr tag, data;
 	int n;
-	newstr_init( &tag );
-	newstr_init( &data );
+	newstrs_init( &tag, &data, NULL );
 	while ( *p ) {
-		newstr_empty( &tag );
-		newstr_empty( &data );
+		newstrs_empty( &tag, &data, NULL );
 		p = process_isiline( &tag, &data, p );
 		if ( !data.len ) continue;
 		if ( (tag.len>1) && isiin_istag( tag.data ) ) {
@@ -137,8 +135,7 @@ isiin_processf( fields *isiin, char *p, char *filename, long nref )
 			}
 		}
 	}
-	newstr_free( &data );
-	newstr_free( &tag );
+	newstrs_free( &data, &tag, NULL );
 	return 1;
 }
 
