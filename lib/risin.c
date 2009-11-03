@@ -132,14 +132,12 @@ int
 risin_processf( fields *risin, char *p, char *filename, long nref )
 {
 	newstr tag, data;
-	newstr_init( &tag );
-	newstr_init( &data );
+	newstrs_init( &tag, &data, NULL );
 
 	while ( *p ) {
 		if ( risin_istag( p ) ) {
 		p = process_line( &tag, &data, p );
 		/* no anonymous fields allowed */
-/*		if ( tag.len && data.len )*/
 		if ( tag.len )
 			fields_add( risin, tag.data, data.data, 0 );
 		} else {
@@ -151,12 +149,10 @@ risin_processf( fields *risin, char *p, char *filename, long nref )
 				newstr_strcat( od, data.data );
 			}
 		}
-		newstr_empty( &tag );
-		newstr_empty( &data );
+		newstrs_empty( &tag, &data, NULL );
 	}
 
-	newstr_free( &tag );
-	newstr_free( &data );
+	newstrs_free( &tag, &data, NULL );
 	return 1;
 }
 
