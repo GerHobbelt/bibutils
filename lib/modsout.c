@@ -139,8 +139,7 @@ output_name( FILE *outptr, char *p, int level )
 	newstr family, part;
 	int n=0;
 
-	newstr_init( &family );
-	newstr_init( &part );
+	newstrs_init( &family, &part, NULL );
 
 	while ( *p && *p!='|' ) newstr_addchar( &family, *p++ );
 	if ( *p=='|' ) p++;
@@ -170,8 +169,7 @@ output_name( FILE *outptr, char *p, int level )
 				family.data, 1 );
 	}
 
-	newstr_free( &part );
-	newstr_free( &family );
+	newstrs_free( &part, &family, NULL );
 }
 
 
