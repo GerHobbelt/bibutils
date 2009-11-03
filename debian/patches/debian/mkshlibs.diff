@@ -14,7 +14,7 @@ Signed-off-by: David Bremner <bremner@unb.ca>
  4 files changed, 60 insertions(+), 46 deletions(-)
 
 diff --git a/Makefile_start b/Makefile_start
-index 9fc6c9b..4dc1114 100644
+index 8bd3c93..51881d3 100644
 --- a/Makefile_start
 +++ b/Makefile_start
 @@ -2,7 +2,7 @@ POSTFIX=REPLACE_POSTFIX
@@ -23,10 +23,10 @@ index 9fc6c9b..4dc1114 100644
  INSTALLDIR=REPLACE_INSTALLDIR
 -
 +SOVERSION ?= 0:0:0
- VERSION=4.5
- DATE=10/24/09
+ VERSION=4.6
+ DATE=11/02/09
  
-@@ -10,8 +10,8 @@ PROGRAMS=bib2xml ris2xml end2xml endx2xml med2xml isi2xml copac2xml ebi2xml \
+@@ -11,8 +11,8 @@ PROGRAMS=bib2xml ris2xml end2xml endx2xml med2xml isi2xml copac2xml \
  	xml2ads xml2bib xml2end xml2isi xml2ris xml2wordbib modsclean
  
  all : FORCE
@@ -207,4 +207,4 @@ index c0f005b..43604dd 100644
  
  all: $(PROGS)
 -- 
-tg: (1782cdf..) debian/mkshlibs (depends on: upstream)
+tg: (1d477cd..) debian/mkshlibs (depends on: upstream)
