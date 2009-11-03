@@ -220,6 +220,9 @@ libbibutils.so.1 libbibutils1 #MINVER#
  newstr_swapstrings@Base 4.1
  newstr_toupper@Base 4.1
  newstr_trimendingws@Base 4.1
+ newstrs_empty@Base 4.6
+ newstrs_free@Base 4.6
+ newstrs_init@Base 4.6
  nextstep@Base 4.1
  ngb18030_enums@Base 4.1
  ngenres@Base 4.3

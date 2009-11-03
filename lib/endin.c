@@ -121,8 +121,7 @@ endin_processf( fields *endin, char *p, char *filename, long nref )
 {
 	newstr tag, data;
 	int n;
-	newstr_init( &tag );
-	newstr_init( &data );
+	newstrs_init( &tag, &data, NULL );
 	while ( *p ) {
 		if ( endin_istag( p ) ) {
 			p = process_endline( &tag, &data, p );
@@ -143,11 +142,9 @@ endin_processf( fields *endin, char *p, char *filename, long nref )
 			}
 			}
 		}
-		newstr_empty( &tag );
-		newstr_empty( &data );
+		newstrs_empty( &tag, &data, NULL );
 	}
-	newstr_free( &tag );
-	newstr_free( &data );
+	newstrs_free( &tag, &data, NULL );
 	return 1;
 }
 
@@ -338,8 +335,7 @@ cleanup_wiley_author( fields *endin, int n )
 {	
 	newstr tmp, tmppart;
 	int i, nauthor = 0;
-	newstr_init( &tmp );
-	newstr_init( &tmppart );
+	newstrs_init( &tmp, &tmppart, NULL );
 	newstr_newstrcpy( &tmp, &( endin->data[n] ) );
 	i = 0;
 	while ( i<tmp.len ) {
@@ -357,8 +353,7 @@ cleanup_wiley_author( fields *endin, int n )
 		}
 		i++;
 	}
-	newstr_free( &tmppart );
-	newstr_free( &tmp );
+	newstrs_free( &tmp, &tmppart, NULL );
 }
 
 static void

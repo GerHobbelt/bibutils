@@ -1,11 +1,11 @@
-bibutils (4.5-1) unstable; urgency=low
+bibutils (4.6-1) unstable; urgency=low
 
   * New upstream release
-  * New Patch: fix/name_comma: initialize variable (Closes: #552570)
+    - name_comma: initialize pointer (Closes: #552570)
   * add versioned build dependency on quilt to support dh --quilt
   * add DM-Upload-Allowed flag
 
- -- David Bremner <bremner@unb.ca>  Fri, 30 Oct 2009 22:10:58 -0300
+ -- David Bremner <bremner@unb.ca>  Tue, 03 Nov 2009 07:45:47 -0400
 
 bibutils (4.3-1) unstable; urgency=low
 
