@@ -248,7 +248,7 @@ output_fileattach( FILE *fp, fields *info, int format_opts )
 	newstr_init( &data );
 	for ( i=0; i<info->nfields; ++i ) {
 		if ( strcasecmp( info->tag[i].data, "FILEATTACH" ) ) continue;
-		newstr_strcpy( &data, "Description:" );
+		newstr_strcpy( &data, ":" );
 		newstr_newstrcat( &data, &(info->data[i]) );
 		if ( strsearch( info->data[i].data, ".pdf" ) )
 			newstr_strcat( &data, ":PDF" );
@@ -544,6 +544,7 @@ bibtexout_write( fields *info, FILE *fp, param *p, unsigned long refnum )
 	output_simple( fp, info, "DEGREEGRANTOR:ASIS", "school", p->format_opts );
 	output_simple( fp, info, "DEGREEGRANTOR:CORP", "school", p->format_opts );
 	output_simpleall( fp, info, "NOTES", "note", p->format_opts );
+	output_simpleall( fp, info, "ANNOTE", "annote", p->format_opts );
 	output_simple( fp, info, "ISBN", "isbn", p->format_opts );
 	output_simple( fp, info, "ISSN", "issn", p->format_opts );
 	output_simple( fp, info, "DOI", "doi", p->format_opts );
