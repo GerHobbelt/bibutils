@@ -301,7 +301,7 @@ modsin_person( xml *node, fields *info, int level )
 		while ( p && *p ) {
 			while ( p && *p && *p!='|' ) newstr_addchar(&role,*p++);
 			if ( !strcasecmp( role.data, "author" ) ||
-			     !strcasecmp( role.data, "creator" ) )
+			     !strcasecmp( role.data, "creator" ) ) 
 				fields_add( info, "AUTHOR", name.data, level );
 			else if ( !strcasecmp( role.data, "editor" ) )
 				fields_add( info, "EDITOR", name.data, level );
@@ -473,6 +473,13 @@ modsin_note( xml *node, fields *info, int level )
 }
 
 static void
+modsin_annote( xml *node, fields *info, int level )
+{
+	if ( node->value && node->value->len )
+		fields_add( info, "ANNOTE", node->value->data, level );
+}
+
+static void
 modsin_abstract( xml *node, fields *info, int level )
 {
 	if ( node->value && node->value->len )
@@ -621,6 +628,8 @@ modsin_mods( xml *node, fields *info, int level )
 		modsin_date( node, info, level, 0 );
 	else if ( xml_tagexact( node, "note" ) )
 		modsin_note( node, info, level );
+	else if ( xml_tagexact( node, "bibtex-annote" ) )
+		modsin_annote( node, info, level );
 	else if ( xml_tagexact( node, "abstract" ) )
 		modsin_abstract( node, info, level );
 	else if ( xml_tagexact( node, "subject" ) )
