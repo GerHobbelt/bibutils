@@ -1,0 +1,201 @@
+#!/bin/csh -f
+
+set INPUT_FILE = Makefile_start
+set OUTPUT_FILE = Makefile
+
+set LIBTYPE = static
+set INSTALLDIR = /usr/local/bin
+set LIBINSTALLDIR = /usr/local/lib
+
+while ( ${#argv} > 0 )
+	if ( $1 == "--install-dir" ) then
+		if ( ${#argv} < 2 ) then
+			echo "--install-dir requires a directory"
+			exit
+		else
+			shift
+			set INSTALLDIR = $1
+			shift
+		endif
+	else if ( $1 == "--install-lib" ) then
+		if ( ${#argv} < 2 ) then
+			echo "--install-lib requires a directory"
+			exit
+		else
+			shift
+			set LIBINSTALLDIR = $1
+			shift
+		endif
+	else if ( $1 == "--dynamic" ) then
+		set LIBTYPE = dynamic
+		shift
+	else if ( $1 == "--static" ) then
+		set LIBTYPE = static
+		shift
+	else
+		echo "Unidentified argument $1"
+		exit
+	endif
+end
+
+if ( "$LIBTYPE" == "dynamic" ) then
+	cp lib/Makefile.dynamic lib/Makefile
+	cp bin/Makefile.dynamic bin/Makefile
+else
+	cp lib/Makefile.static lib/Makefile
+	cp bin/Makefile.static bin/Makefile
+endif
+
+set type = "Unknown"
+set universal_binary = "FALSE"
+set UNAME = `uname -a`
+if ( ` echo $UNAME | grep Linux | wc | awk '{print $1;}' ` == 1 ) then
+	if ( ` echo $UNAME | grep 'i[3456]86' | wc | awk '{print $1};'` == 1 ) then
+		set type = "Linux_x86"
+	else if ( ` echo $UNAME | grep 'x86_64' | wc | awk '{print $1};'` == 1 ) then
+		set type = "Linux_x86_64"
+	else
+		set type = "Linux_Unknown"
+	endif
+endif
+if ( ` echo $UNAME | grep Darwin | wc | awk '{print $1;}' ` == 1 ) then
+	set type = "MacOSX_Unknown"
+	if ( ` echo $UNAME | grep -E 'powerpc|Power Macintosh' | wc | awk '{print $1};'` == 1 ) then
+		set type = "MacOSX_ppc"
+	endif
+	if ( ` echo $UNAME | grep 'i386' | wc | awk '{print $1}'` == 1 ) then
+		set type = "MacOSX_intel"
+	endif
+endif
+if ( ` echo $UNAME | grep SunOS | wc | awk '{print $1;}' ` == 1 ) then
+	set type = "SunOS5"
+endif
+if ( ` echo $UNAME | grep IRIX | wc | awk '{print $1;}' ` == 1 ) then
+	set type = "IRIX"
+endif
+if ( ` echo $UNAME | grep NetBSD | wc | awk '{print $1;}' ` == 1 ) then
+	set type = "NetBSD"
+endif
+if ( ` echo $UNAME | grep FreeBSD | wc | awk '{print $1;}' ` == 1 ) then
+	set type = "FreeBSD"
+endif
+if ( ` echo $UNAME | grep Cygwin | wc | awk '{print $1;}' ` == 1 ) then
+	set type = "Cygwin"
+endif
+
+#
+# Support universal binaries for MacOSX's (gcc version 4 and higher)
+#
+# restrict to intel Mac's only because ppc Mac's I have access to
+# just don't have the i386 libraries...
+#
+#if ( $type == "MacOSX_ppc" || $type == "MacOSX_intel" ) then
+if ( $type == "MacOSX_intel" ) then
+	gcc -v >& tmp.$$
+	set gcc_version = ` grep version tmp.$$ | awk '{print $3;}' `
+	set gcc_major = ` echo $gcc_version | awk -v FS="." '{print $1;}' `
+	if ( $gcc_major > 3 ) then
+		set universal_binary = "TRUE"
+	endif
+	/bin/rm -f tmp.$$
+endif
+
+if ( $type == "Linux_x86" ) then
+	set CC = '"cc -Wall"'
+	set RANLIB = '"ranlib"'
+	set POSTFIX = '"_i386"'
+else if ( $type == "Linux_x86_64" ) then
+	set CC = '"cc -Wall"'
+	set RANLIB = '"ranlib"'
+	set POSTFIX = '"_amd64"'
+else if ( $type == "Linux_Unknown" ) then
+	set CC = '"cc -Wall"'
+	set RANLIB = '"ranlib"'
+	set POSTFIX = '""'
+else if ( $type == "MacOSX_ppc" && $universal_binary == "TRUE" ) then
+	set CC = '"cc -arch i386 -arch ppc -Wall"'
+	set RANLIB = '"ranlib -s"'
+	set POSTFIX = '"_osx_universal"'
+else if ( $type == "MacOSX_intel" && $universal_binary == "TRUE" ) then
+	set CC = '"cc -arch i386 -arch ppc -Wall"'
+	set RANLIB = '"ranlib -s"'
+	set POSTFIX = '"_osx_universal"'
+else if ( $type == "MacOSX_ppc" || $type == "MacOSX_intel" || \
+                $type == "MacOSX_Unknown" ) then
+	set CC = '"cc -Wall"'
+	set RANLIB = '"ranlib -s"'
+	set POSTFIX = '"_osx"'
+else if ( $type == "SunOS5" ) then
+	set CC = '"gcc -Wall"'
+	set RANLIB = '"echo Skipping ranlib"'
+	set POSTFIX = '"_sunos5"'
+else if ( $type == "IRIX" ) then
+	set CC = '"gcc -Wall"'
+	set RANLIB = '"echo Skipping ranlib"'
+	echo POSTFIX = '"_irix"'
+else if ( $type == "NetBSD" ) then
+	set CC = '"cc -Wall"'
+	set RANLIB = '"ranlib"'
+	set POSTFIX = '"_netbsd"'
+else if ( $type == "FreeBSD" ) then
+	set CC = '"cc -Wall"'
+	set RANLIB = '"ranlib"'
+	set POSTFIX = '"_freebsd"'
+else if ( $type == "Cygwin" ) then
+	set CC = '"cc -Wall"'
+	set RANLIB = '"echo Skipping ranlib"'
+	set POSTFIX = '"_cygwin"'
+else
+	# Unknown operating system
+	set CC = '"cc"'
+	set RANLIB = '"echo Skipping ranlib"'
+	set POSTFIX = '""'
+endif
+
+cat $INPUT_FILE | \
+sed "s/REPLACE_CC/CC=${CC}/" | \
+sed "s/REPLACE_RANLIB/RANLIB=${RANLIB}/" | \
+sed "s|REPLACE_INSTALLDIR|${INSTALLDIR}|" | \
+sed "s|REPLACE_LIBINSTALLDIR|${LIBINSTALLDIR}|" | \
+sed "s/REPLACE_POSTFIX/${POSTFIX}/" > $OUTPUT_FILE
+
+echo
+echo
+echo "Bibutils Configuration"
+echo "----------------------"
+echo
+echo "Operating system:               $type"
+echo "Library and binary type:        $LIBTYPE" 
+echo "Binary installation directory:  $INSTALLDIR"
+echo "Library installation directory: $LIBINSTALLDIR"
+echo
+echo " - If auto-identification of operating system failed, e-mail cdputnam@ucsd.edu"
+echo "   with the output of the command: uname -a"
+echo
+echo " - Use --static or --dynamic to specify library and binary type;"
+echo "   the --static option is the default"
+echo
+echo " - Set binary installation directory with:  --install-dir DIR"
+echo
+echo " - Set library installation directory with: --install-lib DIR"
+echo
+echo
+if ( $OUTPUT_FILE == "Makefile" ) then
+  echo "To compile,                  type: make"
+  echo "To install,                  type: make install"
+  echo "To make tgz package,         type: make package"
+  echo "To make deb package,         type: make deb"
+  echo
+  echo "To clean up temporary files, type: make clean"
+  echo "To clean up all files,       type: make realclean"
+else
+  echo "To compile,                  type: make -f $OUTPUT_FILE"
+  echo "To install,                  type: make -f $OUTPUT_FILE install"
+  echo "To make tgz package,         type: make -f $OUTPUT_FILE package"
+  echo "To make deb package,         type: make -f $OUTPUT_FILE deb"
+  echo
+  echo "To clean up temporary files, type: make -f $OUTPUT_FILE clean"
+  echo "To clean up all files,       type: make -f $OUTPUT_FILE realclean"
+endif
+echo
+echo
