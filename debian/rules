@@ -6,12 +6,10 @@
 DB2MAN=/usr/share/sgml/docbook/stylesheet/xsl/nwalsh/manpages/docbook.xsl
 XP=xsltproc -''-nonet
 
-# what to pass to libtool
-SO_CURRENT=1
-SO_REVISION=0
-SO_AGE=0
-SOVERSION=$(SO_CURRENT):$(SO_REVISION):$(SO_AGE)
-SONAME="libbibutils.so."$(SO_CURRENT)
+# Set SONAME
+SOMAJOR=2
+SOMINOR=0
+SONAME="libbibutils.so."$(SOMAJOR)
 
 INSTALLDIR=$(CURDIR)/debian/tmp/bin
 DEVLIB=${CURDIR}/debian/libbibutils-dev/usr/lib
@@ -27,7 +25,8 @@ override_dh_auto_configure:
 	    -e 's/REPLACE_POSTFIX//' < Makefile_start > Makefile
 
 override_dh_auto_build:
-	$(MAKE) SOVERSION=$(SOVERSION) all
+	$(MAKE) -C lib -f Makefile.dynamic SONAME=$(SONAME) SOMINOR=$(SOMINOR) all
+	$(MAKE) -C bin -f Makefile.dynamic all
 	$(XP) -o bibutils.1 $(DB2MAN) bibutils.dbk
 	make -C test all
 	make -C test test
