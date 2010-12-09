@@ -1,14 +1,20 @@
 /*
  * xml2wordbib.c
  *
- * Copyright 2007-8 C. Putnam
+ * Copyright (c) Chris Putnam 2007-2010
+ *
+ * Program and source code released under the GPL
  *
  */
 #include <stdio.h>
 #include <stdlib.h>
 #include "bibutils.h"
+#include "modsin.h"
+#include "wordout.h"
 #include "args.h"
 #include "bibprog.h"
+
+const char progname[] = "xml2wordbib";
 
 void
 help( char *progname )
@@ -69,7 +75,8 @@ int
 main( int argc, char *argv[] )
 {
 	param p;
-	bibl_initparams( &p, BIBL_MODSIN, BIBL_WORD2007OUT, "xml2wordbib" );
+	modsin_initparams( &p, progname );
+	wordout_initparams( &p, progname );
 	process_charsets( &argc, argv, &p, 1, 1 );
 	process_args( &argc, argv, &p );
 	bibprog( argc, argv, &p );

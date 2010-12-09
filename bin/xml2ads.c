@@ -1,7 +1,7 @@
 /*
  * xml2ads.c
  *
- * Copyright (c) Chris Putnam 2007-8
+ * Copyright (c) Chris Putnam 2007-2010
  *
  * Program and source code released under the GPL
  *
@@ -9,9 +9,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "bibutils.h"
+#include "modsin.h"
 #include "adsout.h"
 #include "args.h"
 #include "bibprog.h"
+
+const char progname[] = "xml2ads";
 
 void
 help( char *progname )
@@ -72,7 +75,8 @@ int
 main( int argc, char *argv[] )
 {
 	param p;
-	bibl_initparams( &p, BIBL_MODSIN, BIBL_ADSABSOUT, "xml2ads" );
+	modsin_initparams( &p, progname );
+	adsout_initparams( &p, progname );
 	process_charsets( &argc, argv, &p, 1, 1 );
 	process_args( &argc, argv, &p );
 	bibprog( argc, argv, &p );
