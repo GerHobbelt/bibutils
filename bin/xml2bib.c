@@ -1,17 +1,20 @@
 /*
  * xml2bib.c
  *
- * Copyright (c) Chris Putnam 2003-8
+ * Copyright (c) Chris Putnam 2003-2010
  *
  * Program and source code released under the GPL
  *
  */
 #include <stdio.h>
 #include <stdlib.h>
-#include "bibtexout.h"
 #include "bibutils.h"
+#include "modsin.h"
+#include "bibtexout.h"
 #include "args.h"
 #include "bibprog.h"
+
+const char progname[] = "xml2bib";
 
 void
 help( char *progname )
@@ -25,6 +28,7 @@ help( char *progname )
 
 	fprintf(stderr,"  -h, --help         display this help\n");
 	fprintf(stderr,"  -v, --version      display version\n");
+	fprintf(stderr,"  -at, --abbreviatedtitles  use abbreviated titles, if available\n");
 	fprintf(stderr,"  -fc, --finalcomma  add final comman to bibtex output\n");
 	fprintf(stderr,"  -sd, --singledash  use only one dash '-' instead of two '--' for page range\n" );
 	fprintf(stderr,"  -b, -brackets      use brackets, not quotation marks surrounding data\n");
@@ -77,11 +81,17 @@ process_args( int *argc, char *argv[], param *p )
 		} else if ( args_match( argv[i], "-U", "--uppercase" ) ) {
 			p->format_opts |= BIBOUT_UPPERCASE;
 			subtract = 1;
+		} else if ( args_match( argv[i], "-at", "--abbreviated-titles" ) ) {
+			p->format_opts |= BIBOUT_SHORTTITLE;
+			subtract = 1;
 		} else if ( args_match( argv[i], "-nl", "--no-latex" ) ) {
 			p->latexout = 0;
 			subtract = 1;
 		} else if ( args_match( argv[i], "-nb", "--no-bom" ) ) {
 			p->utf8bom = 0;
+			subtract = 1;
+		} else if ( args_match( argv[i], "-d", "--drop-key" ) ) {
+			p->format_opts |= BIBOUT_DROPKEY;
 			subtract = 1;
 		} else if ( args_match( argv[i], "--verbose", "" ) ) {
 			p->verbose = 1;
@@ -105,7 +115,8 @@ int
 main( int argc, char *argv[] )
 {
 	param p;
-	bibl_initparams( &p, BIBL_MODSIN, BIBL_BIBTEXOUT, "xml2bib" );
+	modsin_initparams( &p, progname );
+	bibtexout_initparams( &p, progname );
 	process_charsets( &argc, argv, &p, 1, 1 );
 	process_args( &argc, argv, &p );
 	bibprog( argc, argv, &p );
