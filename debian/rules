@@ -26,6 +26,9 @@ override_dh_auto_configure:
 override_dh_auto_build:
 	$(MAKE) -C lib -f Makefile.dynamic SONAME=$(SONAME) SOMINOR=$(SOMINOR) all
 	$(MAKE) -C bin -f Makefile.dynamic all
+	# this relies on target clean not removing the shared libs
+	$(MAKE) -C lib -f Makefile.static clean
+	$(MAKE) -C lib -f Makefile.static libbibutils.a libbibcore.a
 	$(XP) -o bibutils.1 $(DB2MAN) bibutils.dbk
 	sed 's/VERSION/${VERSION}/g' packageconfig_start > lib/bibutils.pc
 
