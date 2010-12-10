@@ -1,6 +1,7 @@
 bibutils (4.12-1) unstable; urgency=low
 
-  * New upstream release 
+  * New upstream release
+    - new commands: biblatex2xml ebi2xml and wordbib2xml
   * Major packaging update, now using upstream build system to make
     shared libraries.
   * Update to standards version 3.9.1 (no changes)
