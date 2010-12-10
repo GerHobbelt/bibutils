@@ -3,6 +3,8 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
+VERSION=$(shell dpkg-parsechangelog |  sed -n 's/^Version: \(.*\)-[^-]*/\1/p')
+
 DB2MAN=/usr/share/sgml/docbook/stylesheet/xsl/nwalsh/manpages/docbook.xsl
 XP=xsltproc -''-nonet
 
@@ -25,6 +27,7 @@ override_dh_auto_build:
 	$(MAKE) -C lib -f Makefile.dynamic SONAME=$(SONAME) SOMINOR=$(SOMINOR) all
 	$(MAKE) -C bin -f Makefile.dynamic all
 	$(XP) -o bibutils.1 $(DB2MAN) bibutils.dbk
+	sed 's/VERSION/${VERSION}/g' packageconfig_start > lib/bibutils.pc
 	make -C test all
 	make -C test test
 
