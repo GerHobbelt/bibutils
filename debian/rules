@@ -11,18 +11,15 @@ SOMAJOR=2
 SOMINOR=0
 SONAME="libbibutils.so."$(SOMAJOR)
 
-INSTALLDIR=$(CURDIR)/debian/tmp/bin
-DEVLIB=${CURDIR}/debian/libbibutils-dev/usr/lib
+DESTDIR=${CURDIR}/debian/tmp/
+INSTALLDIR=${DESTDIR}/usr/bin
+LIBINSTALLDIR=${DESTDIR}/usr/lib
 
 %:
 	dh $@
 
 override_dh_auto_configure:
-	# do the sed ourselves to avoid build dependency on csh
-	sed -e 's/REPLACE_CC/CC="cc -Wall"/' \
-	    -e 's/REPLACE_RANLIB/RANLIB="ranlib"/'  \
-	    -e "s|REPLACE_INSTALLDIR|${INSTALLDIR}|"  \
-	    -e 's/REPLACE_POSTFIX//' < Makefile_start > Makefile
+	@echo Skipping auto_configure
 
 override_dh_auto_build:
 	$(MAKE) -C lib -f Makefile.dynamic SONAME=$(SONAME) SOMINOR=$(SOMINOR) all
@@ -32,7 +29,4 @@ override_dh_auto_build:
 	make -C test test
 
 override_dh_auto_install:
-	mkdir -p ${INSTALLDIR}
-	$(MAKE) SOVERSION=$(SOVERSION) install
-	mkdir -p ${DEVLIB} && ln -s ${SONAME} ${DEVLIB}/libbibutils.so
-
+	@echo Skipping auto_install

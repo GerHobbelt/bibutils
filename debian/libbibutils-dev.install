@@ -1,3 +1,5 @@
+lib/libbibutils.so usr/lib
+lib/libbibcore.a usr/lib
 lib/libbibutils.a usr/lib
 lib/bibl.h usr/include/bibutils
 lib/bibtexout.h usr/include/bibutils
