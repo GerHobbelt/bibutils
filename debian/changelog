@@ -1,8 +1,11 @@
 bibutils (4.12-1) unstable; urgency=low
 
-  * New upstream release
+  * New upstream release 
+  * Major packaging update, now using upstream build system to make
+    shared libraries.
+  * Update to standards version 3.9.1 (no changes)
 
- -- David Bremner <bremner@debian.org>  Fri, 03 Dec 2010 23:43:18 -0400
+ -- David Bremner <bremner@debian.org>  Fri, 10 Dec 2010 09:24:47 -0400
 
 bibutils (4.8-1) unstable; urgency=low
 
