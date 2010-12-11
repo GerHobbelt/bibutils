@@ -1,4 +1,4 @@
-bibutils (4.12-1) unstable; urgency=low
+bibutils (4.12-1) experimental; urgency=low
 
   * New upstream release
     - new commands: biblatex2xml ebi2xml and wordbib2xml
@@ -6,7 +6,7 @@ bibutils (4.12-1) unstable; urgency=low
     shared libraries.
   * Update to standards version 3.9.1 (no changes)
 
- -- David Bremner <bremner@debian.org>  Fri, 10 Dec 2010 09:24:47 -0400
+ -- David Bremner <bremner@debian.org>  Fri, 10 Dec 2010 21:46:26 -0400
 
 bibutils (4.8-1) unstable; urgency=low
 
