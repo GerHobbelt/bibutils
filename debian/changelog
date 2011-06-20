@@ -1,3 +1,10 @@
+bibutils (4.12-3) unstable; urgency=low
+
+  * Bug fix: "CLI option --version does not display version at all",
+    thanks to Patrice Pillot (Closes: #630707).
+
+ -- David Bremner <bremner@debian.org>  Mon, 20 Jun 2011 19:48:26 -0300
+
 bibutils (4.12-2) unstable; urgency=low
 
   * Upload to unstable
