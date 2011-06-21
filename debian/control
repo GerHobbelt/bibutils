@@ -8,7 +8,6 @@ Standards-Version: 3.9.2
 Homepage: http://www.scripps.edu/~cdputnam/software/bibutils/
 Vcs-Git: git://git.debian.org/git/debian-science/packages/bibutils/
 Vcs-Browser: http://git.debian.org/?p=debian-science/packages/bibutils.git
-DM-Upload-Allowed: yes
 
 Package: bibutils
 Architecture: any
