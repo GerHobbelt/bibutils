@@ -1,3 +1,10 @@
+bibutils (4.12-4) unstable; urgency=low
+
+  * Install modsout.h and wordout.h (Closes: #637692). Thanks to Giovanni
+    Mascellani for the patch.
+
+ -- David Bremner <bremner@debian.org>  Mon, 26 Sep 2011 19:11:43 -0300
+
 bibutils (4.12-3) unstable; urgency=low
 
   * Bug fix: "CLI option --version does not display version at all",
