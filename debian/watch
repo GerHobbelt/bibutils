@@ -6,5 +6,4 @@
 # Compulsory line, this is a version 3 file
 version=3
 
-http://www.scripps.edu/~cdputnam/software/bibutils/bibutils_(.*)_src.tgz
-
+http://sf.net/bibutils/bibutils_(.+)_src\.tgz
