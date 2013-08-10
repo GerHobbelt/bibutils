@@ -18,7 +18,7 @@
   <!ENTITY debian      "<productname>Debian</productname>">
   <!ENTITY gnu         "<acronym>GNU</acronym>">
   <!ENTITY gpl         "&gnu; <acronym>GPL</acronym>">
-  <!ENTITY version	"4.12">
+  <!ENTITY version	"5.0">
 
   ]>
 <refentry>
@@ -107,13 +107,12 @@
           </seg>
           <seg>convert bibtex to MODS</seg>
       </seglistitem>
-	<seglistitem>
-          <seg>
-            <xref linkend="biblatex2xml" />
-          </seg>
-          <seg>convert biblatex to MODS</seg>
+      <seglistitem>
+        <seg>
+          <xref linkend="biblatex2xml" />
+        </seg>
+        <seg>convert biblatex to MODS</seg>
       </seglistitem>
-
       <seglistitem>
         <seg>
           <xref linkend="copac2xml" />
@@ -123,10 +122,10 @@
         references to MODS</seg>
       </seglistitem>
       <seglistitem>
-        <seg>
-          <xref linkend="ebi2xml" />
-        </seg>
-        <seg>convert EBI XML to MODS</seg>
+       <seg>
+         <xref linkend="ebi2xml" />
+       </seg>
+       <seg>convert EBI XML to MODS</seg>
       </seglistitem>
       <seglistitem>
         <seg>
@@ -165,7 +164,6 @@
         </seg>
         <seg>convert Word2007 bibliography XML to MODS</seg>
       </seglistitem>
-
       </segmentedlist>
       </refsect2>
     <refsect2>
@@ -217,27 +215,27 @@
 	  as -u, but don't include a
 	  byte order mark 
 	</seg>
-    </seglistitem>
-      <seglistitem>
-	<seg>-x</seg>
-	<seg>--xml-entities</seg>
-	<seg>
-	  encode unicode characters as XML entities (opposite of -u)
-	</seg>
       </seglistitem>
       <seglistitem>
-	<seg>-nl</seg>
-	<seg>--no-latex</seg>
-	<seg>
-	  do not convert latex-style character combinations
-	</seg>
+        <seg>-x</seg>
+        <seg>--xml-entities</seg>
+        <seg>
+          encode unicode characters as XML entities (opposite of -u)
+        </seg>
       </seglistitem>
       <seglistitem>
-	<seg>-s</seg>
-	<seg>--single-refperfile</seg>
-	<seg>
-	  one reference per output file
-	</seg>
+        <seg>-nl</seg>
+        <seg>--no-latex</seg>
+        <seg>
+          do not convert latex-style character combinations
+        </seg>
+      </seglistitem>
+      <seglistitem>
+        <seg>-s</seg>
+        <seg>--single-refperfile</seg>
+        <seg>
+          one reference per output file
+        </seg>
       </seglistitem>
 
     <seglistitem>
@@ -257,16 +255,15 @@
     <seglistitem>
       <seg>-a</seg>
       <seg>--asis</seg><seg> with argument specifying a
-	file containing a list of names be treated verbatim
+        file containing a list of names to be treated verbatim
       </seg>
     </seglistitem>
     <seglistitem>
       <seg>-nt</seg>
-      <seg>--nosplit-title</seg><seg> 
+      <seg>--nosplit-title</seg><seg>
       don't split titles into TITLE/SUBTITLE pairs
       </seg>
     </seglistitem>
-
     <seglistitem>
       <seg></seg><seg>--verbose</seg>
       <seg> verbose	output </seg>
@@ -293,11 +290,11 @@
     <refsect2 id="biblatex2xml" xreflabel="biblatex2xml">
       <title>biblatex2xml</title>
       <para>
-      <emphasis role="bold">bib2xml</emphasis> converts a biblatex
+      <emphasis role="bold">biblatex2xml</emphasis> converts a biblatex
       (not to be confused with bibtex) formatted reference file to an
-      XML-intermediate bibliography file. 
-      .</para>
-      <programlisting>bib2xml biblatex_file.bib &gt; output_file.xml</programlisting>
+      MODS XML-intermediate bibliography file.
+      </para>
+      <programlisting>biblatex2xml biblatex_file.bib &gt; outputfile.xml</programlisting>
     </refsect2>
     <refsect2 id="copac2xml" xreflabel="copac2xml">
       <title>copac2xml</title>
@@ -328,9 +325,8 @@
       <title>ebi2xml</title>
       <para>
       <emphasis role="bold">ebi2xml</emphasis> converts a EBI XML
-      file to a MODS XML-intermediate bibliography file. </para>
+      file to a MODS XML-intermediate bibliography file.</para>
     </refsect2>
-
     <refsect2 id="endx2xml" xreflabel="endx2xml">
       <title>endx2xml</title>
       <para>
@@ -366,15 +362,10 @@
     <refsect2 id="wordbib2xml" xreflabel="wordbib2xml">
       <title>wordbib2xml</title>
       <para>
-      <emphasis role="bold">ris2xml</emphasis> converts a
-      RIS-formatted reference file to an XML-intermediate
-      bibliography file. 
-      <emphasis role="bold">ris2xml</emphasis> usage is as 
-      <emphasis role="bold">end2xml</emphasis> and 
-      <emphasis role="bold">bib2xml</emphasis></para>
+      <emphasis role="bold">wordbib2xml</emphasis> convert a 
+      Word2007-formatted reference file to an XML-intermediate
+      bibliogrpahy file.</para>
     </refsect2>
-
-
     </refsect1>
     <refsect1>
       <title>Converting from MODS</title>
@@ -447,11 +438,10 @@
 	    put one reference per file
             name by the reference number</seg>
 	</seglistitem>
-	<seglistitem>
-	  <seg>-nb</seg><seg>--no-bom</seg><seg>
-	do not write Byte Order Mark if writing UTF8</seg>
-	</seglistitem>
-
+        <seglistitem>
+           <seg>-nb</seg><seg>--no-bom</seg><seg>
+        do not write Byte Order Mark if writing UTF8</seg>
+        </seglistitem>
 	</segmentedlist>
       </refsect2>
     <refsect2 id="xml2bib" xreflabel="xml2bib">
@@ -703,7 +693,7 @@ enhancers",
 	change, then I'd like to see what you're adding or
 	fixing.)</para>
       <para>
-	<ulink url="http://www.scripps.edu/~cdputnam/" >
+	<ulink url="http://www.sourceforge.net/p/bibutils/home/Bibutils">
 	Chris Putnam, Ludwig Institute for Cancer Research
 	</ulink>
       </para>

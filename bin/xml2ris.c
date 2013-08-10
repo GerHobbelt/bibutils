@@ -1,9 +1,9 @@
 /*
  * xml2ris.c
  *
- * Copyright (c) Chris Putnam 2003-2010
+ * Copyright (c) Chris Putnam 2003-2013
  *
- * Program and source code released under the GPL
+ * Program and source code released under the GPL version 2
  *
  */
 #include <stdio.h>
@@ -25,15 +25,19 @@ help( char *progname )
 	fprintf(stderr,"usage: %s xml_file > ris_file\n\n",progname);
         fprintf(stderr,"  xml_file can be replaced with file list or omitted to use as a filter\n\n");
 
+	fprintf(stderr,"  -h, --help     display this help\n");
+	fprintf(stderr,"  -v, --version  display version\n\n");
 	fprintf(stderr,"  -nb, --no-bom  do not write Byte Order Mark in UTF8 output\n");
 	fprintf(stderr,"  -s, --single-refperfile one reference per output file\n");
-	fprintf(stderr,"  -h, --help     display this help\n");
+	fprintf(stderr,"  -i, --input-encoding  interpret the input with specified character set\n" );
+	fprintf(stderr,"                        (use w/o argument for current list)\n" );
+	fprintf(stderr,"  -o, --output-encoding write the output with specified character set\n" );
+	fprintf(stderr,"                        (use w/o argument for current list)\n" );
 	fprintf(stderr,"  --verbose      for verbose output\n");
 	fprintf(stderr,"  --debug        for debug output\n");
-	fprintf(stderr,"  -v, --version  display version\n\n");
 
 	fprintf(stderr,"Citation codes (ID  - ) generated from <REFNUM> tag.   See \n");
-	fprintf(stderr,"http://www.scripps.edu/~cdputnam/software/bibutils for more details\n\n");
+	fprintf(stderr,"http://sourceforge.net/p/bibutils/home/Bibutils for more details\n\n");
 }
 
 void
@@ -79,7 +83,7 @@ main(int argc, char *argv[])
 	param p;
 	modsin_initparams( &p, progname );
 	risout_initparams( &p, progname );
-	process_charsets( &argc, argv, &p, 1, 1 );
+	process_charsets( &argc, argv, &p );
 	process_args( &argc, argv, &p );
 	bibprog( argc, argv, &p );
 	bibl_freeparams( &p );
