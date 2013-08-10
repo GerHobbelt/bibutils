@@ -1,12 +1,11 @@
 /*
  * newstr_conv.c
  *
- * Copyright (c) Chris Putnam 1999-2010
+ * Copyright (c) Chris Putnam 1999-2013
  *
- * Source code released under the GPL
+ * Source code released under the GPL version 2
  *
- * newstring routines for dynamically allocated strings
- * conversions between character sets
+ * newstring routines for converting newstrings between character sets
  *
  */
 #include <stdio.h>
@@ -19,33 +18,8 @@
 #include "entities.h"
 #include "utf8.h"
 #include "gb18030.h"
-#include "newstr_conv.h"
-
 #include "charsets.h"
-
-int
-get_charset( char *name )
-{
-	int i;
-	if ( name==NULL ) return CHARSET_UNKNOWN;
-	for ( i=0; i<nallcharconvert; ++i ){
-		if ( !strcasecmp( name, allcharconvert[i].name ) ) return i;
-		else if ( allcharconvert[i].name2[0]!='\0' &&
-			!strcasecmp( name, allcharconvert[i].name2 ) ) return i;
-	}
-	return CHARSET_UNKNOWN;
-}
-
-void
-list_charsets( FILE *fp )
-{
-	int i;
-	for ( i=0; i<nallcharconvert; ++i ){
-		fprintf( fp, " %s", allcharconvert[i].name );
-		if ( (i>0 && i%5==0) || (i==nallcharconvert-1) )
-			fprintf( fp, "\n");
-	}
-}
+#include "newstr_conv.h"
 
 static void
 addentity( newstr *s, unsigned int ch )
@@ -121,24 +95,6 @@ addlatexchar( newstr *s, unsigned int ch, int xmlout, int utf8out )
 	}
 }
 
-static unsigned int
-lookupchar( int charsetin, char c )
-{
-	return allcharconvert[charsetin].table[(int)c];
-}
-
-static unsigned int
-lookupuni( int charsetout, unsigned int unicode )
-{
-	int i;
-	if ( charsetout==CHARSET_UNICODE ) return unicode;
-	for ( i=0; i<256; ++i ) {
-		if ( unicode == allcharconvert[charsetout].table[i] )
-			return i;
-	}
-	return '?';
-}
-
 /*
  * get_unicode()
  * 
@@ -183,11 +139,11 @@ get_unicode( newstr *s, unsigned int *pi, int charsetin, int latexin, int utf8in
 		*pi = *pi + 1;
 	}
 	if ( !unicode && charsetin!=CHARSET_UNICODE )
-		ch = lookupchar( charsetin, ch );
+		ch = charset_lookupchar( charsetin, ch );
 	return ch;
 }
 
-static void
+static int
 write_unicode( newstr *s, unsigned int ch, int charsetout, int latexout,
 		int utf8out, int xmlout )
 {
@@ -199,29 +155,43 @@ write_unicode( newstr *s, unsigned int ch, int charsetout, int latexout,
 	} else if ( charsetout==CHARSET_GB18030 ) {
 		addgb18030char( s, ch, xmlout, utf8out );
 	} else {
-		c = lookupuni( charsetout, ch );
+		c = charset_lookupuni( charsetout, ch );
 		if ( xmlout ) addxmlchar( s, c );
 		else newstr_addchar( s, c );
 	}
+	return 1;
 }
 
-void
-newstr_convert( newstr *s, 
+/*
+ * Returns 1 on memory error condition
+ */
+int
+newstr_convert( newstr *s,
 	int charsetin,  int latexin,  int utf8in,  int xmlin,
 	int charsetout, int latexout, int utf8out, int xmlout )
 {
+	unsigned int pos = 0;
 	unsigned int ch;
 	newstr ns;
-	unsigned int pos = 0;
-	if ( s->len==0 ) return;
+	int ok;
+
+	if ( !s || s->len==0 ) return 1;
+
 	newstr_init( &ns );
+
 	if ( charsetin==CHARSET_UNKNOWN ) charsetin = CHARSET_DEFAULT;
 	if ( charsetout==CHARSET_UNKNOWN ) charsetout = CHARSET_DEFAULT;
+
 	while ( s->data[pos] ) {
 		ch = get_unicode( s, &pos, charsetin, latexin, utf8in, xmlin );
-		write_unicode( &ns, ch, charsetout, latexout, utf8out, xmlout );
+		ok = write_unicode( &ns, ch, charsetout, latexout, utf8out, xmlout );
+		if ( !ok ) return 0;
 	}
+
 	newstr_swapstrings( s, &ns );
+
 	newstr_free( &ns );
+
+	return 1;
 }
 

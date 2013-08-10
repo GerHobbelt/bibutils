@@ -1,12 +1,11 @@
 /*
  * isitypes.c
  *
- * Copyright (c) Chris Putnam 2004-2010
+ * Copyright (c) Chris Putnam 2004-2013
  *
- * Program and source code released under the GPL
+ * Program and source code released under the GPL version 2
  *
  */
-
 #include <stdio.h>
 #include <string.h>
 #include "is_ws.h"
@@ -36,8 +35,8 @@ static lookups article[] = {
 	{ "SN",     "SERIALNUMBER", SERIALNO, LEVEL_HOST },
 	{ "AB",     "ABSTRACT",  SIMPLE, LEVEL_MAIN },
 	{ "NF",     "NOTES",     SIMPLE, LEVEL_MAIN },
-	{ "DE",     "KEYWORD",   ISI_KEYWORD, LEVEL_MAIN }, /* author keywords */
-	{ "ID",     "KEYWORD",   ISI_KEYWORD, LEVEL_MAIN }, /* new ISI keywords */
+	{ "DE",     "KEYWORD",   KEYWORD, LEVEL_MAIN }, /* author keywords */
+	{ "ID",     "KEYWORD",   KEYWORD, LEVEL_MAIN }, /* new ISI keywords */
 	{ "LA",     "LANGUAGE",  SIMPLE, LEVEL_MAIN },
 	{ "TC",     "TIMESCITED", SIMPLE, LEVEL_MAIN },
 	{ "NR",     "NUMBERREFS", SIMPLE, LEVEL_MAIN },
@@ -51,6 +50,7 @@ static lookups article[] = {
 	{ " ",      "INTERNAL_TYPE|ARTICLE",           ALWAYS, LEVEL_MAIN },
 	{ " ",      "ISSUANCE|continuing",    ALWAYS, LEVEL_HOST },
 	{ " ",      "RESOURCE|text",          ALWAYS, LEVEL_MAIN },
+	{ " ",      "GENRE|journal article",  ALWAYS, LEVEL_MAIN },
 	{ " ",      "GENRE|periodical",       ALWAYS, LEVEL_HOST },
 	{ " ",      "GENRE|academic journal", ALWAYS, LEVEL_HOST }
 };
@@ -77,8 +77,8 @@ static lookups book[] = {
 	{ "SN",     "SERIALNUMBER", SERIALNO, LEVEL_HOST },
 	{ "AB",     "ABSTRACT",  SIMPLE, LEVEL_MAIN },
 	{ "NF",     "NOTES",     SIMPLE, LEVEL_MAIN },
-	{ "DE",     "KEYWORD",   ISI_KEYWORD, LEVEL_MAIN }, /* author keywords */
-	{ "ID",     "KEYWORD",   ISI_KEYWORD, LEVEL_MAIN }, /* new ISI keywords */
+	{ "DE",     "KEYWORD",   KEYWORD, LEVEL_MAIN }, /* author keywords */
+	{ "ID",     "KEYWORD",   KEYWORD, LEVEL_MAIN }, /* new ISI keywords */
 	{ "LA",     "LANGUAGE",  SIMPLE, LEVEL_MAIN },
 	{ "TC",     "TIMESCITED", SIMPLE, LEVEL_MAIN },
 	{ "NR",     "NUMBERREFS", SIMPLE, LEVEL_MAIN },
@@ -118,8 +118,8 @@ static lookups inbook[] = {
 	{ "SN",     "SERIALNUMBER", SERIALNO, LEVEL_HOST },
 	{ "AB",     "ABSTRACT",  SIMPLE, LEVEL_MAIN },
 	{ "NF",     "NOTES",     SIMPLE, LEVEL_MAIN },
-	{ "DE",     "KEYWORD",   ISI_KEYWORD, LEVEL_MAIN }, /* author keywords */
-	{ "ID",     "KEYWORD",   ISI_KEYWORD, LEVEL_MAIN }, /* new ISI keywords */
+	{ "DE",     "KEYWORD",   KEYWORD, LEVEL_MAIN }, /* author keywords */
+	{ "ID",     "KEYWORD",   KEYWORD, LEVEL_MAIN }, /* new ISI keywords */
 	{ "LA",     "LANGUAGE",  SIMPLE, LEVEL_MAIN },
 	{ "TC",     "TIMESCITED", SIMPLE, LEVEL_MAIN },
 	{ "NR",     "NUMBERREFS", SIMPLE, LEVEL_MAIN },
@@ -129,10 +129,11 @@ static lookups inbook[] = {
 	{ "GA",     "ISIDELIVERNUM", SIMPLE, LEVEL_MAIN}, /*ISI document delivery number */
 	{ "UT",     "ISIREFNUM", SIMPLE, LEVEL_MAIN }, /* ISI unique article identifer */
 	{ "DI",     "DOI",       SIMPLE, LEVEL_MAIN },
-	{ " ",      "INTERNAL_TYPE|INBOOK",   ALWAYS, LEVEL_MAIN },
-	{ " ",      "RESOURCE|text", ALWAYS, LEVEL_MAIN },
-	{ " ",      "ISSUANCE|monographic",    ALWAYS, LEVEL_HOST },
-	{ " ",      "GENRE|book",    ALWAYS, LEVEL_HOST }
+	{ " ",      "INTERNAL_TYPE|INBOOK", ALWAYS, LEVEL_MAIN },
+	{ " ",      "RESOURCE|text",        ALWAYS, LEVEL_MAIN },
+	{ " ",      "ISSUANCE|monographic", ALWAYS, LEVEL_HOST },
+        { " ",      "GENRE|book chapter",   ALWAYS, LEVEL_MAIN },
+	{ " ",      "GENRE|book",           ALWAYS, LEVEL_HOST }
 };
 
 static lookups bookinseries[] = {
@@ -159,8 +160,8 @@ static lookups bookinseries[] = {
 	{ "SN",     "SERIALNUMBER", SERIALNO, LEVEL_HOST },
 	{ "AB",     "ABSTRACT",  SIMPLE, LEVEL_MAIN },
 	{ "NF",     "NOTES",     SIMPLE, LEVEL_MAIN },
-	{ "DE",     "KEYWORD",   ISI_KEYWORD, LEVEL_MAIN }, /* author keywords */
-	{ "ID",     "KEYWORD",   ISI_KEYWORD, LEVEL_MAIN }, /* new ISI keywords */
+	{ "DE",     "KEYWORD",   KEYWORD, LEVEL_MAIN }, /* author keywords */
+	{ "ID",     "KEYWORD",   KEYWORD, LEVEL_MAIN }, /* new ISI keywords */
 	{ "LA",     "LANGUAGE",  SIMPLE, LEVEL_MAIN },
 	{ "TC",     "TIMESCITED", SIMPLE, LEVEL_MAIN },
 	{ "NR",     "NUMBERREFS", SIMPLE, LEVEL_MAIN },

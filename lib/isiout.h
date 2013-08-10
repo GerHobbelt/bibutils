@@ -1,7 +1,9 @@
 /*
  * isiout.h
  *
- * Copyright (c) Chris Putnam 2007-2009
+ * Copyright (c) Chris Putnam 2007-2013
+ *
+ * Source code released under the GPL version 2
  *
  */
 #ifndef ISIOUT_H

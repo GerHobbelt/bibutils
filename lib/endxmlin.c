@@ -1,9 +1,10 @@
 /*
  * endxmlin.c
  *
- * Copyright (c) Chris Putnam 2006-2010
+ * Copyright (c) Chris Putnam 2006-2013
  *
- * Program and source code released under the GPL
+ * Program and source code released under the GPL version 2
+ *
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -171,6 +172,8 @@ endxmlin_titles( xml *node, fields *info )
 		if ( xml_tagexact( node, a[i].attrib ) && node->down ) {
 			newstr_empty( &title );
 			endxmlin_datar( node, &title );
+			newstr_trimstartingws( &title );
+			newstr_trimendingws( &title );
 			fields_add( info, a[i].internal, title.data, 0);
 		}
 	}
@@ -322,68 +325,6 @@ endxmlin_dates( xml *node, fields *info )
 	if ( node->next )
 		endxmlin_dates( node->next, info );
 }
-
-#ifdef NOCOMPILE
-/*
- * There are a lot of elements in the end2xml stuff buried in element
- * attributes for which it's not clear where they should get stuck
- * -- for now put into notes
- */
-static void
-endxmlin_makeattribnotes( xml *node, fields *info, int level, attribs *a, int na )
-{
-	newstr *attrib, note;
-	int i;
-	newstr_init( &note );
-	for ( i=0; i<na; ++i ) {
-		attrib = xml_getattrib( node, a[i].attrib );
-		if ( attrib ) {
-			newstr_strcpy( &note, a[i].internal );
-			newstr_strcat( &note, ": " );
-			newstr_strcat( &note, attrib->data );
-			fields_add( info, "%O", note.data, level );
-			newstr_empty( &note );
-		}
-	}
-	newstr_free( &note );
-}
-#endif
-
-#ifdef NOCOMPILE
-/* <!ELEMENT source-app (#PCDATA)>
- * <!ATTLIST source-app
- *        name CDATA #IMPLIED
- *        version CDATA #IMPLIED
- * >
- */
-static void
-endxmlin_sourceapp( xml *node, fields *info )
-{
-	attribs a[] = {
-		{ "name", "SOURCE APPLICATION NAME" },
-		{ "version", "SOURCE APPLICATION VERSION" }
-	};
-	int na = sizeof( a ) / sizeof( a[0] );
-	endxmlin_makeattribnotes( node, info, 0, a, na );
-}
-
-/* <!ELEMENT database (#PCDATA)>
- * <!ATTLIST database
- *        name CDATA #IMPLIED
- *        path CDATA #IMPLIED
- * >
- */
-static void
-endxmlin_database( xml *node, fields *info )
-{
-	attribs a[] = {
-		{ "name", "DATABASE NAME" },
-		{ "path", "DATABASE PATH" }
-	};
-	int na = sizeof( a ) / sizeof( a[0] );
-	endxmlin_makeattribnotes( node, info, 0, a, na );
-}
-#endif
 
 /*
  * <ref-type name="Journal Article">17</ref-type>

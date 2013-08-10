@@ -1,9 +1,9 @@
 /*
  * copacin.c
  *
- * Copyright (c) Chris Putnam 2004-2010
+ * Copyright (c) Chris Putnam 2004-2013
  *
- * Program and source code released under the GPL
+ * Program and source code released under the GPL version 2
  *
  */
 #include <stdio.h>
@@ -32,6 +32,7 @@ copacin_initparams( param *p, const char *progname )
 	p->nosplittitle     = 0;
 	p->verbose          = 0;
 	p->addcount         = 0;
+	p->output_raw       = 0;
 
 	p->readf    = copacin_readf;
 	p->processf = copacin_processf;
@@ -168,50 +169,80 @@ copacin_processf( fields *copacin, char *p, char *filename, long nref )
  *
  * editors seem to be stuck in as authors with the tag "[Editor]" in it
  */
-static void
+static int
 copacin_addname( fields *info, char *tag, newstr *name, int level, list *asis,
 	list *corps )
 {
-	char *usetag = tag, editor[]="EDITOR", *p;
-	int comma = 0;
-	if ( strstr( name->data,"[Editor]" ) ) {
-		newstr_findreplace( name, "[Editor]", "" );
-		usetag = editor;
+	char *usetag = tag, editor[]="EDITOR";
+	newstr usename, *s;
+	list tokens;
+	int comma = 0, i;
+
+	if ( list_find( asis, name->data ) !=-1  ||
+	     list_find( corps, name->data ) !=-1 ) {
+		return name_add( info, tag, name->data, level, asis, corps );
 	}
-	p = skip_ws( name->data );
-	while ( *p && !is_ws( *p ) ) {
-		if ( *p==',' ) comma++;
-		p++;
+
+	list_init( &tokens );
+	newstr_init( &usename );
+
+	list_tokenize( &tokens, name, ' ', 1 );
+	for ( i=0; i<tokens.n; ++i ) {
+		s = list_get( &tokens, i );
+		if ( !strcmp( s->data, "[Editor]" ) ) {
+			usetag = editor;
+			newstr_strcpy( s, "" );
+		} else if ( s->len && s->data[s->len-1]==',' ) {
+			comma++;
+		}
 	}
-	if ( !comma && is_ws( *p ) ) *p = ',';
-	name_add( info, usetag, name->data, level, asis, corps );
+
+	if ( comma==0 && tokens.n ) {
+		s = list_get( &tokens, 0 );
+		newstr_addchar( s, ',' );
+	}
+
+	for ( i=0; i<tokens.n; ++i ) {
+		if ( i ) newstr_addchar( &usename, ' ' );
+		newstr_newstrcat( &usename, list_get( &tokens, i ) );
+	}
+
+	return name_add( info, usetag, usename.data, level, asis, corps );
 }
 
-static void
+static int
 copacin_addpage( fields *info, char *p, int level )
 {
 	newstr page;
+	int ok;
 	newstr_init( &page );
 	p = skip_ws( p );
 	while ( *p && !is_ws(*p) && *p!='-' && *p!='\r' && *p!='\n' ) 
 		newstr_addchar( &page, *p++ );
-	if ( page.len>0 ) fields_add( info, "PAGESTART", page.data, level );
+	if ( page.len>0 ) {
+		ok = fields_add( info, "PAGESTART", page.data, level );
+		if ( !ok ) return 0;
+	}
 	newstr_empty( &page );
 	while ( *p && (is_ws(*p) || *p=='-' ) ) p++;
 	while ( *p && !is_ws(*p) && *p!='-' && *p!='\r' && *p!='\n' ) 
 		newstr_addchar( &page, *p++ );
-	if ( page.len>0 ) fields_add( info, "PAGEEND", page.data, level );
+	if ( page.len>0 ) {
+		ok = fields_add( info, "PAGEEND", page.data, level );
+		if ( !ok ) return 0;
+	}
 	newstr_free( &page );
+	return 1;
 }
 
-static void
+static int
 copacin_adddate( fields *info, char *tag, char *newtag, char *p, int level )
 {
 	char *months[12]={ "January", "February", "March", "April",
 		"May", "June", "July", "August", "September",
 		"October", "November", "December" };
 	char month[10];
-	int found,i,part;
+	int found,i,part,ok;
 	newstr date;
 	newstr_init( &date );
 	part = (!strncasecmp(newtag,"PART",4));
@@ -219,9 +250,10 @@ copacin_adddate( fields *info, char *tag, char *newtag, char *p, int level )
 		while ( *p ) newstr_addchar( &date, *p++ );
 		if ( date.len>0 ) {
 			if ( part ) 
-				fields_add(info, "PARTYEAR", date.data, level);
+				ok = fields_add(info, "PARTYEAR", date.data, level);
 			else
-				fields_add( info, "YEAR", date.data, level );
+				ok = fields_add( info, "YEAR", date.data, level );
+			if ( !ok ) return 0;
 		}
 	} else if ( !strcasecmp( tag, "%8" ) ) {
 		while ( *p && *p!=' ' && *p!=',' ) newstr_addchar( &date, *p++ );
@@ -234,13 +266,15 @@ copacin_adddate( fields *info, char *tag, char *newtag, char *p, int level )
 				if (found>8) sprintf( month, "%d", found+1 );
 				else sprintf( month, "0%d", found+1 );
 				if ( part ) 
-					fields_add( info, "PARTMONTH", month, level );
-				else    fields_add( info, "MONTH", month, level );
+					ok = fields_add( info, "PARTMONTH", month, level );
+				else    ok = fields_add( info, "MONTH", month, level );
+				if ( !ok ) return 0;
 			} else {
 				if ( part )
-					fields_add( info, "PARTMONTH", date.data, level );
+					ok = fields_add( info, "PARTMONTH", date.data, level );
 				else
-					fields_add( info, "MONTH", date.data, level );
+					ok = fields_add( info, "MONTH", date.data, level );
+				if ( !ok ) return 0;
 			}
 		}
 		newstr_empty( &date );
@@ -249,12 +283,14 @@ copacin_adddate( fields *info, char *tag, char *newtag, char *p, int level )
 			newstr_addchar( &date, *p++ );
 		if ( date.len>0 && date.len<3 ) {
 			if ( part )
-				fields_add( info, "PARTDAY", date.data, level );
+				ok = fields_add( info, "PARTDAY", date.data, level );
 			else
-				fields_add( info, "DAY", date.data, level );
+				ok = fields_add( info, "DAY", date.data, level );
+			if ( !ok ) return 0;
 		}
 	}
 	newstr_free( &date );
+	return 1;
 }
 
 static void
@@ -266,44 +302,63 @@ copacin_report_notag( param *p, char *tag )
 	}
 }
 
-void
-copacin_convertf( fields *copacin, fields *info, int reftype, param *p, variants *all, int nall )
+int
+copacin_convertf( fields *copacin, fields *out, int reftype, param *p, variants *all, int nall )
 {
-	newstr *t, *d;
-	int  process, level, i, n;
+	int  process, level, i, n, nfields, ok;
+	newstr *tag, *data;
 	char *newtag;
-	for ( i=0; i<copacin->nfields; ++i ) {
-		t = &( copacin->tag[i] );
-		d = &( copacin->data[i] );
-		n = process_findoldtag( t->data, reftype, all, nall );
+
+	nfields = fields_num( copacin );
+	for ( i=0; i<nfields; ++i ) {
+
+		tag = fields_tag( copacin, i, FIELDS_STRP );
+
+		n = translate_oldtag( tag->data, reftype, all, nall, &process, &level, &newtag );
 		if ( n==-1 ) {
-			copacin_report_notag( p, t->data );
+			copacin_report_notag( p, tag->data );
 			continue;
 		}
-		process = ((all[reftype]).tags[n]).processingtype;
 		if ( process == ALWAYS ) continue; /*add these later*/
-		level = ((all[reftype]).tags[n]).level;
-		newtag = ((all[reftype]).tags[n]).newstr;
-		if ( process==SIMPLE )
-			fields_add( info, newtag, d->data, level );
-		else if ( process==TITLE )
-			title_process( info, newtag, d->data, level, 
-					p->nosplittitle );
-		else if ( process==PERSON )
-			copacin_addname( info, newtag, d, level, &(p->asis), 
-					&(p->corps) );
-		else if ( process==DATE )
-			copacin_adddate(info,all[reftype].
-					tags[i].oldstr,newtag,d->data,level);
-		else if ( process==PAGES )
-			copacin_addpage( info, d->data, level );
-		else if ( process==SERIALNO )
-			addsn( info, d->data, level );
-/*		else {
-			fprintf(stderr,"%s: internal error -- "
-				"illegal process %d\n", r->progname, process );
-		}*/
-	}
-}
 
+		data = fields_value( copacin, i, FIELDS_STRP );
+
+		switch ( process ) {
+
+		case SIMPLE:
+			ok = fields_add( out, newtag, data->data, level );
+			break;
+
+		case TITLE:
+			ok = title_process( out, newtag, data->data, level, p->nosplittitle );
+			break;
+
+		case PERSON:
+			ok = copacin_addname( out, newtag, data, level, &(p->asis), &(p->corps) );
+			break;
+
+		case DATE:
+			ok = copacin_adddate(out,all[reftype].  tags[i].oldstr,newtag,data->data,level);
+			break;
+
+		case PAGES:
+			ok = copacin_addpage( out, data->data, level );
+			break;
+
+		case SERIALNO:
+			ok = addsn( out, data->data, level );
+			break;
+
+		default:
+			fprintf(stderr,"%s: internal error -- " "illegal process value %d\n", p->progname, process );
+			ok = 1;
+			break;
+		}
+
+		if ( !ok ) return BIBL_ERR_MEMERR;
+
+	}
+
+	return BIBL_OK;
+}
 
