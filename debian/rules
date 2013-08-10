@@ -20,6 +20,9 @@ DESTDIR=${CURDIR}/debian/tmp/
 INSTALLDIR=${DESTDIR}/usr/bin
 LIBINSTALLDIR=${DESTDIR}/usr/lib
 
+CFLAGSIN=$(shell dpkg-buildflags --get CFLAGS) $(shell dpkg-buildflags --get CPPFLAGS)
+export CFLAGSIN
+
 %:
 	dh $@
 
@@ -28,7 +31,7 @@ override_dh_auto_configure:
 	@echo building bibutils $(VERSION), upstream date $(DATE)
 
 override_dh_auto_build:
-	$(MAKE) -C lib -f Makefile.dynamic LIBTARGETIN=libbibutils.so CFLAGSIN=-fPIC SONAME=$(SONAME) SOMINOR=$(SOMINOR) all
+	$(MAKE) -C lib -f Makefile.dynamic LIBTARGETIN=libbibutils.so CFLAGSIN="-fPIC ${CFLAGSIN}" SONAME=$(SONAME) SOMINOR=$(SOMINOR) all
 	$(MAKE) -C bin -f Makefile.dynamic VERSION=$(VERSION) DATE=$(DATE) all
 	# this relies on target clean not removing the shared libs
 	$(MAKE) -C lib -f Makefile.static clean
