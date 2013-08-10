@@ -12,7 +12,7 @@ DB2MAN=/usr/share/sgml/docbook/stylesheet/xsl/nwalsh/manpages/docbook.xsl
 XP=xsltproc -''-nonet
 
 # Set SONAME
-SOMAJOR=2
+SOMAJOR=3
 SOMINOR=0
 SONAME="libbibutils.so."$(SOMAJOR)
 
