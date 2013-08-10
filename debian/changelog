@@ -1,8 +1,9 @@
-bibutils (5.0-1) unstable; urgency=low
+bibutils (5.0-1) experimental; urgency=low
 
   * New upstream release
+  * Bump soname of libbibutils.
 
- -- David Bremner <bremner@debian.org>  Sat, 10 Aug 2013 14:00:38 +0200
+ -- David Bremner <bremner@debian.org>  Sat, 10 Aug 2013 20:09:19 +0200
 
 bibutils (4.12-5) unstable; urgency=low
 
