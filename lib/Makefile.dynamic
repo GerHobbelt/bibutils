@@ -68,7 +68,7 @@ all: $(LIBTARGET)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 libbibutils.so: $(BIBCORE_OBJS) $(BIBUTILS_OBJS)
-	$(CC) -shared -Wl,-soname,$(SONAME) -o $(SOFULL) $^
+	$(CC) -shared -Wl,-soname,$(SONAME) $(LDFLAGSIN) -o $(SOFULL) $^
 	ln -sf $(SOFULL) $(SONAME)
 	ln -sf $(SOFULL) libbibutils.so
 

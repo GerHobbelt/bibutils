@@ -23,6 +23,9 @@ LIBINSTALLDIR=${DESTDIR}/usr/lib
 CFLAGSIN=$(shell dpkg-buildflags --get CFLAGS) $(shell dpkg-buildflags --get CPPFLAGS)
 export CFLAGSIN
 
+LDFLAGSIN=$(shell dpkg-buildflags --get LDFLAGS)
+export LDFLAGSIN
+
 %:
 	dh $@
 

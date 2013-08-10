@@ -5,7 +5,7 @@
 #
 
 CFLAGS     = -I ../lib $(CFLAGSIN)
-LDFLAGS    = -L ../lib
+LDFLAGS    = -L ../lib $(LDFLAGSIN)
 LDLIBS     = -lbibutils
 
 TOMODS     = bibprog.o tomods.o args.o
