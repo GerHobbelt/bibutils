@@ -1,3 +1,10 @@
+bibutils (5.0-2) experimental; urgency=low
+
+  * Fix: "Missing authors in copyright file", thanks to Lior Kaplan
+    (Closes: #719483).
+
+ -- David Bremner <bremner@debian.org>  Mon, 12 Aug 2013 15:37:16 +0200
+
 bibutils (5.0-1) experimental; urgency=low
 
   * New upstream release

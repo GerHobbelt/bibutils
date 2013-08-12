@@ -22,6 +22,16 @@ License: GPL-2+
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
     02110-1301, USA.
 
+Files: lib/adsout.[ch]
+Copyright: 2007-2013 Richard Mathar 
+Copyright: 2007-2013 Chris Putnam
+License: GPL-2
+
+Files: lib/biblatexin.c
+Copyright: 2010-2013 Johannes Wilm
+Copyright: 2008-2013 Chris Putnam
+License: GPL-2
+
 Files: lib/adsout_journals.c
 Copyright: NASA Astrophysics Data System Project
 License: GPL-2+
@@ -101,9 +111,10 @@ Copyright: 2007 David Bremner <bremner@unb.ca>
 	   2007 Christopher Putnam <cdputnam@ucsd.edu>
 License: GPL-2
   The man page is licensed under version 2 of the GNU General Public License
+
  
 Files: debian/*
-Copyright: 2007-2009 David Bremner <bremner@unb.ca>
+Copyright: 2007-2013 David Bremner <bremner@unb.ca>
 License: GPL-2+
  The Debian packaging is licensed under the same terms as the upstream source.
 
