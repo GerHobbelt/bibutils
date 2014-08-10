@@ -1,7 +1,7 @@
 /*
  * bibcore.c
  *
- * Copyright (c) Chris Putnam 2005-2013
+ * Copyright (c) Chris Putnam 2005-2014
  *
  * Source code released under the GPL version 2
  *
@@ -421,7 +421,7 @@ out0:
 static int
 bibl_notexify( char *tag )
 {
-	char *protected[] = { "DOI", "URL", "REFNUM" };
+	char *protected[] = { "DOI", "URL", "REFNUM", "FILEATTACH" };
 	int i, nprotected = sizeof( protected ) / sizeof( protected[0] );
 	for ( i=0; i<nprotected; ++i )
 		if ( !strcasecmp( tag, protected[i] ) ) return 1;

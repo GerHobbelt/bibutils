@@ -1,7 +1,7 @@
 /*
  * copacin.c
  *
- * Copyright (c) Chris Putnam 2004-2013
+ * Copyright (c) Chris Putnam 2004-2014
  *
  * Program and source code released under the GPL version 2
  *
@@ -186,7 +186,7 @@ copacin_addname( fields *info, char *tag, newstr *name, int level, list *asis,
 	list_init( &tokens );
 	newstr_init( &usename );
 
-	list_tokenize( &tokens, name, ' ', 1 );
+	list_tokenize( &tokens, name, " ", 1 );
 	for ( i=0; i<tokens.n; ++i ) {
 		s = list_get( &tokens, i );
 		if ( !strcmp( s->data, "[Editor]" ) ) {

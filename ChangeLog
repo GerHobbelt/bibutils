@@ -1,6 +1,41 @@
 
 BIBUTILS
 
+5.4
+03/24/14
+BIB2XML/BIBLATEX2XML
++ Do not use latex in references to external files (reported by JVilhena)
+
+WORDOUT
++ Output url information (reported by danieldedo)
+
+5.3
+03/06/14
+
+BUILD
++ Remove type 'uint' from lib/bibtexin.c and lib/biblatexin.c
++ Handle additional latex forms of C with cedilla
+
+5.2
+09/03/13
+
+BIBLATEXIN
++ Protect conversion of tilde in URLs
+
+5.1
+09/03/13
+
+BUILD
++ Fix make install (reported by Jens Petersen)
++ Fix cygwin skipping of ranlib (reported by Doug McIlroy)
+
+BIBTEXIN
++ Fix string concatenation and string variable usage
+
+BIBLATEXIN
++ Fix string concatenation and string variable usage
++ Add additional recognized reference types (reported by Nick Bart)
+
 5.0
 05/27/13
 

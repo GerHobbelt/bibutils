@@ -3,7 +3,7 @@
  * 
  * (Word 2007 format)
  *
- * Copyright (c) Chris Putnam 2007-2013
+ * Copyright (c) Chris Putnam 2007-2014
  *
  * Source code released under the GPL version 2
  *
@@ -575,6 +575,7 @@ output_citeparts( fields *info, FILE *outptr, int level, int max, int type )
 		{ "NUMBER",          "b:Issue",   LEVEL_ANY },
 		{ "PUBLICLAWNUMBER", "b:Volume",  LEVEL_ANY },
 		{ "SESSION",         "b:Issue",   LEVEL_ANY },
+		{ "URL",             "b:Url",     LEVEL_ANY },
 	};
 	int nparts=sizeof(parts)/sizeof(convert);
 	
