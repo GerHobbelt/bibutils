@@ -1,8 +1,9 @@
-bibutils (5.4-1) UNRELEASED; urgency=medium
+bibutils (5.4-1) experimental; urgency=medium
 
   * New upstream version
+  * Bump soname of libbibutils, again.
 
- -- David Bremner <bremner@debian.org>  Sun, 10 Aug 2014 11:09:31 -0300
+ -- David Bremner <bremner@debian.org>  Sun, 10 Aug 2014 11:47:11 -0300
 
 bibutils (5.0-2) experimental; urgency=low
 
