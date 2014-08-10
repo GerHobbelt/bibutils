@@ -1,7 +1,7 @@
 /*
  * bibtypes.c
  *
- * Copyright (c) Chris Putnam 2003-2013
+ * Copyright (c) Chris Putnam 2003-2014
  *
  * Program and source code released under the GPL version 2
  *
@@ -664,6 +664,7 @@ variants bibtex_all[] = {
 	REFTYPE( "manual", manual ),
 	REFTYPE( "mastersthesis", masters ),
 	REFTYPE( "misc", misc ),
+	REFTYPE( "online", misc ),
 	REFTYPE( "patent", patent ),
 	REFTYPE( "phdthesis", phds ),
 	REFTYPE( "periodical", periodical ),
