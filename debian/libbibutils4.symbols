@@ -1,4 +1,4 @@
-libbibutils.so.3 libbibutils3 #MINVER#
+libbibutils.so.4 libbibutils4 #MINVER#
  addsn@Base 4.12
  adsout_initparams@Base 4.12
  adsout_write@Base 4.12
@@ -83,7 +83,6 @@ libbibutils.so.3 libbibutils3 #MINVER#
  fields_findv_eachof@Base 5.0
  fields_findv_firstof@Base 5.0
  fields_free@Base 4.12
- fields_get_level@Base 5.0
  fields_init@Base 4.12
  fields_level@Base 5.0
  fields_match_casetag@Base 5.0
@@ -112,6 +111,7 @@ libbibutils.so.3 libbibutils3 #MINVER#
  intlist_append@Base 5.0
  intlist_append_unique@Base 5.0
  intlist_copy@Base 5.0
+ intlist_delete@Base 5.4
  intlist_dup@Base 5.0
  intlist_empty@Base 5.0
  intlist_find@Base 5.0
@@ -120,11 +120,14 @@ libbibutils.so.3 libbibutils3 #MINVER#
  intlist_get@Base 5.0
  intlist_init@Base 5.0
  intlist_init_range@Base 5.0
+ intlist_mean@Base 5.4
+ intlist_median@Base 5.4
  intlist_new@Base 5.0
  intlist_new_range@Base 5.0
  intlist_randomize@Base 5.0
  intlist_remove@Base 5.0
  intlist_remove_pos@Base 5.0
+ intlist_set@Base 5.4
  intlist_sort@Base 5.0
  is_doi@Base 4.12
  is_ws@Base 4.12
@@ -170,6 +173,7 @@ libbibutils.so.3 libbibutils3 #MINVER#
  list_new@Base 5.0
  list_newstrtok@Base 5.0
  list_remove@Base 5.0
+ list_set@Base 5.4
  list_sort@Base 4.12
  list_tokenize@Base 5.0
  list_trimend@Base 5.0
