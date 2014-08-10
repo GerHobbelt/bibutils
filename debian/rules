@@ -46,8 +46,8 @@ override_dh_auto_install:
 	@echo Skipping auto_install
 
 override_dh_auto_test:
-	make -C test all
-	make -C test test
+	make -C test -f Makefile.static all
+	make -C test -f Makefile.static test
 
 override_dh_auto_clean:
 	make -C lib -f Makefile.dynamic realclean
