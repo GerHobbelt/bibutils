@@ -4,6 +4,7 @@
 
 CFLAGS     = -I ../lib $(CFLAGSIN)
 PROGS      = entities_test \
+             list_test \
              newstr_test \
              utf8_test
 
@@ -18,8 +19,12 @@ utf8_test : utf8_test.o ../lib/libbibcore.a
 newstr_test : newstr_test.o ../lib/libbibcore.a
 	$(CC) $(LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
 
+list_test : list_test.o ../lib/libbibcore.a
+	$(CC) $(LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
+
 test: $(PROGS) FORCE
 	./newstr_test
+	./list_test
 	./entities_test
 	./utf8_test
 
