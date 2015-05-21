@@ -1,13 +1,16 @@
 /*
  * fields.h
  *
- * Copyright (c) Chris Putnam 2003-2014
+ * Copyright (c) Chris Putnam 2003-2015
  *
  * Source code released under the GPL version 2
  *
  */
 #ifndef FIELDS_H
 #define FIELDS_H
+
+#define FIELDS_OK     (1)
+#define FIELDS_ERR    (0)
 
 #define LEVEL_ANY    (-1)
 #define LEVEL_MAIN    (0)
