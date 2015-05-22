@@ -1,4 +1,4 @@
-libbibutils.so.4 libbibutils4 #MINVER#
+libbibutils.so.5 libbibutils5 #MINVER#
  addsn@Base 4.12
  adsout_initparams@Base 4.12
  adsout_write@Base 4.12
@@ -17,9 +17,6 @@ libbibutils.so.4 libbibutils4 #MINVER#
  bibl_readasis@Base 4.12
  bibl_readcorps@Base 4.12
  bibl_reporterr@Base 4.12
- bibl_verbose0@Base 4.12
- bibl_verbose1@Base 4.12
- bibl_verbose2@Base 4.12
  bibl_write@Base 4.12
  biblatex_all@Base 4.12
  biblatex_nall@Base 4.12
@@ -67,13 +64,9 @@ libbibutils.so.4 libbibutils4 #MINVER#
  endout_initparams@Base 4.12
  endout_write@Base 4.12
  endout_writeheader@Base 4.12
- endxmlin_contributor@Base 4.12
- endxmlin_data@Base 4.12
- endxmlin_datar@Base 4.12
  endxmlin_initparams@Base 4.12
  endxmlin_processf@Base 4.12
  endxmlin_readf@Base 4.12
- endxmlin_titles@Base 4.12
  fields_add@Base 4.12
  fields_add_tagsuffix@Base 4.12
  fields_clearused@Base 4.12
@@ -141,16 +134,20 @@ libbibutils.so.4 libbibutils4 #MINVER#
  isiout_initparams@Base 4.12
  isiout_write@Base 4.12
  isiout_writeheader@Base 4.12
+ iso639_1_from_code@Base 5.6
  iso639_2_from_code@Base 5.0
  iso639_2_from_language@Base 5.0
+ iso639_3_from_code@Base 5.6
  jstor_to_url@Base 4.12
  latex2char@Base 4.12
  list_add@Base 4.12
+ list_add_all@Base 5.6
  list_add_unique@Base 5.0
- list_adds@Base 5.0
- list_addstr@Base 5.0
- list_addstr_unique@Base 5.0
+ list_addc@Base 5.6
+ list_addc_all@Base 5.6
+ list_addc_unique@Base 5.6
  list_addvp@Base 5.0
+ list_addvp_all@Base 5.6
  list_addvp_unique@Base 5.0
  list_append@Base 5.0
  list_append_unique@Base 5.0
@@ -161,21 +158,20 @@ libbibutils.so.4 libbibutils4 #MINVER#
  list_fill@Base 4.12
  list_fillfp@Base 5.0
  list_find@Base 4.12
- list_find_or_add@Base 4.12
  list_findnocase@Base 4.12
  list_free@Base 4.12
  list_get@Base 5.0
  list_getc@Base 5.0
- list_getstr@Base 4.12
- list_getstr_char@Base 4.12
  list_init@Base 4.12
  list_match_entry@Base 5.0
  list_new@Base 5.0
- list_newstrtok@Base 5.0
  list_remove@Base 5.0
  list_set@Base 5.4
+ list_setc@Base 5.6
  list_sort@Base 4.12
+ list_swap@Base 5.6
  list_tokenize@Base 5.0
+ list_tokenizec@Base 5.6
  list_trimend@Base 5.0
  lists_empty@Base 5.0
  lists_free@Base 5.0
@@ -203,8 +199,12 @@ libbibutils.so.4 libbibutils4 #MINVER#
  name_parse@Base 5.0
  newstr_addchar@Base 4.12
  newstr_addutf8@Base 5.0
+ newstr_cattodelim@Base 5.6
  newstr_char@Base 5.0
  newstr_convert@Base 4.12
+ newstr_copyposlen@Base 5.6
+ newstr_cpytodelim@Base 5.6
+ newstr_delete@Base 5.6
  newstr_empty@Base 4.12
  newstr_fget@Base 4.12
  newstr_fgetline@Base 5.0
@@ -218,13 +218,16 @@ libbibutils.so.4 libbibutils4 #MINVER#
  newstr_is_lowercase@Base 5.0
  newstr_is_mixedcase@Base 5.0
  newstr_is_uppercase@Base 5.0
+ newstr_makepath@Base 5.6
  newstr_match_end@Base 5.0
  newstr_match_first@Base 5.0
+ newstr_memerr@Base 5.6
  newstr_mergestrs@Base 5.0
  newstr_new@Base 4.12
  newstr_newstrcat@Base 4.12
  newstr_newstrcmp@Base 5.0
  newstr_newstrcpy@Base 4.12
+ newstr_pad@Base 5.6
  newstr_prepend@Base 4.12
  newstr_revchar@Base 5.0
  newstr_reverse@Base 5.0
@@ -295,14 +298,18 @@ libbibutils.so.4 libbibutils4 #MINVER#
  wordout_write@Base 4.12
  wordout_writefooter@Base 4.12
  wordout_writeheader@Base 4.12
+ xml_data@Base 5.6
  xml_draw@Base 4.12
  xml_findend@Base 4.12
  xml_findstart@Base 4.12
  xml_free@Base 4.12
  xml_getattrib@Base 4.12
  xml_getencoding@Base 4.12
+ xml_hasattrib@Base 5.6
+ xml_hasdata@Base 5.6
  xml_init@Base 4.12
  xml_pns@Base 4.12
  xml_tag_attrib@Base 4.12
  xml_tagexact@Base 4.12
+ xml_tagwithdata@Base 5.6
  xml_tree@Base 4.12
