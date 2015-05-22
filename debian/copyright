@@ -1,11 +1,8 @@
-% The format of this file is based on
-%      http://wiki.debian.org/Proposals/CopyrightFormat
-
 Original source download from:
 	 http://www.scripps.edu/~cdputnam/software/bibutils/ 
 
 Files: *
-Copyright: 1995-2009 Christopher Putnam <cdputnam@ucsd.edu>
+Copyright: 1995-2015 Christopher Putnam <cdputnam@ucsd.edu>
 License: GPL-2+
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -23,13 +20,13 @@ License: GPL-2+
     02110-1301, USA.
 
 Files: lib/adsout.[ch]
-Copyright: 2007-2013 Richard Mathar 
-Copyright: 2007-2013 Chris Putnam
+Copyright: 2007-2015 Richard Mathar 
+Copyright: 2007-2015 Chris Putnam
 License: GPL-2
 
-Files: lib/biblatexin.c
-Copyright: 2010-2013 Johannes Wilm
-Copyright: 2008-2013 Chris Putnam
+Files: lib/biblatexin.c lib/bltypes.c
+Copyright: 2010-2015 Johannes Wilm
+Copyright: 2008-2015 Chris Putnam
 License: GPL-2
 
 Files: lib/adsout_journals.c
@@ -114,7 +111,7 @@ License: GPL-2
 
  
 Files: debian/*
-Copyright: 2007-2013 David Bremner <bremner@unb.ca>
+Copyright: 2007-2015 David Bremner <bremner@unb.ca>
 License: GPL-2+
  The Debian packaging is licensed under the same terms as the upstream source.
 
