@@ -42,6 +42,8 @@ INPUT_OBJS    = bibtexin.o bibtextypes.o \
 		medin.o \
 		modsin.o modstypes.o marc.o \
 		risin.o ristypes.o \
+		nbibin.o nbibtypes.o \
+		generic.o \
 		ebiin.o wordin.o
 
 OUTPUT_OBJS   = adsout.o \
