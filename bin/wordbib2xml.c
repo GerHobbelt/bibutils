@@ -1,7 +1,7 @@
 /*
  * wordbib2xml.c
  * 
- * Copyright (c) Chris Putnam 2009-2015
+ * Copyright (c) Chris Putnam 2009-2016
  *
  * Program and source code released under the GPL version 2
  *
@@ -9,8 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "bibutils.h"
-#include "wordin.h"
-#include "modsout.h"
+#include "bibformats.h"
 #include "tomods.h"
 #include "bibprog.h"
 
