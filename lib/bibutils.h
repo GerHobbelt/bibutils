@@ -1,7 +1,7 @@
 /*
  * bibutils.h
  *
- * Copyright (c) Chris Putnam 2005-2015
+ * Copyright (c) Chris Putnam 2005-2016
  *
  * Source code released under GPL version 2
  *
@@ -36,7 +36,8 @@ extern "C" {
 #define BIBL_BIBLATEXIN   (BIBL_FIRSTIN+8)
 #define BIBL_EBIIN        (BIBL_FIRSTIN+9)
 #define BIBL_WORDIN       (BIBL_FIRSTIN+10)
-#define BIBL_LASTIN       (BIBL_FIRSTIN+10)
+#define BIBL_NBIBIN       (BIBL_FIRSTIN+11)
+#define BIBL_LASTIN       (BIBL_FIRSTIN+11)
 
 #define BIBL_FIRSTOUT     (200)
 #define BIBL_MODSOUT      (BIBL_FIRSTOUT)
@@ -48,7 +49,16 @@ extern "C" {
 #define BIBL_ADSABSOUT    (BIBL_FIRSTOUT+6)
 #define BIBL_LASTOUT      (BIBL_FIRSTOUT+6)
 
-#define BIBL_FORMAT_VERBOSE (1)
+#define BIBL_FORMAT_VERBOSE             (1)
+#define BIBL_FORMAT_BIBOUT_FINALCOMMA   (2)
+#define BIBL_FORMAT_BIBOUT_SINGLEDASH   (4)
+#define BIBL_FORMAT_BIBOUT_WHITESPACE   (8)
+#define BIBL_FORMAT_BIBOUT_BRACKETS    (16)
+#define BIBL_FORMAT_BIBOUT_UPPERCASE   (32)
+#define BIBL_FORMAT_BIBOUT_STRICTKEY   (64)
+#define BIBL_FORMAT_BIBOUT_SHORTTITLE (128)
+#define BIBL_FORMAT_BIBOUT_DROPKEY    (256)
+#define BIBL_FORMAT_MODSOUT_DROPKEY   (512)
 
 #define BIBL_RAW_WITHCHARCONVERT (4)
 #define BIBL_RAW_WITHMAKEREFID   (8)
@@ -102,13 +112,13 @@ typedef struct param {
 
 
         int  (*readf)(FILE*,char*,int,int*,newstr*,newstr*,int*);
-        int  (*processf)(fields*,char*,char*,long);
+        int  (*processf)(fields*,char*,char*,long,struct param*);
         int  (*cleanf)(bibl*,struct param*);
-        int  (*typef) (fields*,char*,int,struct param*,variants*,int);
-        int  (*convertf)(fields*,fields*,int,struct param*,variants*,int);
+        int  (*typef) (fields*,char*,int,struct param*);
+        int  (*convertf)(fields*,fields*,int,struct param*);
         void (*headerf)(FILE*,struct param*);
         void (*footerf)(FILE*);
-        void (*writef)(fields*,FILE*,struct param*,unsigned long);
+        int  (*writef)(fields*,FILE*,struct param*,unsigned long);
         variants *all;
         int  nall;
 

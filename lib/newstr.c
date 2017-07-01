@@ -1,9 +1,9 @@
 /*
  * newstr.c
  *
- * Version: 04/27/14
+ * Version: 04/17/15
  *
- * Copyright (c) Chris Putnam 1999-2015
+ * Copyright (c) Chris Putnam 1999-2016
  *
  * Source code released under the GPL version 2
  *
@@ -228,6 +228,13 @@ newstrs_empty( newstr *s, ... )
 	va_end( ap );
 }
 
+char *
+newstr_cstr( newstr *s )
+{
+	assert( s );
+	return s->data;
+}
+
 void
 newstr_addchar( newstr *s, char newchar )
 {
@@ -239,6 +246,21 @@ newstr_addchar( newstr *s, char newchar )
 		newstr_realloc( s, s->len*2 );
 	s->data[s->len++] = newchar;
 	s->data[s->len] = '\0';
+}
+
+void
+newstr_fill( newstr *s, unsigned long n, char fillchar )
+{
+	unsigned long i;
+	assert( s );
+	if ( !s->data || s->dim==0 )
+		newstr_initalloc( s, n+1 );
+	if ( n + 1 > s->dim )
+		newstr_realloc( s, n+1 );
+	for ( i=0; i<n; ++i )
+		s->data[i] = fillchar;
+	s->data[n] = '\0';
+	s->len = n;
 }
 
 /* newstr_addutf8
@@ -328,10 +350,10 @@ newstr_strcat( newstr *s, const char *addstr )
 }
 
 void
-newstr_segcat( newstr *s, char *startat, char *endat )
+newstr_segcat( newstr *s, const char *startat, const char *endat )
 {
 	unsigned long n;
-	char *p;
+	const char *p;
 
 	assert( s && startat && endat );
 	assert( (size_t) startat < (size_t) endat );
@@ -345,6 +367,13 @@ newstr_segcat( newstr *s, char *startat, char *endat )
 		p++;
 	}
 
+	newstr_strcat_internal( s, startat, n );
+}
+
+void
+newstr_plcat( newstr *s, const char *startat, unsigned long n )
+{
+	assert( s && startat );
 	newstr_strcat_internal( s, startat, n );
 }
 
@@ -382,7 +411,7 @@ newstr_cattodelim( newstr *s, char *p, const char *delim, unsigned char finalste
 		newstr_addchar( s, *p );
 		p++;
 	}
-	if ( *p && finalstep ) p++;
+	if ( p && *p && finalstep ) p++;
 	return p;
 }
 
@@ -428,18 +457,13 @@ newstr_strcpy( newstr *s, const char *addstr )
  * copies [start,end) into s
  */
 void
-newstr_segcpy( newstr *s, char *startat, char *endat )
+newstr_segcpy( newstr *s, const char *startat, const char *endat )
 {
 	unsigned long n;
-	char *p;
+	const char *p;
 
 	assert( s && startat && endat );
 	assert( ((size_t) startat) <= ((size_t) endat) );
-
-	if ( startat==endat ) {
-		newstr_empty( s );
-		return;
-	}
 
 	n = 0;
 	p = startat;
@@ -448,6 +472,13 @@ newstr_segcpy( newstr *s, char *startat, char *endat )
 		n++;
 	}
 
+	newstr_strcpy_internal( s, startat, n );
+}
+
+void
+newstr_plcpy( newstr *s, const char *startat, unsigned long n )
+{
+	assert( s && startat );
 	newstr_strcpy_internal( s, startat, n );
 }
 

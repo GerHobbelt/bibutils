@@ -1,7 +1,7 @@
 /*
  * fields.c
  *
- * Copyright (c) Chris Putnam 2003-2015
+ * Copyright (c) Chris Putnam 2003-2016
  *
  * Source code released under the GPL version 2
  *
@@ -105,9 +105,9 @@ fields_realloc( fields *f )
 }
 
 int
-fields_add( fields *f, char *tag, char *data, int level )
+_fields_add( fields *f, char *tag, char *data, int level, int mode )
 {
-	int i, status, found;
+	int i, n, status;
 
 	if ( !tag || !data ) return FIELDS_OK;
 
@@ -119,29 +119,33 @@ fields_add( fields *f, char *tag, char *data, int level )
 		if ( status!=FIELDS_OK ) return status;
 	}
 
-	/* Don't duplicate identical entries */
-	found = 0;
-	for ( i=0; i<f->n && !found; ++i ) {
-		if ( f->level[i]==level &&
-		     !strcasecmp( f->tag[i].data, tag ) &&
-		     !strcasecmp( f->data[i].data, data ) ) found = 1;
+	/* Don't duplicate identical entries if FIELDS_NO_DUPS */
+	if ( mode == FIELDS_NO_DUPS ) {
+		for ( i=0; i<f->n; i++ ) {
+			if ( f->level[i]==level &&
+			     !strcasecmp( f->tag[i].data, tag ) &&
+			     !strcasecmp( f->data[i].data, data ) )
+				return FIELDS_OK;
+		}
 	}
-	if ( !found ) {
-		f->used[ f->n ]  = 0;
-		f->level[ f->n ] = level;
-		newstr_strcpy( &(f->tag[f->n]), tag );
-		newstr_strcpy( &(f->data[f->n]), data );
-		if ( newstr_memerr( &(f->tag[f->n]) ) ||
-		     newstr_memerr( &(f->data[f->n] ) ) )
-			return FIELDS_ERR;
-		f->n++;
-	}
+
+	n = f->n;
+	f->used[ n ]  = 0;
+	f->level[ n ] = level;
+	newstr_strcpy( &(f->tag[n]), tag );
+	newstr_strcpy( &(f->data[n]), data );
+
+	if ( newstr_memerr( &(f->tag[n]) ) || newstr_memerr( &(f->data[n] ) ) )
+		return FIELDS_ERR;
+
+	f->n++;
+
 	return FIELDS_OK;
 }
 
 int
-fields_add_tagsuffix( fields *f, char *tag, char *suffix,
-		char *data, int level )
+_fields_add_tagsuffix( fields *f, char *tag, char *suffix,
+		char *data, int level, int mode )
 {
 	newstr newtag;
 	int ret;
@@ -149,7 +153,7 @@ fields_add_tagsuffix( fields *f, char *tag, char *suffix,
 	newstr_init( &newtag );
 	newstr_mergestrs( &newtag, tag, suffix, NULL );
 	if ( newstr_memerr( &newtag ) ) ret = FIELDS_ERR;
-	else ret = fields_add( f, newtag.data, data, level );
+	else ret = _fields_add( f, newtag.data, data, level, mode );
 	newstr_free( &newtag );
 
 	return ret;
@@ -161,7 +165,7 @@ fields_add_tagsuffix( fields *f, char *tag, char *suffix,
  *
  * level==LEVEL_ANY is a special flag meaning any level can match
  */
-inline int
+int
 fields_match_level( fields *f, int n, int level )
 {
 	if ( level==LEVEL_ANY ) return 1;
@@ -174,28 +178,28 @@ fields_match_level( fields *f, int n, int level )
  * returns 1 if tag matches, 0 if not
  *
  */
-inline int
+int
 fields_match_tag( fields *info, int n, char *tag )
 {
 	if ( !strcmp( fields_tag( info, n, FIELDS_CHRP ), tag ) ) return 1;
 	return 0;
 }
 
-inline int
+int
 fields_match_casetag( fields *info, int n, char *tag )
 {
 	if ( !strcasecmp( fields_tag( info, n, FIELDS_CHRP ), tag ) ) return 1;
 	return 0;
 }
 
-inline int
+int
 fields_match_tag_level( fields *info, int n, char *tag, int level )
 {
 	if ( !fields_match_level( info, n, level ) ) return 0;
 	return fields_match_tag( info, n, tag );
 }
 
-inline int
+int
 fields_match_casetag_level( fields *info, int n, char *tag, int level )
 {
 	if ( !fields_match_level( info, n, level ) ) return 0;
@@ -276,27 +280,36 @@ fields_replace_or_add( fields *f, char *tag, char *data, int level )
 
 char *fields_null_value = "\0";
 
-inline int
+int
 fields_used( fields *f, int n )
 {
 	if ( n >= 0 && n < f->n ) return f->used[n];
 	else return 0;
 }
 
-inline int
+int
+fields_notag( fields *f, int n )
+{
+	newstr *t;
+	if ( n >= 0 && n < f->n ) {
+		t = &( f->tag[n] );
+		if ( t->len > 0 ) return 0;
+	}
+	return 1;
+}
+
+int
 fields_nodata( fields *f, int n )
 {
 	newstr *d;
 	if ( n >= 0 && n < f->n ) {
 		d = &( f->data[n] );
 		if ( d->len > 0 ) return 0;
-		return 1;
-	} else {
-		return 1;
 	}
+	return 1;
 }
 
-inline int
+int
 fields_num( fields *f )
 {
 	return f->n;
@@ -504,3 +517,20 @@ fields_findv_eachof( fields *f, int level, int mode, vplist *a, ... )
 
 	vplist_free( &tags );
 }
+
+void
+fields_report( fields *f, FILE *fp )
+{
+	int i, n;
+	n = fields_num( f );
+	fprintf( fp, "# NUM   level = LEVEL   'TAG' = 'VALUE'\n" );
+	for ( i=0; i<n; ++i ) {
+		fprintf( stderr, "%d\tlevel = %d\t'%s' = '%s'\n",
+			i+1,
+			fields_level( f, i ),
+			(char*)fields_tag( f, i, FIELDS_CHRP_NOUSE ),
+			(char*)fields_value( f, i, FIELDS_CHRP_NOUSE )
+		);
+	}
+}
+

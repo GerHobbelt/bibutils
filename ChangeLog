@@ -1,6 +1,74 @@
 
 BIBUTILS
 
+5.11
+11/8/16
+
+NBIB2XML
++ Add program
+
+BIBTEXOUT
++ Handle MRNUMBER
+
+5.10
+11/2/16
+
+BIBTEXIN
++ Handle MRNUMBER and CODEN tags
+
+5.9
+9/12/16
+
+GLOBAL
++ Allow bibutils to properly process references with several authors of the
+same name (reported by Jason Annadani).
+
+MODSIN
++ Fix processing of mods input files where given name information isn't as
+finely parsed as bibutils mods files are (reported by Dan Gildea).
+
+5.8
+5/23/16
+
+INTERNAL
++ Change xxx_convertf() functions to use tables of function pointers
++ Use generic function pointers whenever possible to decrease duplicated code
+
+ADSOUT
++ Improve URL handling
+
+BIBLATEXIN
++ Identify JSTOR
+
+BIBTEXOUT
++ Handle PMC identifiers
++ Fix chapter/title for @inbook references (reported by Vivek Botcha)
+
+RISOUT
++ Handle PMC identifiers
+
+
+5.7
+2/15/16
+
+MODSIN
++ Handle relatedItem original information (reported by John Vandenberg)
+
+BIBTEXOUT
++ Resolve INBOOK/MISC problems (reported by John Vandenberg)
++ Improve output of latex macros (reported by John Vandenberg)
+
+RISIN
++ Recognize URL's buried in the notes field
++ Properly propagate situation when journal name in RIS is under "T2"--short
+title, not "JF"--journal title (reported by Mary Martin)
+
+GLOBAL
++ Update library components to current versions
++ Improve error propagation
++ Lots of small fixes found by clang --analyze
+
+
 5.6
 1/26/15
 
