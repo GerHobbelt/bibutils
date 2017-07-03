@@ -1,8 +1,8 @@
-bibutils (5.11-1) experimental; urgency=medium
+bibutils (5.11-1) UNRELEASED; urgency=medium
 
   * New upstream version
 
- -- David Bremner <bremner@debian.org>  Sat, 01 Jul 2017 09:46:08 -0300
+ -- David Bremner <bremner@debian.org>  Mon, 03 Jul 2017 14:26:23 -0300
 
 bibutils (5.6-1) experimental; urgency=medium
 
