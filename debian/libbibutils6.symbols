@@ -1,8 +1,8 @@
-libbibutils.so.5 libbibutils5 #MINVER#
+libbibutils.so.6 libbibutils6 #MINVER#
+ _fields_add@Base 6.0
+ _fields_add_tagsuffix@Base 6.0
  addsn@Base 4.12
  adsout_initparams@Base 4.12
- adsout_write@Base 4.12
- adsout_writeheader@Base 4.12
  allcharconvert@Base 4.12
  arxiv_to_url@Base 4.12
  bibl_addref@Base 4.12
@@ -20,23 +20,11 @@ libbibutils.so.5 libbibutils5 #MINVER#
  bibl_write@Base 4.12
  biblatex_all@Base 4.12
  biblatex_nall@Base 4.12
- biblatexin_cleanf@Base 4.12
- biblatexin_convertf@Base 4.12
  biblatexin_initparams@Base 4.12
- biblatexin_processf@Base 4.12
- biblatexin_readf@Base 4.12
- biblatexin_typef@Base 4.12
  bibtex_all@Base 4.12
  bibtex_nall@Base 4.12
- bibtexin_cleanf@Base 4.12
- bibtexin_convertf@Base 4.12
  bibtexin_initparams@Base 4.12
- bibtexin_processf@Base 4.12
- bibtexin_readf@Base 4.12
- bibtexin_typef@Base 4.12
  bibtexout_initparams@Base 4.12
- bibtexout_write@Base 4.12
- bibtexout_writeheader@Base 4.12
  charset_find@Base 5.0
  charset_get_xmlname@Base 5.0
  charset_list_all@Base 5.0
@@ -44,31 +32,18 @@ libbibutils.so.5 libbibutils5 #MINVER#
  charset_lookupuni@Base 5.0
  copac_all@Base 4.12
  copac_nall@Base 4.12
- copacin_convertf@Base 4.12
  copacin_initparams@Base 4.12
- copacin_processf@Base 4.12
- copacin_readf@Base 4.12
  decode_entity@Base 4.12
  doi_to_url@Base 4.12
  ebiin_initparams@Base 4.12
- ebiin_processf@Base 4.12
- ebiin_readf@Base 4.12
  end_all@Base 4.12
  end_nall@Base 4.12
  endin_cleanf@Base 4.12
  endin_convertf@Base 4.12
  endin_initparams@Base 4.12
- endin_processf@Base 4.12
- endin_readf@Base 4.12
  endin_typef@Base 4.12
  endout_initparams@Base 4.12
- endout_write@Base 4.12
- endout_writeheader@Base 4.12
  endxmlin_initparams@Base 4.12
- endxmlin_processf@Base 4.12
- endxmlin_readf@Base 4.12
- fields_add@Base 4.12
- fields_add_tagsuffix@Base 4.12
  fields_clearused@Base 4.12
  fields_find@Base 4.12
  fields_findv@Base 5.0
@@ -86,9 +61,11 @@ libbibutils.so.5 libbibutils5 #MINVER#
  fields_maxlevel@Base 4.12
  fields_new@Base 4.12
  fields_nodata@Base 5.0
+ fields_notag@Base 6.0
  fields_null_value@Base 5.0
  fields_num@Base 5.0
  fields_replace_or_add@Base 4.12
+ fields_report@Base 6.0
  fields_setused@Base 4.12
  fields_tag@Base 5.0
  fields_used@Base 5.0
@@ -96,6 +73,15 @@ libbibutils.so.5 libbibutils5 #MINVER#
  gb18030_decode@Base 4.12
  gb18030_encode@Base 4.12
  gb18030_to_unicode@Base 4.12
+ generic_notes@Base 6.0
+ generic_null@Base 6.0
+ generic_pages@Base 6.0
+ generic_person@Base 6.0
+ generic_serialno@Base 6.0
+ generic_simple@Base 6.0
+ generic_skip@Base 6.0
+ generic_title@Base 6.0
+ generic_url@Base 6.0
  get_reftype@Base 4.12
  html_entities@Base 4.12
  identifier_types@Base 4.12
@@ -107,89 +93,50 @@ libbibutils.so.5 libbibutils5 #MINVER#
  intlist_delete@Base 5.4
  intlist_dup@Base 5.0
  intlist_empty@Base 5.0
+ intlist_fill@Base 6.0
+ intlist_fill_range@Base 6.0
  intlist_find@Base 5.0
  intlist_find_or_add@Base 5.0
  intlist_free@Base 5.0
  intlist_get@Base 5.0
  intlist_init@Base 5.0
+ intlist_init_fill@Base 6.0
  intlist_init_range@Base 5.0
  intlist_mean@Base 5.4
  intlist_median@Base 5.4
  intlist_new@Base 5.0
+ intlist_new_fill@Base 6.0
  intlist_new_range@Base 5.0
  intlist_randomize@Base 5.0
  intlist_remove@Base 5.0
  intlist_remove_pos@Base 5.0
  intlist_set@Base 5.4
  intlist_sort@Base 5.0
+ intlist_wasfound@Base 6.0
+ intlist_wasnotfound@Base 6.0
  is_doi@Base 4.12
+ is_embedded_link@Base 6.0
+ is_reference_database@Base 6.0
+ is_uri_remote_scheme@Base 6.0
  is_ws@Base 4.12
  isi_all@Base 4.12
  isi_nall@Base 4.12
- isiin_convertf@Base 4.12
  isiin_initparams@Base 4.12
- isiin_processf@Base 4.12
- isiin_readf@Base 4.12
- isiin_typef@Base 4.12
  isiout_initparams@Base 4.12
- isiout_write@Base 4.12
- isiout_writeheader@Base 4.12
  iso639_1_from_code@Base 5.6
  iso639_2_from_code@Base 5.0
  iso639_2_from_language@Base 5.0
  iso639_3_from_code@Base 5.6
  jstor_to_url@Base 4.12
  latex2char@Base 4.12
- list_add@Base 4.12
- list_add_all@Base 5.6
- list_add_unique@Base 5.0
- list_addc@Base 5.6
- list_addc_all@Base 5.6
- list_addc_unique@Base 5.6
- list_addvp@Base 5.0
- list_addvp_all@Base 5.6
- list_addvp_unique@Base 5.0
- list_append@Base 5.0
- list_append_unique@Base 5.0
- list_copy@Base 4.12
- list_delete@Base 5.0
- list_dup@Base 4.12
- list_empty@Base 4.12
- list_fill@Base 4.12
- list_fillfp@Base 5.0
- list_find@Base 4.12
- list_findnocase@Base 4.12
- list_free@Base 4.12
- list_get@Base 5.0
- list_getc@Base 5.0
- list_init@Base 4.12
- list_match_entry@Base 5.0
- list_new@Base 5.0
- list_remove@Base 5.0
- list_set@Base 5.4
- list_setc@Base 5.6
- list_sort@Base 4.12
- list_swap@Base 5.6
- list_tokenize@Base 5.0
- list_tokenizec@Base 5.6
- list_trimend@Base 5.0
- lists_empty@Base 5.0
- lists_free@Base 5.0
- lists_init@Base 5.0
  marc_findgenre@Base 4.12
  marc_findresource@Base 4.12
  medin_initparams@Base 4.12
- medin_processf@Base 4.12
- medin_readf@Base 4.12
  mods_find_attrib@Base 4.12
  mods_find_internal@Base 4.12
  modsin_initparams@Base 4.12
- modsin_processf@Base 4.12
- modsin_readf@Base 4.12
  modsout_initparams@Base 4.12
- modsout_write@Base 4.12
- modsout_writefooter@Base 4.12
- modsout_writeheader@Base 4.12
+ mrnumber_to_url@Base 6.0
  nallcharconvert@Base 4.12
  name_add@Base 4.12
  name_addmultielement@Base 5.0
@@ -197,108 +144,173 @@ libbibutils.so.5 libbibutils5 #MINVER#
  name_build_withcomma@Base 5.0
  name_findetal@Base 5.0
  name_parse@Base 5.0
- newstr_addchar@Base 4.12
- newstr_addutf8@Base 5.0
- newstr_cattodelim@Base 5.6
- newstr_char@Base 5.0
- newstr_convert@Base 4.12
- newstr_copyposlen@Base 5.6
- newstr_cpytodelim@Base 5.6
- newstr_delete@Base 5.6
- newstr_empty@Base 4.12
- newstr_fget@Base 4.12
- newstr_fgetline@Base 5.0
- newstr_findreplace@Base 4.12
- newstr_fprintf@Base 4.12
- newstr_free@Base 4.12
- newstr_indxcat@Base 5.0
- newstr_indxcpy@Base 5.0
- newstr_init@Base 4.12
- newstr_initstr@Base 5.0
- newstr_is_lowercase@Base 5.0
- newstr_is_mixedcase@Base 5.0
- newstr_is_uppercase@Base 5.0
- newstr_makepath@Base 5.6
- newstr_match_end@Base 5.0
- newstr_match_first@Base 5.0
- newstr_memerr@Base 5.6
- newstr_mergestrs@Base 5.0
- newstr_new@Base 4.12
- newstr_newstrcat@Base 4.12
- newstr_newstrcmp@Base 5.0
- newstr_newstrcpy@Base 4.12
- newstr_pad@Base 5.6
- newstr_prepend@Base 4.12
- newstr_revchar@Base 5.0
- newstr_reverse@Base 5.0
- newstr_segcat@Base 4.12
- newstr_segcpy@Base 4.12
- newstr_segdel@Base 4.12
- newstr_strcat@Base 4.12
- newstr_strcpy@Base 4.12
- newstr_strdup@Base 4.12
- newstr_stripws@Base 5.0
- newstr_swapstrings@Base 4.12
- newstr_tolower@Base 5.0
- newstr_toupper@Base 4.12
- newstr_trimbegin@Base 5.0
- newstr_trimend@Base 5.0
- newstr_trimendingws@Base 4.12
- newstr_trimstartingws@Base 5.0
- newstrs_empty@Base 4.12
- newstrs_free@Base 4.12
- newstrs_init@Base 4.12
+ nbib_all@Base 6.0
+ nbib_nall@Base 6.0
+ nbibin_initparams@Base 6.0
  ngb18030_enums@Base 4.12
  ngenres@Base 4.12
  nidentifier_types@Base 4.12
+ notes_add@Base 6.0
+ pages_add@Base 6.0
+ pmc_to_url@Base 6.0
  pmid_to_url@Base 4.12
  process_findoldtag@Base 4.12
  ris_all@Base 4.12
  ris_nall@Base 4.12
- risin_convertf@Base 4.12
  risin_initparams@Base 4.12
- risin_processf@Base 4.12
- risin_readf@Base 4.12
- risin_typef@Base 4.12
  risout_initparams@Base 4.12
- risout_write@Base 4.12
- risout_writeheader@Base 4.12
  skip_notws@Base 4.12
  skip_ws@Base 4.12
+ slist_add@Base 6.0
+ slist_add_all@Base 6.0
+ slist_add_unique@Base 6.0
+ slist_addc@Base 6.0
+ slist_addc_all@Base 6.0
+ slist_addc_unique@Base 6.0
+ slist_addvp@Base 6.0
+ slist_addvp_all@Base 6.0
+ slist_addvp_unique@Base 6.0
+ slist_append@Base 6.0
+ slist_append_unique@Base 6.0
+ slist_copy@Base 6.0
+ slist_cstr@Base 6.0
+ slist_delete@Base 6.0
+ slist_deletev@Base 6.0
+ slist_dump@Base 6.0
+ slist_dup@Base 6.0
+ slist_empty@Base 6.0
+ slist_fill@Base 6.0
+ slist_fillfp@Base 6.0
+ slist_find@Base 6.0
+ slist_findc@Base 6.0
+ slist_findnocase@Base 6.0
+ slist_findnocasec@Base 6.0
+ slist_free@Base 6.0
+ slist_get_maxlen@Base 6.0
+ slist_init@Base 6.0
+ slist_init_values@Base 6.0
+ slist_init_valuesc@Base 6.0
+ slist_match_entry@Base 6.0
+ slist_new@Base 6.0
+ slist_remove@Base 6.0
+ slist_set@Base 6.0
+ slist_setc@Base 6.0
+ slist_sort@Base 6.0
+ slist_str@Base 6.0
+ slist_swap@Base 6.0
+ slist_tokenize@Base 6.0
+ slist_tokenizec@Base 6.0
+ slist_trimend@Base 6.0
+ slist_wasfound@Base 6.0
+ slist_wasnotfound@Base 6.0
+ slists_empty@Base 6.0
+ slists_free@Base 6.0
+ slists_init@Base 6.0
+ str_addchar@Base 6.0
+ str_addutf8@Base 6.0
+ str_cattodelim@Base 6.0
+ str_char@Base 6.0
+ str_convert@Base 6.0
+ str_copyposlen@Base 6.0
+ str_cpytodelim@Base 6.0
+ str_cstr@Base 6.0
+ str_delete@Base 6.0
+ str_empty@Base 6.0
+ str_fget@Base 6.0
+ str_fgetline@Base 6.0
+ str_fill@Base 6.0
+ str_findreplace@Base 6.0
+ str_fprintf@Base 6.0
+ str_free@Base 6.0
+ str_has_value@Base 6.0
+ str_indxcat@Base 6.0
+ str_indxcpy@Base 6.0
+ str_init@Base 6.0
+ str_initstr@Base 6.0
+ str_initstrc@Base 6.0
+ str_initstrsc@Base 6.0
+ str_is_empty@Base 6.0
+ str_is_lowercase@Base 6.0
+ str_is_mixedcase@Base 6.0
+ str_is_uppercase@Base 6.0
+ str_makepath@Base 6.0
+ str_match_end@Base 6.0
+ str_match_first@Base 6.0
+ str_memerr@Base 6.0
+ str_mergestrs@Base 6.0
+ str_new@Base 6.0
+ str_pad@Base 6.0
+ str_prepend@Base 6.0
+ str_revchar@Base 6.0
+ str_reverse@Base 6.0
+ str_segcat@Base 6.0
+ str_segcpy@Base 6.0
+ str_segdel@Base 6.0
+ str_strcasecmp@Base 6.0
+ str_strcasecmpc@Base 6.0
+ str_strcat@Base 6.0
+ str_strcatc@Base 6.0
+ str_strcmp@Base 6.0
+ str_strcmpc@Base 6.0
+ str_strcpy@Base 6.0
+ str_strcpyc@Base 6.0
+ str_strdup@Base 6.0
+ str_strdupc@Base 6.0
+ str_stripws@Base 6.0
+ str_strncmp@Base 6.0
+ str_strncmpc@Base 6.0
+ str_strstr@Base 6.0
+ str_strstrc@Base 6.0
+ str_swapstrings@Base 6.0
+ str_tolower@Base 6.0
+ str_toupper@Base 6.0
+ str_trimbegin@Base 6.0
+ str_trimend@Base 6.0
+ str_trimendingws@Base 6.0
+ str_trimstartingws@Base 6.0
+ strs_empty@Base 6.0
+ strs_free@Base 6.0
+ strs_init@Base 6.0
  strsearch@Base 4.12
+ title_combine@Base 6.0
  title_process@Base 4.12
  translate_oldtag@Base 5.0
  uni2latex@Base 4.12
  unicode_utf8_classify@Base 5.0
- unicode_utf8_classify_newstr@Base 5.0
+ unicode_utf8_classify_str@Base 6.0
+ urls_merge_and_add@Base 6.0
+ urls_split_and_add@Base 6.0
  utf8_decode@Base 4.12
  utf8_encode@Base 4.12
  utf8_encode_str@Base 5.0
+ utf8_is_emdash@Base 6.0
+ utf8_is_endash@Base 6.0
  utf8_writebom@Base 4.12
  vplist_add@Base 5.0
  vplist_append@Base 5.0
  vplist_copy@Base 5.0
- vplist_destroy@Base 5.0
- vplist_destroyfn@Base 5.0
+ vplist_delete@Base 6.0
+ vplist_deletefn@Base 6.0
  vplist_empty@Base 5.0
  vplist_emptyfn@Base 5.0
+ vplist_fill@Base 6.0
  vplist_find@Base 5.0
  vplist_free@Base 5.0
  vplist_freefn@Base 5.0
  vplist_get@Base 5.0
  vplist_init@Base 5.0
+ vplist_insert_list@Base 6.0
  vplist_new@Base 5.0
  vplist_remove@Base 5.0
+ vplist_remove_range@Base 6.0
+ vplist_remove_rangefn@Base 6.0
+ vplist_removefn@Base 6.0
  vplist_removevp@Base 5.0
+ vplist_removevpfn@Base 6.0
  vplist_set@Base 5.0
+ vplist_swap@Base 6.0
  wordin_initparams@Base 4.12
- wordin_processf@Base 4.12
- wordin_readf@Base 4.12
  wordout_initparams@Base 4.12
- wordout_write@Base 4.12
- wordout_writefooter@Base 4.12
- wordout_writeheader@Base 4.12
- xml_data@Base 5.6
  xml_draw@Base 4.12
  xml_findend@Base 4.12
  xml_findstart@Base 4.12
@@ -306,10 +318,12 @@ libbibutils.so.5 libbibutils5 #MINVER#
  xml_getattrib@Base 4.12
  xml_getencoding@Base 4.12
  xml_hasattrib@Base 5.6
- xml_hasdata@Base 5.6
+ xml_hasvalue@Base 6.0
  xml_init@Base 4.12
  xml_pns@Base 4.12
+ xml_tag@Base 6.0
  xml_tag_attrib@Base 4.12
  xml_tagexact@Base 4.12
- xml_tagwithdata@Base 5.6
+ xml_tagwithvalue@Base 6.0
  xml_tree@Base 4.12
+ xml_value@Base 6.0
