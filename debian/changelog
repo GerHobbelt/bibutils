@@ -1,8 +1,9 @@
-bibutils (6.0-1) UNRELEASED; urgency=medium
+bibutils (6.0-1) experimental; urgency=medium
 
   * New upstream version
+  * bump SONAME to libbibutils.so.6
 
- -- David Bremner <bremner@debian.org>  Mon, 03 Jul 2017 14:26:23 -0300
+ -- David Bremner <bremner@debian.org>  Tue, 04 Jul 2017 21:17:44 -0300
 
 bibutils (5.6-1) experimental; urgency=medium
 
