@@ -283,6 +283,7 @@ libbibutils.so.6 libbibutils6 #MINVER#
  utf8_decode@Base 4.12
  utf8_encode@Base 4.12
  utf8_encode_str@Base 5.0
+ utf8_is_bom@Base 6.2
  utf8_is_emdash@Base 6.0
  utf8_is_endash@Base 6.0
  utf8_writebom@Base 4.12
