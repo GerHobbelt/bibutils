@@ -19,8 +19,8 @@
 
 typedef struct str {
 	char *data;
-	unsigned long dim;
-	unsigned long len;
+	long dim;
+	long len;
 #ifndef STR_SMALL
 	int status;
 #endif
