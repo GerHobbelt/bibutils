@@ -1,7 +1,7 @@
 /*
  * bibtypes.c
  *
- * Copyright (c) Chris Putnam 2003-2017
+ * Copyright (c) Chris Putnam 2003-2020
  *
  * Program and source code released under the GPL version 2
  *
@@ -17,7 +17,11 @@
  */
 static lookups article[] = {
 	{ "author",       "AUTHOR",         PERSON,       LEVEL_MAIN },
+	{ "author:ASIS",  "AUTHOR:ASIS",    PERSON,       LEVEL_MAIN },
+	{ "author:CORP",  "AUTHOR:CORP",    PERSON,       LEVEL_MAIN },
 	{ "translator",   "TRANSLATOR",     PERSON,       LEVEL_MAIN },
+	{ "translator:ASIS","TRANSLATOR:ASIS",PERSON,     LEVEL_MAIN },
+	{ "translator:CORP","TRANSLATOR:CORP",PERSON,     LEVEL_MAIN },
 	{ "title",        "",               TITLE,        LEVEL_MAIN },
 	{ "year",         "PARTDATE:YEAR",  SIMPLE,       LEVEL_MAIN },
 	{ "month",        "PARTDATE:MONTH", SIMPLE,       LEVEL_MAIN },
@@ -53,19 +57,23 @@ static lookups article[] = {
 	{ "refnum",       "REFNUM",         SIMPLE,       LEVEL_MAIN },
 	{ "crossref",     "CROSSREF",       SIMPLE,       LEVEL_MAIN },
 	{ "keywords",     "KEYWORD",        KEYWORD,      LEVEL_MAIN },
-	{ "",             "INTERNAL_TYPE|ARTICLE",   ALWAYS, LEVEL_MAIN },
-	{ "",             "ISSUANCE|continuing",     ALWAYS, LEVEL_HOST },
-	{ "",             "RESOURCE|text",           ALWAYS, LEVEL_MAIN },
-	{ "",             "NGENRE|journal article",  ALWAYS, LEVEL_MAIN },
-	{ "",             "GENRE|periodical",        ALWAYS, LEVEL_HOST },
-	{ "",             "NGENRE|academic journal", ALWAYS, LEVEL_HOST }
+	{ "",             "INTERNAL_TYPE|ARTICLE",           ALWAYS, LEVEL_MAIN },
+	{ "",             "ISSUANCE|continuing",             ALWAYS, LEVEL_HOST },
+	{ "",             "RESOURCE|text",                   ALWAYS, LEVEL_MAIN },
+	{ "",             "GENRE:MARC|periodical",           ALWAYS, LEVEL_HOST },
+	{ "",             "GENRE:BIBUTILS|journal article",  ALWAYS, LEVEL_MAIN },
+	{ "",             "GENRE:BIBUTILS|academic journal", ALWAYS, LEVEL_HOST }
 };
 
 /* Book */
 
 static lookups book[] = {
 	{ "author",       "AUTHOR",         PERSON,       LEVEL_MAIN },
+	{ "author:ASIS",  "AUTHOR:ASIS",    PERSON,       LEVEL_MAIN },
+	{ "author:CORP",  "AUTHOR:CORP",    PERSON,       LEVEL_MAIN },
 	{ "translator",   "TRANSLATOR",     PERSON,       LEVEL_MAIN },
+	{ "translator:ASIS","TRANSLATOR:ASIS",PERSON,     LEVEL_MAIN },
+	{ "translator:CORP","TRANSLATOR:CORP",PERSON,     LEVEL_MAIN },
 	{ "title",        "",               TITLE,        LEVEL_MAIN },
 	{ "booktitle",    "",               TITLE,        LEVEL_MAIN },
 	{ "series",       "",               TITLE,        LEVEL_HOST },
@@ -73,6 +81,8 @@ static lookups book[] = {
 	{ "organization", "ORGANIZER:CORP", BT_ORG,       LEVEL_MAIN },
 	{ "address",      "ADDRESS",        SIMPLE,       LEVEL_MAIN },
 	{ "editor",       "EDITOR",         PERSON,       LEVEL_MAIN },
+	{ "editor:ASIS",  "EDITOR:ASIS",    PERSON,       LEVEL_MAIN },
+	{ "editor:CORP",  "EDITOR:CORP",    PERSON,       LEVEL_MAIN },
 	{ "year",         "DATE:YEAR",      SIMPLE,       LEVEL_MAIN },
 	{ "month",        "DATE:MONTH",     SIMPLE,       LEVEL_MAIN },
 	{ "day",          "DATE:DAY",       SIMPLE,       LEVEL_MAIN },
@@ -87,7 +97,7 @@ static lookups book[] = {
 	{ "location",     "LOCATION",       SIMPLE,       LEVEL_MAIN },
 	{ "note",         "NOTES",          NOTES,        LEVEL_MAIN },
 	{ "annote",       "ANNOTE",         SIMPLE,       LEVEL_MAIN },
-	{ "type",         "GENRE",          SIMPLE,       LEVEL_MAIN },
+	{ "type",         "GENRE:UKNOWN",   GENRE,        LEVEL_MAIN },
 	{ "key",          "BIBKEY",         SIMPLE,       LEVEL_MAIN },
 	{ "ftp",          "",               URL,          LEVEL_MAIN },
 	{ "url",          "",               URL,          LEVEL_MAIN },
@@ -104,18 +114,24 @@ static lookups book[] = {
 	{ "",             "INTERNAL_TYPE|BOOK",   ALWAYS, LEVEL_MAIN },
 	{ "",             "RESOURCE|text",        ALWAYS, LEVEL_MAIN },
 	{ "",             "ISSUANCE|monographic", ALWAYS, LEVEL_MAIN },
-	{ "",             "GENRE|book",           ALWAYS, LEVEL_MAIN }
+	{ "",             "GENRE:MARC|book",      ALWAYS, LEVEL_MAIN }
 };
 
 /* Technical reports */
 
 static lookups report[] = {
-	{ "author",       "AUTHOR",     PERSON,       LEVEL_MAIN },
-	{ "translator",   "TRANSLATOR", PERSON,       LEVEL_MAIN },
+	{ "author",       "AUTHOR",         PERSON,       LEVEL_MAIN },
+	{ "author:ASIS",  "AUTHOR:ASIS",    PERSON,       LEVEL_MAIN },
+	{ "author:CORP",  "AUTHOR:CORP",    PERSON,       LEVEL_MAIN },
+	{ "translator",   "TRANSLATOR",     PERSON,       LEVEL_MAIN },
+	{ "translator:ASIS","TRANSLATOR:ASIS",PERSON,     LEVEL_MAIN },
+	{ "translator:CORP","TRANSLATOR:CORP",PERSON,     LEVEL_MAIN },
 	{ "title",        "",           TITLE,        LEVEL_MAIN },
 	{ "booktitle",    "",           TITLE,        LEVEL_MAIN },
 	{ "series",       "",           TITLE,        LEVEL_HOST },
-	{ "editor",       "EDITOR",     PERSON,       LEVEL_MAIN },
+	{ "editor",       "EDITOR",         PERSON,       LEVEL_MAIN },
+	{ "editor:ASIS",  "EDITOR:ASIS",    PERSON,       LEVEL_MAIN },
+	{ "editor:CORP",  "EDITOR:CORP",    PERSON,       LEVEL_MAIN },
 	{ "publisher",    "PUBLISHER",  SIMPLE,       LEVEL_MAIN },
 	{ "institution",  "PUBLISHER",  SIMPLE,       LEVEL_MAIN },
 	{ "address",      "ADDRESS",    SIMPLE,       LEVEL_MAIN },
@@ -142,19 +158,25 @@ static lookups report[] = {
 	{ "howpublished", "",           HOWPUBLISHED, LEVEL_MAIN },
 	{ "refnum",       "REFNUM",     SIMPLE,       LEVEL_MAIN },
 	{ "crossref",     "CROSSREF",   SIMPLE,       LEVEL_MAIN },
-	{ "type",         "GENRE",      SIMPLE,       LEVEL_MAIN },
+	{ "type",         "GENRE:UKNOWN", GENRE,      LEVEL_MAIN },
 	{ "keywords",     "KEYWORD",    KEYWORD,      LEVEL_MAIN },
-	{ "",         "INTERNAL_TYPE|REPORT", ALWAYS, LEVEL_MAIN },
-	{ "",         "RESOURCE|text",        ALWAYS, LEVEL_MAIN },
-	{ "",         "GENRE|report",         ALWAYS, LEVEL_MAIN }
+	{ "", "INTERNAL_TYPE|REPORT",        ALWAYS,  LEVEL_MAIN },
+	{ "", "RESOURCE|text",               ALWAYS,  LEVEL_MAIN },
+	{ "", "GENRE:MARC|technical report", ALWAYS,  LEVEL_MAIN },
 };
 
 static lookups manual[] = {
-	{ "author",    "AUTHOR",    PERSON, LEVEL_MAIN },
-	{ "translator",   "TRANSLATOR",PERSON, LEVEL_MAIN },
-	{ "title",     "",     TITLE,  LEVEL_MAIN },
-	{ "booktitle", "",     TITLE,  LEVEL_MAIN },
-	{ "editor",    "EDITOR",    PERSON, LEVEL_MAIN },
+	{ "author",       "AUTHOR",         PERSON,       LEVEL_MAIN },
+	{ "author:ASIS",  "AUTHOR:ASIS",    PERSON,       LEVEL_MAIN },
+	{ "author:CORP",  "AUTHOR:CORP",    PERSON,       LEVEL_MAIN },
+	{ "translator",   "TRANSLATOR",     PERSON,       LEVEL_MAIN },
+	{ "translator:ASIS","TRANSLATOR:ASIS",PERSON,     LEVEL_MAIN },
+	{ "translator:CORP","TRANSLATOR:CORP",PERSON,     LEVEL_MAIN },
+	{ "title",         "",              TITLE,        LEVEL_MAIN },
+	{ "booktitle",     "",              TITLE,        LEVEL_MAIN },
+	{ "editor",       "EDITOR",         PERSON,       LEVEL_MAIN },
+	{ "editor:ASIS",  "EDITOR:ASIS",    PERSON,       LEVEL_MAIN },
+	{ "editor:CORP",  "EDITOR:CORP",    PERSON,       LEVEL_MAIN },
 	{ "publisher", "PUBLISHER", SIMPLE, LEVEL_MAIN },
 	{ "organization", "ORGANIZER:CORP", BT_ORG, LEVEL_MAIN },
 	{ "address",   "ADDRESS",   SIMPLE, LEVEL_MAIN },
@@ -183,15 +205,21 @@ static lookups manual[] = {
 	{ "keywords",     "KEYWORD",   KEYWORD, LEVEL_MAIN },
 	{ "",         "INTERNAL_TYPE|REPORT", ALWAYS, LEVEL_MAIN },
 	{ "",         "RESOURCE|text",        ALWAYS, LEVEL_MAIN },
-	{ "",         "GENRE|instruction",    ALWAYS, LEVEL_MAIN }
+	{ "",         "GENRE:MARC|instruction", ALWAYS, LEVEL_MAIN }
 };
 
 /* Part of a book (e.g. chapter or section) */
 
 static lookups inbook[] = {
-	{ "author",       "AUTHOR",    PERSON, LEVEL_MAIN },
-	{ "translator",   "TRANSLATOR",PERSON, LEVEL_MAIN },
-	{ "editor",       "EDITOR",    PERSON, LEVEL_HOST },
+	{ "author",       "AUTHOR",         PERSON,       LEVEL_MAIN },
+	{ "author:ASIS",  "AUTHOR:ASIS",    PERSON,       LEVEL_MAIN },
+	{ "author:CORP",  "AUTHOR:CORP",    PERSON,       LEVEL_MAIN },
+	{ "translator",   "TRANSLATOR",     PERSON,       LEVEL_MAIN },
+	{ "translator:ASIS","TRANSLATOR:ASIS",PERSON,     LEVEL_MAIN },
+	{ "translator:CORP","TRANSLATOR:CORP",PERSON,     LEVEL_MAIN },
+	{ "editor",       "EDITOR",         PERSON,       LEVEL_HOST },
+	{ "editor:ASIS",  "EDITOR:ASIS",    PERSON,       LEVEL_HOST },
+	{ "editor:CORP",  "EDITOR:CORP",    PERSON,       LEVEL_HOST },
 	{ "chapter",      "CHAPTER",   SIMPLE, LEVEL_MAIN },   /* chapter number */
 	{ "title",        "",          TITLE,  LEVEL_MAIN },   /* chapter name */
 	{ "booktitle",    "",          TITLE,  LEVEL_HOST },
@@ -217,27 +245,33 @@ static lookups inbook[] = {
 	{ "pdf",          "FILEATTACH",SIMPLE, LEVEL_MAIN },
 	{ "sentelink",    "FILEATTACH",BT_SENTE, LEVEL_MAIN },
 	{ "file",         "FILEATTACH",LINKEDFILE,   LEVEL_MAIN },
-	{ "howpublished", "",    HOWPUBLISHED, LEVEL_MAIN },
-	{ "refnum",       "REFNUM",    SIMPLE, LEVEL_MAIN },
-	{ "crossref",     "CROSSREF",  SIMPLE, LEVEL_MAIN },
-	{ "type",         "GENRE",      SIMPLE, LEVEL_MAIN },
-	{ "note",         "NOTES",        NOTES,   LEVEL_MAIN },
-	{ "annote",       "ANNOTE",    SIMPLE, LEVEL_MAIN },
-	{ "key",          "BIBKEY",          SIMPLE, LEVEL_MAIN },
+	{ "howpublished", "",    HOWPUBLISHED,  LEVEL_MAIN },
+	{ "refnum",       "REFNUM",    SIMPLE,  LEVEL_MAIN },
+	{ "crossref",     "CROSSREF",  SIMPLE,  LEVEL_MAIN },
+	{ "type",         "GENRE:UNKNOWN", GENRE,  LEVEL_MAIN },
+	{ "note",         "NOTES",     NOTES,   LEVEL_MAIN },
+	{ "annote",       "ANNOTE",    SIMPLE,  LEVEL_MAIN },
+	{ "key",          "BIBKEY",    SIMPLE,  LEVEL_MAIN },
 	{ "keywords",     "KEYWORD",   KEYWORD, LEVEL_MAIN },
-	{ "",             "INTERNAL_TYPE|INBOOK", ALWAYS, LEVEL_MAIN },
-	{ "",             "RESOURCE|text",        ALWAYS, LEVEL_MAIN },
-	{ "",             "ISSUANCE|monographic", ALWAYS, LEVEL_HOST },
-	{ "",             "NGENRE|book chapter",  ALWAYS, LEVEL_MAIN },
-	{ "",             "GENRE|book",           ALWAYS, LEVEL_HOST }
+	{ "",             "INTERNAL_TYPE|INBOOK",        ALWAYS, LEVEL_MAIN },
+	{ "",             "RESOURCE|text",               ALWAYS, LEVEL_MAIN },
+	{ "",             "ISSUANCE|monographic",        ALWAYS, LEVEL_HOST },
+	{ "",             "GENRE:BIBUTILS|book chapter", ALWAYS, LEVEL_MAIN },
+	{ "",             "GENRE:MARC|book",             ALWAYS, LEVEL_HOST }
 };
 
 /* References of papers in conference proceedings */
 
 static lookups inproceedings[] = {
-	{ "author",     "AUTHOR",     PERSON, LEVEL_MAIN },
-	{ "translator", "TRANSLATOR", PERSON, LEVEL_MAIN },
-	{ "editor",     "EDITOR",     PERSON, LEVEL_HOST },
+	{ "author",       "AUTHOR",         PERSON,       LEVEL_MAIN },
+	{ "author:ASIS",  "AUTHOR:ASIS",    PERSON,       LEVEL_MAIN },
+	{ "author:CORP",  "AUTHOR:CORP",    PERSON,       LEVEL_MAIN },
+	{ "translator",   "TRANSLATOR",     PERSON,       LEVEL_MAIN },
+	{ "translator:ASIS","TRANSLATOR:ASIS",PERSON,     LEVEL_MAIN },
+	{ "translator:CORP","TRANSLATOR:CORP",PERSON,     LEVEL_MAIN },
+	{ "editor",       "EDITOR",         PERSON,       LEVEL_HOST },
+	{ "editor:ASIS",  "EDITOR:ASIS",    PERSON,       LEVEL_HOST },
+	{ "editor:CORP",  "EDITOR:CORP",    PERSON,       LEVEL_HOST },
 	{ "chapter",    "CHAPTER",    SIMPLE, LEVEL_MAIN },   /* chapter number */
 	{ "title",      "",           TITLE,  LEVEL_MAIN },   /* chapter name */
 	{ "booktitle",  "",           TITLE,  LEVEL_HOST },
@@ -264,7 +298,7 @@ static lookups inproceedings[] = {
 	{ "pdf",          "FILEATTACH",SIMPLE, LEVEL_MAIN },
 	{ "sentelink",    "FILEATTACH",BT_SENTE, LEVEL_MAIN },
 	{ "file",         "FILEATTACH",LINKEDFILE,   LEVEL_MAIN },
-	{ "type",      "GENRE",      SIMPLE, LEVEL_MAIN },
+	{ "type",      "GENRE:UNKNOWN",   GENRE,  LEVEL_MAIN },
 	{ "note",         "NOTES",        NOTES,   LEVEL_MAIN },
 	{ "annote",       "ANNOTE",    SIMPLE, LEVEL_MAIN },
 	{ "key",          "BIBKEY",          SIMPLE, LEVEL_MAIN },
@@ -274,15 +308,21 @@ static lookups inproceedings[] = {
 	{ "keywords",     "KEYWORD",   KEYWORD, LEVEL_MAIN },
 	{ "",         "INTERNAL_TYPE|INPROCEEDINGS",  ALWAYS, LEVEL_MAIN },
 	{ "",         "RESOURCE|text",                ALWAYS, LEVEL_MAIN },
-	{ "",         "GENRE|conference publication", ALWAYS, LEVEL_HOST }
+	{ "",         "GENRE:MARC|conference publication", ALWAYS, LEVEL_HOST }
 };
 
 /* Used for a section of a book with its own title */
 
 static lookups incollection[] = {
-	{ "author",     "AUTHOR",     PERSON, LEVEL_MAIN },
-	{ "translator", "TRANSLATOR", PERSON, LEVEL_MAIN },
-	{ "editor",     "EDITOR",     PERSON, LEVEL_HOST },
+	{ "author",       "AUTHOR",         PERSON,       LEVEL_MAIN },
+	{ "author:ASIS",  "AUTHOR:ASIS",    PERSON,       LEVEL_MAIN },
+	{ "author:CORP",  "AUTHOR:CORP",    PERSON,       LEVEL_MAIN },
+	{ "translator",   "TRANSLATOR",     PERSON,       LEVEL_MAIN },
+	{ "translator:ASIS","TRANSLATOR:ASIS",PERSON,     LEVEL_MAIN },
+	{ "translator:CORP","TRANSLATOR:CORP",PERSON,     LEVEL_MAIN },
+	{ "editor",       "EDITOR",         PERSON,       LEVEL_HOST },
+	{ "editor:ASIS",  "EDITOR:ASIS",    PERSON,       LEVEL_HOST },
+	{ "editor:CORP",  "EDITOR:CORP",    PERSON,       LEVEL_HOST },
 	{ "chapter",    "CHAPTER",    SIMPLE, LEVEL_MAIN },   /* chapter number */
 	{ "title",      "",           TITLE,  LEVEL_MAIN },   /* chapter name */
 	{ "booktitle",  "",           TITLE,  LEVEL_HOST },
@@ -301,7 +341,7 @@ static lookups incollection[] = {
 	{ "abstract",  "ABSTRACT",  SIMPLE, LEVEL_MAIN },
 	{ "contents",  "CONTENTS",  SIMPLE, LEVEL_HOST },
 	{ "language",  "LANGUAGE",  SIMPLE, LEVEL_MAIN },
-	{ "type",      "GENRE",     SIMPLE, LEVEL_MAIN },
+	{ "type",      "GENRE:UNKNOWN",     GENRE,  LEVEL_MAIN },
 	{ "note",      "NOTES",     NOTES,  LEVEL_MAIN },
 	{ "annote",    "ANNOTE",    SIMPLE, LEVEL_MAIN },
 	{ "key",       "BIBKEY",    SIMPLE, LEVEL_MAIN },
@@ -319,15 +359,21 @@ static lookups incollection[] = {
 	{ "",         "INTERNAL_TYPE|INCOLLECTION", ALWAYS, LEVEL_MAIN },
 	{ "",         "RESOURCE|text",              ALWAYS, LEVEL_MAIN },
 	{ "",         "ISSUANCE|monographic",       ALWAYS, LEVEL_MAIN },
-	{ "",         "GENRE|collection",           ALWAYS, LEVEL_HOST }
+	{ "",         "GENRE:BIBUTILS|collection",  ALWAYS, LEVEL_HOST }
 };
 
 /* Proceedings */
 
 static lookups proceedings[] = {
-	{ "author",    "AUTHOR",    PERSON, LEVEL_MAIN },
-	{ "translator",   "TRANSLATOR",PERSON, LEVEL_MAIN },
-	{ "editor",    "EDITOR",    PERSON, LEVEL_MAIN },
+	{ "author",       "AUTHOR",         PERSON,       LEVEL_MAIN },
+	{ "author:ASIS",  "AUTHOR:ASIS",    PERSON,       LEVEL_MAIN },
+	{ "author:CORP",  "AUTHOR:CORP",    PERSON,       LEVEL_MAIN },
+	{ "translator",   "TRANSLATOR",     PERSON,       LEVEL_MAIN },
+	{ "translator:ASIS","TRANSLATOR:ASIS",PERSON,     LEVEL_MAIN },
+	{ "translator:CORP","TRANSLATOR:CORP",PERSON,     LEVEL_MAIN },
+	{ "editor",       "EDITOR",         PERSON,       LEVEL_MAIN },
+	{ "editor:ASIS",  "EDITOR:ASIS",    PERSON,       LEVEL_MAIN },
+	{ "editor:CORP",  "EDITOR:CORP",    PERSON,       LEVEL_MAIN },
 	{ "title",     "",     TITLE,  LEVEL_MAIN },
 	{ "booktitle", "",     TITLE,  LEVEL_MAIN },
 	{ "series",    "",     TITLE,  LEVEL_HOST },
@@ -359,14 +405,18 @@ static lookups proceedings[] = {
 	{ "refnum",    "REFNUM",    SIMPLE, LEVEL_MAIN },
 	{ "crossref",     "CROSSREF",  SIMPLE, LEVEL_MAIN },
 	{ "keywords",     "KEYWORD",   KEYWORD, LEVEL_MAIN },
-	{ "",         "INTERNAL_TYPE|PROCEEDINGS",    ALWAYS, LEVEL_MAIN },
-	{ "",         "RESOURCE|text",                ALWAYS, LEVEL_MAIN },
-	{ "",         "GENRE|conference publication", ALWAYS, LEVEL_MAIN }
+	{ "",         "INTERNAL_TYPE|PROCEEDINGS",         ALWAYS, LEVEL_MAIN },
+	{ "",         "RESOURCE|text",                     ALWAYS, LEVEL_MAIN },
+	{ "",         "GENRE:MARC|conference publication", ALWAYS, LEVEL_MAIN }
 };
 
 static lookups phds[] = {
-	{ "author",    "AUTHOR",    PERSON, LEVEL_MAIN },
-	{ "translator",   "TRANSLATOR",PERSON, LEVEL_MAIN },
+	{ "author",       "AUTHOR",         PERSON,       LEVEL_MAIN },
+	{ "author:ASIS",  "AUTHOR:ASIS",    PERSON,       LEVEL_MAIN },
+	{ "author:CORP",  "AUTHOR:CORP",    PERSON,       LEVEL_MAIN },
+	{ "translator",   "TRANSLATOR",     PERSON,       LEVEL_MAIN },
+	{ "translator:ASIS","TRANSLATOR:ASIS",PERSON,     LEVEL_MAIN },
+	{ "translator:CORP","TRANSLATOR:CORP",PERSON,     LEVEL_MAIN },
 	{ "title",     "",     TITLE,  LEVEL_MAIN },
 	{ "year",      "DATE:YEAR",      SIMPLE, LEVEL_MAIN },
 	{ "month",     "DATE:MONTH",     SIMPLE, LEVEL_MAIN },
@@ -381,25 +431,29 @@ static lookups phds[] = {
 	{ "pdf",          "FILEATTACH",SIMPLE, LEVEL_MAIN },
 	{ "sentelink",    "FILEATTACH",BT_SENTE, LEVEL_MAIN },
 	{ "file",         "FILEATTACH",LINKEDFILE,   LEVEL_MAIN },
-	{ "howpublished", "" ,   HOWPUBLISHED, LEVEL_MAIN },
-	{ "language",     "LANGUAGE",     SIMPLE, LEVEL_MAIN },
-	{ "location",     "LOCATION",     SIMPLE, LEVEL_MAIN },
-	{ "note",         "NOTES",        NOTES,   LEVEL_MAIN },
-	{ "annote",       "ANNOTE",    SIMPLE, LEVEL_MAIN },
-	{ "key",          "BIBKEY",          SIMPLE, LEVEL_MAIN },
-	{ "type",         "GENRE",         SIMPLE, LEVEL_MAIN },
-	{ "refnum",    "REFNUM",    SIMPLE, LEVEL_MAIN },
-	{ "crossref",     "CROSSREF",  SIMPLE, LEVEL_MAIN },
+	{ "howpublished", "" ,   HOWPUBLISHED,  LEVEL_MAIN },
+	{ "language",     "LANGUAGE",  SIMPLE,  LEVEL_MAIN },
+	{ "location",     "LOCATION",  SIMPLE,  LEVEL_MAIN },
+	{ "note",         "NOTES",     NOTES,   LEVEL_MAIN },
+	{ "annote",       "ANNOTE",    SIMPLE,  LEVEL_MAIN },
+	{ "key",          "BIBKEY",    SIMPLE,  LEVEL_MAIN },
+	{ "type",         "GENRE:UNKNOWN",     GENRE,   LEVEL_MAIN },
+	{ "refnum",       "REFNUM",    SIMPLE,  LEVEL_MAIN },
+	{ "crossref",     "CROSSREF",  SIMPLE,  LEVEL_MAIN },
 	{ "keywords",     "KEYWORD",   KEYWORD, LEVEL_MAIN },
-	{ "",         "INTERNAL_TYPE|THESIS", ALWAYS,  LEVEL_MAIN },
-	{ "",         "RESOURCE|text",        ALWAYS,  LEVEL_MAIN },
-	{ "",         "GENRE|thesis",         ALWAYS,  LEVEL_MAIN },
-	{ "",         "NGENRE|Ph.D. thesis",  DEFAULT, LEVEL_MAIN }
+	{ "",         "INTERNAL_TYPE|THESIS",        ALWAYS,  LEVEL_MAIN },
+	{ "",         "RESOURCE|text",               ALWAYS,  LEVEL_MAIN },
+	{ "",         "GENRE:MARC|thesis",           ALWAYS,  LEVEL_MAIN },
+	{ "",         "GENRE:BIBUTILS|Ph.D. thesis", DEFAULT, LEVEL_MAIN }
 };
 
 static lookups masters[] = {
-	{ "author",    "AUTHOR",    PERSON, LEVEL_MAIN },
-	{ "translator",   "TRANSLATOR",PERSON, LEVEL_MAIN },
+	{ "author",       "AUTHOR",         PERSON,       LEVEL_MAIN },
+	{ "author:ASIS",  "AUTHOR:ASIS",    PERSON,       LEVEL_MAIN },
+	{ "author:CORP",  "AUTHOR:CORP",    PERSON,       LEVEL_MAIN },
+	{ "translator",   "TRANSLATOR",     PERSON,       LEVEL_MAIN },
+	{ "translator:ASIS","TRANSLATOR:ASIS",PERSON,     LEVEL_MAIN },
+	{ "translator:CORP","TRANSLATOR:CORP",PERSON,     LEVEL_MAIN },
 	{ "title",     "",     TITLE,  LEVEL_MAIN },
 	{ "year",      "DATE:YEAR",      SIMPLE, LEVEL_MAIN },
 	{ "month",     "DATE:MONTH",     SIMPLE, LEVEL_MAIN },
@@ -411,35 +465,41 @@ static lookups masters[] = {
 	{ "doi",       "DOI",       SIMPLE, LEVEL_MAIN },
 	{ "ftp",       "",          URL,   LEVEL_MAIN },
 	{ "url",       "",          URL,   LEVEL_MAIN },
-	{ "pdf",          "FILEATTACH",SIMPLE, LEVEL_MAIN },
-	{ "sentelink",    "FILEATTACH",BT_SENTE, LEVEL_MAIN },
-	{ "file",         "FILEATTACH",LINKEDFILE,   LEVEL_MAIN },
-	{ "language",     "LANGUAGE",     SIMPLE, LEVEL_MAIN },
-	{ "location",     "LOCATION",     SIMPLE, LEVEL_MAIN },
-	{ "note",         "NOTES",        NOTES,   LEVEL_MAIN },
-	{ "annote",       "ANNOTE",    SIMPLE, LEVEL_MAIN },
-	{ "key",          "BIBKEY",          SIMPLE, LEVEL_MAIN },
-	{ "type",         "GENRE",         SIMPLE, LEVEL_MAIN },
-	{ "howpublished", "",    HOWPUBLISHED, LEVEL_MAIN },
-	{ "refnum",    "REFNUM",    SIMPLE, LEVEL_MAIN },
-	{ "crossref",     "CROSSREF",  SIMPLE, LEVEL_MAIN },
-	{ "keywords",     "KEYWORD",   KEYWORD, LEVEL_MAIN },
-	{ "",         "INTERNAL_TYPE|THESIS",  ALWAYS,  LEVEL_MAIN },
-	{ "",         "RESOURCE|text",         ALWAYS,  LEVEL_MAIN },
-	{ "",         "GENRE|thesis",          ALWAYS,  LEVEL_MAIN },
-	{ "",         "NGENRE|Masters thesis", DEFAULT, LEVEL_MAIN }
+	{ "pdf",          "FILEATTACH", SIMPLE, LEVEL_MAIN },
+	{ "sentelink",    "FILEATTACH", BT_SENTE, LEVEL_MAIN },
+	{ "file",         "FILEATTACH", LINKEDFILE,   LEVEL_MAIN },
+	{ "language",     "LANGUAGE",   SIMPLE,  LEVEL_MAIN },
+	{ "location",     "LOCATION",   SIMPLE,  LEVEL_MAIN },
+	{ "note",         "NOTES",      NOTES,   LEVEL_MAIN },
+	{ "annote",       "ANNOTE",     SIMPLE,  LEVEL_MAIN },
+	{ "key",          "BIBKEY",     SIMPLE,  LEVEL_MAIN },
+	{ "type",         "GENRE:UNKNOWN",      GENRE,   LEVEL_MAIN },
+	{ "howpublished", "",    HOWPUBLISHED,   LEVEL_MAIN },
+	{ "refnum",       "REFNUM",     SIMPLE,  LEVEL_MAIN },
+	{ "crossref",     "CROSSREF",   SIMPLE,  LEVEL_MAIN },
+	{ "keywords",     "KEYWORD",    KEYWORD, LEVEL_MAIN },
+	{ "",         "INTERNAL_TYPE|THESIS",          ALWAYS,  LEVEL_MAIN },
+	{ "",         "RESOURCE|text",                 ALWAYS,  LEVEL_MAIN },
+	{ "",         "GENRE:MARC|thesis",             ALWAYS,  LEVEL_MAIN },
+	{ "",         "GENRE:BIBUTILS|Masters thesis", DEFAULT, LEVEL_MAIN }
 };
 
 /* Unpublished */
 
 static lookups unpublished[] = {
-	{ "author",    "AUTHOR",    PERSON, LEVEL_MAIN },
-	{ "translator",   "TRANSLATOR",PERSON, LEVEL_MAIN },
-	{ "title",     "",     TITLE,  LEVEL_MAIN },
-	{ "booktitle", "",     TITLE,  LEVEL_MAIN },
-	{ "publisher", "PUBLISHER", SIMPLE, LEVEL_MAIN },
-	{ "address",   "ADDRESS",   SIMPLE, LEVEL_MAIN },
-	{ "editor",    "EDITOR",    PERSON, LEVEL_MAIN },
+	{ "author",       "AUTHOR",         PERSON,       LEVEL_MAIN },
+	{ "author:ASIS",  "AUTHOR:ASIS",    PERSON,       LEVEL_MAIN },
+	{ "author:CORP",  "AUTHOR:CORP",    PERSON,       LEVEL_MAIN },
+	{ "translator",   "TRANSLATOR",     PERSON,       LEVEL_MAIN },
+	{ "translator:ASIS","TRANSLATOR:ASIS",PERSON,     LEVEL_MAIN },
+	{ "translator:CORP","TRANSLATOR:CORP",PERSON,     LEVEL_MAIN },
+	{ "title",        "",               TITLE,        LEVEL_MAIN },
+	{ "booktitle",    "",               TITLE,        LEVEL_MAIN },
+	{ "publisher",    "PUBLISHER",      SIMPLE,       LEVEL_MAIN },
+	{ "address",      "ADDRESS",        SIMPLE,       LEVEL_MAIN },
+	{ "editor",       "EDITOR",         PERSON,       LEVEL_MAIN },
+	{ "editor:ASIS",  "EDITOR:ASIS",    PERSON,       LEVEL_MAIN },
+	{ "editor:CORP",  "EDITOR:CORP",    PERSON,       LEVEL_MAIN },
 	{ "year",      "DATE:YEAR",      SIMPLE, LEVEL_MAIN },
 	{ "month",     "DATE:MONTH",     SIMPLE, LEVEL_MAIN },
 	{ "day",       "DATE:DAY",       SIMPLE, LEVEL_MAIN },
@@ -462,22 +522,28 @@ static lookups unpublished[] = {
 	{ "keywords",     "KEYWORD",   KEYWORD, LEVEL_MAIN },
 	{ "",         "INTERNAL_TYPE|BOOK", ALWAYS, LEVEL_MAIN },
 	{ "",         "RESOURCE|text",      ALWAYS, LEVEL_MAIN },
-	{ "",         "GENRE|unpublished",  ALWAYS, LEVEL_MAIN }
+	{ "",         "GENRE:BIBUTILS|unpublished", ALWAYS, LEVEL_MAIN }
 };
 
 /*
  * For Published Standards
  */
 static lookups standard[] = {
-	{ "author",    "AUTHOR",    PERSON, LEVEL_MAIN },
-	{ "translator",   "TRANSLATOR",PERSON, LEVEL_MAIN },
+	{ "author",       "AUTHOR",         PERSON,       LEVEL_MAIN },
+	{ "author:ASIS",  "AUTHOR:ASIS",    PERSON,       LEVEL_MAIN },
+	{ "author:CORP",  "AUTHOR:CORP",    PERSON,       LEVEL_MAIN },
+	{ "translator",   "TRANSLATOR",     PERSON,       LEVEL_MAIN },
+	{ "translator:ASIS","TRANSLATOR:ASIS",PERSON,     LEVEL_MAIN },
+	{ "translator:CORP","TRANSLATOR:CORP",PERSON,     LEVEL_MAIN },
 	{ "organization", "ORGANIZER:CORP", BT_ORG, LEVEL_MAIN },
 	{ "institution", "AUTHOR:CORP", SIMPLE, LEVEL_MAIN },
 	{ "title",     "",           TITLE,    LEVEL_MAIN },
 	{ "booktitle", "",           TITLE,    LEVEL_MAIN },
 	{ "publisher", "PUBLISHER",  SIMPLE,   LEVEL_MAIN },
 	{ "address",   "ADDRESS",    SIMPLE,   LEVEL_MAIN },
-	{ "editor",    "EDITOR",     PERSON,   LEVEL_MAIN },
+	{ "editor",       "EDITOR",         PERSON,       LEVEL_MAIN },
+	{ "editor:ASIS",  "EDITOR:ASIS",    PERSON,       LEVEL_MAIN },
+	{ "editor:CORP",  "EDITOR:CORP",    PERSON,       LEVEL_MAIN },
 	{ "year",      "DATE:YEAR",  SIMPLE,   LEVEL_MAIN },
 	{ "month",     "DATE:MONTH", SIMPLE,   LEVEL_MAIN },
 	{ "day",       "DATE:DAY",   SIMPLE,   LEVEL_MAIN },
@@ -494,7 +560,7 @@ static lookups standard[] = {
 	{ "howpublished", "",    HOWPUBLISHED, LEVEL_MAIN },
 	{ "language",     "LANGUAGE",     SIMPLE, LEVEL_MAIN },
 	{ "refnum",    "REFNUM",    SIMPLE, LEVEL_MAIN },
-	{ "type",      "GENRE",      SIMPLE, LEVEL_MAIN },
+	{ "type",      "GENRE:UNKNOWN",      GENRE,  LEVEL_MAIN },
 	{ "number",    "NUMBER",      SIMPLE,  LEVEL_MAIN },
 	{ "revision",  "EDITION",    SIMPLE,  LEVEL_MAIN },
 	{ "location",     "LOCATION",     SIMPLE, LEVEL_MAIN },
@@ -516,7 +582,9 @@ static lookups periodical[] = {
 	{ "series",       "",            TITLE,  LEVEL_HOST },
 	{ "publisher",    "PUBLISHER",   SIMPLE, LEVEL_MAIN },
 	{ "address",      "ADDRESS",     SIMPLE, LEVEL_MAIN },
-	{ "editor",       "EDITOR",      PERSON, LEVEL_MAIN },
+	{ "editor",       "EDITOR",         PERSON,       LEVEL_MAIN },
+	{ "editor:ASIS",  "EDITOR:ASIS",    PERSON,       LEVEL_MAIN },
+	{ "editor:CORP",  "EDITOR:CORP",    PERSON,       LEVEL_MAIN },
 	{ "year",         "DATE:YEAR",   SIMPLE, LEVEL_MAIN },
 	{ "month",        "DATE:MONTH",  SIMPLE, LEVEL_MAIN },
 	{ "day",          "DATE:DAY",    SIMPLE, LEVEL_MAIN },
@@ -541,20 +609,26 @@ static lookups periodical[] = {
 	{ "crossref",     "CROSSREF",  SIMPLE, LEVEL_MAIN },
 	{ "keywords",     "KEYWORD",   KEYWORD, LEVEL_MAIN },
 	{ "",            "RESOURCE|text",    ALWAYS, LEVEL_MAIN },
-	{ "",            "GENRE|periodical", ALWAYS, LEVEL_MAIN }
+	{ "",            "GENRE:MARC|periodical", ALWAYS, LEVEL_MAIN }
 };
 
 /*
  * For Patent
  */
 static lookups patent[] = {
-	{ "author",       "AUTHOR",      PERSON,       LEVEL_MAIN },
-	{ "translator",   "TRANSLATOR",  PERSON,       LEVEL_MAIN },
-	{ "assignee",     "ASSIGNEE",    PERSON,       LEVEL_MAIN },
-	{ "title",        "",            TITLE,        LEVEL_MAIN },
-	{ "publisher",    "PUBLISHER",   SIMPLE,       LEVEL_MAIN },
-	{ "address",      "ADDRESS",     SIMPLE,       LEVEL_MAIN },
-	{ "editor",       "EDITOR",      PERSON,       LEVEL_MAIN },
+	{ "author",       "AUTHOR",         PERSON,       LEVEL_MAIN },
+	{ "author:ASIS",  "AUTHOR:ASIS",    PERSON,       LEVEL_MAIN },
+	{ "author:CORP",  "AUTHOR:CORP",    PERSON,       LEVEL_MAIN },
+	{ "translator",   "TRANSLATOR",     PERSON,       LEVEL_MAIN },
+	{ "translator:ASIS","TRANSLATOR:ASIS",PERSON,     LEVEL_MAIN },
+	{ "translator:CORP","TRANSLATOR:CORP",PERSON,     LEVEL_MAIN },
+	{ "assignee",     "ASSIGNEE",       PERSON,       LEVEL_MAIN },
+	{ "title",        "",               TITLE,        LEVEL_MAIN },
+	{ "publisher",    "PUBLISHER",      SIMPLE,       LEVEL_MAIN },
+	{ "address",      "ADDRESS",        SIMPLE,       LEVEL_MAIN },
+	{ "editor",       "EDITOR",         PERSON,       LEVEL_MAIN },
+	{ "editor:ASIS",  "EDITOR:ASIS",    PERSON,       LEVEL_MAIN },
+	{ "editor:CORP",  "EDITOR:CORP",    PERSON,       LEVEL_MAIN },
 	{ "year",         "DATE:YEAR",   SIMPLE,       LEVEL_MAIN }, /* date granted */
 	{ "month",        "DATE:MONTH",  SIMPLE,       LEVEL_MAIN },
 	{ "day",          "DATE:DAY",    SIMPLE,       LEVEL_MAIN },
@@ -576,13 +650,13 @@ static lookups patent[] = {
 	{ "sentelink",    "FILEATTACH",  BT_SENTE,     LEVEL_MAIN },
 	{ "file",         "FILEATTACH",  LINKEDFILE,   LEVEL_MAIN },
 	{ "howpublished", "",            HOWPUBLISHED, LEVEL_MAIN },
-	{ "type",         "GENRE",       SIMPLE,       LEVEL_MAIN },
+	{ "type",         "GENRE:UNKNOWN",       GENRE,       LEVEL_MAIN },
 	{ "refnum",       "REFNUM",      SIMPLE,       LEVEL_MAIN },
 	{ "crossref",     "CROSSREF",    SIMPLE,       LEVEL_MAIN },
 	{ "keywords",     "KEYWORD",     KEYWORD,      LEVEL_MAIN },
 	{ "",         "RESOURCE|text",        ALWAYS, LEVEL_MAIN },
 	{ "",         "INTERNAL_TYPE|PATENT", ALWAYS, LEVEL_MAIN },
-	{ "",         "GENRE|patent",         ALWAYS, LEVEL_MAIN },
+	{ "",         "GENRE:MARC|patent",    ALWAYS, LEVEL_MAIN },
 };
 
 /*
@@ -590,13 +664,19 @@ static lookups patent[] = {
  */
 static lookups electronic[] = {
 	{ "author",       "AUTHOR",         PERSON,       LEVEL_MAIN },
+	{ "author:ASIS",  "AUTHOR:ASIS",    PERSON,       LEVEL_MAIN },
+	{ "author:CORP",  "AUTHOR:CORP",    PERSON,       LEVEL_MAIN },
 	{ "translator",   "TRANSLATOR",     PERSON,       LEVEL_MAIN },
+	{ "translator:ASIS","TRANSLATOR:ASIS",PERSON,     LEVEL_MAIN },
+	{ "translator:CORP","TRANSLATOR:CORP",PERSON,     LEVEL_MAIN },
 	{ "organization", "ORGANIZER:CORP", BT_ORG,       LEVEL_MAIN },
 	{ "title",        "",               TITLE,        LEVEL_MAIN },
 	{ "booktitle",    "",               TITLE,        LEVEL_MAIN },
 	{ "publisher",    "PUBLISHER",      SIMPLE,       LEVEL_MAIN },
 	{ "address",      "ADDRESS",        SIMPLE,       LEVEL_MAIN },
 	{ "editor",       "EDITOR",         PERSON,       LEVEL_MAIN },
+	{ "editor:ASIS",  "EDITOR:ASIS",    PERSON,       LEVEL_MAIN },
+	{ "editor:CORP",  "EDITOR:CORP",    PERSON,       LEVEL_MAIN },
 	{ "year",         "DATE:YEAR",      SIMPLE,       LEVEL_MAIN },
 	{ "month",        "DATE:MONTH",     SIMPLE,       LEVEL_MAIN },
 	{ "day",          "DATE:DAY",       SIMPLE,       LEVEL_MAIN },
@@ -619,12 +699,17 @@ static lookups electronic[] = {
 	{ "language",     "LANGUAGE",       SIMPLE,       LEVEL_MAIN },
 	{ "keywords",     "KEYWORD",        KEYWORD,      LEVEL_MAIN },
         { "",         "RESOURCE|software, multimedia", ALWAYS, LEVEL_MAIN },
-	{ "",         "GENRE|electronic",              ALWAYS, LEVEL_MAIN },
+	{ "",         "GENRE:MARC|web site",           ALWAYS, LEVEL_MAIN },
+	{ "",         "GENRE:BIBUTILS|electronic",     ALWAYS, LEVEL_MAIN },
 };
 
 static lookups misc[] = {
 	{ "author",       "AUTHOR",         PERSON,       LEVEL_MAIN },
+	{ "author:ASIS",  "AUTHOR:ASIS",    PERSON,       LEVEL_MAIN },
+	{ "author:CORP",  "AUTHOR:CORP",    PERSON,       LEVEL_MAIN },
 	{ "translator",   "TRANSLATOR",     PERSON,       LEVEL_MAIN },
+	{ "translator:ASIS","TRANSLATOR:ASIS",PERSON,     LEVEL_MAIN },
+	{ "translator:CORP","TRANSLATOR:CORP",PERSON,     LEVEL_MAIN },
 	{ "title",        "",               TITLE,        LEVEL_MAIN },
 	{ "booktitle",    "",               TITLE,        LEVEL_MAIN },
 	{ "publisher",    "PUBLISHER",      SIMPLE,       LEVEL_MAIN },
@@ -632,6 +717,8 @@ static lookups misc[] = {
 	{ "pages",        "PAGES",          PAGES,        LEVEL_MAIN },
 	{ "address",      "ADDRESS",        SIMPLE,       LEVEL_MAIN },
 	{ "editor",       "EDITOR",         PERSON,       LEVEL_MAIN },
+	{ "editor:ASIS",  "EDITOR:ASIS",    PERSON,       LEVEL_MAIN },
+	{ "editor:CORP",  "EDITOR:CORP",    PERSON,       LEVEL_MAIN },
 	{ "year",         "DATE:YEAR",      SIMPLE,       LEVEL_MAIN },
 	{ "month",        "DATE:MONTH",     SIMPLE,       LEVEL_MAIN },
 	{ "day",          "DATE:DAY",       SIMPLE,       LEVEL_MAIN },
@@ -652,7 +739,8 @@ static lookups misc[] = {
 	{ "key",          "BIBKEY",         SIMPLE,       LEVEL_MAIN },
 	{ "language",     "LANGUAGE",       SIMPLE,       LEVEL_MAIN },
 	{ "keywords",     "KEYWORD",        KEYWORD,      LEVEL_MAIN },
-	{ "",             "INTERNAL_TYPE|MISC",       ALWAYS, LEVEL_MAIN },
+	{ "",             "INTERNAL_TYPE|MISC",           ALWAYS, LEVEL_MAIN },
+	{ "",             "GENRE:BIBUTILS|miscellaneous", ALWAYS, LEVEL_MAIN },
 };
 
 #define ORIG(a) ( &(a[0]) )

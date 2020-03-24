@@ -1,7 +1,7 @@
 /*
  * isiin.c
  *
- * Copyright (c) Chris Putnam 2004-2017
+ * Copyright (c) Chris Putnam 2004-2020
  *
  * Program and source code released under the GPL version 2
  *
@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include "is_ws.h"
 #include "str.h"
 #include "str_conv.h"
@@ -22,41 +23,46 @@ extern variants isi_all[];
 extern int isi_nall;
 
 static int isiin_readf( FILE *fp, char *buf, int bufsize, int *bufpos, str *line, str *reference, int *fcharset );
-static int isiin_typef( fields *isiin, char *filename, int nref, param *p );
+static int isiin_typef( fields *isiin, const char *filename, int nref, param *p );
 static int isiin_convertf( fields *isiin, fields *info, int reftype, param *p );
-static int isiin_processf( fields *isiin, char *p, char *filename, long nref, param *pm );
+static int isiin_processf( fields *isiin, const char *p, const char *filename, long nref, param *pm );
 
 
 /*****************************************************
  PUBLIC: void isiin_initparams()
 *****************************************************/
-void
-isiin_initparams( param *p, const char *progname )
+int
+isiin_initparams( param *pm, const char *progname )
 {
-	p->readformat       = BIBL_ISIIN;
-	p->charsetin        = BIBL_CHARSET_DEFAULT;
-	p->charsetin_src    = BIBL_SRC_DEFAULT;
-	p->latexin          = 0;
-	p->xmlin            = 0;
-	p->utf8in           = 0;
-	p->nosplittitle     = 0;
-	p->verbose          = 0;
-	p->addcount         = 0;
-	p->output_raw       = 0;
+	pm->readformat       = BIBL_ISIIN;
+	pm->charsetin        = BIBL_CHARSET_DEFAULT;
+	pm->charsetin_src    = BIBL_SRC_DEFAULT;
+	pm->latexin          = 0;
+	pm->xmlin            = 0;
+	pm->utf8in           = 0;
+	pm->nosplittitle     = 0;
+	pm->verbose          = 0;
+	pm->addcount         = 0;
+	pm->output_raw       = 0;
 
-	p->readf    = isiin_readf;
-	p->processf = isiin_processf;
-	p->cleanf   = NULL;
-	p->typef    = isiin_typef;
-	p->convertf = isiin_convertf;
-	p->all      = isi_all;
-	p->nall     = isi_nall;
+	pm->readf    = isiin_readf;
+	pm->processf = isiin_processf;
+	pm->cleanf   = NULL;
+	pm->typef    = isiin_typef;
+	pm->convertf = isiin_convertf;
+	pm->all      = isi_all;
+	pm->nall     = isi_nall;
 
-	slist_init( &(p->asis) );
-	slist_init( &(p->corps) );
+	slist_init( &(pm->asis) );
+	slist_init( &(pm->corps) );
 
-	if ( !progname ) p->progname = NULL;
-	else p->progname = strdup( progname );
+	if ( !progname ) pm->progname = NULL;
+	else {
+		pm->progname = strdup( progname );
+		if ( !pm->progname ) return BIBL_ERR_MEMERR;
+	}
+
+	return BIBL_OK;
 }
 
 /*****************************************************
@@ -67,12 +73,12 @@ isiin_initparams( param *p, const char *progname )
  *   char 1 = uppercase alphabetic character
  *   char 2 = uppercase alphabetic character or digit
  */
+
 static int
-is_isi_tag( char *buf )
+is_isi_tag( const char *buf )
 {
-	if ( ! (buf[0]>='A' && buf[0]<='Z') ) return 0;
-	if ( ! (((buf[1]>='A' && buf[1]<='Z'))||(buf[1]>='0'&&buf[1]<='9')))
-		return 0;
+	if ( !isupper( (unsigned char )buf[0] ) ) return 0;
+	if ( !( isupper( (unsigned char )buf[1] ) || isdigit( (unsigned char )buf[1] ) ) ) return 0;
 	return 1;
 }
 
@@ -88,10 +94,15 @@ isiin_readf( FILE *fp, char *buf, int bufsize, int *bufpos, str *line, str *refe
 {
 	int haveref = 0, inref = 0;
 	char *p;
+
 	*fcharset = CHARSET_UNKNOWN;
+
 	while ( !haveref && readmore( fp, buf, bufsize, bufpos, line ) ) {
-		if ( !line->data ) continue;
-		p = &(line->data[0]);
+
+		if ( str_is_empty( line ) ) continue;
+
+		p = str_cstr( line );
+
 		/* Recognize UTF8 BOM */
 		if ( line->len > 2 &&
 				(unsigned char)(p[0])==0xEF &&
@@ -100,6 +111,7 @@ isiin_readf( FILE *fp, char *buf, int bufsize, int *bufpos, str *line, str *refe
 			*fcharset = CHARSET_UNICODE;
 			p += 3;
 		}
+
 		/* Each reference ends with 'ER ' */
 		if ( is_isi_tag( p ) ) {
 			if ( !strncmp( p, "FN ", 3 ) ) {
@@ -135,33 +147,46 @@ isiin_readf( FILE *fp, char *buf, int bufsize, int *bufpos, str *line, str *refe
  PUBLIC: int isiin_processf()
 *****************************************************/
 
-static char *
-process_tagged_line( str *tag, str *data, char *p )
+static const char *
+process_tagged_line( str *tag, str *value, const char *p )
 {
-	int i;
+	int i = 0;
 
 	/* collect tag and skip past it */
-	i = 0;
 	while ( i<2 && *p && *p!='\r' && *p!='\n') {
-		str_addchar( tag, *p++ );
+		str_addchar( tag, *p );
+		p++;
 		i++;
 	}
+
 	while ( *p==' ' || *p=='\t' ) p++;
-	while ( *p && *p!='\r' && *p!='\n' )
-		str_addchar( data, *p++ );
-	str_trimendingws( data );
+
+	while ( *p && *p!='\r' && *p!='\n' ) {
+		str_addchar( value, *p );
+		p++;
+	}
+
+	str_trimendingws( value );
+
 	while ( *p=='\r' || *p=='\n' ) p++;
+
 	return p;
 }
 
-static char *
-process_untagged_line( str *data, char *p )
+static const char *
+process_untagged_line( str *value, const char *p )
 {
 	while ( *p==' ' || *p=='\t' ) p++;
-	while ( *p && *p!='\r' && *p!='\n' )
-		str_addchar( data, *p++ );
-	str_trimendingws( data );
+
+	while ( *p && *p!='\r' && *p!='\n' ) {
+		str_addchar( value, *p );
+		p++;
+	}
+
+	str_trimendingws( value );
+
 	while ( *p=='\r' || *p=='\n' ) p++;
+
 	return p;
 }
 
@@ -170,8 +195,8 @@ add_tag_value( fields *isiin, str *tag, str *value, int *tag_added )
 {
 	int status;
 
-	if ( str_has_value( value ) ) {
-		status = fields_add( isiin, str_cstr( tag ), str_cstr( value ), 0 );
+	if ( str_has_value( tag ) && str_has_value( value ) ) {
+		status = fields_add( isiin, str_cstr( tag ), str_cstr( value ), LEVEL_MAIN );
 		if ( status!=FIELDS_OK ) return BIBL_ERR_MEMERR;
 		*tag_added = 1;
 	}
@@ -187,6 +212,7 @@ static int
 merge_tag_value( fields *isiin, str *tag, str *value, int *tag_added )
 {
 	int n, status;
+	str *oldvalue;
 
 	if ( str_has_value( value ) ) {
 
@@ -197,22 +223,23 @@ merge_tag_value( fields *isiin, str *tag, str *value, int *tag_added )
 
 			/* only one AU or AF for list of authors */
 			if ( !strcmp( str_cstr( tag ), "AU" ) ) {
-				status = fields_add( isiin, "AU", str_cstr( value ), 0 );
+				status = fields_add( isiin, "AU", str_cstr( value ), LEVEL_MAIN );
 				if ( status!=FIELDS_OK ) return BIBL_ERR_MEMERR;
 			} else if ( !strcmp( str_cstr( tag ), "AF" ) ) {
-				status = fields_add( isiin, "AF", str_cstr( value ), 0 );
+				status = fields_add( isiin, "AF", str_cstr( value ), LEVEL_MAIN );
 				if ( status!=FIELDS_OK ) return BIBL_ERR_MEMERR;
 			}
 			/* otherwise append multiline data */
 			else {
-				str_addchar( &(isiin->data[n-1]),' ');
-				str_strcat( &(isiin->data[n-1]), value );
-				if ( str_memerr( &(isiin->data[n-1]) ) ) return BIBL_ERR_MEMERR;
+				oldvalue = fields_value( isiin, n-1, FIELDS_STRP_NOUSE );
+				str_addchar( oldvalue, ' ' );
+				str_strcat( oldvalue, value );
+				if ( str_memerr( oldvalue ) ) return BIBL_ERR_MEMERR;
 			}
 		}
 
 		else {
-                        status = fields_add( isiin, str_cstr( tag ), str_cstr( value ), 0 );
+                        status = fields_add( isiin, str_cstr( tag ), str_cstr( value ), LEVEL_MAIN );
                         if ( status!=FIELDS_OK ) return BIBL_ERR_MEMERR;
                         *tag_added = 1;
 		}
@@ -222,7 +249,7 @@ merge_tag_value( fields *isiin, str *tag, str *value, int *tag_added )
 }
 
 static int
-isiin_processf( fields *isiin, char *p, char *filename, long nref, param *pm )
+isiin_processf( fields *isiin, const char *p, const char *filename, long nref, param *pm )
 {
 	int status, tag_added = 0, ret = 1;
 	str tag, value;
@@ -264,7 +291,7 @@ out:
  PUBLIC: int isiin_typef()
 *****************************************************/
 static int
-isiin_typef( fields *isiin, char *filename, int nref, param *p )
+isiin_typef( fields *isiin, const char *filename, int nref, param *p )
 {
 	int ntypename, nrefname, is_default;
 	char *refname = "", *typename="";
@@ -272,8 +299,8 @@ isiin_typef( fields *isiin, char *filename, int nref, param *p )
 	ntypename = fields_find( isiin, "PT", LEVEL_MAIN );
 	nrefname  = fields_find( isiin, "UT", LEVEL_MAIN );
 
-	if ( nrefname!=-1 )  refname  = fields_value( isiin, nrefname,  FIELDS_CHRP_NOUSE );
-	if ( ntypename!=-1 ) typename = fields_value( isiin, ntypename, FIELDS_CHRP_NOUSE );
+	if ( nrefname!=FIELDS_NOTFOUND )  refname  = fields_value( isiin, nrefname,  FIELDS_CHRP_NOUSE );
+	if ( ntypename!=FIELDS_NOTFOUND ) typename = fields_value( isiin, ntypename, FIELDS_CHRP_NOUSE );
 
 	return get_reftype( typename, nref, p->progname, p->all, p->nall, refname, &is_default, REFTYPE_CHATTY );
 }
@@ -297,10 +324,11 @@ isiin_addauthors( fields *isiin, fields *info, int reftype, variants *all, int n
 		if ( !strcasecmp( t->data, "AF" ) ) has_af++;
 	}
 	if ( has_af ) authortype = use_af;
-	else authortype = use_au;
+	else if ( has_au ) authortype = use_au;
+	else return BIBL_OK; /* no authors */
+
 	for ( i=0; i<nfields; ++i ) {
 		t = fields_tag( isiin, i, FIELDS_STRP );
-		if ( !strcasecmp( t->data, "AU" ) ) has_au++;
 		if ( strcasecmp( t->data, authortype ) ) continue;
 		d = fields_value( isiin, i, FIELDS_STRP );
 		n = process_findoldtag( authortype, reftype, all, nall );
@@ -315,8 +343,8 @@ isiin_addauthors( fields *isiin, fields *info, int reftype, variants *all, int n
 static int
 isiin_keyword( fields *bibin, int n, str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
 {
+	const char *p = str_cstr( invalue );
 	int fstatus, status = BIBL_OK;
-	char *p = invalue->data;
 	str keyword;
 
 	str_init( &keyword );

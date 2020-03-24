@@ -1,7 +1,7 @@
 /*
  * nbibtypes.c
  *
- * Copyright (c) Chris Putnam 2016-2017
+ * Copyright (c) Chris Putnam 2016-2020
  *
  * Program and source code released under the GPL version 2
  *
@@ -29,8 +29,8 @@ static lookups article[] = {
 	{ "AB",     "ABSTRACT",           SIMPLE, LEVEL_MAIN },
 	{ "FAU",    "AUTHOR",             PERSON, LEVEL_MAIN },
 	{ "AU",     "",                   SKIP,   LEVEL_MAIN },
-	{ "AD",     "",                   SKIP,   LEVEL_MAIN },
-	{ "LA",     "",                   SKIP,   LEVEL_MAIN },
+	{ "AD",     "ADDRESS:AUTHOR",     SIMPLE, LEVEL_MAIN },
+	{ "LA",     "LANGUAGE",           SIMPLE, LEVEL_MAIN },
 	{ "GR",     "",                   SKIP,   LEVEL_MAIN },
 	{ "DEP",    "",                   SKIP,   LEVEL_MAIN }, /* a date */
 	{ "PL",     "ADDRESS",            SIMPLE, LEVEL_MAIN }, /* Publisher location */
@@ -38,6 +38,8 @@ static lookups article[] = {
 	{ "JT",     "TITLE",              SIMPLE, LEVEL_HOST }, /* Journal title */
 	{ "JID",    "",                   SKIP,   LEVEL_HOST }, /* Journal ID? */
 	{ "SB",     "",                   SKIP,   LEVEL_MAIN },
+	{ "MH",     "KEYWORD",            SIMPLE, LEVEL_MAIN },
+	{ "OT",     "KEYWORD",            SIMPLE, LEVEL_MAIN },
 	{ "PMC",    "PMC",                SIMPLE, LEVEL_MAIN },
 	{ "OID",    "",                   SKIP,   LEVEL_MAIN },
 	{ "EDAT",   "",                   SKIP,   LEVEL_MAIN },
@@ -47,12 +49,12 @@ static lookups article[] = {
 	{ "AID",    "DOI",                DOI,    LEVEL_MAIN }, /* Article ID? -- can be DOI/PII */
 	{ "PST",    "",                   SKIP,   LEVEL_MAIN },
 	{ "SO",     "",                   SKIP,   LEVEL_MAIN },
-	{ " ",      "INTERNAL_TYPE|ARTICLE",  ALWAYS, LEVEL_MAIN },
-	{ " ",      "ISSUANCE|continuing",    ALWAYS, LEVEL_HOST },
-	{ " ",      "RESOURCE|text",          ALWAYS, LEVEL_MAIN },
-	{ " ",      "GENRE|journal article",  ALWAYS, LEVEL_MAIN },
-	{ " ",      "GENRE|periodical",       ALWAYS, LEVEL_HOST },
-	{ " ",      "GENRE|academic journal", ALWAYS, LEVEL_HOST }
+	{ " ",      "INTERNAL_TYPE|ARTICLE",   ALWAYS, LEVEL_MAIN },
+	{ " ",      "ISSUANCE|continuing",     ALWAYS, LEVEL_HOST },
+	{ " ",      "RESOURCE|text",           ALWAYS, LEVEL_MAIN },
+	{ " ",      "GENRE:BIBUTILS|journal article",  ALWAYS, LEVEL_MAIN },
+	{ " ",      "GENRE:MARC|periodical",        ALWAYS, LEVEL_HOST },
+	{ " ",      "GENRE:BIBUTILS|academic journal", ALWAYS, LEVEL_HOST }
 };
 
 #define ORIG(a) ( &(a[0]) )
