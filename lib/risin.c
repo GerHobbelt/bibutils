@@ -1,7 +1,7 @@
 /*
  * risin.c
  *
- * Copyright (c) Chris Putnam 2003-2017
+ * Copyright (c) Chris Putnam 2003-2020
  *
  * Source code released under the GPL version 2
  *
@@ -30,37 +30,42 @@ extern int ris_nall;
 *****************************************************/
 
 static int risin_readf( FILE *fp, char *buf, int bufsize, int *bufpos, str *line, str *reference, int *fcharset );
-static int risin_processf( fields *risin, char *p, char *filename, long nref, param *pm );
-static int risin_typef( fields *risin, char *filename, int nref, param *p );
+static int risin_processf( fields *risin, const char *p, const char *filename, long nref, param *pm );
+static int risin_typef( fields *risin, const char *filename, int nref, param *p );
 static int risin_convertf( fields *risin, fields *info, int reftype, param *p );
 
-void
-risin_initparams( param *p, const char *progname )
+int
+risin_initparams( param *pm, const char *progname )
 {
-	p->readformat       = BIBL_RISIN;
-	p->charsetin        = BIBL_CHARSET_DEFAULT;
-	p->charsetin_src    = BIBL_SRC_DEFAULT;
-	p->latexin          = 0;
-	p->xmlin            = 0;
-	p->utf8in           = 0;
-	p->nosplittitle     = 0;
-	p->verbose          = 0;
-	p->addcount         = 0;
-	p->output_raw       = 0;
+	pm->readformat       = BIBL_RISIN;
+	pm->charsetin        = BIBL_CHARSET_DEFAULT;
+	pm->charsetin_src    = BIBL_SRC_DEFAULT;
+	pm->latexin          = 0;
+	pm->xmlin            = 0;
+	pm->utf8in           = 0;
+	pm->nosplittitle     = 0;
+	pm->verbose          = 0;
+	pm->addcount         = 0;
+	pm->output_raw       = 0;
 
-	p->readf    = risin_readf;
-	p->processf = risin_processf;
-	p->cleanf   = NULL;
-	p->typef    = risin_typef;
-	p->convertf = risin_convertf;
-	p->all      = ris_all;
-	p->nall     = ris_nall;
+	pm->readf    = risin_readf;
+	pm->processf = risin_processf;
+	pm->cleanf   = NULL;
+	pm->typef    = risin_typef;
+	pm->convertf = risin_convertf;
+	pm->all      = ris_all;
+	pm->nall     = ris_nall;
 
-	slist_init( &(p->asis) );
-	slist_init( &(p->corps) );
+	slist_init( &(pm->asis) );
+	slist_init( &(pm->corps) );
 
-	if ( !progname ) p->progname = NULL;
-	else p->progname = strdup( progname );
+	if ( !progname ) pm->progname = NULL;
+	else {
+		pm->progname = strdup( progname );
+		if ( !pm->progname ) return BIBL_ERR_MEMERR;
+	}
+
+	return BIBL_OK;
 }
 
 /*****************************************************
@@ -81,23 +86,24 @@ risin_initparams( param *p, const char *progname )
   www.omicsonline.org mangles the RIS specification and
   puts _three_ spaces before the dash.  Handle this too.
 */
-static int
-is_ris_tag( char *buf )
-{
-	if (! (buf[0]>='A' && buf[0]<='Z') ) return 0;
-	if (! (((buf[1]>='A' && buf[1]<='Z'))||(buf[1]>='0'&&buf[1]<='9')) ) 
-		return 0;
-	if (buf[2]!=' ') return 0;
-	if (buf[3]!=' ') return 0;
 
-	/*...RIS fits specifications with two spaces */
-	if (buf[4]=='-') {
+static int
+is_ris_tag( const char *buf )
+{
+	if ( !isupper( (unsigned char )buf[0] ) ) return 0;
+	if ( !( isupper( (unsigned char )buf[1] ) || isdigit( (unsigned char )buf[1] ) ) ) return 0;
+	if ( buf[2]!=' ' ) return 0;
+	if ( buf[3]!=' ' ) return 0;
+
+	/*...RIS tags with two spaces */
+	if ( buf[4]=='-' ) {
 		if ( buf[5]==' ' || buf[5]=='\0' || buf[5]=='\n' || buf[5]=='\r' ) return 1;
 	}
 
-	/* ...extra space in tag? */
-	else if (buf[4]==' ') {
-		if ( buf[5]=='-' && ( buf[6]==' ' || buf[6]=='\0' || buf[6]=='\n' || buf[6]=='\r' ) ) return 1;
+	/* ...RIS tags with three spaces */
+	else if ( buf[4]==' ' ) {
+		if ( buf[5]!='-' ) return 0;
+		if ( buf[6]==' ' || buf[6]=='\0' || buf[6]=='\n' || buf[6]=='\r' ) return 1;
 	}
 
 	return 0;
@@ -142,7 +148,7 @@ risin_readf( FILE *fp, char *buf, int bufsize, int *bufpos, str *line, str *refe
 
 		if ( str_is_empty( line ) ) continue;
 
-		p = &( line->data[0] );
+		p = str_cstr( line );
 
 		if ( utf8_is_bom( p ) ) {
 			*fcharset = CHARSET_UNICODE;
@@ -189,8 +195,8 @@ risin_readf( FILE *fp, char *buf, int bufsize, int *bufpos, str *line, str *refe
  PUBLIC: int risin_processf()
 *****************************************************/
 
-static char*
-process_untagged_line( str *value, char *p )
+static const char*
+process_untagged_line( str *value, const char *p )
 {
 	while ( *p==' ' || *p=='\t' ) p++;
 	while ( *p && *p!='\r' && *p!='\n' )
@@ -199,8 +205,8 @@ process_untagged_line( str *value, char *p )
 	return p;
 }
 
-static char*
-process_tagged_line( str *tag, str *value, char *p )
+static const char*
+process_tagged_line( str *tag, str *value, const char *p )
 {
 	int i = 0;
 
@@ -265,7 +271,7 @@ add_tag_value( fields *risin, str *tag, str *value, int *tag_added )
 }
 
 static int
-risin_processf( fields *risin, char *p, char *filename, long nref, param *pm )
+risin_processf( fields *risin, const char *p, const char *filename, long nref, param *pm )
 {
 	int status, tag_added = 0, ret = 1;
 	str tag, value;
@@ -309,15 +315,15 @@ out:
 *****************************************************/
 
 static int
-risin_typef( fields *risin, char *filename, int nref, param *p )
+risin_typef( fields *risin, const char *filename, int nref, param *p )
 {
 	int ntypename, nrefname, is_default;
 	char *refname = "", *typename = "";
 
 	ntypename = fields_find( risin, "TY", LEVEL_MAIN );
 	nrefname  = fields_find( risin, "ID", LEVEL_MAIN );
-	if ( ntypename!=-1 ) typename = fields_value( risin, ntypename, FIELDS_CHRP_NOUSE );
-	if ( nrefname!=-1 )  refname  = fields_value( risin, nrefname,  FIELDS_CHRP_NOUSE );
+	if ( ntypename!=FIELDS_NOTFOUND ) typename = fields_value( risin, ntypename, FIELDS_CHRP_NOUSE );
+	if ( nrefname!=FIELDS_NOTFOUND )  refname  = fields_value( risin, nrefname,  FIELDS_CHRP_NOUSE );
 
 	return get_reftype( typename, nref, p->progname, p->all, p->nall, refname, &is_default, REFTYPE_CHATTY );
 }
@@ -343,7 +349,7 @@ risin_linkedfile( fields *bibin, int n, str *intag, str *invalue, int level, par
 	m = is_uri_file_scheme( str_cstr( invalue ) );
 	if ( m ) {
 		/* skip past "file:" and store only actual path */
-		p = invalue->data + m;
+		p = str_cstr( invalue ) + m;
 		fstatus = fields_add( bibout, outtag, p, level );
 		if ( fstatus==FIELDS_OK ) return BIBL_OK;
 		else return BIBL_ERR_MEMERR;
@@ -370,7 +376,7 @@ risin_doi( fields *bibin, int n, str *intag, str *invalue, int level, param *pm,
 	int fstatus, doi;
 	doi = is_doi( str_cstr( invalue ) );
 	if ( doi!=-1 ) {
-		fstatus = fields_add( bibout, "DOI", &(invalue->data[doi]), level );
+		fstatus = fields_add( bibout, "DOI", str_cstr( invalue ) + doi, level );
 		if ( fstatus!=FIELDS_OK ) return BIBL_ERR_MEMERR;
 	}
 	return BIBL_OK;
@@ -379,7 +385,7 @@ risin_doi( fields *bibin, int n, str *intag, str *invalue, int level, param *pm,
 static int
 risin_date( fields *bibin, int n, str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
 {
-	char *p = invalue->data;
+	char *p = str_cstr( invalue );
 	int part, status;
 	str date;
 
@@ -489,8 +495,9 @@ risin_thesis_hints( fields *bibin, int reftype, param *p, fields *bibout )
 		     !strcasecmp(value,"Masters Thesis")||
 		     !strcasecmp(value,"Diploma Thesis")||
 		     !strcasecmp(value,"Doctoral Thesis")||
-		     !strcasecmp(value,"Habilitation Thesis")) {
-			fstatus = fields_add( bibout, "GENRE", value, 0 );
+		     !strcasecmp(value,"Habilitation Thesis")||
+		     !strcasecmp(value,"Licentiate Thesis")) {
+			fstatus = fields_add( bibout, "GENRE:BIBUTILS", value, 0 );
 			if ( fstatus!=FIELDS_OK ) return BIBL_ERR_MEMERR;
 		}
 	}
@@ -513,10 +520,11 @@ risin_convertf( fields *bibin, fields *bibout, int reftype, param *p )
 		[ 0 ... NUM_REFTYPES-1 ] = generic_null,
 		[ SIMPLE       ] = generic_simple,
 		[ TITLE        ] = generic_title,
-		[ PERSON       ] = risin_person,
 		[ SERIALNO     ] = generic_serialno,
 		[ NOTES        ] = generic_notes,
 		[ URL          ] = generic_url,
+		[ GENRE        ] = generic_genre,
+		[ PERSON       ] = risin_person,
 		[ DATE         ] = risin_date,
 		[ DOI          ] = risin_doi,
 		[ LINKEDFILE   ] = risin_linkedfile,
@@ -529,8 +537,8 @@ risin_convertf( fields *bibin, fields *bibout, int reftype, param *p )
 
 	for ( i=0; i<nfields; ++i ) {
 		intag = fields_tag( bibin, i, FIELDS_STRP );
-		if ( !translate_oldtag( intag->data, reftype, p->all, p->nall, &process, &level, &outtag ) ) {
-			risin_report_notag( p, intag->data );
+		if ( !translate_oldtag( str_cstr( intag ), reftype, p->all, p->nall, &process, &level, &outtag ) ) {
+			risin_report_notag( p, str_cstr( intag ) );
 			continue;
 		}
 		invalue = fields_value( bibin, i, FIELDS_STRP );

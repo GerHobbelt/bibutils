@@ -1,9 +1,9 @@
 /*
  * str.h
  *
- * Version: 2017-07-03
+ * Version: 2018-09-21
  *
- * Copyright (c) Chris Putnam 1999-2017
+ * Copyright (c) Chris Putnam 1999-2019
  *
  * Source code released under the GPL version 2
  *
@@ -11,12 +11,18 @@
 #ifndef STR_H
 #define STR_H
 
+#define STR_OK (0)
+#define STR_MEMERR (-1)
+
 #include <stdio.h>
 
 typedef struct str {
 	char *data;
 	unsigned long dim;
 	unsigned long len;
+#ifndef STR_SMALL
+	int status;
+#endif
 }  str;
 
 str *  str_new         ( void );
@@ -61,8 +67,8 @@ void str_addchar     ( str *s, char newchar );
 void str_reverse     ( str *s );
 const char *str_addutf8    ( str *s, const char *p );
 void str_segcat      ( str *s, char *startat, char *endat );
-char *str_cpytodelim  ( str *s, char *p, const char *delim, unsigned char finalstep );
-char *str_cattodelim  ( str *s, char *p, const char *delim, unsigned char finalstep );
+const char *str_cpytodelim  ( str *s, const char *p, const char *delim, unsigned char finalstep );
+const char *str_cattodelim  ( str *s, const char *p, const char *delim, unsigned char finalstep );
 void str_prepend     ( str *s, const char *addstr );
 void str_segcpy      ( str *s, char *startat, char *endat );
 void str_segdel      ( str *s, char *startat, char *endat );
@@ -101,6 +107,8 @@ int  str_is_uppercase( str *s );
 
 int  str_memerr( str *s );
 
+unsigned long str_strlen( str *s );
+
 int  str_has_value( str *s );
 int  str_is_empty( str *s );
 
@@ -118,6 +126,12 @@ int  str_is_empty( str *s );
  * in str functions...useful for library construction for
  * Linux distributions that don't want libraries calling exit, but
  * not useful during code development
+ */
+
+/* #define STR_SMALL
+ *
+ * set to make the smallest possible struct str, but will get
+ * exit( EXIT_FAILURE ) upon memory failures
  */
 
 #endif

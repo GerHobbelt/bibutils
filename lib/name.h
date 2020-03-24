@@ -3,7 +3,7 @@
  *
  * mangle names w/ and w/o commas
  *
- * Copyright (c) Chris Putnam 2004-2017
+ * Copyright (c) Chris Putnam 2004-2019
  *
  * Source code released under the GPL version 2
  *
@@ -11,16 +11,20 @@
 #ifndef NAME_H
 #define NAME_H
 
+#define NAME_SIMPLE (0)
+#define NAME_ASIS   (1)
+#define NAME_CORP   (2)
+
 #include "str.h"
 #include "slist.h"
 #include "fields.h"
 
-extern int  name_add( fields *info, char *tag, char *q, int level, slist *asis, slist *corps );
-extern void name_build_withcomma( str *s, char *p );
-extern int  name_parse( str *outname, str *inname, slist *asis, slist *corps );
-extern int  name_addsingleelement( fields *info, char *tag, char *name, int level, int corp );
-extern int  name_addmultielement( fields *info, char *tag, slist *tokens, int begin, int end, int level );
-extern int  name_findetal( slist *tokens );
+int  name_add( fields *info, const char *tag, const char *q, int level, slist *asis, slist *corps );
+void name_build_withcomma( str *s, const char *p );
+int  name_parse( str *outname, str *inname, slist *asis, slist *corps );
+int  name_addsingleelement( fields *info, const char *tag, const char *name, int level, int asiscorp );
+int  name_addmultielement( fields *info, const char *tag, slist *tokens, int begin, int end, int level );
+int  name_findetal( slist *tokens );
 
 #endif
 

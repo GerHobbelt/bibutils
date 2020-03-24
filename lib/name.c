@@ -3,7 +3,7 @@
  *
  * mangle names w/ and w/o commas
  *
- * Copyright (c) Chris Putnam 2004-2017
+ * Copyright (c) Chris Putnam 2004-2020
  *
  * Source code released under the GPL version 2
  *
@@ -26,10 +26,10 @@
  * to 'family suffix, given given
  */
 void
-name_build_withcomma( str *s, char *p )
+name_build_withcomma( str *s, const char *p )
 {
+	const char *suffix, *stopat;
 	int nseps = 0, nch;
-	char *suffix, *stopat;
 
 	str_empty( s );
 
@@ -41,7 +41,7 @@ name_build_withcomma( str *s, char *p )
 		nch = 0;
 		if ( nseps==1 ) {
 			if ( suffix ) {
-				str_addchar( s, ' ' );
+				str_strcatc( s, " " );
 				str_strcatc( s, suffix+2 );
 			}
 			str_addchar( s, ',' );
@@ -114,16 +114,16 @@ identify_suffix( char *p )
 	suffix_value_t suffixes[] = {
 		{ "Jr."   ,   JUNIOR              },
 		{ "Jr"    ,   JUNIOR              },
-		{ "Jr.,"  ,   JUNIOR | WITHCOMMA },
-		{ "Jr,"   ,   JUNIOR | WITHCOMMA },
+		{ "Jr.,"  ,   JUNIOR | WITHCOMMA  },
+		{ "Jr,"   ,   JUNIOR | WITHCOMMA  },
 		{ "Sr."   ,   SENIOR              },
 		{ "Sr"    ,   SENIOR              },
-		{ "Sr.,"  ,   SENIOR | WITHCOMMA },
-		{ "Sr,"   ,   SENIOR | WITHCOMMA },
+		{ "Sr.,"  ,   SENIOR | WITHCOMMA  },
+		{ "Sr,"   ,   SENIOR | WITHCOMMA  },
 		{ "III"   ,   THIRD               },
-		{ "III,"  ,   THIRD  | WITHCOMMA },
+		{ "III,"  ,   THIRD  | WITHCOMMA  },
 		{ "IV"    ,   FOURTH              },
-		{ "IV,"   ,   FOURTH | WITHCOMMA },
+		{ "IV,"   ,   FOURTH | WITHCOMMA  },
 	};
 	int i, nsuffixes = sizeof( suffixes ) / sizeof( suffixes[0] );
 	for ( i=0; i<nsuffixes; ++i ) {
@@ -312,6 +312,7 @@ name_mutlielement_build( str *name, intlist *given, intlist *family, slist *toke
 			str_strcat( name, s );
 		} else add_given_split( name, s );
 	}
+
 	return 1;
 }
 
@@ -332,7 +333,7 @@ name_construct_multi( str *outname, slist *tokens, int begin, int end )
 	for ( i=begin; i<end && comma==-1; i++ ) {
 		if ( i==suffixpos ) continue;
 		s = slist_str( tokens, i );
-		if ( s->data[ s->len -1 ] == ',' ) {
+		if ( s->data[ s->len - 1 ] == ',' ) {
 			if ( suffix && i==suffixpos-1 && !(suffix&WITHCOMMA) )
 				str_trimend( s, 1 );
 			else
@@ -361,7 +362,7 @@ name_construct_multi( str *outname, slist *tokens, int begin, int end )
 }
 
 int
-name_addmultielement( fields *info, char *tag, slist *tokens, int begin, int end, int level )
+name_addmultielement( fields *info, const char *tag, slist *tokens, int begin, int end, int level )
 {
 	int status, ok = 1;
 	str name;
@@ -369,7 +370,8 @@ name_addmultielement( fields *info, char *tag, slist *tokens, int begin, int end
 	str_init( &name );
 
 	name_construct_multi( &name, tokens, begin, end );
-	status = fields_add_can_dup( info, tag, name.data, level );
+
+	status = fields_add_can_dup( info, tag, str_cstr( &name ), level );
 	if ( status!=FIELDS_OK ) ok = 0;
 
 	str_free( &name );
@@ -385,16 +387,20 @@ name_addmultielement( fields *info, char *tag, slist *tokens, int begin, int end
  * is set).
  */
 int
-name_addsingleelement( fields *info, char *tag, char *name, int level, int corp )
+name_addsingleelement( fields *info, const char *tag, const char *name, int level, int asiscorp )
 {
 	int status, ok = 1;
 	str outtag;
+
 	str_init( &outtag );
+
 	str_strcpyc( &outtag, tag );
-	if ( !corp ) str_strcatc( &outtag, ":ASIS" );
-	else str_strcatc( &outtag, ":CORP" );
+	if ( asiscorp == NAME_ASIS ) str_strcatc( &outtag, ":ASIS" );
+	else if ( asiscorp == NAME_CORP ) str_strcatc( &outtag, ":CORP" );
+
 	status = fields_add_can_dup( info, outtag.data, name, level );
 	if ( status!=FIELDS_OK ) ok = 0;
+
 	str_free( &outtag );
 	return ok;
 }
@@ -411,8 +417,8 @@ name_addsingleelement( fields *info, char *tag, char *name, int level, int corp 
 int
 name_parse( str *outname, str *inname, slist *asis, slist *corps )
 {
+	int status, ret = 1;
 	slist tokens;
-	int ret = 1;
 
 	str_empty( outname );
 	if ( !inname || !inname->len ) return ret;
@@ -430,7 +436,12 @@ name_parse( str *outname, str *inname, slist *asis, slist *corps )
 	}
 
 	str_findreplace( inname, ",", ", " );
-	slist_tokenize( &tokens, inname, " ", 1 );
+	status = slist_tokenize( &tokens, inname, " ", 1 );
+	if ( status!=SLIST_OK ) {
+		str_strcpy( outname, inname );
+		ret = 2;
+		goto out;
+	}
 
 	if ( tokens.n==1 ) {
 		str_strcpy( outname, inname );
@@ -447,10 +458,10 @@ out:
 	return ret;
 }
 
-static char *
-name_copy( str *name, char *p )
+static const char *
+name_copy( str *name, const char *p )
 {
-	char *start, *end, *q;
+	const char *start, *end, *q;
 
 	str_empty( name );
 
@@ -486,7 +497,7 @@ name_copy( str *name, char *p )
  * "Author, H. F."
  */
 int
-name_add( fields *info, char *tag, char *q, int level, slist *asis, slist *corps )
+name_add( fields *info, const char *tag, const char *q, int level, slist *asis, slist *corps )
 {
 	int ok, status, nametype, ret = 1;
 	str inname, outname;
@@ -509,9 +520,9 @@ name_add( fields *info, char *tag, char *q, int level, slist *asis, slist *corps
 			ok = ( status==FIELDS_OK ) ? 1 : 0;
 		}
 		else if ( nametype==2 )
-			ok = name_addsingleelement( info, tag, outname.data, level, 0 );
+			ok = name_addsingleelement( info, tag, outname.data, level, NAME_ASIS );
 		else
-			ok = name_addsingleelement( info, tag, outname.data, level, 1 );
+			ok = name_addsingleelement( info, tag, outname.data, level, NAME_CORP );
 
 		if ( !ok ) { ret = 0; goto out; }
 

@@ -1,7 +1,7 @@
 /*
  * bibutils.h
  *
- * Copyright (c) Chris Putnam 2005-2017
+ * Copyright (c) Chris Putnam 2005-2020
  *
  * Source code released under GPL version 2
  *
@@ -14,15 +14,11 @@ extern "C" {
 #endif /* __cplusplus */
 
 #include <stdio.h>
+#include "bibdefs.h"
 #include "bibl.h"
 #include "slist.h"
 #include "charsets.h"
 #include "str_conv.h"
-
-#define BIBL_OK           (0)
-#define BIBL_ERR_BADINPUT (-1)
-#define BIBL_ERR_MEMERR   (-2)
-#define BIBL_ERR_CANTOPEN (-3)
 
 #define BIBL_FIRSTIN      (100)
 #define BIBL_MODSIN       (BIBL_FIRSTIN)
@@ -47,7 +43,9 @@ extern "C" {
 #define BIBL_ISIOUT       (BIBL_FIRSTOUT+4)
 #define BIBL_WORD2007OUT  (BIBL_FIRSTOUT+5)
 #define BIBL_ADSABSOUT    (BIBL_FIRSTOUT+6)
-#define BIBL_LASTOUT      (BIBL_FIRSTOUT+6)
+#define BIBL_NBIBOUT      (BIBL_FIRSTOUT+7)
+#define BIBL_BIBLATEXOUT  (BIBL_FIRSTOUT+8)
+#define BIBL_LASTOUT      (BIBL_FIRSTOUT+8)
 
 #define BIBL_FORMAT_VERBOSE             (1)
 #define BIBL_FORMAT_BIBOUT_FINALCOMMA   (2)
@@ -112,12 +110,13 @@ typedef struct param {
 
 
         int  (*readf)(FILE*,char*,int,int*,str*,str*,int*);
-        int  (*processf)(fields*,char*,char*,long,struct param*);
+        int  (*processf)(fields*,const char*,const char*,long,struct param*);
         int  (*cleanf)(bibl*,struct param*);
-        int  (*typef) (fields*,char*,int,struct param*);
+        int  (*typef) (fields*,const char*,int,struct param*);
         int  (*convertf)(fields*,fields*,int,struct param*);
         void (*headerf)(FILE*,struct param*);
         void (*footerf)(FILE*);
+	int  (*assemblef)(fields*,fields*,struct param*,unsigned long);
         int  (*writef)(fields*,FILE*,struct param*,unsigned long);
         variants *all;
         int  nall;
@@ -125,16 +124,15 @@ typedef struct param {
 
 } param;
 
-extern void bibl_initparams( param *p, int readmode, int writemode,
-	char *progname );
-extern void bibl_freeparams( param *p );
-extern int  bibl_readasis( param *p, char *filename );
-extern int  bibl_addtoasis( param *p, char *entry );
-extern int  bibl_readcorps( param *p, char *filename );
-extern int  bibl_addtocorps( param *p, char *entry );
-extern int  bibl_read( bibl *b, FILE *fp, char *filename, param *p );
-extern int  bibl_write( bibl *b, FILE *fp, param *p );
-extern void bibl_reporterr( int err );
+int  bibl_initparams( param *p, int readmode, int writemode, char *progname );
+void bibl_freeparams( param *p );
+int  bibl_readasis( param *p, char *filename );
+int  bibl_addtoasis( param *p, char *entry );
+int  bibl_readcorps( param *p, char *filename );
+int  bibl_addtocorps( param *p, char *entry );
+int  bibl_read( bibl *b, FILE *fp, char *filename, param *p );
+int  bibl_write( bibl *b, FILE *fp, param *p );
+void bibl_reporterr( int err );
 
 #ifdef __cplusplus
 }

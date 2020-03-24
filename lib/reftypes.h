@@ -1,7 +1,7 @@
 /*
  * reftypes.h
  *
- * Copyright (c) Chris Putnam 2003-2017
+ * Copyright (c) Chris Putnam 2003-2019
  *
  * Source code released under the GPL version 2
  *
@@ -18,30 +18,30 @@
 #define SKIP            (2)
 
 /* Reftypes to be handled by converters */
-#define SIMPLE          (2)
-#define TYPE            (3)
-#define PERSON          (4)
-#define DATE            (5)
-#define PAGES           (6)
-#define SERIALNO        (7)
-#define TITLE           (8)
-#define NOTES           (9)
-#define DOI             (10)
-#define HOWPUBLISHED    (11)
-#define LINKEDFILE      (12)
-#define KEYWORD         (13)
-#define URL             (14)
-#define BT_SENTE        (15) /* Bibtex 'Sente' */
-#define BT_GENRE        (16) /* Bibtex Genre */
-#define BT_EPRINT       (17) /* Bibtex 'Eprint' */
-#define BT_ORG          (18) /* Bibtex Organization */
-#define BLT_THESIS_TYPE (19) /* Biblatex Thesis Type */
-#define BLT_SCHOOL      (20) /* Biblatex School */
-#define BLT_EDITOR      (21) /* Biblatex Editor */
-#define BLT_SUBTYPE     (22) /* Biblatex entrysubtype */
-#define BLT_SKIP        (23) /* Biblatex Skip Entry */
-#define EPRINT          (24)
-#define NUM_REFTYPES    (25)
+#define SIMPLE          (3)
+#define TYPE            (4)
+#define PERSON          (5)
+#define DATE            (6)
+#define PAGES           (7)
+#define SERIALNO        (8)
+#define TITLE           (9)
+#define NOTES           (10)
+#define DOI             (11)
+#define HOWPUBLISHED    (12)
+#define LINKEDFILE      (13)
+#define KEYWORD         (14)
+#define URL             (15)
+#define GENRE           (16)
+#define BT_SENTE        (17) /* Bibtex 'Sente' */
+#define BT_EPRINT       (18) /* Bibtex 'Eprint' */
+#define BT_ORG          (19) /* Bibtex Organization */
+#define BLT_THESIS_TYPE (20) /* Biblatex Thesis Type */
+#define BLT_SCHOOL      (21) /* Biblatex School */
+#define BLT_EDITOR      (22) /* Biblatex Editor */
+#define BLT_SUBTYPE     (23) /* Biblatex entrysubtype */
+#define BLT_SKIP        (24) /* Biblatex Skip Entry */
+#define EPRINT          (25)
+#define NUM_REFTYPES    (26)
 
 typedef struct {
 	char *oldstr;
@@ -56,8 +56,8 @@ typedef struct {
 	int     ntags;
 } variants;
 
-int get_reftype( char *q, long refnum, char *progname, variants *all, int nall, char *tag, int *is_default, int chattiness );
-int process_findoldtag( char *oldtag, int reftype, variants all[], int nall );
-int translate_oldtag( char *oldtag, int reftype, variants all[], int nall, int *processingtype, int *level, char **newtag );
+int get_reftype( const char *q, long refnum, char *progname, variants *all, int nall, char *tag, int *is_default, int chattiness );
+int process_findoldtag( const char *oldtag, int reftype, variants all[], int nall );
+int translate_oldtag( const char *oldtag, int reftype, variants all[], int nall, int *processingtype, int *level, char **newtag );
 
 #endif
