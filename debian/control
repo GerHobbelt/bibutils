@@ -2,12 +2,13 @@ Source: bibutils
 Section: text
 Priority: optional
 Maintainer: Debian Science Maintainers <debian-science-maintainers@lists.alioth.debian.org>
-Uploaders: David Bremner <bremner@debian.org>
-Build-Depends: debhelper (>= 10),   xsltproc, docbook-xsl, docbook-xml
-Standards-Version: 3.9.6
-Homepage: http://www.scripps.edu/~cdputnam/software/bibutils/
-Vcs-Git: git://git.debian.org/git/debian-science/packages/bibutils/
-Vcs-Browser: http://git.debian.org/?p=debian-science/packages/bibutils.git
+Uploaders: David Bremner <bremner@debian.org>, Pierre Gruet <pgtdebian@free.fr>
+Build-Depends: debhelper (>= 10), xsltproc, docbook-xsl, docbook-xml
+Standards-Version: 4.5.0
+Homepage: https://sourceforge.net/projects/bibutils/
+Vcs-Git: https://salsa.debian.org/science-team/bibutils.git
+Vcs-Browser: https://salsa.debian.org/science-team/bibutils
+Rules-Requires-Root: no
 
 Package: bibutils
 Architecture: any

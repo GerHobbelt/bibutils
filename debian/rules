@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
 # Uncomment this to turn on verbose mode.
-#export DH_VERBOSE=1
+export DH_VERBOSE=1
 
 DATE=$(shell sed -n 's/^DATE\s*=\s*\(.*\)/\1/p' Makefile_start)
 MAJORVERSION=$(shell sed -n 's/^MAJORVERSION\s*=\s*\(.*\)/\1/p' Makefile_start)
