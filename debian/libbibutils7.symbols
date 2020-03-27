@@ -1,4 +1,4 @@
-libbibutils.so.6 libbibutils6 #MINVER#
+libbibutils.so.7 libbibutils7 #MINVER#
  _fields_add@Base 6.10
  _fields_add_suffix@Base 6.10
  addsn@Base 6.10
