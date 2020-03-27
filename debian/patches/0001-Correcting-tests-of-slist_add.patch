@@ -1,0 +1,207 @@
+From: Pierre Gruet <pgtdebian@free.fr>
+Date: Fri, 27 Mar 2020 09:39:56 +0100
+Subject: Correcting tests of slist_add
+
+---
+ test/slist_test.c | 74 ++++++++++++++++++++++++++++---------------------------
+ 1 file changed, 38 insertions(+), 36 deletions(-)
+
+diff --git a/test/slist_test.c b/test/slist_test.c
+index bc1b03b..373e3d1 100644
+--- a/test/slist_test.c
++++ b/test/slist_test.c
+@@ -96,21 +96,22 @@ test_init( void )
+ int
+ test_add( void )
+ {
+-	str s, *t;
++	str s;
++        int status;
+ 	slist a;
+ 	str_init( &s );
+ 	slist_init( &a );
+ 
+ 	str_strcpyc( &s, "1" );
+-	t = slist_add( &a, &s );
+-	check_add_result( t, &s );
++	status = slist_add( &a, &s );
++	check( (status==SLIST_OK), "slist_add() return SLIST_OK on success" );
+ 	check_len( &a, 1 );
+ 	check_entry( &a, 0, "1" );
+ 	check_entry( &a, 1, NULL );
+ 
+ 	str_strcpyc( &s, "2" );
+-	t = slist_add( &a, &s );
+-	check_add_result( t, &s );
++	status = slist_add( &a, &s );
++	check( (status==SLIST_OK), "slist_add() return SLIST_OK on success" );
+ 	check_len( &a, 2 );
+ 	check_entry( &a, 0, "1" );
+ 	check_entry( &a, 1, "2" );
+@@ -124,18 +125,18 @@ test_add( void )
+ int
+ test_addc( void )
+ {
+-	str *t;
++	int status;
+ 	slist a;
+ 	slist_init( &a );
+ 
+-	t = slist_addc( &a, "1" );
+-	check_addc_result( t, "1" );
++	status = slist_addc( &a, "1" );
++	check( (status==SLIST_OK), "slist_addc() return SLIST_OK on success" );
+ 	check_len( &a, 1 );
+ 	check_entry( &a, 0, "1" );
+ 	check_entry( &a, 1, NULL );
+ 
+-	t = slist_addc( &a, "2" );
+-	check_addc_result( t, "2" );
++	status = slist_addc( &a, "2" );
++	check( (status==SLIST_OK), "slist_addc() return SLIST_OK on success" );
+ 	check_len( &a, 2 );
+ 	check_entry( &a, 0, "1" );
+ 	check_entry( &a, 1, "2" );
+@@ -148,20 +149,21 @@ test_addc( void )
+ int
+ test_addvp( void )
+ {
+-	str s, *t;
++	str s;
++        int status;
+ 	slist a;
+ 	str_init( &s );
+ 	slist_init( &a );
+ 
+-	t= slist_addvp( &a, SLIST_CHR, "1" );
+-	check_addc_result( t, "1" );
++	status= slist_addvp( &a, SLIST_CHR, "1" );
++	check( (status==SLIST_OK), "slist_addvp() return SLIST_OK on success" );
+ 	check_len( &a, 1 );
+ 	check_entry( &a, 0, "1" );
+ 	check_entry( &a, 1, NULL );
+ 
+ 	str_strcpyc( &s, "2" );
+-	t = slist_addvp( &a, SLIST_STR, &s );
+-	check_add_result( t, &s );
++	status = slist_addvp( &a, SLIST_STR, &s );
++	check( (status==SLIST_OK), "slist_addvp() return SLIST_OK on success" );
+ 	check_len( &a, 2 );
+ 	check_entry( &a, 0, "1" );
+ 	check_entry( &a, 1, "2" );
+@@ -601,21 +603,22 @@ out:
+ int
+ test_empty( void )
+ {
+-	str s, *t;
++	str s;
++        int status;
+ 	slist a;
+ 	str_init( &s );
+ 	slist_init( &a );
+ 
+ 	str_strcpyc( &s, "1" );
+-	t = slist_add( &a, &s );
+-	check_add_result( t, &s );
++	status = slist_add( &a, &s );
++	check( (status==SLIST_OK), "slist_add() return SLIST_OK on success" );
+ 	check_len( &a, 1 );
+ 	check_entry( &a, 0, "1" );
+ 	check_entry( &a, 1, NULL );
+ 
+ 	str_strcpyc( &s, "2" );
+-	t = slist_add( &a, &s );
+-	check_add_result( t, &s );
++	status = slist_add( &a, &s );
++	check( (status==SLIST_OK), "slist_add() return SLIST_OK on success" );
+ 	check_len( &a, 2 );
+ 	check_entry( &a, 0, "1" );
+ 	check_entry( &a, 1, "2" );
+@@ -638,7 +641,7 @@ test_new( void )
+ {
+ 	char buf[1000];
+ 	slist *a;
+-	str *tmp;
++	int status;
+ 	int i;
+ 
+ 	a = slist_new();
+@@ -651,8 +654,8 @@ test_new( void )
+ 
+ 	for ( i=0; i<100; ++i ) {
+ 		sprintf( buf, "Test%d", i );
+-		tmp = slist_addc( a, buf );
+-		if ( !tmp ) {
++		status = slist_addc( a, buf );
++		if ( status!=SLIST_OK ) {
+ 			fprintf( stderr, "Memory error at %s() line %d\n", __FUNCTION__, __LINE__ );
+ 			goto out;
+ 		}
+@@ -678,15 +681,15 @@ test_dup( void )
+ {
+ 	char buf[1000];
+ 	slist a, *dupa;
+-	str *tmp;
++	int status;
+ 	int i;
+ 
+ 	slist_init( &a );
+ 
+ 	for ( i=0; i<100; ++i ) {
+ 		sprintf( buf, "Test%d", i );
+-		tmp = slist_addc( &a, buf );
+-		if ( !tmp ) {
++		status = slist_addc( &a, buf );
++		if ( status!=SLIST_OK ) {
+ 			fprintf( stderr, "Memory error 1 at %s() line %d\n", __FUNCTION__, __LINE__ );
+ 			goto out;
+ 		}
+@@ -721,14 +724,13 @@ test_copy( void )
+ 	int i, status, ret = 0;
+ 	char buf[1000];
+ 	slist a, copya;
+-	str *tmp;
+ 
+ 	/* Build and test list to be copied */
+ 	slist_init( &a );
+ 	for ( i=0; i<100; ++i ) {
+ 		sprintf( buf, "ToBeCopied%d", i );
+-		tmp = slist_addc( &a, buf );
+-		if ( !tmp ) {
++		status = slist_addc( &a, buf );
++		if ( status!=SLIST_OK ) {
+ 			fprintf( stderr, "Memory error at %s() line %d\n", __FUNCTION__, __LINE__ );
+ 			goto out;
+ 		}
+@@ -1726,24 +1728,24 @@ test_get_maxlen( void )
+ {
+ 	unsigned long n;
+ 	slist a;
+-	str *t;
++	int status;
+ 
+ 	slist_init( &a );
+ 
+-	t = slist_addc( &a, "churlish" );
+-	check( (t!=NULL), "slist_addc() should not return NULL" );
++	status = slist_addc( &a, "churlish" );
++	check( (status==SLIST_OK), "slist_addc() should not return NULL" );
+ 
+ 	n = slist_get_maxlen( &a );
+ 	check( (n==strlen("churlish")), "slist_get_maxlen() should return length of 'churlish'" );
+ 
+-	t = slist_addc( &a, "boorish" );
+-	check( (t!=NULL), "slist_addc() should not return NULL" );
++	status = slist_addc( &a, "boorish" );
++	check( (status==SLIST_OK), "slist_addc() should not return NULL" );
+ 
+ 	n = slist_get_maxlen( &a );
+ 	check( (n==strlen("churlish")), "slist_get_maxlen() should return length of 'churlish'" );
+ 
+-	t = slist_addc( &a, "amateurish" );
+-	check( (t!=NULL), "slist_addc() should not return NULL" );
++	status = slist_addc( &a, "amateurish" );
++	check( (status==SLIST_OK), "slist_addc() should not return NULL" );
+ 
+ 	n = slist_get_maxlen( &a );
+ 	check( (n==strlen("amateurish")), "slist_get_maxlen() should return length of 'amateurish'" );
