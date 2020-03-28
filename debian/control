@@ -3,7 +3,7 @@ Section: text
 Priority: optional
 Maintainer: Debian Science Maintainers <debian-science-maintainers@lists.alioth.debian.org>
 Uploaders: David Bremner <bremner@debian.org>, Pierre Gruet <pgtdebian@free.fr>
-Build-Depends: debhelper (>= 10), xsltproc, docbook-xsl, docbook-xml
+Build-Depends: debhelper-compat (= 10), dh-exec (>=0.3), xsltproc, docbook-xsl, docbook-xml
 Standards-Version: 4.5.0
 Homepage: https://sourceforge.net/projects/bibutils/
 Vcs-Git: https://salsa.debian.org/science-team/bibutils.git
@@ -13,6 +13,7 @@ Rules-Requires-Root: no
 Package: bibutils
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, libbibutils7
+Multi-Arch: foreign
 Description: interconvert various bibliographic data formats
  Convert between the following bibliographic data formats: BibTeX,
  COPAC, EndNote refer, EndNote XML, Pubmed XML, ISI web of science, US
@@ -28,6 +29,7 @@ Package: libbibutils-dev
 Section: libdevel
 Architecture: any
 Depends: libbibutils7 (= ${binary:Version}), ${misc:Depends}
+Multi-Arch: same
 Description: bibliography file converter, development kit
  Convert between the following bibliographic data formats: BibTeX,
  COPAC, EndNote refer, EndNote XML, Pubmed XML, ISI web of science, US
@@ -39,6 +41,7 @@ Package: libbibutils7
 Section: libs
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
+Multi-Arch: same
 Description: bibliography file converter, shared library
  Convert between the following bibliographic data formats: BibTeX,
  COPAC, EndNote refer, EndNote XML, Pubmed XML, ISI web of science, US

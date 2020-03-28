@@ -3,6 +3,8 @@
 # Uncomment this to turn on verbose mode.
 export DH_VERBOSE=1
 
+DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
+
 DATE=$(shell sed -n 's/^DATE\s*=\s*\(.*\)/\1/p' Makefile_start)
 MAJORVERSION=$(shell sed -n 's/^MAJORVERSION\s*=\s*\(.*\)/\1/p' Makefile_start)
 MINORVERSION=$(shell sed -n 's/^MINORVERSION\s*=\s*\(.*\)/\1/p' Makefile_start)
@@ -18,7 +20,7 @@ SONAME="libbibutils.so."$(SOMAJOR)
 
 DESTDIR=${CURDIR}/debian/tmp/
 INSTALLDIR=${DESTDIR}/usr/bin
-LIBINSTALLDIR=${DESTDIR}/usr/lib
+LIBINSTALLDIR=${DESTDIR}/usr/lib/$(DEB_HOST_MULTIARCH)
 
 CFLAGSIN=$(shell dpkg-buildflags --get CFLAGS) $(shell dpkg-buildflags --get CPPFLAGS)
 export CFLAGSIN
