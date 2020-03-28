@@ -5,22 +5,8 @@ Source: https://sourceforge.net/projects/bibutils/
 Files: *
 Copyright: 1995-2020 Christopher Putnam <cdputnam@ucsd.edu>
 License: GPL-2+
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-    02110-1301, USA.
-
-Files: lib/adsout.[ch]
+Files: lib/adsout.c
 Copyright: 2007-2020 Richard Mathar 
            2007-2020 Chris Putnam
 License: GPL-2
@@ -33,6 +19,7 @@ License: GPL-2
 Files: lib/adsout_journals.c
 Copyright: NASA Astrophysics Data System Project
 License: GPL-2+
+Comment: These emails discuss the license.
     From: Alberto Accomazzi <aaccomazzi@cfa.harvard.edu>
     Organization: Smithsonian Astrophysical Observatory
     User-Agent: Thunderbird 2.0.0.9 (X11/20071031)
@@ -41,21 +28,21 @@ License: GPL-2+
     CC: David Bremner <bremner@pivot.cs.unb.ca>, ads@cfa.harvard.edu,
 	    Chris Putnam <cdputnam@ucsd.edu>
     Subject: Re: permission to use/distribute an ADS web page  (round II)
-
+    .
     Hi David and Chris,
-
+    .
     We support this effort, and grant permission to distribute under the 
     terms of the GNU General Public License as published by the Free 
     Software Foundation the contents of the following URL:
     http://adsabs.harvard.edu/abs_doc/journals1.html
-
+    .
     Please be aware that we update the list occasionally (sometimes on a 
     weekly basis), with both additions and corrections.
-
+    .
     Thanks,
     -- Alberto
-
-
+    .
+    .
     David Bremner wrote:
     >>>>>> "David" == David Bremner <bremner@pivot.cs.unb.ca> writes:
     > 
@@ -96,7 +83,7 @@ License: GPL-2+
     > 
     > David
     > 
-
+    .
     -- 
     Dr. Alberto Accomazzi                  aaccomazzi(at)cfa harvard edu
     Project Manager
@@ -108,16 +95,52 @@ Files: bibutils.dbk
 Copyright: 2007 David Bremner <bremner@unb.ca>
 	   2007 Christopher Putnam <cdputnam@ucsd.edu>
 License: GPL-2
-  The man page is licensed under version 2 of the GNU General Public License
+Comment: The man page is licensed under version 2 of the GNU General Public License
 
  
 Files: debian/*
 Copyright: 2007-2015 David Bremner <bremner@unb.ca>
            2020 Pierre Gruet <pgtdebian@free.fr>
 License: GPL-2+
- The Debian packaging is licensed under the same terms as the upstream source.
+Comment: The Debian packaging is licensed under the same terms as the upstream source.
+
+License: GPL-2+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+    .
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+    .
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+    02110-1301, USA.
+    .
+    On Debian systems, the full text of the GNU General Public
+    License version 2 can be found in the file
+    `/usr/share/common-licenses/GPL-2'.
+
 
 License: GPL-2
- On Debian systems, the full text of the GNU General Public
- License version 2 can be found in the file
- `/usr/share/common-licenses/GPL-2'.
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+    .
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+    .
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+    02110-1301, USA.
+    .
+    On Debian systems, the full text of the GNU General Public
+    License version 2 can be found in the file
+    `/usr/share/common-licenses/GPL-2'.
