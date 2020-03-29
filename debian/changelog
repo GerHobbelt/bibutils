@@ -1,3 +1,19 @@
+bibutils (6.10-1) unstable; urgency=medium
+
+  * New upstream version 6.10
+  * New uploader (Closes: #896574), thanks to David Bremner!
+  * Raising Standards version to 4.5.0
+  * Updating copyright information and enabling machine-readable format
+  * Bumping SONAME to libbibutils.so.7
+  * Correcting tests of slist_add
+  * Fixing FTCBFS with a patch of Helmut Grohne (Closes: #853243)
+    + Let dh_auto_build pass cross compilers to $(MAKE)
+    + Honour DEB_BUILD_OPTIONS=nocheck
+  * Supporting Multi-Arch
+  * Fixing Lintian issues with severity info
+
+ -- Pierre Gruet <pgtdebian@free.fr>  Sun, 29 Mar 2020 11:36:03 +0200
+
 bibutils (6.2-1) unstable; urgency=medium
 
   * New upstream version
