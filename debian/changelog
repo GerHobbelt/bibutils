@@ -1,6 +1,8 @@
 bibutils (6.10-2) UNRELEASED; urgency=medium
 
   * Trim trailing whitespace.
+  * debian/copyright: use spaces rather than tabs to start continuation
+    lines.
 
  -- Pierre Gruet <pgtdebian@free.fr>  Wed, 08 Apr 2020 14:46:06 +0200
 

@@ -26,7 +26,7 @@ Comment: These emails discuss the license.
     MIME-Version: 1.0
     To: David Bremner <bremner@unb.ca>
     CC: David Bremner <bremner@pivot.cs.unb.ca>, ads@cfa.harvard.edu,
-	    Chris Putnam <cdputnam@ucsd.edu>
+ 	    Chris Putnam <cdputnam@ucsd.edu>
     Subject: Re: permission to use/distribute an ADS web page  (round II)
     .
     Hi David and Chris,
@@ -93,7 +93,7 @@ Comment: These emails discuss the license.
 
 Files: bibutils.dbk
 Copyright: 2007 David Bremner <bremner@unb.ca>
-	   2007 Christopher Putnam <cdputnam@ucsd.edu>
+           2007 Christopher Putnam <cdputnam@ucsd.edu>
 License: GPL-2
 Comment: The man page is licensed under version 2 of the GNU General Public License
 
