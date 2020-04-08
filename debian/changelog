@@ -1,3 +1,9 @@
+bibutils (6.10-2) UNRELEASED; urgency=medium
+
+  * Trim trailing whitespace.
+
+ -- Pierre Gruet <pgtdebian@free.fr>  Wed, 08 Apr 2020 14:46:06 +0200
+
 bibutils (6.10-1) unstable; urgency=medium
 
   * New upstream version 6.10
@@ -60,8 +66,8 @@ bibutils (5.0-1) experimental; urgency=low
 
 bibutils (4.12-5) unstable; urgency=low
 
-  * Remove extraneous backslashes from libbibutils.pc. 
-    (Closes: #644257). 
+  * Remove extraneous backslashes from libbibutils.pc.
+    (Closes: #644257).
 
  -- David Bremner <bremner@debian.org>  Sun, 09 Oct 2011 09:10:45 -0300
 
@@ -118,19 +124,19 @@ bibutils (4.3-1) unstable; urgency=low
     soname)
   * Link binaries dynamically again
   * Update to new standards version 3.8.3 (no changes)
-  
+
  -- David Bremner <bremner@unb.ca>  Sun, 23 Aug 2009 10:17:54 -0400
 
 bibutils (4.1-1) unstable; urgency=low
 
-  * New Upstream Version 
+  * New Upstream Version
     - patch from Rafael Laboissiere to lib/medin.c applied upstream (Closes: #506960)
   * Convert to topgit (Closes: #485243)
   * Change maintainer to debian-science-maintainers@lists.alioth.debian.org
   * Update Vcs-Git and Vcs-Browser
   * Converted packaging to topgit
   * Upgraded to standards version 3.8.1 (added debian/README.source)
-  
+
  -- David Bremner <bremner@unb.ca>  Sun, 15 Mar 2009 12:48:29 -0300
 
 bibutils (3.40-4) unstable; urgency=low
@@ -138,7 +144,7 @@ bibutils (3.40-4) unstable; urgency=low
   * added reftypes.h (Closes: #477654)
   * remove obsolete libbibutils0-dev.dirs
   * adds /usr/lib/pkgconfig/bibutils.pc, courtesy of Thomas Fischer
-  * adds extern "C" declarations to bibutils.h, also courtesy of Thomas 
+  * adds extern "C" declarations to bibutils.h, also courtesy of Thomas
     Fischer.
   * added support for CFLAGS to libtoolized lib/Makefile
 
@@ -156,12 +162,12 @@ bibutils (3.40-3) unstable; urgency=low
 bibutils (3.40-2) unstable; urgency=low
 
   * moved to unversioned -dev package
- 
+
  -- David Bremner <bremner@unb.ca>  Wed, 27 Feb 2008 16:34:07 +0100
 
 bibutils (3.40-1) unstable; urgency=low
 
-  *  New upstream release   
+  *  New upstream release
   *  new command xml2ads
   *  xml2word renamed to xml2wordbib
   *  use bibutils.dbk shipped by upstream
@@ -187,7 +193,6 @@ bibutils (3.39-2) UNRELEASED; urgency=low
 
 bibutils (3.39-1) UNRELEASED; urgency=low
 
-  * Initial release 
+  * Initial release
 
  -- David Bremner <bremner@unb.ca>  Tue, 27 Nov 2007 13:18:20 +0100
-

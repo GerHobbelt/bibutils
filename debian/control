@@ -21,7 +21,7 @@ Description: interconvert various bibliographic data formats
  This package provides command line tools bib2xml, copac2xml, end2xml
  endx2xml, isi2xml, med2xml, ris2xml which convert to MODS XML format,
  modsclean which reformats MODS XML, and a matching set of commands
- xml2ads, xml2bib, xml2end, xml2isi, xml2ris, xml2wordbib which convert 
+ xml2ads, xml2bib, xml2end, xml2isi, xml2ris, xml2wordbib which convert
  from MODS XML.
 
 Package: libbibutils-dev
