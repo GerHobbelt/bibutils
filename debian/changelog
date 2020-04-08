@@ -3,6 +3,7 @@ bibutils (6.10-2) UNRELEASED; urgency=medium
   * Trim trailing whitespace.
   * debian/copyright: use spaces rather than tabs to start continuation
     lines.
+  * Wrap long lines in changelog entries: 4.1-1.
 
  -- Pierre Gruet <pgtdebian@free.fr>  Wed, 08 Apr 2020 14:46:06 +0200
 
@@ -132,7 +133,8 @@ bibutils (4.3-1) unstable; urgency=low
 bibutils (4.1-1) unstable; urgency=low
 
   * New Upstream Version
-    - patch from Rafael Laboissiere to lib/medin.c applied upstream (Closes: #506960)
+    - patch from Rafael Laboissiere to lib/medin.c applied upstream
+      (Closes: #506960)
   * Convert to topgit (Closes: #485243)
   * Change maintainer to debian-science-maintainers@lists.alioth.debian.org
   * Update Vcs-Git and Vcs-Browser
