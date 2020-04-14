@@ -11,7 +11,7 @@ bibutils (6.10-1) experimental; urgency=medium
   * Fixing FTCBFS with a patch of Helmut Grohne (Closes: #853243)
     + Let dh_auto_build pass cross compilers to $(MAKE)
     + Honour DEB_BUILD_OPTIONS=nocheck
-  * Putting libraries in /usr/share/${DEB_HOST_MULTIARCH}
+  * Putting libraries in /usr/lib/${DEB_HOST_MULTIARCH}
   * Fixing Lintian issues with severity info
 
  -- Pierre Gruet <pgtdebian@free.fr>  Wed, 08 Apr 2020 14:46:06 +0200
