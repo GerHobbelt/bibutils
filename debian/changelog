@@ -1,3 +1,9 @@
+bibutils (6.10-2) UNRELEASED; urgency=medium
+
+  * Upload to unstable, transition to libbibutils7 begins.
+
+ -- Pierre Gruet <pgtdebian@free.fr>  Wed, 08 Apr 2020 14:46:06 +0200
+
 bibutils (6.10-1) experimental; urgency=medium
 
   * New upstream version 6.10
