@@ -1,8 +1,13 @@
-bibutils (6.10-2) UNRELEASED; urgency=medium
+bibutils (6.10-2) unstable; urgency=medium
 
+  [ Andrius Merkys ]
+  * Team upload.
+  * UNRELEASED -> unstable
+
+  [ Pierre Gruet ]
   * Upload to unstable, transition to libbibutils7 begins.
 
- -- Pierre Gruet <pgtdebian@free.fr>  Wed, 08 Apr 2020 14:46:06 +0200
+ -- Andrius Merkys <merkys@debian.org>  Sun, 26 Apr 2020 00:40:43 -0400
 
 bibutils (6.10-1) experimental; urgency=medium
 
