@@ -1,3 +1,7 @@
+# bibutils
+
+Original is at: https://sourceforge.net/projects/bibutils/
+
 The bibutils program set interconverts between various bibliography formats using a common MODS-format XML intermediate. For example, one can convert RIS-format files to Bibtex by doing two transformations: RIS->MODS->Bibtex. By using a common intermediate for N formats, only 2N programs are required and not N²-N. These programs operate on the command line and are styled after standard UNIX-like filters.
 
 I primarily use these tools at the command line, but they are suitable for scripting and have been incorporated into a number of different bibliographic projects.
