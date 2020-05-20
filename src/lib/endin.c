@@ -62,7 +62,7 @@ endin_initparams( param *pm, const char *progname )
 
 	if ( !progname ) pm->progname = NULL;
 	else {
-		pm->progname = strdup( progname );
+		pm->progname = _strdup( progname );
 		if ( !pm->progname ) return BIBL_ERR_MEMERR;
 	}
 
@@ -396,7 +396,7 @@ endin_cleanf( bibl *bin, param *p )
  * otherwise return 0
  */
 static int
-month_convert( char *in, char *out )
+month_convert( char *in, char *out, size_t outsize )
 {
 	char *month1[12]={
 		"January",   "February",
@@ -424,9 +424,9 @@ month_convert( char *in, char *out )
 	if ( found==-1 ) return 0;
 
 	if ( found > 8 )
-		sprintf( out, "%d", found+1 );
+		sprintf_s( out, outsize, "%d", found+1 );
 	else
-		sprintf( out, "0%d", found+1 );
+		sprintf_s( out, outsize, "0%d", found+1 );
 
 	return 1;
 }
@@ -468,7 +468,7 @@ endin_date( fields *bibin, int n, str *intag, str *invalue, int level, param *pm
 		p = str_cpytodelim( &date, skip_ws( p ), " ,\n", 0 );
 		if ( str_memerr( &date ) ) return BIBL_ERR_MEMERR;
 		if ( str_has_value( &date ) ) {
-			if ( month_convert( date.data, month ) ) m = month;
+			if ( month_convert( date.data, month, countof(month) ) ) m = month;
 			else m = str_cstr( &date );
 			status = fields_add( bibout, tags[1][part], m, level );
 			if ( status!=FIELDS_OK ) return BIBL_ERR_MEMERR;

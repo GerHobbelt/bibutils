@@ -56,7 +56,7 @@ biblatexout_initparams( param *pm, const char *progname )
 	if ( !pm->progname ) {
 		if ( !progname ) pm->progname = NULL;
 		else {
-			pm->progname = strdup( progname );
+			pm->progname = _strdup( progname );
 			if ( !pm->progname ) return BIBL_ERR_MEMERR;
 		}
 	}
@@ -509,11 +509,11 @@ find_date( fields *in, char *date_element )
 	char date[100], partdate[100];
 	int n;
 
-	sprintf( date, "DATE:%s", date_element );
+	sprintf_s( date, countof(date), "DATE:%s", date_element );
 	n = fields_find( in, date, LEVEL_ANY );
 
 	if ( n==FIELDS_NOTFOUND ) {
-		sprintf( partdate, "PARTDATE:%s", date_element );
+		sprintf_s( partdate, countof(partdate), "PARTDATE:%s", date_element );
 		n = fields_find( in, partdate, LEVEL_ANY );
 	}
 

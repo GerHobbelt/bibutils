@@ -61,7 +61,7 @@ adsout_initparams( param *pm, const char *progname )
 	if ( !pm->progname ) {
 		if ( !progname ) pm->progname=NULL;
 		else {
-			pm->progname = strdup( progname );
+			pm->progname = _strdup( progname );
 			if ( !pm->progname ) return BIBL_ERR_MEMERR;
 		}
 	}
@@ -328,7 +328,7 @@ append_date( fields *in, char *adstag, int level, fields *out, int *status )
 	year = fields_findv_firstof( in, level, FIELDS_STRP, "DATE:YEAR", "PARTDATE:YEAR", NULL );
 	if ( str_has_value( year ) ) {
 		month = get_month( in, level );
-		sprintf( outstr, "%02d/%s", month, str_cstr( year ) );
+		sprintf_s( outstr, countof(outstr), "%02d/%s", month, str_cstr( year ) );
 		fstatus = fields_add( out, adstag, outstr, LEVEL_MAIN );
 		if ( fstatus!=FIELDS_OK ) *status = BIBL_ERR_MEMERR;
 	}
@@ -337,19 +337,19 @@ append_date( fields *in, char *adstag, int level, fields *out, int *status )
 #include "adsout_journals.c"
 
 static void
-output_4digit_value( char *pos, long long n )
+output_4digit_value( char *pos, size_t dstlen, long long n )
 {
 	char buf[6];
 	n = n % 10000; /* truncate to 0->9999, will fit in buf[6] */
 #ifdef WIN32
-	sprintf( buf, "%I64d", n );
+	sprintf_s( buf, countof(buf), "%I64d", n );
 #else
-	sprintf( buf, "%lld", n );
+	sprintf_s( buf, countof(buf), "%lld", n );
 #endif
-	if ( n < 10 )        strncpy( pos+3, buf, 1 );
-	else if ( n < 100 )  strncpy( pos+2, buf, 2 );
-	else if ( n < 1000 ) strncpy( pos+1, buf, 3 );
-	else                 strncpy( pos,   buf, 4 );
+	if ( n < 10 )        strncpy_s( pos+3, dstlen-3, buf, 1 );
+	else if ( n < 100 )  strncpy_s( pos+2, dstlen-2, buf, 2 );
+	else if ( n < 1000 ) strncpy_s( pos+1, dstlen-1, buf, 3 );
+	else                 strncpy_s( pos,   dstlen,   buf, 4 );
 }
 
 static char
@@ -481,12 +481,12 @@ append_Rtag( fields *in, char *adstag, int type, fields *out, int *status )
 	int n, i, fstatus;
 	long long page;
 
-	strcpy( outstr, "..................." );
+	strcpy_s( outstr, countof(outstr), "..................." );
 
 	/** YYYY */
 	n = fields_find( in, "DATE:YEAR", LEVEL_ANY );
 	if ( n==FIELDS_NOTFOUND ) n = fields_find( in, "PARTDATE:YEAR", LEVEL_ANY );
-	if ( n!=FIELDS_NOTFOUND ) output_4digit_value( outstr, atoi( fields_value( in, n, FIELDS_CHRP ) ) );
+	if ( n!=FIELDS_NOTFOUND ) output_4digit_value( outstr, countof(outstr), atoi( fields_value( in, n, FIELDS_CHRP ) ) );
 
 	/** JJJJ */
 	n = get_journalabbr( in );
@@ -500,14 +500,14 @@ append_Rtag( fields *in, char *adstag, int type, fields *out, int *status )
 
 	/** VVVV */
 	n = fields_find( in, "VOLUME", LEVEL_ANY );
-	if ( n!=FIELDS_NOTFOUND ) output_4digit_value( outstr+9, atoi( fields_value( in, n, FIELDS_CHRP ) ) );
+	if ( n!=FIELDS_NOTFOUND ) output_4digit_value( outstr+9, countof(outstr)-9, atoi( fields_value( in, n, FIELDS_CHRP ) ) );
 
 	/** MPPPP */
 	n = fields_find( in, "PAGES:START", LEVEL_ANY );
 	if ( n==FIELDS_NOTFOUND ) n = fields_find( in, "ARTICLENUMBER", LEVEL_ANY );
 	if ( n!=FIELDS_NOTFOUND ) {
 		page = atoll( fields_value( in, n, FIELDS_CHRP ) );
-		output_4digit_value( outstr+14, page );
+		output_4digit_value( outstr+14, countof(outstr)-14, page );
 		if ( page>=10000 ) {
 			ch = 'a' + (unsigned char)(page/10000);
 			outstr[13] = ch;

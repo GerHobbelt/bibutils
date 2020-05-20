@@ -20,7 +20,7 @@
 #define TYPE_FROM_ISSUANCE (2)
 
 typedef struct match_type {
-        char *name;
+        const char *name;
         int type;
         int level;
 } match_type;

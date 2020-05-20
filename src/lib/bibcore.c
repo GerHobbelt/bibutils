@@ -112,7 +112,7 @@ bibl_duplicateparams( param *np, param *op )
 
 	if ( !op->progname ) np->progname = NULL;
 	else {
-		np->progname = strdup( op->progname );
+		np->progname = _strdup( op->progname );
 		if ( !np->progname ) return BIBL_ERR_MEMERR;
 	}
 
@@ -302,7 +302,7 @@ bibl_illegaloutmode( int mode )
 }
 
 static void
-bibl_verbose_reference( fields *f, char *filename, long refnum )
+bibl_verbose_reference( fields *f, const char *filename, long refnum )
 {
 	int i, n;
 	n = fields_num( f );
@@ -497,10 +497,10 @@ out:
 static int
 bibl_notexify( char *tag )
 {
-	char *protected[] = { "DOI", "URL", "REFNUM", "FILEATTACH", "FILE" };
-	int i, nprotected = sizeof( protected ) / sizeof( protected[0] );
+	const char *protected1[] = { "DOI", "URL", "REFNUM", "FILEATTACH", "FILE" };
+	int i, nprotected = countof(protected1);
 	for ( i=0; i<nprotected; ++i )
-		if ( !strcasecmp( tag, protected[i] ) ) return 1;
+		if ( !strcasecmp( tag, protected1[i] ) ) return 1;
 	return 0;
 }
 
@@ -572,7 +572,7 @@ bibl_addcount( bibl *b )
 		n = fields_find( ref, "REFNUM", LEVEL_MAIN );
 		if ( n==FIELDS_NOTFOUND ) continue;
 
-		sprintf( buf, "_%ld", i+1 );
+		sprintf_s( buf, countof(buf), "_%ld", i+1 );
 		str_strcatc( fields_value( ref, n, FIELDS_STRP_NOUSE ), buf );
 		if ( str_memerr( fields_value( ref, n, FIELDS_STRP_NOUSE ) ) ) {
 			return BIBL_ERR_MEMERR;
@@ -617,11 +617,9 @@ generate_citekey( fields *f, long nref )
 			if ( !is_ws( *p ) ) str_addchar( &citekey, *p );
 			p++;
 		}
-
 	}
-
 	else {
-		sprintf( buf, "ref%ld", nref );
+		sprintf_s( buf, countof(buf), "ref%ld", nref );
 		str_strcpyc( &citekey, buf );
 	}
 
@@ -903,18 +901,21 @@ singlerefname( fields *reffields, long nref, int mode )
 	FILE *fp;
 	long count;
 	int  found;
-	if      ( mode==BIBL_ADSABSOUT )     strcpy( suffix, "ads" );
-	else if ( mode==BIBL_BIBTEXOUT )     strcpy( suffix, "bib" );
-	else if ( mode==BIBL_ENDNOTEOUT )    strcpy( suffix, "end" );
-	else if ( mode==BIBL_ISIOUT )        strcpy( suffix, "isi" );
-	else if ( mode==BIBL_MODSOUT )       strcpy( suffix, "xml" );
-	else if ( mode==BIBL_RISOUT )        strcpy( suffix, "ris" );
-	else if ( mode==BIBL_WORD2007OUT )   strcpy( suffix, "xml" );
+	if      ( mode==BIBL_ADSABSOUT )     strcpy_s( suffix, countof(suffix), "ads" );
+	else if ( mode==BIBL_BIBTEXOUT )     strcpy_s( suffix, countof(suffix), "bib" );
+	else if ( mode==BIBL_ENDNOTEOUT )    strcpy_s( suffix, countof(suffix), "end" );
+	else if ( mode==BIBL_ISIOUT )        strcpy_s( suffix, countof(suffix), "isi" );
+	else if ( mode==BIBL_MODSOUT )       strcpy_s( suffix, countof(suffix), "xml" );
+	else if ( mode==BIBL_RISOUT )        strcpy_s( suffix, countof(suffix), "ris" );
+	else if ( mode==BIBL_WORD2007OUT )   strcpy_s( suffix, countof(suffix), "xml" );
 	found = fields_find( reffields, "REFNUM", LEVEL_MAIN );
 	/* find new filename based on reference */
 	if ( found!=-1 ) {
-		sprintf( outfile,"%s.%s",(char*)fields_value(reffields,found,FIELDS_CHRP_NOUSE), suffix );
-	} else  sprintf( outfile,"%ld.%s",nref, suffix );
+		sprintf_s( outfile, countof(outfile), "%s.%s",(char*)fields_value(reffields,found,FIELDS_CHRP_NOUSE), suffix );
+	}
+	else {
+		sprintf_s(outfile, countof(outfile), "%ld.%s", nref, suffix);
+	}
 	count = 0;
 	fp = fopen( outfile, "r" );
 	while ( fp ) {
@@ -922,8 +923,9 @@ singlerefname( fields *reffields, long nref, int mode )
 		count++;
 		if ( count==60000 ) return NULL;
 		if ( found!=-1 )
-			sprintf( outfile, "%s_%ld.%s", (char*)fields_value( reffields, found, FIELDS_CHRP_NOUSE ), count, suffix );
-		else sprintf( outfile,"%ld_%ld.%s", nref, count, suffix );
+			sprintf_s( outfile, countof(outfile), "%s_%ld.%s", (char*)fields_value( reffields, found, FIELDS_CHRP_NOUSE ), count, suffix );
+		else 
+			sprintf_s( outfile, countof(outfile), "%ld_%ld.%s", nref, count, suffix );
 		fp = fopen( outfile, "r" );
 	}
 	return fopen( outfile, "w" );

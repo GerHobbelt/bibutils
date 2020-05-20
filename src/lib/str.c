@@ -389,7 +389,7 @@ str_strcat_internal( str *s, const char *addstr, unsigned long n )
 {
 	return_if_memerr( s );
 	str_strcat_ensurespace( s, n );
-	strncat( &(s->data[s->len]), addstr, n );
+	strncat( s->data + s->len, addstr, n );
 	s->len += n;
 	s->data[s->len]='\0';
 }
