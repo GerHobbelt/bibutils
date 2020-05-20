@@ -1097,7 +1097,9 @@ static int
 biblatexin_convertf( fields *bibin, fields *bibout, int reftype, param *p )
 {
 	static int (*convertfns[NUM_REFTYPES])(fields *, int, str *, str *, int, param *, char *, fields *) = {
-		//[ 0 ... NUM_REFTYPES-1 ] = generic_null,
+#ifdef HAVE_DESIGNATED_INITIALIZER_GNU_EXTENSION
+		[ 0 ... NUM_REFTYPES-1 ] = generic_null,
+#endif
 		[ SIMPLE          ] = generic_simple,
 		[ PAGES           ] = generic_pages,
 		[ NOTES           ] = generic_notes,
@@ -1113,6 +1115,10 @@ biblatexin_convertf( fields *bibin, fields *bibout, int reftype, param *p )
 		[ BLT_SKIP        ] = generic_skip,
 		[ TITLE           ] = generic_null,    /* delay processing until later */
 	};
+
+#ifndef HAVE_DESIGNATED_INITIALIZER_GNU_EXTENSION
+	SET_ARRAY_DEFAULT_VALUE(convertfns, generic_null);
+#endif
 
 	int process, level, i, nfields, status = BIBL_OK;
 	str *intag, *invalue;

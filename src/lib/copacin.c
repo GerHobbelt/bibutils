@@ -286,13 +286,19 @@ static int
 copacin_convertf( fields *bibin, fields *bibout, int reftype, param *p )
 {
 	static int (*convertfns[NUM_REFTYPES])(fields *, int, str *, str *, int, param *, char *, fields *) = {
-		//[ 0 ... NUM_REFTYPES-1 ] = generic_null,
+#ifdef HAVE_DESIGNATED_INITIALIZER_GNU_EXTENSION
+		[ 0 ... NUM_REFTYPES-1 ] = generic_null,
+#endif
 		[ SIMPLE       ] = generic_simple,
 		[ TITLE        ] = generic_title,
 		[ NOTES        ] = generic_notes,
 		[ SERIALNO     ] = generic_serialno,
 		[ PERSON       ] = copacin_person
 	};
+
+#ifndef HAVE_DESIGNATED_INITIALIZER_GNU_EXTENSION
+	SET_ARRAY_DEFAULT_VALUE(convertfns, generic_null);
+#endif
 
 	int  process, level, i, nfields, status = BIBL_OK;
 	str *intag, *invalue;

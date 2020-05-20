@@ -479,7 +479,9 @@ static int
 nbib_convertf( fields *bibin, fields *bibout, int reftype, param *p )
 {
 	static int (*convertfns[NUM_REFTYPES])(fields *, int i, str *, str *, int, param *, char *, fields *) = {
-		//[ 0 ... NUM_REFTYPES-1 ] = generic_null,
+#ifdef HAVE_DESIGNATED_INITIALIZER_GNU_EXTENSION
+		[ 0 ... NUM_REFTYPES-1 ] = generic_null,
+#endif
 		[ SIMPLE       ] = generic_simple,
 		[ TITLE        ] = generic_title,
 		[ PERSON       ] = generic_person,
@@ -487,7 +489,12 @@ nbib_convertf( fields *bibin, fields *bibout, int reftype, param *p )
 		[ DATE         ] = nbibin_date,
 		[ PAGES        ] = nbibin_pages,
 		[ DOI          ] = nbibin_doi,
-        };
+    };
+
+#ifndef HAVE_DESIGNATED_INITIALIZER_GNU_EXTENSION
+	SET_ARRAY_DEFAULT_VALUE(convertfns, generic_null);
+#endif
+
 	int process, level, i, nfields, status = BIBL_OK;
 	str *intag, *invalue;
 	char *outtag;

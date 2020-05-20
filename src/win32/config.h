@@ -1,6 +1,21 @@
 #ifndef __WIN32_BIBUTILS_CONFIG_H__
 #define __WIN32_BIBUTILS_CONFIG_H__
 
+#undef HAVE_DESIGNATED_INITIALIZER_GNU_EXTENSION
+
+#define countof(array)					( sizeof(array) / sizeof(array[0]) )
+
+#define SET_ARRAY_DEFAULT_VALUE(array, default_value)			\
+	{															\
+		for (int ii = 0; ii < countof(array); ii++) {			\
+			if ((array)[ii] == 0) {								\
+				(array)[ii] = (default_value);					\
+			}													\
+		}														\
+	}
+
+
+
 #define  _CRT_SECURE_NO_WARNINGS		1
 
 #pragma warning(disable:4996)

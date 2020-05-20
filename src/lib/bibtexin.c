@@ -1340,7 +1340,9 @@ static int
 bibtexin_convertf( fields *bibin, fields *bibout, int reftype, param *p )
 {
 	static int (*convertfns[NUM_REFTYPES])(fields *, int, str *, str *, int, param *, char *, fields *) = {
-		//[ 0 ... NUM_REFTYPES-1 ] = generic_null,
+#ifdef HAVE_DESIGNATED_INITIALIZER_GNU_EXTENSION
+		[ 0 ... NUM_REFTYPES-1 ] = generic_null,
+#endif
 		[ SIMPLE       ] = generic_simple,
 		[ TITLE        ] = bibtexin_title,
 		[ PERSON       ] = generic_simple,
@@ -1355,6 +1357,10 @@ bibtexin_convertf( fields *bibin, fields *bibout, int reftype, param *p )
 		[ BT_ORG       ] = bibtexin_btorg,
 		[ URL          ] = generic_url
 	};
+
+#ifndef HAVE_DESIGNATED_INITIALIZER_GNU_EXTENSION
+	SET_ARRAY_DEFAULT_VALUE(convertfns, generic_null);
+#endif
 
 	int process, level, i, nfields, status = BIBL_OK;
 	str *intag, *invalue;
