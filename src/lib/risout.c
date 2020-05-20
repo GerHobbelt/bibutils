@@ -6,6 +6,9 @@
  * Source code released under the GPL version 2
  *
  */
+#if defined(WIN32) || defined(WIN64)
+#include "../win32/config.h"
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -98,7 +101,7 @@ enum {
 };
 
 static int type_is_element[ NUM_TYPES ] = {
-	[ 0 ... NUM_TYPES-1 ] = 0,
+	//[ 0 ... NUM_TYPES-1 ] = 0,
 	[ TYPE_ARTICLE      ] = 1,
 	[ TYPE_INBOOK       ] = 1,
 	[ TYPE_MAGARTICLE   ] = 1,
@@ -108,7 +111,7 @@ static int type_is_element[ NUM_TYPES ] = {
 };
 
 static int type_uses_journal[ NUM_TYPES ] = {
-	[ 0 ... NUM_TYPES-1 ] = 0,
+	//[ 0 ... NUM_TYPES-1 ] = 0,
 	[ TYPE_ARTICLE      ] = 1,
 	[ TYPE_MAGARTICLE   ] = 1,
 };

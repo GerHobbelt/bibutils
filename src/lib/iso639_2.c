@@ -1,6 +1,9 @@
 /*
  * iso639-2 language codes
  */
+#if defined(WIN32) || defined(WIN64)
+#include "../win32/config.h"
+#endif
 #include <string.h>
 #include "iso639_2.h"
 

@@ -6,6 +6,9 @@
  * Source code released under the GPL version 2
  *
  */
+#if defined(WIN32) || defined(WIN64)
+#include "../win32/config.h"
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -416,7 +419,6 @@ nbibin_pages( fields *bibin, int n, str *intag, str *invalue, int level, param *
 	int fstatus, status = BIBL_OK;
 	str sp, tmp, ep;
 	char *p;
-	int i;
 
 	p = str_cstr( invalue );
 	if ( !p ) return BIBL_OK;
@@ -449,7 +451,7 @@ nbibin_pages( fields *bibin, int n, str *intag, str *invalue, int level, param *
 	}
 
 	if ( tmp.len ) {
-		for ( i=0; i<sp.len - tmp.len; ++i )
+		for ( unsigned long i=0; i<sp.len - tmp.len; ++i )
 			str_addchar( &ep, sp.data[i] );
 		str_strcat( &ep, &tmp );
 
@@ -477,7 +479,7 @@ static int
 nbib_convertf( fields *bibin, fields *bibout, int reftype, param *p )
 {
 	static int (*convertfns[NUM_REFTYPES])(fields *, int i, str *, str *, int, param *, char *, fields *) = {
-		[ 0 ... NUM_REFTYPES-1 ] = generic_null,
+		//[ 0 ... NUM_REFTYPES-1 ] = generic_null,
 		[ SIMPLE       ] = generic_simple,
 		[ TITLE        ] = generic_title,
 		[ PERSON       ] = generic_person,

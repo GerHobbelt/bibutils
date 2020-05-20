@@ -20,6 +20,9 @@
 #define LEVEL_HOST    (1)
 #define LEVEL_SERIES  (2)
 
+#if defined(WIN32) || defined(WIN64)
+#include "../win32/config.h"
+#endif
 #include <stdarg.h>
 #include "str.h"
 #include "vplist.h"

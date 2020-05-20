@@ -6,6 +6,9 @@
  * Source code released under the GPL version 2
  *
  */
+#if defined(WIN32) || defined(WIN64)
+#include "../win32/config.h"
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include "is_ws.h"
@@ -306,7 +309,7 @@ medin_journal1( xml *node, fields *info )
 static int
 medin_pagination( xml *node, fields *info )
 {
-	int i, fstatus, status;
+	int fstatus, status;
 	str sp, ep;
 	const char *p, *pp;
 	if ( xml_tag_matches( node, "MedlinePgn" ) && node->value.len ) {
@@ -321,7 +324,7 @@ medin_pagination( xml *node, fields *info )
 		if ( str_memerr( &ep ) ) return BIBL_ERR_MEMERR;
 		if ( str_has_value( &ep ) ) {
 			if ( sp.len > ep.len ) {
-				for ( i=sp.len-ep.len; i<sp.len; ++i )
+				for ( unsigned long i=sp.len-ep.len; i<sp.len; ++i )
 					sp.data[i] = ep.data[i-sp.len+ep.len];
 				pp = sp.data;
 			} else  pp = ep.data;

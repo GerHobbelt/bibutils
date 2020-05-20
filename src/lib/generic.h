@@ -8,6 +8,9 @@
 #ifndef GENERIC_H
 #define GENERIC_H
 
+#if defined(WIN32) || defined(WIN64)
+#include "../win32/config.h"
+#endif
 #include <stdio.h>
 #include "bibutils.h"
 

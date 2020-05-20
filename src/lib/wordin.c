@@ -6,6 +6,9 @@
  * Source code released under the GPL version 2
  *
  */
+#if defined(WIN32) || defined(WIN64)
+#include "../win32/config.h"
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include "is_ws.h"
@@ -207,7 +210,7 @@ wordin_people( xml *node, fields *info, char *type )
 static int
 wordin_pages( xml *node, fields *info )
 {
-	int i, status, ret = BIBL_OK;
+	int status, ret = BIBL_OK;
 	str sp, ep;
 	char *p;
 
@@ -239,7 +242,7 @@ wordin_pages( xml *node, fields *info )
 
 	if ( str_has_value( &ep ) ) {
 		if ( sp.len > ep.len ) {
-			for ( i=sp.len-ep.len; i<sp.len; ++i )
+			for ( unsigned long i=sp.len-ep.len; i<sp.len; ++i )
 				sp.data[i] = ep.data[i-sp.len+ep.len];
 			status = fields_add( info, "PAGES:STOP", str_cstr( &sp ), 1 );
 		} else

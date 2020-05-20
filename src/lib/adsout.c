@@ -7,6 +7,9 @@
  * Program and source code released under the GPL version 2
  *
  */
+#if defined(WIN32) || defined(WIN64)
+#include "../win32/config.h"
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -506,7 +509,7 @@ append_Rtag( fields *in, char *adstag, int type, fields *out, int *status )
 		page = atoll( fields_value( in, n, FIELDS_CHRP ) );
 		output_4digit_value( outstr+14, page );
 		if ( page>=10000 ) {
-			ch = 'a' + (page/10000);
+			ch = 'a' + (unsigned char)(page/10000);
 			outstr[13] = ch;
 		}
 	}

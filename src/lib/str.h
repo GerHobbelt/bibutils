@@ -14,6 +14,9 @@
 #define STR_OK (0)
 #define STR_MEMERR (-1)
 
+#if defined(WIN32) || defined(WIN64)
+#include "../win32/config.h"
+#endif
 #include <stdio.h>
 
 typedef struct str {

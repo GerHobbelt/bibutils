@@ -8,6 +8,9 @@
 #ifndef TYPE_H
 #define TYPE_H
 
+#if defined(WIN32) || defined(WIN64)
+#include "../win32/config.h"
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include "fields.h"

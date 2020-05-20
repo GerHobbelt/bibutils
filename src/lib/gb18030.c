@@ -1,3 +1,6 @@
+#if defined(WIN32) || defined(WIN64)
+#include "../win32/config.h"
+#endif
 #include <stdio.h>
 #include "gb18030.h"
 
@@ -19,7 +22,7 @@
  */
 
 /* This is a "small" region that needs explicit enumeration */
-#include "gb18030_enumeration.c"
+#include "gb18030_enumeration.h"
 
 static int
 in_range( unsigned char n, unsigned char low, unsigned char high )
@@ -33,7 +36,8 @@ in_range( unsigned char n, unsigned char low, unsigned char high )
 static int
 gb18030_unicode_table_lookup( unsigned int unicode, unsigned char out[4] )
 {
-	int i, j;
+	int j;
+	unsigned int i;
 	if ( unicode >= 0x0080 && unicode <= 0xFFE5 ) {
 		/* list is sorted, so should do binary search here */
 		for ( i=0; i<ngb18030_enums; ++i ) {

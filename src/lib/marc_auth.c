@@ -8,6 +8,9 @@
  * Source code released under the GPL version 2
  *
  */
+#if defined(WIN32) || defined(WIN64)
+#include "../win32/config.h"
+#endif
 #include "marc_auth.h"
 #include <string.h>
 

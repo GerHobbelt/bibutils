@@ -6,6 +6,9 @@
  * Program and source code released under the GPL version 2
  *
  */
+#if defined(WIN32) || defined(WIN64)
+#include "../win32/config.h"
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include "is_ws.h"
@@ -313,7 +316,7 @@ ebiin_journal1( xml *node, fields *info )
 static int
 ebiin_pages( fields *info, const char *p )
 {
-	int i, status, ret = BIBL_OK;
+	int status, ret = BIBL_OK;
 	const int level = 1;
 	str sp, ep, *up;
 
@@ -342,7 +345,7 @@ ebiin_pages( fields *info, const char *p )
 	}
 	if ( ep.len ) {
 		if ( sp.len > ep.len ) {
-			for ( i=sp.len-ep.len; i<sp.len; ++i )
+			for ( unsigned long i=sp.len-ep.len; i<sp.len; ++i )
 				sp.data[i] = ep.data[i-sp.len+ep.len];
 			up = &(sp);
 		} else up = &(ep);

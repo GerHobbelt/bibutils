@@ -6,6 +6,9 @@
  * Source code released under the GPL version 2
  *
  */
+#if defined(WIN32) || defined(WIN64)
+#include "../win32/config.h"
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -517,7 +520,7 @@ static int
 risin_convertf( fields *bibin, fields *bibout, int reftype, param *p )
 {
 	static int (*convertfns[NUM_REFTYPES])(fields *, int, str *, str *, int, param *, char *, fields *) = {
-		[ 0 ... NUM_REFTYPES-1 ] = generic_null,
+		//[ 0 ... NUM_REFTYPES-1 ] = generic_null,
 		[ SIMPLE       ] = generic_simple,
 		[ TITLE        ] = generic_title,
 		[ SERIALNO     ] = generic_serialno,

@@ -11,6 +11,9 @@
  * routines for dynamically allocated strings
  *
  */
+#if defined(WIN32) || defined(WIN64)
+#include "../win32/config.h"
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -869,12 +872,11 @@ str_copyposlen( str *s, str *in, unsigned long pos, unsigned long len )
 static void
 str_check_case( str *s, int *lowercase, int *uppercase )
 {
-	int i;
 	assert( s );
 	*lowercase = 0;
 	*uppercase = 0;
 	if ( s->len < 1 ) return;
-	for ( i=0; i<s->len && !( *lowercase && *uppercase ); ++i ) {
+	for ( unsigned long i=0; i<s->len && !( *lowercase && *uppercase ); ++i ) {
 		if ( isalpha( (unsigned char)s->data[i] ) ) {
 			if ( isupper( (unsigned char)s->data[i] ) ) *uppercase += 1;
 			else if ( islower( (unsigned char)s->data[i] ) ) *lowercase += 1;

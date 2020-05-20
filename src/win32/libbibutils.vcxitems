@@ -37,7 +37,6 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)..\lib\entities.c" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\lib\fields.c" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\lib\gb18030.c" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)..\lib\gb18030_enumeration.c" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\lib\generic.c" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\lib\intlist.c" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\lib\isiin.c" />
@@ -54,7 +53,6 @@
     <ClCompile Include="$(MSBuildThisFileDirectory)..\lib\modsin.c" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\lib\modsout.c" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\lib\modstypes.c" />
-    <ClCompile Include="$(MSBuildThisFileDirectory)..\lib\mycvout.c" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\lib\name.c" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\lib\nbibin.c" />
     <ClCompile Include="$(MSBuildThisFileDirectory)..\lib\nbibout.c" />
@@ -91,6 +89,7 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\lib\entities.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\lib\fields.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\lib\gb18030.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\lib\gb18030_enumeration.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\lib\generic.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\lib\intlist.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\lib\iso639_1.h" />

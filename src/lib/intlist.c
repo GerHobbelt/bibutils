@@ -10,6 +10,9 @@
  * Implements a simple managed array of ints
  *
  */
+#if defined(WIN32) || defined(WIN64)
+#include "../win32/config.h"
+#endif
 #include <stdlib.h>
 #include <assert.h>
 #include "intlist.h"

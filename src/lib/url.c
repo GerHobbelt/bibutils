@@ -14,6 +14,9 @@
  * Source code released under the GPL version 2
  *
  */
+#if defined(WIN32) || defined(WIN64)
+#include "../win32/config.h"
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -98,7 +101,8 @@ mrnumber_to_url( fields *f, int n, char *urltag, str *url )
 static int
 string_pattern( char *s, char *pattern, int matchcase )
 {
-	int patlen, match, i;
+	int match;
+	size_t patlen, i;
 	patlen = strlen( pattern );
 	if ( strlen( s ) < patlen ) return 0; /* too short */
 	for ( i=0; i<patlen; ++i ) {

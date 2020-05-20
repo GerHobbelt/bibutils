@@ -9,6 +9,9 @@
 #ifndef UTF8_H
 #define UTF8_H
 
+#if defined(WIN32) || defined(WIN64)
+#include "../win32/config.h"
+#endif
 #include <stdio.h>
 
 int          utf8_encode( unsigned int value, unsigned char out[6] );

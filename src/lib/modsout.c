@@ -6,6 +6,9 @@
  * Source code released under the GPL version 2
  *
  */
+#if defined(WIN32) || defined(WIN64)
+#include "../win32/config.h"
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -100,11 +103,15 @@ output_tag_core( FILE *outptr, int nindents, char *tag, char *data, unsigned cha
 
 	fprintf( outptr, "%s", tag );
 
+	val = NULL;
 	do {
 		attr = va_arg( *attrs, char * );
-		if ( attr ) val  = va_arg( *attrs, char * );
-		if ( attr && val )
-			fprintf( outptr, " %s=\"%s\"", attr, val );
+		if (attr) {
+			val = va_arg(*attrs, char*);
+			if (val) {
+				fprintf(outptr, " %s=\"%s\"", attr, val);
+			}
+		}
 	} while ( attr && val );
 
 	if ( mode!=TAG_SELFCLOSE )

@@ -10,6 +10,9 @@
  * Implements a simple managed array of pointers to void
  *
  */
+#if defined(WIN32) || defined(WIN64)
+#include "../win32/config.h"
+#endif
 #include <stdlib.h>
 #include "vplist.h"
 

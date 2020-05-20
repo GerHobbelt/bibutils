@@ -9,6 +9,9 @@
 #ifndef BIBL_H
 #define BIBL_H
 
+#if defined(WIN32) || defined(WIN64)
+#include "../win32/config.h"
+#endif
 #include <stdio.h>
 #include "str.h"
 #include "fields.h"

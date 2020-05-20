@@ -10,6 +10,9 @@
  * Implements a simple managed array of strs.
  *
  */
+#if defined(WIN32) || defined(WIN64)
+#include "../win32/config.h"
+#endif
 #include "slist.h"
 
 /* Do not use asserts in VPLIST_NOASSERT defined */

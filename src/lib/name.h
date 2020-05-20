@@ -15,6 +15,9 @@
 #define NAME_ASIS   (1)
 #define NAME_CORP   (2)
 
+#if defined(WIN32) || defined(WIN64)
+#include "../win32/config.h"
+#endif
 #include "str.h"
 #include "slist.h"
 #include "fields.h"
