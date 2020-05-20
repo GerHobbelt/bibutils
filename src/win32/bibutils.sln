@@ -1,0 +1,85 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28315.86
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{C4E2763D-8CA1-4332-808F-E32E9F4DDA94}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{D16F65F7-7F44-40DB-B82A-1344A05D121D}"
+	ProjectSection(SolutionItems) = preProject
+		..\ChangeLog = ..\ChangeLog
+		..\Copying = ..\Copying
+		..\..\README.md = ..\..\README.md
+		..\readme.txt = ..\readme.txt
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{2B045CC0-AA4B-44B1-9D92-459B71EC7AA3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{FC61A082-2335-4C45-A38C-1EBEEA7BBE0A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{71FD12F4-0BCB-422A-9FB0-4137E898E991}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "manual", "manual", "{C9014103-2973-4D54-9B32-1C18AF9B9FAE}"
+	ProjectSection(SolutionItems) = preProject
+		..\..\docs\bib2xml.md = ..\..\docs\bib2xml.md
+		..\..\docs\bibdiff.md = ..\..\docs\bibdiff.md
+		..\..\docs\biblatex2xml.md = ..\..\docs\biblatex2xml.md
+		..\..\docs\copac2xml.md = ..\..\docs\copac2xml.md
+		..\..\docs\end2xml.md = ..\..\docs\end2xml.md
+		..\..\docs\endx2xml.md = ..\..\docs\endx2xml.md
+		..\..\docs\index.md = ..\..\docs\index.md
+		..\..\docs\isi2xml.md = ..\..\docs\isi2xml.md
+		..\..\docs\med2xml.md = ..\..\docs\med2xml.md
+		..\..\docs\modsclean.md = ..\..\docs\modsclean.md
+		..\..\docs\ris2xml.md = ..\..\docs\ris2xml.md
+		..\..\docs\Working.with.MODS.md = ..\..\docs\Working.with.MODS.md
+		..\..\docs\xml2ads.md = ..\..\docs\xml2ads.md
+		..\..\docs\xml2bib.md = ..\..\docs\xml2bib.md
+		..\..\docs\xml2end.md = ..\..\docs\xml2end.md
+		..\..\docs\xml2isi.md = ..\..\docs\xml2isi.md
+		..\..\docs\xml2ris.md = ..\..\docs\xml2ris.md
+		..\..\docs\xml2wordbib.md = ..\..\docs\xml2wordbib.md
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bib2xml", "bib2xml.vcxproj", "{EDC6277E-8566-48FB-A4A6-5194C7E7BB05}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libbibutils", "libbibutils.vcxitems", "{B53A050E-C74B-4CD2-AD81-0A7FE794E56B}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "binhelpers", "binhelpers.vcxitems", "{5D5AC65F-6172-4889-A424-B6E2F3ECBB30}"
+EndProject
+Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		binhelpers.vcxitems*{5d5ac65f-6172-4889-a424-b6e2f3ecbb30}*SharedItemsImports = 9
+		libbibutils.vcxitems*{b53a050e-c74b-4cd2-ad81-0a7fe794e56b}*SharedItemsImports = 9
+		binhelpers.vcxitems*{edc6277e-8566-48fb-a4a6-5194c7e7bb05}*SharedItemsImports = 4
+		libbibutils.vcxitems*{edc6277e-8566-48fb-a4a6-5194c7e7bb05}*SharedItemsImports = 4
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EDC6277E-8566-48FB-A4A6-5194C7E7BB05}.Debug|x64.ActiveCfg = Debug|x64
+		{EDC6277E-8566-48FB-A4A6-5194C7E7BB05}.Debug|x64.Build.0 = Debug|x64
+		{EDC6277E-8566-48FB-A4A6-5194C7E7BB05}.Debug|x86.ActiveCfg = Debug|Win32
+		{EDC6277E-8566-48FB-A4A6-5194C7E7BB05}.Debug|x86.Build.0 = Debug|Win32
+		{EDC6277E-8566-48FB-A4A6-5194C7E7BB05}.Release|x64.ActiveCfg = Release|x64
+		{EDC6277E-8566-48FB-A4A6-5194C7E7BB05}.Release|x64.Build.0 = Release|x64
+		{EDC6277E-8566-48FB-A4A6-5194C7E7BB05}.Release|x86.ActiveCfg = Release|Win32
+		{EDC6277E-8566-48FB-A4A6-5194C7E7BB05}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{C9014103-2973-4D54-9B32-1C18AF9B9FAE} = {D16F65F7-7F44-40DB-B82A-1344A05D121D}
+		{EDC6277E-8566-48FB-A4A6-5194C7E7BB05} = {FC61A082-2335-4C45-A38C-1EBEEA7BBE0A}
+		{B53A050E-C74B-4CD2-AD81-0A7FE794E56B} = {FC61A082-2335-4C45-A38C-1EBEEA7BBE0A}
+		{5D5AC65F-6172-4889-A424-B6E2F3ECBB30} = {FC61A082-2335-4C45-A38C-1EBEEA7BBE0A}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5617659E-FC7E-40D7-9D62-258513329CA1}
+	EndGlobalSection
+EndGlobal

@@ -8,6 +8,7 @@
  */
 #ifndef MODSTYPES_H
 #define MODSTYPES_H
+
 typedef struct convert {
 	char *mods;     /* old */
 	char *internal; /* new */
