@@ -54,8 +54,9 @@ dkms.conf
 /src/**/Makefile
 
 # MSVC output
-/src/win32/Win32/
-/src/win32/x64/
+/src/win32/bin/
+/src/win32/lib/
+/src/win32/obj/
 
 # Misc cruft
 *.tgz
@@ -65,6 +66,4 @@ dkms.conf
 /src/win32/.vs/
 *.filters
 *.user
-
-
 
