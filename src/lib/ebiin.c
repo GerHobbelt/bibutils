@@ -70,7 +70,7 @@ static int
 ebiin_readf( FILE *fp, char *buf, int bufsize, int *bufpos, str *line, str *reference, int *fcharset )
 {
 	int haveref = 0, inref = 0, file_charset = CHARSET_UNKNOWN, m;
-	char *startptr = NULL, *endptr;
+	const char *startptr = NULL, *endptr;
 	str tmp;
 	str_init( &tmp );
 	while ( !haveref && str_fget( fp, buf, bufsize, bufpos, line ) ) {
@@ -113,7 +113,7 @@ static int
 ebiin_doconvert( xml *node, fields *info, xml_convert *c, int nc, int *found )
 {
 	int i, status;
-	char *d;
+	const char *d;
 
 	if ( !xml_has_value( node ) ) goto out;
 
@@ -408,7 +408,7 @@ static int
 ebiin_author( xml *node, str *name )
 {
 	int status;
-	char *p;
+	const char *p;
 
 	if ( xml_tag_matches( node, "LastName" ) ) {
 		if ( name->len ) {
@@ -675,12 +675,12 @@ ebiin_publication( xml *node, fields *info )
 
 /* Call with the "Publication" node */
 static int
-ebiin_fixtype( xml *node, fields *info )
+ebiin_fixtype( const xml *node, fields *info )
 {
-	char *resource = NULL, *issuance = NULL, *genre1 = NULL, *genre2 = NULL;
+	const char *resource = NULL, *issuance = NULL, *genre1 = NULL, *genre2 = NULL;
 	int reslvl, isslvl, gen1lvl, gen2lvl;
 	int status;
-	str *type;
+	const str *type;
 
 	type = xml_attribute( node, "Type" );
 	if ( !type || type->len==0 ) return BIBL_OK;

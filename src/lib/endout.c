@@ -443,7 +443,7 @@ append_people( fields *in, char *tag, char *entag, int level, fields *out, int *
 {
 	int i, n, flvl, fstatus;
 	str oneperson;
-	char *ftag;
+	const char *ftag;
 
 	str_init( &oneperson );
 	n = fields_num( in );

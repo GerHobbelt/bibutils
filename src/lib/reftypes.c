@@ -16,7 +16,7 @@
 #include "reftypes.h"
 
 int
-get_reftype( const char *p, long refnum, char *progname, variants *all, int nall, char *tag, int *is_default, int chattiness )
+get_reftype( const char *p, long refnum, const char *progname, variants *all, int nall, const char *tag, int *is_default, int chattiness )
 {
 	int i;
 

@@ -53,9 +53,9 @@ slist * slist_new( void );
 void    slist_delete( slist * );
 void    slist_deletev( void *v );
 
-slist * slist_dup( slist *a );
-int     slist_copy( slist *to, slist *from );
-int     slist_copy_ret( slist *to, slist *from, int retok, int reterr );
+slist * slist_dup( const slist *a );
+int     slist_copy( slist *to, const slist *from );
+int     slist_copy_ret( slist *to, const slist *from, int retok, int reterr );
 void    slist_swap( slist *a, slist_index n1, slist_index n2 );
 
 int     slist_addvp( slist *a, int mode, void *vp );
@@ -85,8 +85,8 @@ int     slist_append_unique_ret( slist *a, slist *toadd, int retok, int reterr )
 
 int     slist_remove( slist *a, slist_index n );
 
-str *   slist_str( slist *a, slist_index n );
-char *  slist_cstr( slist *a, slist_index n );
+const str * slist_str( const slist *a, slist_index n );
+const char * slist_cstr( const slist *a, slist_index n );
 
 str *   slist_set( slist *a, slist_index n, str *s );
 str *   slist_setc( slist *a, slist_index n, const char *s );
@@ -94,22 +94,22 @@ str *   slist_setc( slist *a, slist_index n, const char *s );
 void    slist_sort( slist *a );
 void    slist_revsort( slist *a );
 
-int     slist_find( slist *a, str *searchstr );
-int     slist_findc( slist *a, const char *searchstr );
-int     slist_findnocase( slist *a, str *searchstr );
-int     slist_findnocasec( slist *a, const char *searchstr );
-int     slist_wasfound( slist *a, slist_index n );
-int     slist_wasnotfound( slist *a, slist_index n );
+int     slist_find( const slist *a, const str *searchstr );
+int     slist_findc( const slist *a, const char *searchstr );
+int     slist_findnocase( const slist *a, const str *searchstr );
+int     slist_findnocasec( const slist *a, const char *searchstr );
+int     slist_wasfound( const slist *a, slist_index n );
+int     slist_wasnotfound( const slist *a, slist_index n );
 
-int     slist_match_entry( slist *a, slist_index n, const char *s );
+int     slist_match_entry( const slist *a, slist_index n, const char *s );
 void    slist_trimend( slist *a, slist_index n );
 
-unsigned long slist_get_maxlen( slist *a );
-void    slist_dump( slist *a, FILE *fp, int newline );
+unsigned long slist_get_maxlen( const slist *a );
+void    slist_dump( const slist *a, FILE *fp, int newline );
 
 int     slist_fill( slist *a, const char *filename, unsigned char skip_blank_lines );
 int     slist_fillfp( slist *a, FILE *fp, unsigned char skip_blank_lines );
-int     slist_tokenize( slist *tokens, str *in, const char *delim, int merge_delim );
-int     slist_tokenizec( slist *tokens, char *p, const char *delim, int merge_delim );
+int     slist_tokenize( slist *tokens, const str *in, const char *delim, int merge_delim );
+int     slist_tokenizec( slist *tokens, const char *p, const char *delim, int merge_delim );
 
 #endif

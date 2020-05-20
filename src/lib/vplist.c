@@ -124,7 +124,7 @@ vplist_copy( vplist *to, vplist *from )
 }
 
 int
-vplist_fill( vplist *vpl, vplist_index n, void *v )
+vplist_fill( vplist *vpl, vplist_index n, const void *v )
 {
 	vplist_index i;
 	int status;
@@ -134,18 +134,16 @@ vplist_fill( vplist *vpl, vplist_index n, void *v )
 	status = vplist_ensure_space( vpl, n, VPLIST_EXACT_SIZE );
 
 	if ( status == VPLIST_OK ) {
-
 		for ( i=0; i<n; ++i )
 			vpl->data[i] = v;
 		vpl->n = n;
-
 	}
 
 	return status;
 }
 
 int
-vplist_add( vplist *vpl, void *v )
+vplist_add( vplist *vpl, const void *v )
 {
 	int status;
 

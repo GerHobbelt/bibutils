@@ -315,7 +315,8 @@ out:
 static void
 append_fileattach( fields *in, fields *out, int *status )
 {
-	char *tag, *value;
+	const char* tag;
+	char* value;
 	int i, fstatus;
 	str data;
 
@@ -742,12 +743,12 @@ static void
 append_howpublished( fields *in, fields *out, int *status )
 {
 	int n, fstatus;
-	char *d;
+	const char *d;
 
 	n = fields_find( in, "GENRE:BIBUTILS", LEVEL_ANY );
 	if ( n==FIELDS_NOTFOUND ) return;
 
-	d = fields_value( in, n, FIELDS_CHRP_NOUSE );
+	d = (const char *)fields_value( in, n, FIELDS_CHRP_NOUSE );
 	if ( !strcmp( d, "Habilitation thesis" ) ) {
 		fstatus = fields_add( out, "howpublised", d, LEVEL_MAIN );
 		if ( fstatus!=FIELDS_OK ) *status = BIBL_ERR_MEMERR;

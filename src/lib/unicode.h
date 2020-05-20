@@ -16,7 +16,7 @@
 #define UNICODE_NUMBER    (8) /* Numeric character */
 #define UNICODE_MIXEDCASE ( UNICODE_UPPER | UNICODE_LOWER )
 
-extern unsigned short unicode_utf8_classify( char *p );
-extern unsigned short unicode_utf8_classify_str( str *s );
+extern unsigned short unicode_utf8_classify( const char *p );
+extern unsigned short unicode_utf8_classify_str( const str *s );
 
 #endif

@@ -248,7 +248,8 @@ fields *
 fields_dupl( fields *in )
 {
 	int i, level, status;
-	char *tag, *value;
+	const char* tag;
+	const char* value;
 	fields *out;
 
 	out = fields_new_size( in->n );
@@ -393,7 +394,7 @@ fields_replace_or_add( fields *f, const char *tag, const char *value, int level 
 	}
 }
 
-char *fields_null_value = "\0";
+const char *fields_null_value = "\0";
 
 int
 fields_used( fields *f, int n )
@@ -471,7 +472,7 @@ fields_value( fields *f, int n, int mode )
 	}
 }
 
-void *
+const void *
 fields_tag( fields *f, int n, int mode )
 {
 	intptr_t retn;
@@ -549,7 +550,7 @@ static int
 fields_findv_each_add( fields *f, int mode, int n, vplist *a )
 {
 	int status;
-	void *v;
+	const void *v;
 
 	v = fields_value( f, n, mode );
 	if ( !v ) return FIELDS_OK;
@@ -591,9 +592,9 @@ static int
 fields_build_tags( va_list argp, vplist *tags )
 {
 	int status;
-	char *tag;
+	const char *tag;
 
-	while ( ( tag = ( char * ) va_arg( argp, char * ) ) ) {
+	while ( ( tag = ( const char * ) va_arg( argp, const char * ) ) ) {
 		status = vplist_add( tags, tag );
 		if ( status!=VPLIST_OK ) return FIELDS_ERR_MEMERR;
 	}
@@ -639,7 +640,6 @@ fields_findv_eachof( fields *f, int level, int mode, vplist *a, ... )
 		} else {
 			f->used[i] = 1; /* Suppress "noise" of unused */
 		}
-
 	}
 
 out:

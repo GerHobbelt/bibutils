@@ -113,7 +113,7 @@ is_ris_tag( const char *buf )
 }
 
 static int
-is_ris_start_tag( char *p )
+is_ris_start_tag(const char *p )
 {
 	/* ...TY tag that fits specifications */
 	if ( !strncmp( p, "TY  - ",  6 ) ) return 1;
@@ -123,7 +123,7 @@ is_ris_start_tag( char *p )
 }
 
 static int
-is_ris_end_tag( char *p )
+is_ris_end_tag(const char *p )
 {
 	/* ...ER tag that fits specifications */
 	if ( !strncmp( p, "ER  -",  5 ) ) return 1;
@@ -143,7 +143,7 @@ static int
 risin_readf( FILE *fp, char *buf, int bufsize, int *bufpos, str *line, str *reference, int *fcharset )
 {
 	int haveref = 0, inref = 0, readtoofar = 0;
-	char *p;
+	const char *p;
 
 	*fcharset = CHARSET_UNKNOWN;
 
@@ -321,14 +321,15 @@ static int
 risin_typef( fields *risin, const char *filename, int nref, param *p )
 {
 	int ntypename, nrefname, is_default;
-	char *refname = "", *typename = "";
+	const char* refname = "";
+	const char* typename1 = "";
 
 	ntypename = fields_find( risin, "TY", LEVEL_MAIN );
 	nrefname  = fields_find( risin, "ID", LEVEL_MAIN );
-	if ( ntypename!=FIELDS_NOTFOUND ) typename = fields_value( risin, ntypename, FIELDS_CHRP_NOUSE );
-	if ( nrefname!=FIELDS_NOTFOUND )  refname  = fields_value( risin, nrefname,  FIELDS_CHRP_NOUSE );
+	if ( ntypename!=FIELDS_NOTFOUND ) typename1 = (const char*)fields_value( risin, ntypename, FIELDS_CHRP_NOUSE );
+	if ( nrefname!=FIELDS_NOTFOUND )  refname  = (const char*)fields_value( risin, nrefname,  FIELDS_CHRP_NOUSE );
 
-	return get_reftype( typename, nref, p->progname, p->all, p->nall, refname, &is_default, REFTYPE_CHATTY );
+	return get_reftype( typename1, nref, p->progname, p->all, p->nall, refname, &is_default, REFTYPE_CHATTY );
 }
 
 /*****************************************************
@@ -336,17 +337,17 @@ risin_typef( fields *risin, const char *filename, int nref, param *p )
 *****************************************************/
 
 static int
-is_uri_file_scheme( char *p )
+is_uri_file_scheme( const char *p )
 {
 	if ( !strncmp( p, "file:", 5 ) ) return 5;
 	return 0;
 }
 
 static int
-risin_linkedfile( fields *bibin, int n, str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
+risin_linkedfile( fields *bibin, int n, const str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
 {
 	int fstatus, m;
-	char *p;
+	const char *p;
 
 	/* if URL is file:///path/to/xyz.pdf, only store "///path/to/xyz.pdf" */
 	m = is_uri_file_scheme( str_cstr( invalue ) );
@@ -374,7 +375,7 @@ risin_linkedfile( fields *bibin, int n, str *intag, str *invalue, int level, par
 
 /* scopus puts DOI in the DO or DI tag, but it needs cleaning */
 static int
-risin_doi( fields *bibin, int n, str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
+risin_doi( fields *bibin, int n, const str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
 {
 	int fstatus, doi;
 	doi = is_doi( str_cstr( invalue ) );
@@ -386,9 +387,9 @@ risin_doi( fields *bibin, int n, str *intag, str *invalue, int level, param *pm,
 }
 
 static int
-risin_date( fields *bibin, int n, str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
+risin_date( fields *bibin, int n, const str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
 {
-	char *p = str_cstr( invalue );
+	const char *p = str_cstr( invalue );
 	int part, status;
 	str date;
 
@@ -437,7 +438,7 @@ risin_date( fields *bibin, int n, str *intag, str *invalue, int level, param *pm
 }
 
 static int
-risin_person( fields *bibin, int n, str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
+risin_person( fields *bibin, int n, const str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
 {
 	int i, begin, end, ok, status = BIBL_OK;
 	slist tokens;
@@ -485,7 +486,8 @@ static int
 risin_thesis_hints( fields *bibin, int reftype, param *p, fields *bibout )
 {
 	int i, nfields, fstatus;
-	char *tag, *value;
+	const char* tag;
+	const char* value;
 
 	if ( strcasecmp( p->all[reftype].type, "THES" ) ) return BIBL_OK;
 
@@ -508,7 +510,7 @@ risin_thesis_hints( fields *bibin, int reftype, param *p, fields *bibout )
 }
 
 static void
-risin_report_notag( param *p, char *tag )
+risin_report_notag( param *p, const char *tag )
 {
 	if ( p->verbose && strcmp( tag, "TY" ) ) {
 		if ( p->progname ) fprintf( stderr, "%s: ", p->progname );
@@ -519,7 +521,7 @@ risin_report_notag( param *p, char *tag )
 static int
 risin_convertf( fields *bibin, fields *bibout, int reftype, param *p )
 {
-	static int (*convertfns[NUM_REFTYPES])(fields *, int, str *, str *, int, param *, char *, fields *) = {
+	static int (*convertfns[NUM_REFTYPES])(fields *, int, const str *, str *, int, param *, char *, fields *) = {
 #ifdef HAVE_DESIGNATED_INITIALIZER_GNU_EXTENSION
 		[ 0 ... NUM_REFTYPES-1 ] = generic_null,
 #endif
@@ -540,7 +542,8 @@ risin_convertf( fields *bibin, fields *bibout, int reftype, param *p )
 #endif
 
 	int process, level, i, nfields, status = BIBL_OK;
-	str *intag, *invalue;
+	const str* intag;
+	str* invalue;
 	char *outtag;
 
 	nfields = fields_num( bibin );

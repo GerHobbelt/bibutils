@@ -89,7 +89,7 @@ modsout_initparams( param *pm, const char *progname )
 #define TAG_NEWLINE   (1)
 
 static void
-output_tag_core( FILE *outptr, int nindents, char *tag, char *data, unsigned char mode, unsigned char newline, va_list *attrs )
+output_tag_core( FILE *outptr, int nindents, const char *tag, const char *data, unsigned char mode, unsigned char newline, va_list *attrs )
 {
 	char *attr, *val;
 	int i;
@@ -138,7 +138,7 @@ output_tag_core( FILE *outptr, int nindents, char *tag, char *data, unsigned cha
  * will be output in the tag
  */
 static void
-output_tag( FILE *outptr, int nindents, char *tag, char *value, unsigned char mode, unsigned char newline, ... )
+output_tag( FILE *outptr, int nindents, const char *tag, const char *value, unsigned char mode, unsigned char newline, ... )
 {
 	va_list attrs;
 
@@ -157,7 +157,7 @@ output_tag( FILE *outptr, int nindents, char *tag, char *value, unsigned char mo
  * value looked up in fields will only be used in mode TAG_OPENCLOSE
  */
 static void
-output_fil( FILE *outptr, int nindents, char *tag, fields *f, int n, unsigned char mode, unsigned char newline, ... )
+output_fil( FILE *outptr, int nindents, const char *tag, fields *f, int n, unsigned char mode, unsigned char newline, ... )
 {
 	va_list attrs;
 	char *value;
@@ -538,9 +538,9 @@ output_origin( fields *f, FILE *outptr, int level )
 static void
 output_language_core( fields *f, int n, FILE *outptr, char *tag, int level )
 {
-	char *lang, *code;
+	const char *lang, *code;
 
-	lang = (char *) fields_value( f, n, FIELDS_CHRP );
+	lang = (const char *) fields_value( f, n, FIELDS_CHRP );
 	code = iso639_2_from_language( lang );
 
 	output_tag( outptr, lvl2indent(level),               tag,            NULL, TAG_OPEN,      TAG_NEWLINE, NULL );
@@ -856,12 +856,12 @@ static void
 output_notes( fields *f, FILE *outptr, int level )
 {
 	int i, n;
-	char *t;
+	const char *t;
 
 	n = fields_num( f );
 	for ( i=0; i<n; ++i ) {
 		if ( fields_level( f, i ) != level ) continue;
-		t = fields_tag( f, i, FIELDS_CHRP_NOUSE );
+		t = (const char *)fields_tag( f, i, FIELDS_CHRP_NOUSE );
 		if ( !strcasecmp( t, "NOTES" ) )
 			output_fil( outptr, lvl2indent(level), "note", f, i, TAG_OPENCLOSE, TAG_NEWLINE, NULL );
 		else if ( !strcasecmp( t, "PUBSTATE" ) )
@@ -1004,7 +1004,7 @@ output_url( fields *f, FILE *outptr, int level )
 static void
 output_refnum( fields *f, int n, FILE *outptr )
 {
-	char *p = fields_value( f, n, FIELDS_CHRP_NOUSE );
+	const char *p = (const char *)fields_value( f, n, FIELDS_CHRP_NOUSE );
 /*	if ( p && ((*p>='0' && *p<='9') || *p=='-' || *p=='_' ))
 		fprintf( outptr, "ref" );*/
 	while ( p && *p ) {
@@ -1084,10 +1084,11 @@ output_citeparts( fields *f, FILE *outptr, int level, int max )
 }
 
 static void
-modsout_report_unused_tags( fields *f, param *p, unsigned long numrefs )
+modsout_report_unused_tags( fields *f, const param *p, unsigned long numrefs )
 {
 	int i, n, nwritten, nunused = 0, level;
-	char *tag, *value;
+	const char* tag;
+	const char* value;
 	n = fields_num( f );
 	for ( i=0; i<n; ++i ) {
 		if ( fields_used( f, i ) ) continue;
@@ -1100,9 +1101,9 @@ modsout_report_unused_tags( fields *f, param *p, unsigned long numrefs )
 		nwritten = 0;
 		for ( i=0; i<n; ++i ) {
 			if ( fields_level( f, i ) != 0 ) continue;
-			tag = fields_tag( f, i, FIELDS_CHRP_NOUSE );
+			tag = (const char *)fields_tag( f, i, FIELDS_CHRP_NOUSE );
 			if ( strcasecmp( tag, "AUTHOR" ) && strcasecmp( tag, "AUTHOR:ASIS" ) && strcasecmp( tag, "AUTHOR:CORP" ) ) continue;
-			value = fields_value( f, i, FIELDS_CHRP_NOUSE );
+			value = (const char *)fields_value( f, i, FIELDS_CHRP_NOUSE );
 			if ( nwritten==0 ) fprintf( stderr, "\tAuthor(s) (level=0):\n" );
 			fprintf( stderr, "\t\t'%s'\n", value );
 			nwritten++;
@@ -1110,9 +1111,9 @@ modsout_report_unused_tags( fields *f, param *p, unsigned long numrefs )
 		nwritten = 0;
 		for ( i=0; i<n; ++i ) {
 			if ( fields_level( f, i ) != 0 ) continue;
-			tag = fields_tag( f, i, FIELDS_CHRP_NOUSE );
+			tag = (const char *)fields_tag( f, i, FIELDS_CHRP_NOUSE );
 			if ( strcasecmp( tag, "DATE:YEAR" ) && strcasecmp( tag, "PARTDATE:YEAR" ) ) continue;
-			value = fields_value( f, i, FIELDS_CHRP_NOUSE );
+			value = (const char*)fields_value( f, i, FIELDS_CHRP_NOUSE );
 			if ( nwritten==0 ) fprintf( stderr, "\tYear(s) (level=0):\n" );
 			fprintf( stderr, "\t\t'%s'\n", value );
 			nwritten++;
@@ -1120,9 +1121,9 @@ modsout_report_unused_tags( fields *f, param *p, unsigned long numrefs )
 		nwritten = 0;
 		for ( i=0; i<n; ++i ) {
 			if ( fields_level( f, i ) != 0 ) continue;
-			tag = fields_tag( f, i, FIELDS_CHRP_NOUSE );
+			tag = (const char*)fields_tag( f, i, FIELDS_CHRP_NOUSE );
 			if ( strncasecmp( tag, "TITLE", 5 ) ) continue;
-			value = fields_value( f, i, FIELDS_CHRP_NOUSE );
+			value = (const char*)fields_value( f, i, FIELDS_CHRP_NOUSE );
 			if ( nwritten==0 ) fprintf( stderr, "\tTitle(s) (level=0):\n" );
 			fprintf( stderr, "\t\t'%s'\n", value );
 			nwritten++;
@@ -1131,8 +1132,8 @@ modsout_report_unused_tags( fields *f, param *p, unsigned long numrefs )
 		fprintf( stderr, "\tUnused tags:\n" );
 		for ( i=0; i<n; ++i ) {
 			if ( fields_used( f, i ) ) continue;
-			tag   = fields_tag(   f, i, FIELDS_CHRP_NOUSE );
-			value = fields_value( f, i, FIELDS_CHRP_NOUSE );
+			tag   = (const char*)fields_tag(   f, i, FIELDS_CHRP_NOUSE );
+			value = (const char*)fields_value( f, i, FIELDS_CHRP_NOUSE );
 			level = fields_level( f, i );
 			fprintf( stderr, "\t\ttag: '%s' value: '%s' level: %d\n",
 				tag, value, level );

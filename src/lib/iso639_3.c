@@ -8,8 +8,8 @@
 #include "iso639_3.h"
 
 typedef struct {
-        char *code;
-        char *language;
+	const char *code;
+	const char *language;
 } iso639_3_t;
 
 static iso639_3_t iso639_3[] = {
@@ -8410,7 +8410,7 @@ static iso639_3_t iso639_3[] = {
 };
 static int niso639_3= sizeof( iso639_3 ) / sizeof( iso639_3[0] );
 
-char *
+const char *
 iso639_3_from_code( const char *code )
 {
 	int i;
@@ -8421,7 +8421,7 @@ iso639_3_from_code( const char *code )
 	return NULL;
 }
 
-char *
+const char *
 iso639_3_from_name( const char *name )
 {
 	int i;

@@ -6,8 +6,8 @@
 
 #include "slist.h"
 
-int latex_parse( str *in, str *out );
-int latex_tokenize( slist *tokens, str *s );
+int latex_parse( const str *in, str *out );
+int latex_tokenize( slist *tokens, const str *s );
 
 
 #endif

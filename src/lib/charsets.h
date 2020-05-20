@@ -17,7 +17,7 @@
 #define CHARSET_BOM_DEFAULT  (1)
 
 extern char * charset_get_xmlname( int n );
-extern int charset_find( char *name );
+extern int charset_find( const char *name );
 extern void charset_list_all( FILE *fp );
 extern unsigned int charset_lookupchar( int charsetin, char c );
 extern unsigned int charset_lookupuni( int charsetout, unsigned int unicode );

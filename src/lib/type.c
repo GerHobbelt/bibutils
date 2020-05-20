@@ -16,7 +16,7 @@
 static int
 is_genre_element( fields *in, int n )
 {
-	char *tag;
+	const char *tag;
 
 	tag = fields_tag( in, n, FIELDS_CHRP );
 

@@ -11,6 +11,6 @@
 
 #include "fields.h"
 
-int addsn( fields *info, char *buf, int level );
+int addsn( fields *info, const char *buf, int level );
 
 #endif

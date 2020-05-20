@@ -115,12 +115,10 @@ bibl_findref( bibl *bin, const char *citekey )
 	int n;
 
 	for ( i=0; i<bin->n; ++i ) {
-
 		n = fields_find( bin->ref[i], "refnum", LEVEL_ANY );
 		if ( n==FIELDS_NOTFOUND ) continue;
 
-		if ( !strcmp( fields_value( bin->ref[i], n, FIELDS_CHRP_NOUSE ), citekey ) ) return i;
-
+		if ( !strcmp( (const char *)fields_value( bin->ref[i], n, FIELDS_CHRP_NOUSE ), citekey ) ) return i;
 	}
 
 	return -1;

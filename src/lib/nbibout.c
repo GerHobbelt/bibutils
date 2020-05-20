@@ -80,8 +80,9 @@ append_type( fields *in, fields *out, int *status )
 {
 	int fstatus;
 	char *s;
-        int type = TYPE_UNKNOWN, i, n, level;
-	char *tag, *value;
+    int type = TYPE_UNKNOWN, i, n, level;
+	const char* tag;
+	char* value;
 
 	n = fields_num( in );
         for ( i=0; i<n; ++i ) {
@@ -260,10 +261,10 @@ append_easyall( fields *in, char *tag, char *nbibtag, int level, fields *out, in
 static void
 append_pages( fields *in, char *nbibtag, int level, fields *out, int *status )
 {
-	str *start, *stop, *articlenumber;
+	const str *start, *stop, *articlenumber;
 	int fstatus;
 	str pages;
-	char *p, *q;
+	const char *p, *q;
 
 	str_init( &pages );
 
@@ -382,8 +383,8 @@ static void
 append_lang( fields *in, char *nbibtag, int level, fields *out, int *status )
 {
 	int fstatus;
-	str *lang;
-	char *code;
+	const str *lang;
+	const char *code;
 
 	lang = fields_findv( in, level, FIELDS_STRP, "LANGUAGE" );
 	if ( lang ) {
@@ -444,15 +445,15 @@ append_data( fields *in, fields *out )
 static void
 output_verbose( fields *f, const char *type, unsigned long refnum )
 {
-	char *tag, *value;
+	const char *tag, *value;
 	int i, n, level;
 
 	fprintf( stderr, "REF #%lu %s---\n", refnum+1, type );
 
 	n = fields_num( f );
 	for ( i=0; i<n; ++i ) {
-		tag   = fields_tag( f, i, FIELDS_CHRP_NOUSE );
-		value = fields_value( f, i, FIELDS_CHRP_NOUSE );
+		tag   = (const char*)fields_tag( f, i, FIELDS_CHRP_NOUSE );
+		value = (const char*)fields_value( f, i, FIELDS_CHRP_NOUSE );
 		level = fields_level( f, i );
 		fprintf( stderr, "\t'%s'\t'%s'\t%d\n", tag, value, level );
 	}
@@ -477,9 +478,9 @@ output_tag( FILE *fp, char *p )
 }
 
 static void
-output_value( FILE *fp, str *value )
+output_value( FILE *fp, const str *value )
 {
-	char *p, *q, *lastws;
+	const char *p, *q, *lastws;
 	int n;
 
 	if ( value->len < 82 ) {

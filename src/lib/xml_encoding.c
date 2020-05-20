@@ -19,11 +19,11 @@
 #include "xml_encoding.h"
 
 static int
-xml_getencodingr( xml *node )
+xml_getencodingr( const xml *node )
 {
 	int n = CHARSET_UNKNOWN, m;
-	str *s;
-	char *t;
+	const str *s;
+	const char *t;
 
 	if ( xml_tag_matches( node, "xml" ) ) {
 		s = xml_attribute( node, "encoding" );
@@ -59,7 +59,7 @@ xml_getencoding( str *s )
 	int file_charset = CHARSET_UNKNOWN;
 	str descriptor;
 	xml descriptxml;
-	char *p, *q;
+	const char *p, *q;
 
 	p = strstr( str_cstr( s ), "<?xml" );
 	if ( !p ) p = strstr( str_cstr( s ), "<?XML" );

@@ -19,11 +19,11 @@ char progname[] = "bibdiff";
  * Find all possible matches for tag/level combinations
  */
 
-int
-find_tag_level_matches( fields *f, char *tag, int level, intlist *matchs )
+static int
+find_tag_level_matches( fields *f, const char *tag, int level, intlist *matchs )
 {
 	int i, n = 0;
-	char *ftag;
+	const char *ftag;
 
 	for ( i=0; i<f->n; ++i )
 		intlist_set( matchs, i, 0 );
@@ -45,7 +45,8 @@ compare_references( fields *f1, const char *fname1, fields *f2, const char *fnam
 {
 	int i, j, cnt, cnt1, cnt2, level, diff = 0;
 	intlist found1, found2, matches;
-	char *tag, *data;
+	const char* tag;
+	char* data;
 
 	intlist_init_fill( &found1, f1->n, -1 );
 	intlist_init_fill( &found2, f2->n, -1 );
@@ -247,8 +248,8 @@ main( int argc, char *argv[] )
 	bibl_initparams( &p1, format1, BIBL_MODSOUT, progname );
 	bibl_initparams( &p2, format2, BIBL_MODSOUT, progname );
 
-	fp = fopen( argv[1], "r" );
-	if ( !fp ) {
+	errno_t err = fopen_s( &fp, argv[1], "r" );
+	if ( err || !fp ) {
 		fprintf( stderr, "%s: Cannot open %s\n", progname, argv[1] );
 		return EXIT_SUCCESS;
 	}
@@ -261,8 +262,8 @@ main( int argc, char *argv[] )
 		return EXIT_FAILURE;
 	}
 
-	fp = fopen( argv[2], "r" );
-	if ( !fp ) {
+	err = fopen_s( &fp, argv[2], "r" );
+	if ( err || !fp ) {
 		fprintf( stderr, "%s: Cannot open %s\n", progname, argv[2] );
 		return EXIT_SUCCESS;
 	}

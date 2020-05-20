@@ -30,7 +30,7 @@
  * returns 1 if n is valid string in slist
  */
 static inline int
-slist_valid_num( slist *a, slist_index n )
+slist_valid_num( const slist *a, slist_index n )
 {
 	if ( n < 0 || n >= a->n ) return 0;
 	return 1;
@@ -227,8 +227,8 @@ slist_set( slist *a, slist_index n, str *s )
 /*
  * return pointer to str 'n'
  */
-str *
-slist_str( slist *a, slist_index n )
+const str *
+slist_str( const slist *a, slist_index n )
 {
 	assert( a );
 
@@ -259,11 +259,11 @@ slist_str( slist *a, slist_index n )
  * }
  *
  */
-char *
-slist_cstr( slist *a, slist_index n )
+const char *
+slist_cstr( const slist *a, slist_index n )
 {
-	static char empty[] = "";
-	char *p;
+	static const char empty[] = "";
+	const char *p;
 
 	assert( a );
 
@@ -616,10 +616,11 @@ slist_revsort( slist *a )
 }
 
 static slist_index
-slist_find_sorted( slist *a, const char *searchstr )
+slist_find_sorted( const slist *a, const char *searchstr )
 {
 	slist_index min, max, mid;
-	str s, *cs;
+	str s;
+	const str* cs;
 	int comp;
 
 	assert( a );
@@ -631,7 +632,7 @@ slist_find_sorted( slist *a, const char *searchstr )
 	while ( min <= max ) {
 		mid = ( min + max ) / 2;
 		cs = slist_str( a, mid );
-		comp = slist_comp( (void*)cs, (void*) (&s) );
+		comp = slist_comp( (const void*)cs, (const void*) (&s) );
 		if ( comp==0 ) {
 			str_free( &s );
 			return mid;
@@ -644,7 +645,7 @@ slist_find_sorted( slist *a, const char *searchstr )
 }
 
 static slist_index
-slist_find_simple( slist *a, const char *searchstr, int nocase )
+slist_find_simple( const slist *a, const char *searchstr, int nocase )
 {
 	slist_index i;
 
@@ -664,7 +665,7 @@ slist_find_simple( slist *a, const char *searchstr, int nocase )
 }
 
 slist_index
-slist_findc( slist *a, const char *searchstr )
+slist_findc( const slist *a, const char *searchstr )
 {
 	assert( a );
 
@@ -676,14 +677,14 @@ slist_findc( slist *a, const char *searchstr )
 }
 
 slist_index
-slist_find( slist *a, str *searchstr )
+slist_find( const slist *a, const str *searchstr )
 {
 	if ( searchstr->len==0 ) return -1;
 	return slist_findc( a, str_cstr( searchstr ) );
 }
 
 slist_index
-slist_findnocasec( slist *a, const char *searchstr )
+slist_findnocasec( const slist *a, const char *searchstr )
 {
 	assert( a );
 
@@ -691,20 +692,20 @@ slist_findnocasec( slist *a, const char *searchstr )
 }
 
 slist_index
-slist_findnocase( slist *a, str *searchstr )
+slist_findnocase( const slist *a, const str *searchstr )
 {
 	if ( searchstr->len==0 ) return -1;
 	return slist_findnocasec( a, str_cstr( searchstr ) );
 }
 
 int
-slist_wasfound( slist *a, slist_index n )
+slist_wasfound( const slist *a, slist_index n )
 {
 	return ( n!=-1 );
 }
 
 int
-slist_wasnotfound( slist *a, slist_index n )
+slist_wasnotfound( const slist *a, slist_index n )
 {
 	return ( n==-1 );
 }
@@ -741,8 +742,8 @@ slist_fill( slist *a, const char *filename, unsigned char skip_blank_lines )
 	FILE *fp;
 	int ret;
 
-	fp = fopen( filename, "r" );
-	if ( !fp ) return SLIST_ERR_CANTOPEN;
+	errno_t err = fopen_s( &fp, filename, "r" );
+	if ( err || !fp ) return SLIST_ERR_CANTOPEN;
 
 	ret = slist_fillfp( a, fp, skip_blank_lines );
 
@@ -752,7 +753,7 @@ slist_fill( slist *a, const char *filename, unsigned char skip_blank_lines )
 }
 
 int
-slist_copy( slist *to, slist *from )
+slist_copy( slist *to, const slist *from )
 {
 	slist_index i;
 	int status;
@@ -781,7 +782,7 @@ slist_copy( slist *to, slist *from )
 }
 
 int
-slist_copy_ret( slist *to, slist *from, int retok, int reterr )
+slist_copy_ret( slist *to, const slist *from, int retok, int reterr )
 {
 	int status = slist_copy( to, from );
 	if ( status==SLIST_OK ) return retok;
@@ -789,7 +790,7 @@ slist_copy_ret( slist *to, slist *from, int retok, int reterr )
 }
 
 slist *
-slist_dup( slist *from )
+slist_dup( const slist *from )
 {
 	int status;
 	slist *to;
@@ -807,11 +808,11 @@ slist_dup( slist *from )
 }
 
 unsigned long
-slist_get_maxlen( slist *a )
+slist_get_maxlen( const slist *a )
 {
 	unsigned long max = 0;
 	slist_index i;
-	str *s;
+	const str *s;
 
 	assert( a );
 
@@ -824,7 +825,7 @@ slist_get_maxlen( slist *a )
 }
 
 void
-slist_dump( slist *a, FILE *fp, int newline )
+slist_dump( const slist *a, FILE *fp, int newline )
 {
 	slist_index i;
 
@@ -843,7 +844,7 @@ slist_dump( slist *a, FILE *fp, int newline )
 }
 
 int
-slist_match_entry( slist *a, int n, const char *s )
+slist_match_entry( const slist *a, slist_index n, const char *s )
 {
 	assert( a );
 
@@ -853,7 +854,7 @@ slist_match_entry( slist *a, int n, const char *s )
 }
 
 void
-slist_trimend( slist *a, int n )
+slist_trimend( slist *a, slist_index n )
 {
 	slist_index i;
 
@@ -870,10 +871,10 @@ slist_trimend( slist *a, int n )
 }
 
 int
-slist_tokenizec( slist *tokens, char *p, const char *delim, int merge_delim )
+slist_tokenizec( slist *tokens, const char *p, const char *delim, int merge_delim )
 {
 	int status, ret = SLIST_OK;
-	char *q;
+	const char *q;
 	str s;
 
 	assert( tokens );
@@ -901,7 +902,7 @@ out:
 }
 
 int
-slist_tokenize( slist *tokens, str *in, const char *delim, int merge_delim )
+slist_tokenize( slist *tokens, const str *in, const char *delim, int merge_delim )
 {
 	return slist_tokenizec( tokens, str_cstr( in ), delim, merge_delim );
 }

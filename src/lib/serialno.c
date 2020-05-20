@@ -13,10 +13,11 @@
 #include "serialno.h"
 
 int
-addsn( fields *info, char *buf, int level )
+addsn( fields *info, const char *buf, int level )
 {
 	int ndigits, issn=0, isbn=0, isbn10=0, isbn13=0, status;
-	char *p = buf, *tag;
+	const char* p = buf;
+	const char* tag;
 
 	if ( !strncasecmp( p, "ISSN", 4 ) ) issn=1;
 	else if ( !strncasecmp( p, "ISBN", 4 ) ) isbn=1;

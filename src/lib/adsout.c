@@ -231,7 +231,7 @@ append_titles( fields *in, int type, fields *out, int *status )
 }
 
 static void
-append_people( fields *in, char *tag1, char *tag2, char *tag3, char *adstag, int level, fields *out, int *status )
+append_people( fields *in, const char *tag1, const char *tag2, const char *tag3, const char *adstag, int level, fields *out, int *status )
 {
 	str oneperson, allpeople;
 	vplist_index i;
@@ -445,7 +445,7 @@ initial_ascii( const char *name )
 static char
 get_firstinitial( fields *in )
 {
-	char *name;
+	const char *name;
 	int n;
 
 	n = fields_find( in, "AUTHOR", LEVEL_MAIN );
@@ -460,7 +460,7 @@ get_firstinitial( fields *in )
 static int
 get_journalabbr( fields *in )
 {
-	char *jrnl;
+	const char *jrnl;
 	int n, j;
 
 	n = fields_find( in, "TITLE", LEVEL_HOST );
@@ -528,7 +528,7 @@ append_easyall( fields *in, char *tag, char *adstag, int level, fields *out, cha
 	vplist_index i;
 	int fstatus;
 	str output;
-	char *val;
+	const char *val;
 	vplist a;
 
 	vplist_init( &a );

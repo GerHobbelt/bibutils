@@ -264,20 +264,21 @@ static int
 nbib_typef( fields *nbib, const char *filename, int nref, param *p )
 {
 	int reftype = 0, nrefname, is_default;
-	char *typename, *refname = "";
+	const char* typename1;
+	const char* refname = "";
 	vplist_index i;
 	vplist a;
 
 	nrefname  = fields_find( nbib, "PMID", LEVEL_MAIN );
-	if ( nrefname!=FIELDS_NOTFOUND ) refname = fields_value( nbib, nrefname, FIELDS_CHRP_NOUSE );
+	if ( nrefname!=FIELDS_NOTFOUND ) refname = (const char*)fields_value( nbib, nrefname, FIELDS_CHRP_NOUSE );
 
 	vplist_init( &a );
 
 	fields_findv_each( nbib, LEVEL_MAIN, FIELDS_CHRP_NOUSE, &a, "PT" );
 	is_default = 1;
 	for ( i=0; i<a.n; ++i ) {
-		typename = vplist_get( &a, i );
-		reftype  = get_reftype( typename, nref, p->progname, p->all, p->nall, refname, &is_default, REFTYPE_SILENT );
+		typename1 = (const char*)vplist_get( &a, i );
+		reftype  = get_reftype( typename1, nref, p->progname, p->all, p->nall, refname, &is_default, REFTYPE_SILENT );
 		if ( !is_default ) break;
 	}
 
@@ -301,11 +302,11 @@ nbib_typef( fields *nbib, const char *filename, int nref, param *p )
 /* PB  - 2016 May 7 */
 
 static int
-nbibin_date( fields *bibin, int n, str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
+nbibin_date( fields *bibin, int n, const str *intag, const str *invalue, int level, param *pm, char *outtag, fields *bibout )
 {
 	int fstatus, status = BIBL_OK;
 	str s;
-	char *p;
+	const char *p;
 
 	p = str_cstr( invalue );
 	if ( !p ) return status;
@@ -381,10 +382,12 @@ out:
 
 /* the LID and AID fields that can be doi's or pii's */
 static int
-nbibin_doi( fields *bibin, int n, str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
+nbibin_doi( fields *bibin, int n, const str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
 {
 	int fstatus, sstatus, status = BIBL_OK;
-	char *id, *type, *usetag="";
+	const char* id;
+	const char* type;
+	const char* usetag = "";
 	slist tokens;
 
 	slist_init( &tokens );
@@ -414,11 +417,11 @@ out:
 }
 
 static int
-nbibin_pages( fields *bibin, int n, str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
+nbibin_pages( fields *bibin, int n, const str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
 {
 	int fstatus, status = BIBL_OK;
 	str sp, tmp, ep;
-	char *p;
+	const char *p;
 
 	p = str_cstr( invalue );
 	if ( !p ) return BIBL_OK;
@@ -467,7 +470,7 @@ out:
 }
 
 static void
-nbib_report_notag( param *p, char *tag )
+nbib_report_notag( param *p, const char *tag )
 {
 	if ( p->verbose && strcmp( tag, "TY" ) ) {
 		if ( p->progname ) fprintf( stderr, "%s: ", p->progname );
@@ -478,7 +481,7 @@ nbib_report_notag( param *p, char *tag )
 static int
 nbib_convertf( fields *bibin, fields *bibout, int reftype, param *p )
 {
-	static int (*convertfns[NUM_REFTYPES])(fields *, int i, str *, str *, int, param *, char *, fields *) = {
+	static int (*convertfns[NUM_REFTYPES])(fields *, int i, const str *, str *, int, param *, char *, fields *) = {
 #ifdef HAVE_DESIGNATED_INITIALIZER_GNU_EXTENSION
 		[ 0 ... NUM_REFTYPES-1 ] = generic_null,
 #endif
@@ -496,7 +499,8 @@ nbib_convertf( fields *bibin, fields *bibout, int reftype, param *p )
 #endif
 
 	int process, level, i, nfields, status = BIBL_OK;
-	str *intag, *invalue;
+	const str* intag;
+	str* invalue;
 	char *outtag;
 
 	nfields = fields_num( bibin );

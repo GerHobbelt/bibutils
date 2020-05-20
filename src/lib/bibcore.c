@@ -205,7 +205,7 @@ bibl_freeparams( param *p )
 }
 
 int
-bibl_readasis( param *p, char *f )
+bibl_readasis( param *p, const char *f )
 {
 	int status;
 
@@ -220,7 +220,7 @@ bibl_readasis( param *p, char *f )
 }
 
 int
-bibl_readcorps( param *p, char *f )
+bibl_readcorps( param *p, const char *f )
 {
 	int status;
 
@@ -239,7 +239,7 @@ bibl_readcorps( param *p, char *f )
  * Returns BIBL_OK or BIBL_ERR_MEMERR
  */
 int
-bibl_addtoasis( param *p, char *d )
+bibl_addtoasis( param *p, const char *d )
 {
 	int status;
 
@@ -256,7 +256,7 @@ bibl_addtoasis( param *p, char *d )
  * Returns BIBL_OK or BIBL_ERR_MEMERR
  */
 int
-bibl_addtocorps( param *p, char *d )
+bibl_addtocorps( param *p, const char *d )
 {
 	int status;
 
@@ -309,8 +309,8 @@ bibl_verbose_reference( fields *f, const char *filename, long refnum )
 	fprintf( stderr, "======== %s %ld : converted\n", filename, refnum );
 	for ( i=0; i<n; ++i ) {
 		fprintf( stderr, "'%s'='%s' level=%d\n",
-			(char*) fields_tag( f, i, FIELDS_CHRP_NOUSE ),
-			(char*) fields_value( f, i, FIELDS_CHRP_NOUSE ),
+			(const char*) fields_tag( f, i, FIELDS_CHRP_NOUSE ),
+			(const char*) fields_value( f, i, FIELDS_CHRP_NOUSE ),
 			fields_level( f, i ) );
 	}
 	fprintf( stderr, "\n" );
@@ -447,7 +447,7 @@ out:
 }
 
 static int
-read_refs( FILE *fp, bibl *bin, char *filename, param *p )
+read_refs( FILE *fp, bibl *bin, const char *filename, param *p )
 {
 	int refnum = 0, bufpos = 0, ret=BIBL_OK, fcharset;/* = CHARSET_UNKNOWN;*/
 	str reference, line;
@@ -495,7 +495,7 @@ out:
 
 /* Don't manipulate latex for URL's and the like */
 static int
-bibl_notexify( char *tag )
+bibl_notexify( const char *tag )
 {
 	const char *protected1[] = { "DOI", "URL", "REFNUM", "FILEATTACH", "FILE" };
 	int i, nprotected = countof(protected1);
@@ -512,7 +512,7 @@ static int
 bibl_fixcharsetdata( fields *ref, param *p )
 {
 	str *data;
-	char *tag;
+	const char *tag;
 	long i, n;
 	int ok;
 
@@ -520,7 +520,7 @@ bibl_fixcharsetdata( fields *ref, param *p )
 
 	for ( i=0; i<n; ++i ) {
 
-		tag  = fields_tag( ref, i, FIELDS_CHRP_NOUSE );
+		tag  = (const char *)fields_tag( ref, i, FIELDS_CHRP_NOUSE );
 		data = fields_value( ref, i, FIELDS_STRP_NOUSE );
 
 		if ( bibl_notexify( tag ) ) {
@@ -587,7 +587,8 @@ static int
 generate_citekey( fields *f, long nref )
 {
 	int n1, n2, status, ret;
-	char *p, buf[100];
+	const char* p;
+	char buf[100];
 	str citekey;
 
 	str_init( &citekey );
@@ -605,14 +606,13 @@ generate_citekey( fields *f, long nref )
 	if ( n2==FIELDS_NOTFOUND ) n2 = fields_find( f, "PARTDATE:YEAR", LEVEL_ANY );
 
 	if ( n1!=FIELDS_NOTFOUND && n2!=FIELDS_NOTFOUND ) {
-
-		p = fields_value( f, n1, FIELDS_CHRP_NOUSE );
+		p = (const char *)fields_value( f, n1, FIELDS_CHRP_NOUSE );
 		while ( p && *p && *p!='|' ) {
 			if ( !is_ws( *p ) ) str_addchar( &citekey, *p ); 
 			p++;
 		}
 
-		p = fields_value( f, n2, FIELDS_CHRP_NOUSE );
+		p = (const char *)fields_value( f, n2, FIELDS_CHRP_NOUSE );
 		while ( p && *p ) {
 			if ( !is_ws( *p ) ) str_addchar( &citekey, *p );
 			p++;
@@ -684,7 +684,7 @@ identify_duplicates( bibl *b, slist *citekeys, int *dup )
 }
 
 static int
-build_new_citekey( int nsame, str *old_citekey, str *new_citekey )
+build_new_citekey( int nsame, const str *old_citekey, str *new_citekey )
 {
 	const char abc[]="abcdefghijklmnopqrstuvwxyz";
 
@@ -781,7 +781,7 @@ clean_refs( bibl *bin, param *p )
 }
 
 static int 
-convert_refs( bibl *bin, char *fname, bibl *bout, param *p )
+convert_refs( bibl *bin, const char *fname, bibl *bout, param *p )
 {
 	int reftype = 0, status;
 	fields *rin, *rout;
@@ -814,7 +814,7 @@ convert_refs( bibl *bin, char *fname, bibl *bout, param *p )
 }
 
 int
-bibl_read( bibl *b, FILE *fp, char *filename, param *p )
+bibl_read( bibl *b, FILE *fp, const char *filename, param *p )
 {
 	int status = BIBL_OK;
 	param read_params;
@@ -911,24 +911,25 @@ singlerefname( fields *reffields, long nref, int mode )
 	found = fields_find( reffields, "REFNUM", LEVEL_MAIN );
 	/* find new filename based on reference */
 	if ( found!=-1 ) {
-		sprintf_s( outfile, countof(outfile), "%s.%s",(char*)fields_value(reffields,found,FIELDS_CHRP_NOUSE), suffix );
+		sprintf_s( outfile, countof(outfile), "%s.%s",(const char*)fields_value(reffields,found,FIELDS_CHRP_NOUSE), suffix );
 	}
 	else {
 		sprintf_s(outfile, countof(outfile), "%ld.%s", nref, suffix);
 	}
 	count = 0;
-	fp = fopen( outfile, "r" );
+	errno_t err = fopen_s( &fp, outfile, "r" );
 	while ( fp ) {
 		fclose(fp);
 		count++;
 		if ( count==60000 ) return NULL;
 		if ( found!=-1 )
-			sprintf_s( outfile, countof(outfile), "%s_%ld.%s", (char*)fields_value( reffields, found, FIELDS_CHRP_NOUSE ), count, suffix );
+			sprintf_s( outfile, countof(outfile), "%s_%ld.%s", (const char*)fields_value( reffields, found, FIELDS_CHRP_NOUSE ), count, suffix );
 		else 
 			sprintf_s( outfile, countof(outfile), "%ld_%ld.%s", nref, count, suffix );
-		fp = fopen( outfile, "r" );
+		err = fopen_s( &fp, outfile, "r" );
 	}
-	return fopen( outfile, "w" );
+	err = fopen_s( &fp, outfile, "w" );
+	return err ? NULL : fp;
 }
 
 static int

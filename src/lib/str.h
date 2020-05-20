@@ -45,10 +45,10 @@ void   strs_free       ( str *s, ... );
 str*   str_strdup ( str *s );
 str*   str_strdupc( const char *p );
 
-void   str_strcat ( str *s, str *from );
+void   str_strcat ( str *s, const str *from );
 void   str_strcatc( str *s, const char *from );
 
-void   str_strcpy ( str *s, str *from );
+void   str_strcpy ( str *s, const str *from );
 void   str_strcpyc( str *s, const char *from );
 
 int    str_strcmp ( const str *s, const str *t );
@@ -60,8 +60,8 @@ int    str_strncmpc( const str *s, const char *t, size_t n );
 int    str_strcasecmp ( const str *s, const str *t );
 int    str_strcasecmpc( const str *s, const char *t );
 
-char * str_strstr ( const str *s, const str *t );
-char * str_strstrc( const str *s, const char *t );
+const char * str_strstr ( const str *s, const str *t );
+const char * str_strstrc( const str *s, const char *t );
 
 void str_prepend     ( str *s, const char *addstr );
 void str_mergestrs   ( str *s, ... );
@@ -73,16 +73,16 @@ void str_segcat      ( str *s, char *startat, char *endat );
 const char *str_cpytodelim  ( str *s, const char *p, const char *delim, unsigned char finalstep );
 const char *str_cattodelim  ( str *s, const char *p, const char *delim, unsigned char finalstep );
 void str_prepend     ( str *s, const char *addstr );
-void str_segcpy      ( str *s, char *startat, char *endat );
-void str_segdel      ( str *s, char *startat, char *endat );
-void str_indxcpy     ( str *s, char *p, unsigned long start, unsigned long stop );
-void str_indxcat     ( str *s, char *p, unsigned long start, unsigned long stop );
-void str_fprintf     ( FILE *fp, str *s );
+void str_segcpy      ( str *s, const char *startat, const char *endat );
+void str_segdel      ( str *s, const char *startat, const char *endat );
+void str_indxcpy     ( str *s, const char *p, unsigned long start, unsigned long stop );
+void str_indxcat     ( str *s, const char *p, unsigned long start, unsigned long stop );
+void str_fprintf     ( FILE *fp, const str *s );
 int  str_fget        ( FILE *fp, char *buf, int bufsize, int *pbufpos,
                           str *outs );
-char * str_cstr      ( str *s );
-char str_char        ( str *s, unsigned long n );
-char str_revchar     ( str *s, unsigned long n );
+const char * str_cstr( const str *s );
+char str_char        ( const str *s, unsigned long n );
+char str_revchar     ( const str *s, unsigned long n );
 int  str_fgetline    ( str *s, FILE *fp );
 int  str_findreplace ( str *s, const char *find, const char *replace );
 void str_toupper     ( str *s );
@@ -98,22 +98,22 @@ void str_trimbegin   ( str *s, unsigned long n );
 void str_trimend     ( str *s, unsigned long n );
 
 void str_pad         ( str *s, unsigned long len, char ch );
-void str_copyposlen  ( str *s, str *in, unsigned long pos, unsigned long len );
+void str_copyposlen  ( str *s, const str *in, unsigned long pos, unsigned long len );
 
 void str_makepath    ( str *path, const char *dirname, const char *filename, char sep );
 
 void str_fill        ( str *s, unsigned long n, char fillchar );
 
-int  str_is_mixedcase( str *s );
-int  str_is_lowercase( str *s );
-int  str_is_uppercase( str *s );
+int  str_is_mixedcase( const str *s );
+int  str_is_lowercase( const str *s );
+int  str_is_uppercase( const str *s );
 
 int  str_memerr( str *s );
 
-unsigned long str_strlen( str *s );
+unsigned long str_strlen( const str *s );
 
-int  str_has_value( str *s );
-int  str_is_empty( str *s );
+int  str_has_value( const str *s );
+int  str_is_empty( const str *s );
 
 
 /* #define STR_PARANOIA

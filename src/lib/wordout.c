@@ -525,7 +525,7 @@ type_is_thesis( int type )
 static void
 output_thesisdetails( fields *info, FILE *outptr, int type )
 {
-	char *tag;
+	const char *tag;
 	int i, n;
 
 	if ( type==TYPE_PHDTHESIS )

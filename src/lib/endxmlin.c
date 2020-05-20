@@ -87,7 +87,7 @@ static int
 endxmlin_readf( FILE *fp, char *buf, int bufsize, int *bufpos, str *line, str *reference, int *fcharset )
 {
 	int haveref = 0, inref = 0, done = 0, file_charset = CHARSET_UNKNOWN, m;
-	char *startptr = NULL, *endptr = NULL;
+	const char *startptr = NULL, *endptr = NULL;
 	str tmp;
 
 	str_init( &tmp );
@@ -450,10 +450,10 @@ endxmlin_dates( xml *node, fields *info )
  * <ref-type name="Journal Article">17</ref-type>
  */
 static int
-endxmlin_reftype( xml *node, fields *info )
+endxmlin_reftype( const xml *node, fields *info )
 {
 	int status;
-	str *s;
+	const str *s;
 
 	s = xml_attribute( node, "name" );
 	if ( str_has_value( s ) ) {

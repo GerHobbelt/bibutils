@@ -309,7 +309,7 @@ unicode_find( unsigned int unicode_character )
 }
 
 unsigned short
-unicode_utf8_classify( char *p )
+unicode_utf8_classify( const char *p )
 {
 	unsigned int unicode_character, pos = 0;
 	int n;
@@ -320,7 +320,7 @@ unicode_utf8_classify( char *p )
 }
 
 unsigned short
-unicode_utf8_classify_str( str *s )
+unicode_utf8_classify_str( const str *s )
 {
 	unsigned int unicode_character, pos = 0;
 	unsigned short value = 0;

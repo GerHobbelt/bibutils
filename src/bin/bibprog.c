@@ -15,7 +15,8 @@ bibprog( int argc, char *argv[], param *p )
 {
 	FILE *fp;
 	bibl b;
-	int err, i;
+	errno_t err;
+	int i;
 
 	bibl_init( &b );
 	if ( argc<2 ) {
@@ -23,11 +24,14 @@ bibprog( int argc, char *argv[], param *p )
 		if ( err ) bibl_reporterr( err ); 
 	} else {
 		for ( i=1; i<argc; ++i ) {
-			fp = fopen( argv[i], "r" );
+			err = fopen_s( &fp, argv[i], "r" );
 			if ( fp ) {
 				err = bibl_read( &b, fp, argv[i], p );
 				if ( err ) bibl_reporterr( err );
 				fclose( fp );
+			}
+			else {
+				bibl_reporterr(err);
 			}
 		} 
 	}

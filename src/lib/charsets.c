@@ -34581,7 +34581,7 @@ charset_get_xmlname( int n )
 }
 
 int
-charset_find( char *name )
+charset_find( const char *name )
 {
 	int i, j, ret = CHARSET_UNKNOWN;
 	if ( name==NULL ) return ret;

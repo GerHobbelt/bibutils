@@ -389,7 +389,6 @@ replace_strings( slist *tokens )
 	str *s;
 
 	for ( i=0; i<tokens->n; ++i ) {
-
 		s = slist_str( tokens, i );
 
 		/* ...skip if token is protected by quotation marks or braces */
@@ -403,7 +402,6 @@ replace_strings( slist *tokens )
 
 		str_strcpy( s, slist_str( &replace, n ) );
 		if ( str_memerr( s ) ) return BIBL_ERR_MEMERR;
-
 	}
 
 	return BIBL_OK;
@@ -417,8 +415,8 @@ string_concatenate( slist *tokens, loc *currloc )
 
 	i = 0;
 	while ( i < tokens->n ) {
-
 		s = slist_str( tokens, i );
+
 		if ( str_strcmpc( s, "#" ) ) {
 			i++;
 			continue;
@@ -462,7 +460,6 @@ string_concatenate( slist *tokens, loc *currloc )
 		/* ...remove concatentation token '#' */
 		status = slist_remove( tokens, i );
 		if ( status!=SLIST_OK ) return BIBL_ERR_MEMERR;
-
 	}
 
 	return BIBL_OK;
@@ -478,7 +475,6 @@ merge_tokens_into_data( str *data, slist *tokens, int stripquotes )
 	str *s;
 
 	for ( i=0; i<tokens->n; i++ ) {
-
 		s     = slist_str( tokens, i );
 		esc_s = token_is_escaped( s );
 
@@ -489,7 +485,6 @@ merge_tokens_into_data( str *data, slist *tokens, int stripquotes )
 		}
 
 		str_strcat( data, s );
-
 	}
 
 	if ( str_memerr( data ) ) return BIBL_ERR_MEMERR;
@@ -656,7 +651,7 @@ bibtexin_processf( fields *bibin, const char *data, const char *filename, long n
 *****************************************************/
 
 static int
-is_url_tag( str *tag )
+is_url_tag( const str *tag )
 {
 	if ( str_has_value( tag ) ) {
 		if ( !strcasecmp( str_cstr( tag ), "url" ) ) return 1;
@@ -668,7 +663,7 @@ is_url_tag( str *tag )
 }
 
 static int
-is_name_tag( str *tag )
+is_name_tag( const str *tag )
 {
 	if ( str_has_value( tag ) ) {
 		if ( !strcasecmp( str_cstr( tag ), "author" ) ) return 1;
@@ -698,7 +693,7 @@ out:
 }
 
 static int
-bibtex_matches_list( fields *bibout, char *tag, char *suffix, str *data, int level, slist *names, int *match )
+bibtex_matches_list( fields *bibout, const char *tag, const char *suffix, const str *data, int level, slist *names, int *match )
 {
 	int n, fstatus;
 	str mergedtag;
@@ -742,7 +737,7 @@ bibtex_person_tokenize( fields *bibin, int m, param *pm, slist *tokens )
 	int i, ok, status;
 	str *s;
 
-	status = latex_tokenize( tokens, fields_value( bibin, m, FIELDS_STRP ) );
+	status = latex_tokenize( tokens, (const str *)fields_value( bibin, m, FIELDS_STRP ) );
 	if ( status!=BIBL_OK ) return status;
 
 	for ( i=0; i<tokens->n; ++i ) {
@@ -755,7 +750,6 @@ bibtex_person_tokenize( fields *bibin, int m, param *pm, slist *tokens )
 		ok = str_convert( s, pm->charsetin,  1, pm->utf8in,  pm->xmlin,
 		                     pm->charsetout, 0, pm->utf8out, pm->xmlout );
 		if ( !ok ) return BIBL_ERR_MEMERR;
-
 	}
 
 	return BIBL_OK;
@@ -835,7 +829,8 @@ static int
 bibtexin_cleanref( fields *bibin, param *pm )
 {
 	int i, n, fstatus, status = BIBL_OK;
-	str *tag, *value;
+	const str* tag;
+	str* value;
 	intlist toremove;
 
 	intlist_init( &toremove );
@@ -882,8 +877,8 @@ bibtexin_nocrossref( bibl *bin, long i, int n, param *p )
 {
 	int n1 = fields_find( bin->ref[i], "REFNUM", LEVEL_ANY );
 	if ( p->progname ) fprintf( stderr, "%s: ", p->progname );
-	fprintf( stderr, "Cannot find cross-reference '%s'", (char*) fields_value( bin->ref[i], n, FIELDS_CHRP_NOUSE ) );
-	if ( n1!=FIELDS_NOTFOUND ) fprintf( stderr, " for reference '%s'\n", (char*) fields_value( bin->ref[i], n1, FIELDS_CHRP_NOUSE ) );
+	fprintf( stderr, "Cannot find cross-reference '%s'", (const char*) fields_value( bin->ref[i], n, FIELDS_CHRP_NOUSE ) );
+	if ( n1!=FIELDS_NOTFOUND ) fprintf( stderr, " for reference '%s'\n", (const char*) fields_value( bin->ref[i], n1, FIELDS_CHRP_NOUSE ) );
 	fprintf( stderr, "\n" );
 }
 
@@ -891,16 +886,15 @@ static int
 bibtexin_crossref_oneref( fields *bibref, fields *bibcross )
 {
 	int i, n, newlevel, ntype, fstatus;
-	char *type, *newtag, *newvalue;
+	const char *type, *newtag, *newvalue;
 
 	ntype = fields_find( bibref, "INTERNAL_TYPE", LEVEL_ANY );
-	type = ( char * ) fields_value( bibref, ntype, FIELDS_CHRP_NOUSE );
+	type = ( const char * ) fields_value( bibref, ntype, FIELDS_CHRP_NOUSE );
 
 	n = fields_num( bibcross );
 
 	for ( i=0; i<n; ++i ) {
-
-		newtag = ( char * ) fields_tag( bibcross, i, FIELDS_CHRP_NOUSE );
+		newtag = ( const char * ) fields_tag( bibcross, i, FIELDS_CHRP_NOUSE );
 		if ( !strcasecmp( newtag, "INTERNAL_TYPE" ) ) continue;
 		if ( !strcasecmp( newtag, "REFNUM" ) ) continue;
 		if ( !strcasecmp( newtag, "TITLE" ) ) {
@@ -909,7 +903,7 @@ bibtexin_crossref_oneref( fields *bibref, fields *bibcross )
 				newtag = "booktitle";
 		}
 
-		newvalue = ( char * ) fields_value( bibcross, i, FIELDS_CHRP_NOUSE );
+		newvalue = ( const char * ) fields_value( bibcross, i, FIELDS_CHRP_NOUSE );
 
 		newlevel = fields_level( bibcross, i ) + 1;
 
@@ -931,7 +925,7 @@ bibtexin_crossref( bibl *bin, param *p )
 		n = fields_find( bibref, "CROSSREF", LEVEL_ANY );
 		if ( n==FIELDS_NOTFOUND ) continue;
 		fields_set_used( bibref, n );
-		ncross = bibl_findref( bin, (char*) fields_value( bibref, n, FIELDS_CHRP_NOUSE ) );
+		ncross = bibl_findref( bin, (const char*) fields_value( bibref, n, FIELDS_CHRP_NOUSE ) );
 		if ( ncross==-1 ) {
 			bibtexin_nocrossref( bin, i, n, p );
 			continue;
@@ -966,12 +960,13 @@ static int
 bibtexin_typef( fields *bibin, const char *filename, int nrefs, param *p )
 {
 	int ntypename, nrefname, is_default;
-	char *refname = "", *typename = "";
+	const char* refname = "";
+	const char* typename = "";
 
 	ntypename = fields_find( bibin, "INTERNAL_TYPE", LEVEL_MAIN );
 	nrefname  = fields_find( bibin, "REFNUM",        LEVEL_MAIN );
-	if ( nrefname!=FIELDS_NOTFOUND )  refname  = fields_value( bibin, nrefname,  FIELDS_CHRP_NOUSE );
-	if ( ntypename!=FIELDS_NOTFOUND ) typename = fields_value( bibin, ntypename, FIELDS_CHRP_NOUSE );
+	if ( nrefname!=FIELDS_NOTFOUND )  refname  = (const char *)fields_value( bibin, nrefname,  FIELDS_CHRP_NOUSE );
+	if ( ntypename!=FIELDS_NOTFOUND ) typename = (const char *)fields_value( bibin, ntypename, FIELDS_CHRP_NOUSE );
 
 	return get_reftype( typename, nrefs, p->progname, p->all, p->nall, refname, &is_default, REFTYPE_CHATTY );
 }
@@ -994,7 +989,7 @@ bibtexin_typef( fields *bibin, const char *filename, int nrefs, param *p )
  */
 
 static int
-bibtexin_btorg( fields *bibin, int m, str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
+bibtexin_btorg( fields *bibin, int m, const str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
 {
 	int n, fstatus;
 	n = fields_find( bibin, "publisher", LEVEL_ANY );
@@ -1015,7 +1010,7 @@ bibtexin_btorg( fields *bibin, int m, str *intag, str *invalue, int level, param
  */
 
 static int
-bibtexin_btsente( fields *bibin, int n, str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
+bibtexin_btsente( fields *bibin, int n, const str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
 {
 	int fstatus, status = BIBL_OK;
 	str link;
@@ -1037,7 +1032,7 @@ bibtexin_btsente( fields *bibin, int n, str *intag, str *invalue, int level, par
 /**** bibtexin_linkedfile() ****/
 
 static int
-count_colons( char *p )
+count_colons( const char *p )
 {
 	int n = 0;
 	while ( *p ) {
@@ -1048,7 +1043,7 @@ count_colons( char *p )
 }
 
 static int
-first_colon( char *p )
+first_colon( const char *p )
 {
 	int n = 0;
 	while ( p[n] && p[n]!=':' ) n++;
@@ -1056,7 +1051,7 @@ first_colon( char *p )
 }
 
 static int
-last_colon( char *p )
+last_colon( const char *p )
 {
 	int n = strlen( p ) - 1;
 	while ( n>0 && p[n]!=':' ) n--;
@@ -1067,10 +1062,10 @@ last_colon( char *p )
  * file={Description:/full/path/to/file.pdf:PDF}
  */
 static int
-bibtexin_linkedfile( fields *bibin, int m, str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
+bibtexin_linkedfile( fields *bibin, int m, const str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
 {
 	int fstatus, status = BIBL_OK;
-	char *p = str_cstr( invalue );
+	const char *p = str_cstr( invalue );
 	int i, n, n1, n2;
 	str link;
 
@@ -1121,7 +1116,7 @@ out:
  */
 
 static int
-bibtexin_howpublished( fields *bibin, int n, str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
+bibtexin_howpublished( fields *bibin, int n, const str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
 {
 	int fstatus, status = BIBL_OK;
 	if ( !strncasecmp( str_cstr( invalue ), "Diplom", 6 ) ) {
@@ -1213,7 +1208,7 @@ process_eprint_without_prefix( fields *bibout, str *value, int level )
 }
 
 static int
-bibtexin_eprint( fields *bibin, int m, str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
+bibtexin_eprint( fields *bibin, int m, const str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
 {
 	char *prefix;
 	int n;
@@ -1240,7 +1235,7 @@ bibtexin_eprint( fields *bibin, int m, str *intag, str *invalue, int level, para
  */
 
 static int
-bibtexin_keyword( fields *bibin, int m, str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
+bibtexin_keyword( fields *bibin, int m, const str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
 {
 	int fstatus, status = BIBL_OK;
 	const char *p;
@@ -1317,7 +1312,7 @@ bibtexin_titleinbook_isbooktitle( fields *bibin, char *intag )
 }
 
 static int
-bibtexin_title( fields *bibin, int n, str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
+bibtexin_title( fields *bibin, int n, const str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
 {
 	int ok;
 
@@ -1328,7 +1323,7 @@ bibtexin_title( fields *bibin, int n, str *intag, str *invalue, int level, param
 }
 
 static void
-bibtexin_notag( param *p, char *tag )
+bibtexin_notag( param *p, const char *tag )
 {
 	if ( p->verbose && strcmp( tag, "INTERNAL_TYPE" ) ) {
 		if ( p->progname ) fprintf( stderr, "%s: ", p->progname );
@@ -1339,7 +1334,7 @@ bibtexin_notag( param *p, char *tag )
 static int
 bibtexin_convertf( fields *bibin, fields *bibout, int reftype, param *p )
 {
-	static int (*convertfns[NUM_REFTYPES])(fields *, int, str *, str *, int, param *, char *, fields *) = {
+	static int (*convertfns[NUM_REFTYPES])(fields *, int, const str *, str *, int, param *, char *, fields *) = {
 #ifdef HAVE_DESIGNATED_INITIALIZER_GNU_EXTENSION
 		[ 0 ... NUM_REFTYPES-1 ] = generic_null,
 #endif
@@ -1363,7 +1358,8 @@ bibtexin_convertf( fields *bibin, fields *bibout, int reftype, param *p )
 #endif
 
 	int process, level, i, nfields, status = BIBL_OK;
-	str *intag, *invalue;
+	const str* intag;
+	str* invalue;
 	char *outtag;
 
 	nfields = fields_num( bibin );

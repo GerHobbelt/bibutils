@@ -176,29 +176,26 @@ process_endline2( str *tag, str *data, const char *p )
 static int
 endin_processf( fields *endin, const char *p, const char *filename, long nref, param *pm )
 {
-	str tag, value, *oldvalue;
+	str tag;
+	str value;
+	str* oldvalue;
 	int status, n;
-	char *oldtag;
+	const char *oldtag;
 
 	strs_init( &tag, &value, NULL );
 
 	while ( *p ) {
-
 		strs_empty( &tag, &value, NULL );
 
 		if ( endin_istag( p ) ) {
-
 			p = process_endline( &tag, &value, p );
 			if ( str_is_empty( &value ) ) continue;
 
 			status = fields_add( endin, str_cstr( &tag ), str_cstr( &value ), LEVEL_MAIN );
 			if ( status!=FIELDS_OK ) return 0;
-
 		}
-
 		/* endnote puts %K only on 1st line of keywords */
 		else {
-
 			p = process_endline2( &tag, &value, p );
 			if ( str_is_empty( &value ) ) continue;
 
@@ -242,12 +239,13 @@ int
 endin_typef( fields *endin, const char *filename, int nrefs, param *p )
 {
 	int ntypename, nrefname, is_default, nj, nv, nb, nr, nt, ni;
-	char *refname = "", *typename="";
+	const char* refname = "";
+	const char* typename = "";
 
 	ntypename = fields_find( endin, "%0", LEVEL_MAIN );
 	nrefname  = fields_find( endin, "%F", LEVEL_MAIN );
-	if ( nrefname!=-1  ) refname  = fields_value( endin, nrefname,  FIELDS_CHRP_NOUSE );
-	if ( ntypename!=-1 ) typename = fields_value( endin, ntypename, FIELDS_CHRP_NOUSE );
+	if ( nrefname!=-1  ) refname  = (const char *)fields_value( endin, nrefname,  FIELDS_CHRP_NOUSE );
+	if ( ntypename!=-1 ) typename = (const char *)fields_value( endin, ntypename, FIELDS_CHRP_NOUSE );
 	else {
 		nj = fields_find( endin, "%J", 0 );
 		nv = fields_find( endin, "%V", 0 );
@@ -284,7 +282,7 @@ endin_typef( fields *endin, const char *filename, int nrefs, param *p )
 static int
 is_wiley_author( fields *endin, int n )
 {
-	str *t, *v;
+	const str *t, *v;
 	t = fields_tag( endin, n, FIELDS_STRP_NOUSE );
 	if ( str_is_empty( t ) || strcmp( str_cstr( t ), "%A" ) ) return 0;
 	v = fields_value( endin, n, FIELDS_STRP_NOUSE );
@@ -294,7 +292,7 @@ is_wiley_author( fields *endin, int n )
 }
 
 static int
-add_wiley_author( fields *endin, char *intag, str *instring, int inlevel, str *name, int authornum )
+add_wiley_author( fields *endin, const char *intag, str *instring, int inlevel, const str *name, int authornum )
 {
 	int fstatus;
 
@@ -317,20 +315,21 @@ static int
 cleanup_wiley_author( fields *endin, int n )
 {	
 	int status=BIBL_OK, inlevel, authornum = 0;
-	str *instring, copy, name;
-	char *p, *intag;
+	str* instring;
+	str copy, name;
+	const char* p;
+	const char* intag;
 
 	strs_init( &copy, &name, NULL );
 
-	intag    = fields_tag  ( endin, n, FIELDS_CHRP_NOUSE );
-	instring = fields_value( endin, n, FIELDS_STRP_NOUSE );
+	intag    = (const char *)fields_tag  ( endin, n, FIELDS_CHRP_NOUSE );
+	instring = (str *)fields_value( endin, n, FIELDS_STRP_NOUSE );
 	inlevel  = fields_level( endin, n );
 
 	str_strcpy( &copy, instring );
 	p = str_cstr( &copy );
 
 	while ( *p ) {
-
 		if ( *p==',' ) {
 			if ( str_memerr( &name ) ) {
 				status = BIBL_ERR_MEMERR;
@@ -346,7 +345,6 @@ cleanup_wiley_author( fields *endin, int n )
 			p++;
 			while ( is_ws( *p ) ) p++;
 		}
-
 		else {
 			str_addchar( &name, *p );
 			p++;
@@ -398,7 +396,7 @@ endin_cleanf( bibl *bin, param *p )
 static int
 month_convert( char *in, char *out, size_t outsize )
 {
-	char *month1[12]={
+	const char *month1[12]={
 		"January",   "February",
 		"March",     "April",
 		"May",       "June",
@@ -406,7 +404,7 @@ month_convert( char *in, char *out, size_t outsize )
 		"September", "October",
 		"November",  "December"
 	};
-	char *month2[12]={
+	const char *month2[12]={
 		"Jan", "Feb",
 		"Mar", "Apr",
 		"May", "Jun",
@@ -432,15 +430,16 @@ month_convert( char *in, char *out, size_t outsize )
 }
 
 static int
-endin_date( fields *bibin, int n, str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
+endin_date( fields *bibin, int n, const str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
 {
-	char *tags[3][2] = {
+	const char *tags[3][2] = {
 		{ "DATE:YEAR",  "PARTDATE:YEAR" },
 		{ "DATE:MONTH", "PARTDATE:MONTH" },
 		{ "DATE:DAY",   "PARTDATE:DAY" }
 	};
 	const char *p = invalue->data;
-	char month[10], *m;
+	char month[10];
+	const char* m;
 	int part, status;
 	str date;
 
@@ -504,9 +503,9 @@ endin_date( fields *bibin, int n, str *intag, str *invalue, int level, param *pm
 }
 
 static int
-endin_type( fields *bibin, int n, str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
+endin_type( fields *bibin, int n, const str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
 {
-	lookups types[] = {
+	const lookups types[] = {
 		{ "GENERIC",                "ARTICLE" },
 		{ "BOOK",                   "BOOK" },
 		{ "MANUSCRIPT",             "MANUSCRIPT" },
@@ -552,7 +551,7 @@ endin_type( fields *bibin, int n, str *intag, str *invalue, int level, param *pm
 }
 
 static void
-endin_notag( param *p, char *tag, char *data )
+endin_notag( param *p, const char *tag, const char *data )
 {
 	if ( p->verbose ) {
 		if ( p->progname ) fprintf( stderr, "%s: ", p->progname );
@@ -563,7 +562,7 @@ endin_notag( param *p, char *tag, char *data )
 int
 endin_convertf( fields *bibin, fields *bibout, int reftype, param *p )
 {
-	static int (*convertfns[NUM_REFTYPES])(fields *, int, str *, str *, int, param *, char *, fields *) = {
+	static int (*convertfns[NUM_REFTYPES])(fields *, int, const str *, str *, int, param *, char *, fields *) = {
 #ifdef HAVE_DESIGNATED_INITIALIZER_GNU_EXTENSION
 		[ 0 ... NUM_REFTYPES-1 ] = generic_null,
 #endif
@@ -585,7 +584,8 @@ endin_convertf( fields *bibin, fields *bibout, int reftype, param *p )
 
 	int i, level, process, nfields, fstatus, status = BIBL_OK;
 	char *outtag;
-	str *intag, *invalue;
+	const str* intag;
+	str* invalue;
 
 	nfields = fields_num( bibin );
 	for ( i=0; i<nfields; ++i ) {

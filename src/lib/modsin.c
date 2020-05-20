@@ -103,7 +103,8 @@ static int
 modsin_detail( xml *node, fields *info, int level )
 {
 	int fstatus, status = BIBL_OK;
-	str type, value, *tp;
+	str type, value;
+	const str* tp;
 
 	if ( !node->down ) return BIBL_OK;
 
@@ -526,7 +527,8 @@ static int
 modsin_placeterm_code( xml *node, fields *info, int level )
 {
 	int fstatus, status = BIBL_OK;
-	str s, *auth;
+	str s;
+	const str* auth;
 
 	str_init( &s );
 
@@ -553,7 +555,7 @@ static int
 modsin_placeterm( xml *node, fields *info, int level, int school )
 {
 	int status = BIBL_OK;
-	str *type;
+	const str *type;
 
 	type = xml_attribute( node, "type" );
 	if ( str_has_value( type ) ) {
@@ -691,7 +693,7 @@ static int
 modsin_id1( xml *node, fields *info, int level )
 {
 	int fstatus;
-	str *ns;
+	const str *ns;
 	ns = xml_attribute( node, "ID" );
 	if ( str_has_value( ns ) ) {
 		fstatus = fields_add( info, "REFNUM", str_cstr( ns ), level );
@@ -710,7 +712,7 @@ static int
 modsin_genre( xml *node, fields *info, int level )
 {
 	int fstatus;
-	char *d;
+	const char *d;
 
 	if ( !xml_has_value( node ) ) return BIBL_OK;
 
@@ -756,7 +758,7 @@ static int
 modsin_languager( xml *node, fields *info, int level )
 {
 	int fstatus, status = BIBL_OK;
-	char *d = NULL;
+	const char *d = NULL;
 	if ( xml_tag_matches( node, "languageTerm" ) ) {
 		if ( xml_has_value( node ) ) {
 			if ( xml_has_attribute( node, "type", "code" ) ) {
@@ -767,7 +769,7 @@ modsin_languager( xml *node, fields *info, int level )
 				else if ( xml_has_attribute( node, "authority", "iso639-3" ))
 					d = iso639_3_from_code( xml_value_cstr( node ) );
 			}
-			if ( !d ) d  = xml_value_cstr( node );
+			if ( !d ) d = xml_value_cstr( node );
 			fstatus = fields_add( info, "LANGUAGE", d, level );
 			if ( fstatus!=FIELDS_OK ) return BIBL_ERR_MEMERR;
 		}
@@ -1107,10 +1109,10 @@ modsin_processf( fields *modsin, const char *data, const char *filename, long nr
  PUBLIC: int modsin_readf()
 *****************************************************/
 
-static char *
-modsin_startptr( char *p, char **next )
+static const char *
+modsin_startptr( const char *p, const char **next )
 {
-	char *startptr;
+	const char *startptr;
 	*next = NULL;
 	startptr = xml_find_start( p, "mods:mods" );
 	if ( startptr ) {
@@ -1127,8 +1129,8 @@ modsin_startptr( char *p, char **next )
 	return startptr;
 }
 
-static char *
-modsin_endptr( char *p )
+static const char *
+modsin_endptr( const char *p )
 {
 	return xml_find_end( p, "mods" );
 }
@@ -1138,7 +1140,7 @@ modsin_readf( FILE *fp, char *buf, int bufsize, int *bufpos, str *line, str *ref
 {
 	str tmp;
 	int m, file_charset = CHARSET_UNKNOWN;
-	char *startptr = NULL, *nextptr, *endptr = NULL;
+	const char *startptr = NULL, *nextptr, *endptr = NULL;
 
 	str_init( &tmp );
 

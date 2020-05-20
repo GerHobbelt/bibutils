@@ -129,11 +129,11 @@ typedef struct param {
 
 int  bibl_initparams( param *p, int readmode, int writemode, char *progname );
 void bibl_freeparams( param *p );
-int  bibl_readasis( param *p, char *filename );
-int  bibl_addtoasis( param *p, char *entry );
-int  bibl_readcorps( param *p, char *filename );
-int  bibl_addtocorps( param *p, char *entry );
-int  bibl_read( bibl *b, FILE *fp, char *filename, param *p );
+int  bibl_readasis( param *p, const char *filename );
+int  bibl_addtoasis( param *p, const char *entry );
+int  bibl_readcorps( param *p, const char *filename );
+int  bibl_addtocorps( param *p, const char *entry );
+int  bibl_read( bibl *b, FILE *fp, const char *filename, param *p );
 int  bibl_write( bibl *b, FILE *fp, param *p );
 void bibl_reporterr( int err );
 

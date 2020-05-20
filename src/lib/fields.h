@@ -88,7 +88,7 @@ void fields_report( fields *f, FILE *fp );
 #define FIELDS_CHRP_NOUSE  (                            0                              )
 #define FIELDS_STRP_NOUSE  (                     FIELDS_STRP_FLAG                      )
 
-void *fields_tag( fields *f, int n, int mode );
+const void *fields_tag( fields *f, int n, int mode );
 void *fields_value( fields *f, int n, int mode );
 int   fields_level( fields *f, int n );
  

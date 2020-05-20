@@ -66,14 +66,14 @@ wordin_initparams( param *pm, const char *progname )
  PUBLIC: int wordin_readf()
 *****************************************************/
 
-static char *
-wordin_findstartwrapper( char *buf, int *ntype )
+static const char *
+wordin_findstartwrapper( const char *buf, int *ntype )
 {
 	return xml_find_start( buf, "b:Source" );
 }
 
-static char *
-wordin_findendwrapper( char *buf, int ntype )
+static const char *
+wordin_findendwrapper( const char *buf, int ntype )
 {
 	return xml_find_end( buf, "b:Source" );
 }
@@ -82,7 +82,7 @@ static int
 wordin_readf( FILE *fp, char *buf, int bufsize, int *bufpos, str *line, str *reference, int *fcharset )
 {
 	str tmp;
-	char *startptr = NULL, *endptr;
+	const char *startptr = NULL, *endptr;
 	int haveref = 0, inref = 0, file_charset = CHARSET_UNKNOWN, m, type = 1;
 	str_init( &tmp );
 	while ( !haveref && str_fget( fp, buf, bufsize, bufpos, line ) ) {
@@ -212,7 +212,7 @@ wordin_pages( xml *node, fields *info )
 {
 	int status, ret = BIBL_OK;
 	str sp, ep;
-	char *p;
+	const char *p;
 
 	strs_init( &sp, &ep, NULL );
 

@@ -294,8 +294,8 @@ get_type_issuance( fields *f, param *p )
 	int type = TYPE_UNKNOWN;
 	int i, monographic = 0, monographic_level = 0;
 	for ( i=0; i<f->n; ++i ) {
-		if ( !strcasecmp( (char *) fields_tag( f, i, FIELDS_CHRP_NOUSE ), "issuance" ) &&
-		     !strcasecmp( (char *) fields_value( f, i, FIELDS_CHRP_NOUSE ), "MONOGRAPHIC" ) ){
+		if ( !strcasecmp( (const char *) fields_tag( f, i, FIELDS_CHRP_NOUSE ), "issuance" ) &&
+		     !strcasecmp( (const char *) fields_value( f, i, FIELDS_CHRP_NOUSE ), "MONOGRAPHIC" ) ){
 			monographic = 1;
 			monographic_level = f->level[i];
 		}
