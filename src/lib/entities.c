@@ -284,7 +284,7 @@ entities html_entities[] = {
 
 
 static unsigned int
-decode_html_entity( char *s, unsigned int *pi, int *err )
+decode_html_entity( const char *s, unsigned int *pi, int *err )
 {
 	int nhtml_entities = sizeof( html_entities ) / sizeof( entities );
 	char *e;
@@ -314,7 +314,7 @@ decode_html_entity( char *s, unsigned int *pi, int *err )
  *    s[*pi] points to the '&' character
  */
 static unsigned int
-decode_decimal_entity( char *s, unsigned int *pi, int *err )
+decode_decimal_entity( const char *s, unsigned int *pi, int *err )
 {
 	unsigned int c = 0, d;
 	int i = *pi, j = 2;
@@ -335,7 +335,7 @@ decode_decimal_entity( char *s, unsigned int *pi, int *err )
  *    s[*pi] points to the '&' character
  */
 static unsigned int
-decode_hex_entity( char *s, unsigned int *pi, int *err )
+decode_hex_entity( const char *s, unsigned int *pi, int *err )
 {
 	unsigned int c = 0, d;
 	int i = *pi, j = 3;

@@ -6,6 +6,7 @@
  * Source code released under the GPL version 2
  *
  */
+#include "cross_platform_porting.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include "utf8.h"
@@ -51,7 +52,7 @@ int
 utf8_test(void)
 #else
 int
-main( int argc, char *argv[] )
+main(void)
 #endif
 {
 	int failed = 0;

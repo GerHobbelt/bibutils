@@ -747,7 +747,7 @@ static const lookups misc[] = {
 };
 
 
-const const variants bibtex_all[] = {
+const variants bibtex_all[] = {
 	REFTYPE( "article", article ),
 	REFTYPE( "booklet", book ),
 	REFTYPE( "book", book ),

@@ -5,6 +5,7 @@
  *
  * Source code released under the GPL version 2
  */
+#include "cross_platform_porting.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -17,11 +18,12 @@
 static const char progname[] = "intlist_test";
 static const char version[] = "0.1";
 
-#define check( a, b ) { \
-	if ( !(a) ) { \
-		fprintf( stderr, "Failed %s (%s) in %s() line %d\n", #a, b, __FUNCTION__, __LINE__ );\
-		return 1; \
-	} \
+#define check( a, b ) if ( !(a) ) return _check( #a, b, __FUNCTION__, __LINE__ );
+static int
+_check(const char *a_str, const char *expected, const char* fn, int line)
+{
+	fprintf( stderr, "Failed %s (%s) in %s() line %d\n", a_str, expected, fn, line);
+	return 1;
 }
 
 #define check_len( a, b ) if ( !_check_len( a, b, __FUNCTION__, __LINE__ ) ) return 1;
@@ -846,7 +848,7 @@ int
 intlist_test(void)
 #else
 int
-main( int argc, char *argv[] )
+main(void)
 #endif
 {
 	int failed = 0;
@@ -895,6 +897,4 @@ main( int argc, char *argv[] )
 		printf( "%s: FAILED\n", progname );
 		return EXIT_FAILURE;
 	}
-
-	return EXIT_SUCCESS;
 }

@@ -4,7 +4,6 @@
  * test slist functions
  */
 #include "cross_platform_porting.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -24,14 +23,15 @@
 static const char progname[] = "slist_test";
 static const char version[] = "0.3";
 
-#define check( a, b ) { \
-	if ( !(a) ) { \
-		fprintf( stderr, "Failed %s (%s) in %s() line %d\n", #a, b, __FUNCTION__, __LINE__ );\
-		return 1; \
-	} \
+#define check( a, b ) if ( !(a) ) return _check( #a, b, __FUNCTION__, (int)__LINE__ );
+static int
+_check(const char* a_str, const char* expected, const char* fn, int line)
+{
+	fprintf(stderr, "Failed %s (%s) in %s() line %d\n", a_str, expected, fn, line);
+	return 1;
 }
 
-#define check_len( a, b ) if ( !_check_len( a, b, __FUNCTION__, __LINE__ ) ) return 1;
+#define check_len( a, b ) if ( !_check_len( a, b, __FUNCTION__, (int)__LINE__ ) ) return 1;
 static int
 _check_len( const slist *a, int expected, const char *fn, int line )
 {
@@ -40,7 +40,7 @@ _check_len( const slist *a, int expected, const char *fn, int line )
 	return 0;
 }
 
-#define check_entry( a, b, c ) if ( !_check_entry( a, b, c, __FUNCTION__, __LINE__ ) ) return 1;
+#define check_entry( a, b, c ) if ( !_check_entry( a, b, c, __FUNCTION__, (int)__LINE__ ) ) return 1;
 static int
 _check_entry( const slist *a, int n, const char *expected, const char *fn, int line )
 {
@@ -63,7 +63,7 @@ _check_entry( const slist *a, int n, const char *expected, const char *fn, int l
 	return 0;
 }
 
-#define check_add_result( a, b ) if ( !_check_add_result( a, b, __FUNCTION__, __LINE__ ) ) return 1;
+#define check_add_result( a, b ) if ( !_check_add_result( a, b, __FUNCTION__, (int)__LINE__ ) ) return 1;
 static int
 _check_add_result( const str *obtained, const str *expected, const char *fn, int line )
 {
@@ -75,7 +75,7 @@ _check_add_result( const str *obtained, const str *expected, const char *fn, int
 	return 1;
 }
 
-#define check_addc_result( a, b ) if ( !_check_addc_result( a, b, __FUNCTION__, __LINE__ ) ) return 1;
+#define check_addc_result( a, b ) if ( !_check_addc_result( a, b, __FUNCTION__, (int)__LINE__ ) ) return 1;
 static int
 _check_addc_result( const str *obtained, const char *expected, const char *fn, int line )
 {
@@ -468,7 +468,7 @@ test_addsorted( void )
 	/* Copy list with list_dup() and check sort status */
 	c = slist_dup( &a );
 	if ( !c ) {
-		fprintf( stderr, "%s: Memory error in %s() line %d\n", progname, __FUNCTION__, __LINE__ );
+		fprintf( stderr, "%s: Memory error in %s() line %d\n", progname, __FUNCTION__, (int)__LINE__ );
 		return 1;
 	}
 	check_len( &a, c->n );
@@ -502,7 +502,7 @@ test_tokenize( void )
 	str_strcpyc( &s, "1 2 3 4 5" );
 	status = slist_tokenize( &a, &s, " \t", 0 );
 	if ( status!=SLIST_OK ) {
-		fprintf( stderr, "memory error at %s() line %d\n", __FUNCTION__, __LINE__ );
+		fprintf( stderr, "memory error at %s() line %d\n", __FUNCTION__, (int)__LINE__ );
 		goto out;
 	}
 	check( (a.n==5), "list a should have five elements" );
@@ -516,7 +516,7 @@ test_tokenize( void )
 	str_strcpyc( &s, "1\t2\t3\t4\t5" );
 	status = slist_tokenize( &a, &s, " \t", 1 );
 	if ( status!=SLIST_OK ) {
-		fprintf( stderr, "Memory error at %s() line %d\n", __FUNCTION__, __LINE__ );
+		fprintf( stderr, "Memory error at %s() line %d\n", __FUNCTION__, (int)__LINE__ );
 		goto out;
 	}
 	check( (a.n==5), "list a should have five elements" );
@@ -530,7 +530,7 @@ test_tokenize( void )
 	str_strcpyc( &s, "1  2 3 4" );
 	status = slist_tokenize( &a, &s, " \t", 0 );
 	if ( status!=SLIST_OK ) {
-		fprintf( stderr, "Memory error at %s() line %d\n", __FUNCTION__, __LINE__ );
+		fprintf( stderr, "Memory error at %s() line %d\n", __FUNCTION__, (int)__LINE__ );
 		goto out;
 	}
 	check( (a.n==5), "list a should have five elements" );
@@ -544,7 +544,7 @@ test_tokenize( void )
 	str_strcpyc( &s, "1  2 3 4" );
 	status = slist_tokenize( &a, &s, " \t", 1 );
 	if ( status!=SLIST_OK ) {
-		fprintf( stderr, "Memory error at %s() line %d\n", __FUNCTION__, __LINE__ );
+		fprintf( stderr, "Memory error at %s() line %d\n", __FUNCTION__, (int)__LINE__ );
 		goto out;
 	}
 	check( (a.n==4), "list a should have four elements" );
@@ -574,7 +574,7 @@ test_tokenizec( void )
 
 	status = slist_tokenizec( &a, "1 2 3 4 5", " \t", 0 );
 	if ( status!=SLIST_OK ) {
-		fprintf( stderr, "memory error at %s() line %d\n", __FUNCTION__, __LINE__ );
+		fprintf( stderr, "memory error at %s() line %d\n", __FUNCTION__, (int)__LINE__ );
 		goto out;
 	}
 	check( (a.n==5), "list a should have five elements" );
@@ -587,7 +587,7 @@ test_tokenizec( void )
 
 	status = slist_tokenizec( &a, "1\t2\t3\t4\t5", " \t", 1 );
 	if ( status!=SLIST_OK ) {
-		fprintf( stderr, "Memory error at %s() line %d\n", __FUNCTION__, __LINE__ );
+		fprintf( stderr, "Memory error at %s() line %d\n", __FUNCTION__, (int)__LINE__ );
 		goto out;
 	}
 	check( (a.n==5), "list a should have five elements" );
@@ -600,7 +600,7 @@ test_tokenizec( void )
 
 	status = slist_tokenizec( &a, "1  2 3 4", " \t", 0 );
 	if ( status!=SLIST_OK ) {
-		fprintf( stderr, "Memory error at %s() line %d\n", __FUNCTION__, __LINE__ );
+		fprintf( stderr, "Memory error at %s() line %d\n", __FUNCTION__, (int)__LINE__ );
 		goto out;
 	}
 	check( (a.n==5), "list a should have five elements" );
@@ -613,7 +613,7 @@ test_tokenizec( void )
 
 	status = slist_tokenizec( &a, "1  2 3 4", " \t", 1 );
 	if ( status!=SLIST_OK ) {
-		fprintf( stderr, "Memory error at %s() line %d\n", __FUNCTION__, __LINE__ );
+		fprintf( stderr, "Memory error at %s() line %d\n", __FUNCTION__, (int)__LINE__ );
 		goto out;
 	}
 	check( (a.n==4), "list a should have four elements" );
@@ -684,7 +684,7 @@ test_new( void )
 
 	a = slist_new();
 	if ( !a ) {
-		fprintf( stderr, "Memory error at %s() line %d\n", __FUNCTION__, __LINE__ );
+		fprintf( stderr, "Memory error at %s() line %d\n", __FUNCTION__, (int)__LINE__ );
 		return 0;
 	}
 	check_len( a, 0 );
@@ -696,7 +696,7 @@ test_new( void )
 		check(e == SLIST_OK, "slist_addc() SHOULD succeed");
 		tmp = slist_str(a, i);
 		if ( !tmp ) {
-			fprintf( stderr, "Memory error at %s() line %d\n", __FUNCTION__, __LINE__ );
+			fprintf( stderr, "Memory error at %s() line %d\n", __FUNCTION__, (int)__LINE__ );
 			goto out;
 		}
 	}
@@ -733,14 +733,14 @@ test_dup( void )
 		check(e == SLIST_OK, "slist_addc() SHOULD succeed");
 		tmp = slist_str(&a, i);
 		if ( !tmp ) {
-			fprintf( stderr, "Memory error 1 at %s() line %d\n", __FUNCTION__, __LINE__ );
+			fprintf( stderr, "Memory error 1 at %s() line %d\n", __FUNCTION__, (int)__LINE__ );
 			goto out;
 		}
 	}
 
 	dupa = slist_dup( &a );
 	if ( !dupa ) {
-		fprintf( stderr, "Memory error 2 at %s() line %d\n", __FUNCTION__, __LINE__ );
+		fprintf( stderr, "Memory error 2 at %s() line %d\n", __FUNCTION__, (int)__LINE__ );
 		goto out;
 	}
 	check_len( dupa, 100 );
@@ -778,7 +778,7 @@ test_copy( void )
 		check(e == SLIST_OK, "slist_addc() SHOULD succeed");
 		tmp = slist_str(&a, i);
 		if ( !tmp ) {
-			fprintf( stderr, "Memory error at %s() line %d\n", __FUNCTION__, __LINE__ );
+			fprintf( stderr, "Memory error at %s() line %d\n", __FUNCTION__, (int)__LINE__ );
 			goto out;
 		}
 	}
@@ -805,7 +805,7 @@ test_copy( void )
 	/* Copy and check copy */
 	status = slist_copy( &copya, &a );
 	if ( status!=SLIST_OK ) {
-		fprintf( stderr, "Memory error at %s() line %d\n", __FUNCTION__, __LINE__ );
+		fprintf( stderr, "Memory error at %s() line %d\n", __FUNCTION__, (int)__LINE__ );
 		ret = 1;
 		goto out;
 	}
@@ -1813,7 +1813,7 @@ int
 slist_test(void)
 #else
 int
-main( int argc, char *argv[] )
+main(void)
 #endif
 {
 	int failed = 0;
@@ -1877,6 +1877,4 @@ main( int argc, char *argv[] )
 		printf( "%s: FAILED\n", progname );
 		return EXIT_FAILURE;
 	}
-
-	return EXIT_SUCCESS;
 }

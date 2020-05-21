@@ -636,7 +636,7 @@ check_alphabetical( void )
 }
 
 int
-main( int argc, char *argv[] )
+main(void)
 {
 	int ok;
 	ok = check_alphabetical();

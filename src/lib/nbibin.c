@@ -235,6 +235,7 @@ nbib_processf( fields *nbib, const char *p, const char *filename, long nref, par
 			n = fields_num( nbib );
 			if ( value.len && n>0 ) {
 				str *od;
+#pragma warning(suppress:4090)		// const -> non-const
 				od = fields_value( nbib, n-1, FIELDS_STRP );
 				str_addchar( od, ' ' );
 				str_strcat( od, &value );

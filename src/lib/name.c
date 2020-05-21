@@ -264,6 +264,7 @@ name_multielement_comma( intlist *given, intlist *family, slist *tokens, int beg
 		if ( i==suffixpos ) continue;
 		intlist_add( family, i );
 	}
+#pragma warning(suppress:4090)		// const -> non-const
 	s = slist_str( tokens, comma );
 	str_trimend( s, 1 ); /* remove comma */
 	intlist_add( family, comma );
@@ -333,6 +334,7 @@ name_construct_multi( str *outname, slist *tokens, int begin, int end )
 
 	for ( i=begin; i<end && comma==-1; i++ ) {
 		if ( i==suffixpos ) continue;
+#pragma warning(suppress:4090)		// const -> non-const
 		s = slist_str( tokens, i );
 		if ( s->data[ s->len - 1 ] == ',' ) {
 			if ( suffix && i==suffixpos-1 && !(suffix&WITHCOMMA) )

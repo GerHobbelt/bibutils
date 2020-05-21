@@ -9,7 +9,6 @@
  * test vplist functions
  */
 #include "cross_platform_porting.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -34,7 +33,7 @@ static const char progname[] = "vplist_test";
 static const char version[] = "0.1";
 
 #define report_memerr( a ) { \
-	fprintf( stderr, "Failed: %s() line %d: %s() did not return VPLIST_OK, memory error\n", __FUNCTION__, __LINE__, a ); \
+	fprintf( stderr, "Failed: %s() line %d: %s() did not return VPLIST_OK, memory error\n", __FUNCTION__, (int)__LINE__, a ); \
 	return 1; \
 }
 
@@ -56,17 +55,17 @@ _check_entry( vplist *a, int n, const void *expected, const char *fn, int line )
 	if ( v==NULL && expected==NULL ) return 1;
 	if ( v!=NULL && expected==NULL ) {
 		fprintf( stderr, "Failed: %s() line %d: Expected list element %d to be NULL, found %p '%s'\n",
-			fn, line, n, v, (char*)v );
+			fn, line, n, v, (const char*)v );
 		return 0;
 	}
 	if ( v==NULL && expected!=NULL ) {
 		fprintf( stderr, "Failed: %s() line %d: Expected list element %d to be %p '%s', found NULL\n",
-			fn, line, n, expected, (char*)expected );
+			fn, line, n, expected, (const char*)expected );
 		return 0;
 	}
 	if ( v == expected ) return 1;
 	fprintf( stderr, "Failed: %s() line %d: Expected list element %d to be %p '%s', found %p '%s'\n",
-		fn, line, n, expected, (char*)expected, v, (char*)v );
+		fn, line, n, expected, (const char*)expected, v, (const char*)v );
 	return 0;
 }
 
@@ -211,7 +210,7 @@ test_fill( void )
 	for ( i=0; i<n; ++i ) {
 		if ( vplist_get( &a, i ) != NULL ) {
 			fprintf( stderr, "Failed: %s() line %d: vplist_get() returned %p, expected NULL\n",
-				__FUNCTION__, __LINE__, vplist_get( &a, i ) );
+				__FUNCTION__, (int)__LINE__, vplist_get( &a, i ) );
 	
 			return 1;
 		}
@@ -226,7 +225,7 @@ test_fill( void )
 	for ( i=0; i<n; ++i ) {
 		if ( vplist_get( &a, i ) != (const void*)&a ) {
 			fprintf( stderr, "Failed: %s() line %d: vplist_get() returned %p, expected %p\n",
-				__FUNCTION__, __LINE__, vplist_get( &a, i ), &a );
+				__FUNCTION__, (int)__LINE__, vplist_get( &a, i ), &a );
 	
 			return 1;
 		}
@@ -433,7 +432,7 @@ test_get( void )
 		v = vplist_get( &a, i );
 		if ( v != s[i] ) {
 			fprintf( stderr, "Failed: %s() line %d: vplist_get() returned %p '%s', expected %p '%s'\n",
-				__FUNCTION__, __LINE__, vplist_get( &a, i ), (const char *)vplist_get( &a, i ),
+				__FUNCTION__, (int)__LINE__, vplist_get( &a, i ), (const char *)vplist_get( &a, i ),
 				s[i], s[i] );
 			return 1;
 		}
@@ -565,7 +564,7 @@ test_find( void )
 		n = vplist_find( &a, s[i] );
 		if ( n!=i ) {
 			fprintf( stderr, "Failed: %s() line %d: vplist_find() returned %d, expected %d\n",
-				__FUNCTION__, __LINE__, n, i );
+				__FUNCTION__, (int)__LINE__, n, i );
 			return 1;
 		}
 	}
@@ -574,7 +573,7 @@ test_find( void )
 		n = vplist_find( &a, t[i] );
 		if ( n!=-1 ) {
 			fprintf( stderr, "Failed: %s() line %d: vplist_find() returned %d, expected -1\n",
-				__FUNCTION__, __LINE__, n );
+				__FUNCTION__, (int)__LINE__, n );
 			return 1;
 		}
 	}
@@ -662,7 +661,7 @@ test_removevp( void )
 	/* this vplist_removevp() call should leave vpl unchanged */
 	ret = vplist_removevp( &a, (void*) &a );
 	if ( ret!=0 ) {
-		fprintf( stderr, "Failed: %s() line %d: Expected vplist_removevp() to return %d, got %d\n", __FUNCTION__, __LINE__, 0, ret );
+		fprintf( stderr, "Failed: %s() line %d: Expected vplist_removevp() to return %d, got %d\n", __FUNCTION__, (int)__LINE__, 0, ret );
 		failed++;
 	}
 	check_len( &a, 5 );
@@ -674,7 +673,7 @@ test_removevp( void )
 
 	ret = vplist_removevp( &a, (void*) s[2] );
 	if ( ret!=1 ) {
-		fprintf( stderr, "Failed: %s() line %d: Expected vplist_removevp() to return %d, got %d\n", __FUNCTION__, __LINE__, 1, ret );
+		fprintf( stderr, "Failed: %s() line %d: Expected vplist_removevp() to return %d, got %d\n", __FUNCTION__, (int)__LINE__, 1, ret );
 		failed++;
 	}
 	check_len( &a, 4 );
@@ -685,7 +684,7 @@ test_removevp( void )
 
 	ret = vplist_removevp( &a, (void*) s[0] );
 	if ( ret!=1 ) {
-		fprintf( stderr, "Failed: %s() line %d: Expected vplist_removevp() to return %d, got %d\n", __FUNCTION__, __LINE__, 1, ret );
+		fprintf( stderr, "Failed: %s() line %d: Expected vplist_removevp() to return %d, got %d\n", __FUNCTION__, (int)__LINE__, 1, ret );
 		failed++;
 	}
 	check_len( &a, 3 );
@@ -695,7 +694,7 @@ test_removevp( void )
 
 	ret = vplist_removevp( &a, (void*) s[4] );
 	if ( ret!=1 ) {
-		fprintf( stderr, "Failed: %s() line %d: Expected vplist_removevp() to return %d, got %d\n", __FUNCTION__, __LINE__, 1, ret );
+		fprintf( stderr, "Failed: %s() line %d: Expected vplist_removevp() to return %d, got %d\n", __FUNCTION__, (int)__LINE__, 1, ret );
 		failed++;
 	}
 	check_len( &a, 2 );
@@ -704,7 +703,7 @@ test_removevp( void )
 
 	ret = vplist_removevp( &a, (void*) s[3] );
 	if ( ret!=1 ) {
-		fprintf( stderr, "Failed: %s() line %d: Expected vplist_removevp() to return %d, got %d\n", __FUNCTION__, __LINE__, 1, ret );
+		fprintf( stderr, "Failed: %s() line %d: Expected vplist_removevp() to return %d, got %d\n", __FUNCTION__, (int)__LINE__, 1, ret );
 		failed++;
 	}
 	check_len( &a, 1 );
@@ -712,7 +711,7 @@ test_removevp( void )
 
 	ret = vplist_removevp( &a, (void*) s[1] );
 	if ( ret!=1 ) {
-		fprintf( stderr, "Failed: %s() line %d: Expected vplist_removevp() to return %d, got %d\n", __FUNCTION__, __LINE__, 1, ret );
+		fprintf( stderr, "Failed: %s() line %d: Expected vplist_removevp() to return %d, got %d\n", __FUNCTION__, (int)__LINE__, 1, ret );
 		failed++;
 	}
 	check_isempty( &a );
@@ -772,7 +771,7 @@ int
 vplist_test(void)
 #else
 int
-main( int argc, char *argv[] )
+main(void)
 #endif
 {
 	int failed = 0;
@@ -804,6 +803,4 @@ main( int argc, char *argv[] )
 		printf( "%s: FAILED\n", progname );
 		return EXIT_FAILURE;
 	}
-
-	return EXIT_SUCCESS;
 }

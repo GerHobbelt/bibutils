@@ -13,6 +13,7 @@ int  str_fget        ( FILE *fp, char *buf, int bufsize, int *pbufpos,
 int  str_fgetline    ( str *s, FILE *fp );
 */
 
+#include "cross_platform_porting.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -565,56 +566,56 @@ test_cpytodelim( str *s )
 	q = str_cpytodelim( s, str0, "\t", 0 );
 	if ( string_mismatch( s, 0, "" ) ) failed++;
 	if ( *q!='\0' ) {
-		fprintf( stdout, "%s line %d: str_cpytodelim() returned '%c', expected '\\t'\n", __FUNCTION__, __LINE__, *q );
+		fprintf( stdout, "%s line %d: str_cpytodelim() returned '%c', expected '\\t'\n", __FUNCTION__, (int)__LINE__, *q );
 		failed++;
 	}
 
 	q = str_cpytodelim( s, str1, "\t", 0 );
 	if ( string_mismatch( s, 4, "Col1" ) ) failed++;
 	if ( *q!='\t' ) {
-		fprintf( stdout, "%s line %d: str_cpytodelim() returned '%c', expected '\\t'\n", __FUNCTION__, __LINE__, *q );
+		fprintf( stdout, "%s line %d: str_cpytodelim() returned '%c', expected '\\t'\n", __FUNCTION__, (int)__LINE__, *q );
 		failed++;
 	}
 
 	q = str_cpytodelim( s, str1, " \t", 0 );
 	if ( string_mismatch( s, 4, "Col1" ) ) failed++;
 	if ( *q!='\t' ) {
-		fprintf( stdout, "%s line %d: str_cpytodelim() returned '%c', expected '\\t'\n", __FUNCTION__, __LINE__, *q );
+		fprintf( stdout, "%s line %d: str_cpytodelim() returned '%c', expected '\\t'\n", __FUNCTION__, (int)__LINE__, *q );
 		failed++;
 	}
 
 	q = str_cpytodelim( s, str1, "\t", 1 );
 	if ( string_mismatch( s, 4, "Col1" ) ) failed++;
 	if ( *q!='C' ) {
-		fprintf( stdout, "%s line %d: str_cpytodelim() returned '%c', expected 'C'\n", __FUNCTION__, __LINE__, *q );
+		fprintf( stdout, "%s line %d: str_cpytodelim() returned '%c', expected 'C'\n", __FUNCTION__, (int)__LINE__, *q );
 		failed++;
 	}
 
 	q = str_cpytodelim( s, str1, "\n", 0 );
 	if ( string_mismatch( s, strlen(str1)-1, "Col1\tCol2\tCol3" ) ) failed++;
 	if ( *q!='\n' ) {
-		fprintf( stdout, "%s line %d: str_cpytodelim() returned '%c', expected '\\n'\n", __FUNCTION__, __LINE__, *q );
+		fprintf( stdout, "%s line %d: str_cpytodelim() returned '%c', expected '\\n'\n", __FUNCTION__, (int)__LINE__, *q );
 		failed++;
 	}
 
 	q = str_cpytodelim( s, str1, "\r", 0 );
 	if ( string_mismatch( s, strlen(str1), "Col1\tCol2\tCol3\n" ) ) failed++;
 	if ( *q!='\0' ) {
-		fprintf( stdout, "%s line %d: str_cpytodelim() returned '%c', expected '\\n'\n", __FUNCTION__, __LINE__, *q );
+		fprintf( stdout, "%s line %d: str_cpytodelim() returned '%c', expected '\\n'\n", __FUNCTION__, (int)__LINE__, *q );
 		failed++;
 	}
 
 	q = str_cpytodelim( s, str2, " ", 0 );
 	if ( string_mismatch( s, 4, "Col1" ) ) failed++;
 	if ( *q!=' ' ) {
-		fprintf( stdout, "%s line %d: str_cpytodelim() returned '%c', expected '\\t'\n", __FUNCTION__, __LINE__, *q );
+		fprintf( stdout, "%s line %d: str_cpytodelim() returned '%c', expected '\\t'\n", __FUNCTION__, (int)__LINE__, *q );
 		failed++;
 	}
 
 	q = str_cpytodelim( s, str2, "\t", 0 );
 	if ( string_mismatch( s, strlen(str2), str2 ) ) failed++;
 	if ( *q!='\0' ) {
-		fprintf( stdout, "%s line %d: str_cpytodelim() returned '%c', expected '\\t'\n", __FUNCTION__, __LINE__, *q );
+		fprintf( stdout, "%s line %d: str_cpytodelim() returned '%c', expected '\\t'\n", __FUNCTION__, (int)__LINE__, *q );
 		failed++;
 	}
 
@@ -633,7 +634,7 @@ test_cattodelim( str *s )
 	for ( i=0; i<n; ++i ) {
 		q = str_cattodelim( s, str1, " ", 0 );
 		if ( *q!=' ' ) {
-			fprintf( stdout, "%s line %d: str_cattodelim() returned '%c', expected ' '\n", __FUNCTION__, __LINE__, *q );
+			fprintf( stdout, "%s line %d: str_cattodelim() returned '%c', expected ' '\n", __FUNCTION__, (int)__LINE__, *q );
 			failed++;
 		}
 	}
@@ -644,7 +645,7 @@ test_cattodelim( str *s )
 	while ( *q ) {
 		q = str_cattodelim( s, q, " ", 1 );
 		if ( *q!='1' && *q!='\0' ) {
-			fprintf( stdout, "%s line %d: str_cattodelim() returned '%c', expected '1' or '\\0' \n", __FUNCTION__, __LINE__, *q );
+			fprintf( stdout, "%s line %d: str_cattodelim() returned '%c', expected '1' or '\\0' \n", __FUNCTION__, (int)__LINE__, *q );
 			failed++;
 		}
 	}
@@ -663,7 +664,7 @@ test_strdup( void )
 
 	dup = str_strdupc( "" );
 	if ( dup==NULL ) {
-		fprintf( stdout, "%s line %d: str_strdup() returned NULL\n", __FUNCTION__, __LINE__ );
+		fprintf( stdout, "%s line %d: str_strdup() returned NULL\n", __FUNCTION__, (int)__LINE__ );
 		failed++;
 	} else {
 		if ( string_mismatch( dup, 0, "" ) ) failed++;
@@ -672,7 +673,7 @@ test_strdup( void )
 
 	dup = str_strdupc( str1 );
 	if ( dup==NULL ) {
-		fprintf( stdout, "%s line %d: str_strdup() returned NULL\n", __FUNCTION__, __LINE__ );
+		fprintf( stdout, "%s line %d: str_strdup() returned NULL\n", __FUNCTION__, (int)__LINE__ );
 		failed++;
 	} else {
 		if ( string_mismatch( dup, strlen(str1), str1 ) ) failed++;
@@ -681,7 +682,7 @@ test_strdup( void )
 
 	dup = str_strdupc( str2 );
 	if ( dup==NULL ) {
-		fprintf( stdout, "%s line %d: str_strdup() returned NULL\n", __FUNCTION__, __LINE__ );
+		fprintf( stdout, "%s line %d: str_strdup() returned NULL\n", __FUNCTION__, (int)__LINE__ );
 		failed++;
 	} else {
 		if ( string_mismatch( dup, strlen(str2), str2 ) ) failed++;
@@ -856,43 +857,43 @@ test_case( str *s )
 
 	str_strcpyc( s, "asdfjalskjfljasdfjlsfjd" );
 	if ( !str_is_lowercase( s ) ) {
-		fprintf( stdout, "%s line %d: str_is_lowercase('%s') returned false\n", __FUNCTION__, __LINE__, s->data );
+		fprintf( stdout, "%s line %d: str_is_lowercase('%s') returned false\n", __FUNCTION__, (int)__LINE__, s->data );
 		failed++;
 	}
 	if ( str_is_uppercase( s ) ) {
-		fprintf( stdout, "%s line %d: str_is_uppercase('%s') returned true\n", __FUNCTION__, __LINE__, s->data );
+		fprintf( stdout, "%s line %d: str_is_uppercase('%s') returned true\n", __FUNCTION__, (int)__LINE__, s->data );
 		failed++;
 	}
 	if ( str_is_mixedcase( s ) ) {
-		fprintf( stdout, "%s line %d: str_is_mixedcase('%s') returned true\n", __FUNCTION__, __LINE__, s->data );
+		fprintf( stdout, "%s line %d: str_is_mixedcase('%s') returned true\n", __FUNCTION__, (int)__LINE__, s->data );
 		failed++;
 	}
 
 	str_strcpyc( s, "ASDFJALSKJFLJASDFJLSFJD" );
 	if ( str_is_lowercase( s ) ) {
-		fprintf( stdout, "%s line %d: str_is_lowercase('%s') returned true\n", __FUNCTION__, __LINE__, s->data );
+		fprintf( stdout, "%s line %d: str_is_lowercase('%s') returned true\n", __FUNCTION__, (int)__LINE__, s->data );
 		failed++;
 	}
 	if ( !str_is_uppercase( s ) ) {
-		fprintf( stdout, "%s line %d: str_is_uppercase('%s') returned false\n", __FUNCTION__, __LINE__, s->data );
+		fprintf( stdout, "%s line %d: str_is_uppercase('%s') returned false\n", __FUNCTION__, (int)__LINE__, s->data );
 		failed++;
 	}
 	if ( str_is_mixedcase( s ) ) {
-		fprintf( stdout, "%s line %d: str_is_mixedcase('%s') returned true\n", __FUNCTION__, __LINE__, s->data );
+		fprintf( stdout, "%s line %d: str_is_mixedcase('%s') returned true\n", __FUNCTION__, (int)__LINE__, s->data );
 		failed++;
 	}
 
 	str_strcpyc( s, "ASdfjalsKJFLJASdfjlsfjd" );
 	if ( str_is_lowercase( s ) ) {
-		fprintf( stdout, "%s line %d: str_is_lowercase('%s') returned true\n", __FUNCTION__, __LINE__, s->data );
+		fprintf( stdout, "%s line %d: str_is_lowercase('%s') returned true\n", __FUNCTION__, (int)__LINE__, s->data );
 		failed++;
 	}
 	if ( str_is_uppercase( s ) ) {
-		fprintf( stdout, "%s line %d: str_is_uppercase('%s') returned true\n", __FUNCTION__, __LINE__, s->data );
+		fprintf( stdout, "%s line %d: str_is_uppercase('%s') returned true\n", __FUNCTION__, (int)__LINE__, s->data );
 		failed++;
 	}
 	if ( !str_is_mixedcase( s ) ) {
-		fprintf( stdout, "%s line %d: str_is_mixedcase('%s') returned false\n", __FUNCTION__, __LINE__, s->data );
+		fprintf( stdout, "%s line %d: str_is_mixedcase('%s') returned false\n", __FUNCTION__, (int)__LINE__, s->data );
 		failed++;
 	}
 
@@ -909,31 +910,31 @@ test_strcmp( str *s )
 
 	str_empty( s );
 	if ( str_strcmp( s, s ) ) {
-		fprintf( stdout, "%s line %d: str_strcmp(s,s) returned non-zero\n", __FUNCTION__, __LINE__ );
+		fprintf( stdout, "%s line %d: str_strcmp(s,s) returned non-zero\n", __FUNCTION__, (int)__LINE__ );
 		failed++;
 	}
 	if ( str_strcmp( s, &t ) ) {
-		fprintf( stdout, "%s line %d: str_strcmp(s,t) returned non-zero\n", __FUNCTION__, __LINE__ );
+		fprintf( stdout, "%s line %d: str_strcmp(s,t) returned non-zero\n", __FUNCTION__, (int)__LINE__ );
 		failed++;
 	}
 
 	str_strcpyc( s, "lakjsdlfjdskljfklsjf" );
 	if ( str_strcmp( s, s ) ) {
-		fprintf( stdout, "%s line %d: str_strcmp(s,s) returned non-zero\n", __FUNCTION__, __LINE__ );
+		fprintf( stdout, "%s line %d: str_strcmp(s,s) returned non-zero\n", __FUNCTION__, (int)__LINE__ );
 		failed++;
 	}
 	if ( !str_strcmp( s, &t ) ) {
-		fprintf( stdout, "%s line %d: str_strcmp(s,t) returned zero\n", __FUNCTION__, __LINE__ );
+		fprintf( stdout, "%s line %d: str_strcmp(s,t) returned zero\n", __FUNCTION__, (int)__LINE__ );
 		failed++;
 	}
 
 	str_strcpy( &t, s );
 	if ( str_strcmp( s, s ) ) {
-		fprintf( stdout, "%s line %d: str_strcmp(s,s) returned non-zero\n", __FUNCTION__, __LINE__ );
+		fprintf( stdout, "%s line %d: str_strcmp(s,s) returned non-zero\n", __FUNCTION__, (int)__LINE__ );
 		failed++;
 	}
 	if ( str_strcmp( s, &t ) ) {
-		fprintf( stdout, "%s line %d: str_strcmp(s,t) returned non-zero\n", __FUNCTION__, __LINE__ );
+		fprintf( stdout, "%s line %d: str_strcmp(s,t) returned non-zero\n", __FUNCTION__, (int)__LINE__ );
 		failed++;
 	}
 
@@ -949,16 +950,16 @@ test_match( str *s )
 
 	str_empty( s );
 	if ( str_match_first( s, '0' ) ) {
-		fprintf( stdout, "%s line %d: str_match_first() returned non-zero\n", __FUNCTION__, __LINE__ );
+		fprintf( stdout, "%s line %d: str_match_first() returned non-zero\n", __FUNCTION__, (int)__LINE__ );
 		failed++;
 	}
 	str_strcpyc( s, "012345" );
 	if ( !str_match_first( s, '0' ) ) {
-		fprintf( stdout, "%s line %d: str_match_first() returned zero\n", __FUNCTION__, __LINE__ );
+		fprintf( stdout, "%s line %d: str_match_first() returned zero\n", __FUNCTION__, (int)__LINE__ );
 		failed++;
 	}
 	if ( !str_match_end( s, '5' ) ) {
-		fprintf( stdout, "%s line %d: str_match_end() returned zero\n", __FUNCTION__, __LINE__ );
+		fprintf( stdout, "%s line %d: str_match_end() returned zero\n", __FUNCTION__, (int)__LINE__ );
 		failed++;
 	}
 
@@ -978,11 +979,11 @@ test_char( str *s )
 	str_empty( s );
 	for ( i=0; i<5; ++i ) {
 		if ( str_char( s, i ) != '\0' ) {
-			fprintf( stdout, "%s line %d: str_char() did not return '\\0'\n", __FUNCTION__, __LINE__ );
+			fprintf( stdout, "%s line %d: str_char() did not return '\\0'\n", __FUNCTION__, (int)__LINE__ );
 			failed++;
 		}
 		if ( str_revchar( s, i ) != '\0' ) {
-			fprintf( stdout, "%s line %d: str_revchar() did not return '\\0'\n", __FUNCTION__, __LINE__ );
+			fprintf( stdout, "%s line %d: str_revchar() did not return '\\0'\n", __FUNCTION__, (int)__LINE__ );
 			failed++;
 		}
 	}
@@ -1033,7 +1034,7 @@ int
 str_test(void)
 #else
 int
-main ( int argc, char *argv[] )
+main (void)
 #endif
 {
 	int failed = 0;
@@ -1117,5 +1118,4 @@ main ( int argc, char *argv[] )
 		printf( "%s: FAILED\n", progname );
 		return EXIT_FAILURE;
 	}
-	return EXIT_SUCCESS;
 }

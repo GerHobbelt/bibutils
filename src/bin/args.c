@@ -30,8 +30,8 @@ args_match( const char *check, const char *shortarg, const char *longarg )
 	return 0;
 }
 
-char *
-args_next( int argc, char *argv[], int n, const char *progname, const char *shortarg, const char *longarg )
+const char *
+args_next( int argc, const char *argv[], int n, const char *progname, const char *shortarg, const char *longarg )
 {
 	if ( n>=argc ) {
 		fprintf( stderr, "%s: option ", progname );
@@ -63,7 +63,7 @@ args_charset( const char *charset_name, int *charset, unsigned char *utf8 )
 }
 
 static void
-args_encoding( int argc, char *argv[], int i, int *charset, 
+args_encoding( int argc, const char *argv[], int i, int *charset, 
 	unsigned char *utf8, const char *progname, int inout )
 {
 	const char *shortver[] = { "-i", "-o" };
@@ -89,7 +89,7 @@ args_encoding( int argc, char *argv[], int i, int *charset,
 
 /* Must process charset info first so switches are order independent */
 void
-process_charsets( int *argc, char *argv[], param *p )
+process_charsets( int *argc, const char *argv[], param *p )
 {
 	int i, j, subtract;
 	i = 1;

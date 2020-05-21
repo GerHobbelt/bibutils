@@ -519,6 +519,7 @@ bibl_fixcharsetdata( fields *ref, param *p )
 	for ( i=0; i<n; ++i ) {
 
 		tag  = (const char *)fields_tag( ref, i, FIELDS_CHRP_NOUSE );
+#pragma warning(suppress:4090)		// const -> non-const
 		data = fields_value( ref, i, FIELDS_STRP_NOUSE );
 
 		if ( bibl_notexify( tag ) ) {
@@ -572,6 +573,7 @@ bibl_addcount( bibl *b )
 
 		sprintf_s( buf, countof(buf), "_%ld", i+1 );
 
+#pragma warning(suppress:4090)		// const -> non-const
 		str* s = fields_value(ref, n, FIELDS_STRP_NOUSE);
 		str_strcatc( s, buf );
 		if ( str_memerr( s ) ) {
@@ -726,6 +728,7 @@ resolve_duplicates( bibl *b, slist *citekeys, int *dup )
 			n = fields_find( b->ref[j], "REFNUM", LEVEL_ANY );
 			if ( n==FIELDS_NOTFOUND ) continue;
 
+#pragma warning(suppress:4090)		// const -> non-const
 			ref_citekey = fields_value( b->ref[j], n, FIELDS_STRP_NOUSE );
 
 			str_strcpy( ref_citekey, &new_citekey );

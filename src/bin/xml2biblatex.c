@@ -6,6 +6,7 @@
  * Program and source code released under the GPL version 2
  *
  */
+#include "cross_platform_porting.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include "bibutils.h"
@@ -16,13 +17,13 @@
 static const char progname[] = "xml2biblatex";
 
 static void
-help( const char *progname )
+help( const char *name )
 {
-	args_tellversion( progname );
+	args_tellversion( name );
 	fprintf( stderr, "Converts the MODS XML intermediate reference file "
 			"into BibLaTex\n\n");
 
-	fprintf(stderr,"usage: %s xml_file > biblatex_file\n\n",progname);
+	fprintf(stderr,"usage: %s xml_file > biblatex_file\n\n", name);
         fprintf(stderr,"  xml_file can be replaced with file list or omitted to use as a filter\n\n");
 
 	fprintf(stderr,"  -h,  --help               display this help\n");

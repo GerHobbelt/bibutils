@@ -54,7 +54,7 @@ args_tomods_help(const char *progname, const char *help1, const char *help2 )
 }
 
 static void
-args_namelist( int argc, char *argv[], int i, const char *progname, const char *shortarg,
+args_namelist( int argc, const char *argv[], int i, const char *progname, const char *shortarg,
 	const char *longarg )
 {
 	if ( i+1 >= argc ) {
@@ -65,7 +65,7 @@ args_namelist( int argc, char *argv[], int i, const char *progname, const char *
 }
 
 void
-tomods_processargs( int *argc, char *argv[], param *p,
+tomods_processargs( int *argc, const char *argv[], param *p,
 	const char *help1, const char *help2 )
 {
 	int i, j, subtract, status;

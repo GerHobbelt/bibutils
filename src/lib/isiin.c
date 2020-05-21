@@ -230,6 +230,7 @@ merge_tag_value( fields *isiin, str *tag, str *value, int *tag_added )
 			}
 			/* otherwise append multiline data */
 			else {
+#pragma warning(suppress:4090)		// const -> non-const
 				oldvalue = fields_value( isiin, n-1, FIELDS_STRP_NOUSE );
 				str_addchar( oldvalue, ' ' );
 				str_strcat( oldvalue, value );
@@ -310,7 +311,7 @@ isiin_typef( fields *isiin, const char *filename, int nref, param *p )
 
 /* pull off authors first--use AF before AU */
 static int
-isiin_addauthors( fields *isiin, fields *info, int reftype, variants *all, int nall, slist *asis, slist *corps )
+isiin_addauthors( fields *isiin, fields *info, int reftype, const variants *all, int nall, slist *asis, slist *corps )
 {
 	const char* newtag;
 	const char* authortype;
@@ -318,7 +319,7 @@ isiin_addauthors( fields *isiin, fields *info, int reftype, variants *all, int n
 	const char* use_au = "AU";
 	int level, i, n, has_af=0, has_au=0, nfields, ok;
 	const str* t;
-	str* d;
+	const str* d;
 
 	nfields = fields_num( isiin );
 	for ( i=0; i<nfields && has_af==0; ++i ) {
@@ -331,9 +332,9 @@ isiin_addauthors( fields *isiin, fields *info, int reftype, variants *all, int n
 	else return BIBL_OK; /* no authors */
 
 	for ( i=0; i<nfields; ++i ) {
-		t = fields_tag( isiin, i, FIELDS_STRP );
+		t = (const str *)fields_tag( isiin, i, FIELDS_STRP );
 		if ( strcasecmp( t->data, authortype ) ) continue;
-		d = fields_value( isiin, i, FIELDS_STRP );
+		d = (const str *)fields_value( isiin, i, FIELDS_STRP );
 		n = process_findoldtag( authortype, reftype, all, nall );
 		level = ((all[reftype]).tags[n]).level;
 		newtag = all[reftype].tags[n].newstr;

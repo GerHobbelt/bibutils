@@ -10,6 +10,10 @@
 #define CROSS_PLATFORM_PORTING_H
 
 #if defined(WIN32) || defined(WIN64)
+#if defined(_MSC_VER)
+// warning C4464: relative include path contains '..'
+#pragma warning(disable:4464)
+#endif
 #include "../win32/config.h"
 #endif
 

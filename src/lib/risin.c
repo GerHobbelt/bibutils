@@ -237,6 +237,7 @@ merge_tag_value( fields *risin, str *tag, str *value, int *tag_added )
 		if ( *tag_added==1 ) {
 			n = fields_num( risin );
 			if ( n>0 ) {
+#pragma warning(suppress:4090)		// const -> non-const
 				oldval = fields_value( risin, n-1, FIELDS_STRP );
 				str_addchar( oldval, ' ' );
 				str_strcat( oldval, value );

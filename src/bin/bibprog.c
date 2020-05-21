@@ -11,7 +11,7 @@
 #include "bibprog.h"
 
 void
-bibprog( int argc, char *argv[], param *p )
+bibprog( int argc, const char *argv[], param *p )
 {
 	FILE *fp;
 	bibl b;

@@ -271,6 +271,7 @@ replace_strings( slist *tokens, fields *bibin, long nref, param *pm )
 	str *s;
 	i = 0;
 	while ( i < tokens->n ) {
+#pragma warning(suppress:4090)		// const -> non-const
 		s = slist_str( tokens, i );
 		if ( !strcmp( s->data, "#" ) ) {
 		} else if ( s->data[0]!='\"' && s->data[0]!='{' ) {
@@ -303,6 +304,7 @@ string_concatenate( slist *tokens, fields *bibin, long nref, param *pm )
 	str* t;
 	i = 0;
 	while ( i < tokens->n ) {
+#pragma warning(suppress:4090)		// const -> non-const
 		s = slist_str( tokens, i );
 		if ( !strcmp( str_cstr( s ), "#" ) ) {
 			if ( i==0 || i==tokens->n-1 ) {
@@ -312,10 +314,12 @@ string_concatenate( slist *tokens, fields *bibin, long nref, param *pm )
 				if ( status!=SLIST_OK ) return BIBL_ERR_MEMERR;
 				continue;
 			}
+#pragma warning(suppress:4090)		// const -> non-const
 			s = slist_str( tokens, i-1 );
 			if ( s->data[0]!='\"' && s->data[s->len-1]!='\"' )
 				fprintf( stderr, "%s: Warning: String concentation should "
 					"be used in context of quotations marks in reference %ld\n", pm->progname, nref );
+#pragma warning(suppress:4090)		// const -> non-const
 			t = slist_str( tokens, i+1 );
 			if ( t->data[0]!='\"' && t->data[t->len-1]!='\"' )
 				fprintf( stderr, "%s: Warning: String concentation should "
@@ -366,6 +370,7 @@ process_biblatexline( const char *p, str *tag, str *data, uchar stripquotes, lon
 	}
 
 	for ( i=0; i<tokens.n; i++ ) {
+#pragma warning(suppress:4090)		// const -> non-const
 		s = slist_str( &tokens, i );
 		if ( ( stripquotes && s->data[0]=='\"' && s->data[s->len-1]=='\"' ) ||
 		     ( s->data[0]=='{' && s->data[s->len-1]=='}' ) ) {
@@ -601,6 +606,7 @@ biblatexin_cleanref( fields *bibin, param *p )
 	n = fields_num( bibin );
 	for ( i=0; i<n; ++i ) {
 		t = (const str *)fields_tag( bibin, i, FIELDS_STRP_NOUSE );
+#pragma warning(suppress:4090)		// const -> non-const
 		d = fields_value( bibin, i, FIELDS_STRP_NOUSE );
 		status = biblatexin_cleanvalue( t, d, bibin, p );
 		if ( status!=BIBL_OK ) return status;
@@ -666,7 +672,7 @@ biblatexin_typef( fields *bibin, const char *filename, int nrefs, param *p )
  * return 1 if an element is found, 0 if not
  */
 static int
-get_title_elements( fields *bibin, int currlevel, int reftype, variants *all, int nall, str *ttl, str *subttl, str *ttladdon )
+get_title_elements( fields *bibin, int currlevel, int reftype, const variants *all, int nall, str *ttl, str *subttl, str *ttladdon )
 {
 	int nfields, process, level, i;
 	const str* t;

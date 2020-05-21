@@ -385,6 +385,7 @@ replace_strings( slist *tokens )
 	str *s;
 
 	for ( i=0; i<tokens->n; ++i ) {
+#pragma warning(suppress:4090)		// const -> non-const
 		s = slist_str( tokens, i );
 
 		/* ...skip if token is protected by quotation marks or braces */
@@ -411,6 +412,7 @@ string_concatenate( slist *tokens, loc *currloc )
 
 	i = 0;
 	while ( i < tokens->n ) {
+#pragma warning(suppress:4090)		// const -> non-const
 		s = slist_str( tokens, i );
 
 		if ( str_strcmpc( s, "#" ) ) {
@@ -426,7 +428,9 @@ string_concatenate( slist *tokens, loc *currloc )
 			continue;
 		}
 
+#pragma warning(suppress:4090)		// const -> non-const
 		s = slist_str( tokens, i-1 );
+#pragma warning(suppress:4090)		// const -> non-const
 		t = slist_str( tokens, i+1 );
 
 		esc_s = token_is_escaped( s );
@@ -471,6 +475,7 @@ merge_tokens_into_data( str *data, slist *tokens, int stripquotes )
 	str *s;
 
 	for ( i=0; i<tokens->n; i++ ) {
+#pragma warning(suppress:4090)		// const -> non-const
 		s     = slist_str( tokens, i );
 		esc_s = token_is_escaped( s );
 
@@ -737,7 +742,7 @@ bibtex_person_tokenize( fields *bibin, int m, param *pm, slist *tokens )
 	if ( status!=BIBL_OK ) return status;
 
 	for ( i=0; i<tokens->n; ++i ) {
-
+#pragma warning(suppress:4090)		// const -> non-const
 		s = slist_str( tokens, i );
 
 		status = bibtex_cleanvalue( s );
@@ -837,6 +842,7 @@ bibtexin_cleanref( fields *bibin, param *pm )
 		tag = (const str *)fields_tag( bibin, i, FIELDS_STRP_NOUSE );
 		if ( is_url_tag( tag ) ) continue; /* protect url from parsing */
 
+#pragma warning(suppress:4090)		// const -> non-const
 		value = fields_value( bibin, i, FIELDS_STRP_NOUSE );
 		if ( str_is_empty( value ) ) continue;
 
@@ -1189,7 +1195,7 @@ process_eprint_with_prefix( fields *bibout, const char *prefix, const str *value
 	return status;
 }
 static int
-process_eprint_without_prefix( fields *bibout, str *value, int level )
+process_eprint_without_prefix( fields *bibout, const str *value, int level )
 {
 	int fstatus;
 
@@ -1362,7 +1368,7 @@ bibtexin_convertf( fields *bibin, fields *bibout, int reftype, param *p )
 		if ( fields_no_tag( bibin, i ) )  continue;
 		if ( fields_no_value( bibin, i ) ) continue;
 
-		intag   = fields_tag( bibin, i, FIELDS_STRP );
+		intag   = (const str *)fields_tag( bibin, i, FIELDS_STRP );
 		invalue = fields_value( bibin, i, FIELDS_STRP );
 
 		if ( !translate_oldtag( str_cstr( intag ), reftype, p->all, p->nall, &process, &level, &outtag ) ) {

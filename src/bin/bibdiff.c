@@ -6,6 +6,7 @@
  * Program and source code released under the GPL version 2
  *
  */
+#include "cross_platform_porting.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include "bibutils.h"
@@ -188,7 +189,7 @@ lookup_format( const char *format )
 }
 
 void
-process_args( int *argc, char *argv[], int *format1, int *format2 )
+process_args( int *argc, const char *argv[], int *format1, int *format2 )
 {
 	int i, j, done, subtract;
 	char *f1, *f2;

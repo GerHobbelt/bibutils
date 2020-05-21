@@ -207,6 +207,7 @@ endin_processf( fields *endin, const char *p, const char *filename, long nref, p
 
 			/* last line wasn't a keyword, so this line should just be appended */
 			else {
+#pragma warning(suppress:4090)		// const -> non-const
 				oldvalue = fields_value( endin, n-1, FIELDS_STRP_NOUSE );
 				str_addchar( oldvalue, ' ' );
 				str_strcat( oldvalue, &value );
