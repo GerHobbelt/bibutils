@@ -396,8 +396,8 @@ isiin_convertf( fields *bibin, fields *bibout, int reftype, param *p )
 
 	int process, level, i, nfields, status;
 	const str* intag;
-	str* invalue;
-	char *outtag;
+	const str* invalue;
+	const char *outtag;
 
 	status = isiin_addauthors( bibin, bibout, reftype, p->all, p->nall, &(p->asis), &(p->corps) );
 	if ( status!=BIBL_OK ) return status;

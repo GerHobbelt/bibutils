@@ -373,7 +373,6 @@ process_defaultadd( fields *f, int reftype, const param *r )
 	strs_init( &tag, &value, NULL );
 
 	for ( i=0; i<r->all[reftype].ntags; ++i ) {
-
 		process = ((r->all[reftype]).tags[i]).processingtype;
 		if ( process!=DEFAULT ) continue;
 
@@ -394,7 +393,6 @@ process_defaultadd( fields *f, int reftype, const param *r )
 				goto out;
 			}
 		}
-
 	}
 out:
 	strs_free( &tag, &value, NULL );
@@ -418,7 +416,6 @@ process_alwaysadd( fields *f, int reftype, const param *r )
 	strs_init( &tag, &value, NULL );
 
 	for ( i=0; i<r->all[reftype].ntags; ++i ) {
-
 		process = ((r->all[reftype]).tags[i]).processingtype;
 		if ( process!=ALWAYS ) continue;
 
@@ -517,7 +514,6 @@ bibl_fixcharsetdata( fields *ref, param *p )
 	n = fields_num( ref );
 
 	for ( i=0; i<n; ++i ) {
-
 		tag  = (const char *)fields_tag( ref, i, FIELDS_CHRP_NOUSE );
 #pragma warning(suppress:4090)		// const -> non-const
 		data = fields_value( ref, i, FIELDS_STRP_NOUSE );
@@ -565,7 +561,6 @@ bibl_addcount( bibl *b )
 	int n;
 
 	for ( i=0; i<b->n; ++i ) {
-
 		ref = b->ref[i];
 
 		n = fields_find( ref, "REFNUM", LEVEL_MAIN );
@@ -711,13 +706,11 @@ resolve_duplicates( bibl *b, slist *citekeys, int *dup )
 	str_init( &new_citekey );
 
 	for ( i=0; i<citekeys->n; ++i ) {
-
 		if ( dup[i]==-1 ) continue;
 
 		nsame = 0;
 
 		for ( j=i; j<citekeys->n; ++j ) {
-
 			if ( dup[j]!=i ) continue;
 
 			dup[j] = -1;
@@ -791,7 +784,6 @@ convert_refs( bibl *bin, const char *fname, bibl *bout, param *p )
 	long i;
 
 	for ( i=0; i<bin->n; ++i ) {
-
 		rin = bin->ref[i];
 
 		rout = fields_new();
@@ -945,7 +937,6 @@ bibl_writeeachfp( FILE *fp, bibl *b, param *p )
 	fields_init( &out );
 
 	for ( i=0; i<b->n; ++i ) {
-
 		fp = singlerefname( b->ref[i], i, p->writeformat );
 		if ( !fp ) return BIBL_ERR_CANTOPEN;
 
@@ -985,7 +976,6 @@ bibl_writefp( FILE *fp, bibl *b, param *p )
 
 	if ( p->headerf ) p->headerf( fp, p );
 	for ( i=0; i<b->n; ++i ) {
-
 		if ( p->assemblef ) {
 			fields_free( &out );
 			status = p->assemblef( b->ref[i], &out, p, i );
@@ -997,7 +987,6 @@ bibl_writefp( FILE *fp, bibl *b, param *p )
 
 		status = p->writef( use, fp, p, i );
 		if ( status!=BIBL_OK ) break;
-
 	}
 
 	if ( debug_set( p ) && p->assemblef ) {

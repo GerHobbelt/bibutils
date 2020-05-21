@@ -109,7 +109,7 @@ bibtexin_readf( FILE *fp, char *buf, int bufsize, int *bufpos, str *line, str *r
 		if ( line->len == 0 ) continue; /* blank line */
 		p = &(line->data[0]);
 		/* Recognize UTF8 BOM */
-		if ( line->len > 2 && 
+		if ( line->len > 2 &&
 				(unsigned char)(p[0])==0xEF &&
 				(unsigned char)(p[1])==0xBB &&
 				(unsigned char)(p[2])==0xBF ) {
@@ -127,7 +127,7 @@ bibtexin_readf( FILE *fp, char *buf, int bufsize, int *bufpos, str *line, str *r
 			str_addchar( reference, '\n' );
 			str_empty( line );
 		} else if ( !haveref ) str_empty( line );
-	
+
 	}
 	return haveref;
 }
@@ -1358,8 +1358,8 @@ bibtexin_convertf( fields *bibin, fields *bibout, int reftype, param *p )
 
 	int process, level, i, nfields, status = BIBL_OK;
 	const str* intag;
-	str* invalue;
-	char *outtag;
+	const str* invalue;
+	const char *outtag;
 
 	nfields = fields_num( bibin );
 	for ( i=0; i<nfields; ++i ) {

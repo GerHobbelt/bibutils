@@ -12,7 +12,7 @@
 #include <stdio.h>
 #include "bibutils.h"
 
-typedef int (* generic_convert_fn)(fields* bibin, int n, const str* intag, str* invalue, int level, param* pm, const char* outtag, fields* bibout);
+typedef int (* generic_convert_fn)(fields* bibin, int n, const str* intag, const str* invalue, int level, param* pm, const char* outtag, fields* bibout);
 
 int generic_null    ( fields *bibin, int n, const str *intag, const str *invalue, int level, param *pm, const char *outtag, fields *bibout );
 int generic_url     ( fields *bibin, int n, const str *intag, const str *invalue, int level, param *pm, const char *outtag, fields *bibout );

@@ -615,7 +615,7 @@ biblatexin_cleanref( fields *bibin, param *p )
 			str_findreplace( d, "\r", " " );
 		}
 		else if ( !strsearch( str_cstr( t ), "ABSTRACT" ) ||
-		     !strsearch( str_cstr( t ), "SUMMARY" ) || 
+		     !strsearch( str_cstr( t ), "SUMMARY" ) ||
 		     !strsearch( str_cstr( t ), "NOTE" ) ) {
 			str_findreplace( d, "\n", "" );
 			str_findreplace( d, "\r", "" );
@@ -1128,7 +1128,7 @@ biblatexin_convertf( fields *bibin, fields *bibout, int reftype, param *p )
 
 	int process, level, i, nfields, status = BIBL_OK;
 	const str* intag;
-	str* invalue;
+	const str* invalue;
 	char *outtag;
 
 	nfields = fields_num( bibin );

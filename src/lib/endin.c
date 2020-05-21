@@ -309,7 +309,7 @@ add_wiley_author( fields *endin, const char *intag, str *instring, int inlevel, 
 
 static int
 cleanup_wiley_author( fields *endin, int n )
-{	
+{
 	int status=BIBL_OK, inlevel, authornum = 0;
 	str* instring;
 	str copy, name;
@@ -579,9 +579,9 @@ endin_convertf( fields *bibin, fields *bibout, int reftype, param *p )
 #endif
 
 	int i, level, process, nfields, fstatus, status = BIBL_OK;
-	char *outtag;
+	const char *outtag;
 	const str* intag;
-	str* invalue;
+	const str* invalue;
 
 	nfields = fields_num( bibin );
 	for ( i=0; i<nfields; ++i ) {

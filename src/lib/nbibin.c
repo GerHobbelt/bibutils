@@ -498,7 +498,7 @@ nbib_convertf( fields *bibin, fields *bibout, int reftype, param *p )
 
 	int process, level, i, nfields, status = BIBL_OK;
 	const str* intag;
-	str* invalue;
+	const str* invalue;
 	const char *outtag;
 
 	nfields = fields_num( bibin );

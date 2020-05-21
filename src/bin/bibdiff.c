@@ -1,6 +1,6 @@
 /*
  * bibdiff.c
- * 
+ *
  * Copyright (c) Chris Putnam 2017-2020
  *
  * Program and source code released under the GPL version 2
@@ -192,7 +192,7 @@ void
 process_args( int *argc, const char *argv[], int *format1, int *format2 )
 {
 	int i, j, done, subtract;
-	char *f1, *f2;
+	const char *f1, *f2;
 
 	for ( i=0; i<*argc; ++i )
 		if ( args_match( argv[i], "-h", "--help" ) ) help();

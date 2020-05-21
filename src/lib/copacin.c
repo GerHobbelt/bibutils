@@ -83,7 +83,7 @@ copacin_istag( const char *buf )
 		return 0;
 	if (buf[2]!='-' ) return 0;
 	if (buf[3]!=' ' ) return 0;
-	return 1; 
+	return 1;
 }
 static int
 readmore( FILE *fp, char *buf, int bufsize, int *bufpos, str *line )
@@ -101,7 +101,7 @@ copacin_readf( FILE *fp, char *buf, int bufsize, int *bufpos, str *line, str *re
 	while ( !haveref && readmore( fp, buf, bufsize, bufpos, line ) ) {
 		/* blank line separates */
 		if ( line->data==NULL ) continue;
-		if ( inref && line->len==0 ) haveref=1; 
+		if ( inref && line->len==0 ) haveref=1;
 		p = &(line->data[0]);
 		/* Recognize UTF8 BOM */
 		if ( line->len > 2 &&
@@ -250,6 +250,7 @@ copacin_person( fields *bibin, int n, const str *intag, const str *invalue, int 
 	}
 
 	if ( comma==0 && tokens.n ) {
+#pragma warning(suppress:4090)		// const -> non-const
 		s = slist_str( &tokens, 0 );
 		str_addchar( s, ',' );
 	}
@@ -300,8 +301,8 @@ copacin_convertf( fields *bibin, fields *bibout, int reftype, param *p )
 
 	int  process, level, i, nfields, status = BIBL_OK;
 	const str* intag;
-	str* invalue;
-	char *outtag;
+	const str* invalue;
+	const char *outtag;
 
 	nfields = fields_num( bibin );
 	for ( i=0; i<nfields; ++i ) {
