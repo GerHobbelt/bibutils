@@ -9,8 +9,8 @@
 #include <stdlib.h>
 #include "entities.h"
 
-char progname[] = "entities_test";
-char version[] = "0.1";
+const char progname[] = "entities_test";
+const char version[] = "0.1";
 
 int
 test_decimal_entities1( void )
@@ -21,7 +21,7 @@ test_decimal_entities1( void )
 	for ( i=0; i<10000; ++i ) {
 		pos_in = 0;
 		err = 0;
-		sprintf( buf, "&#%u;*", i );
+		sprintf_s( buf, countof(buf), "&#%u;*", i );
 		answer = decode_entity( buf, &pos_in, &unicode, &err );
 		if ( err ) {
 			failed = 1;
@@ -54,7 +54,7 @@ test_decimal_entities2( void )
 	for ( i=0; i<10000; ++i ) {
 		pos_in = 1;
 		err = 0;
-		sprintf( buf, "&#%u;*", i );
+		sprintf_s( buf, countof(buf), "&#%u;*", i );
 		answer = decode_entity( buf, &pos_in, &unicode, &err );
 		if ( !err ) {
 			failed = 1;
@@ -66,7 +66,7 @@ test_decimal_entities2( void )
 	for ( i=0; i<1000; ++i ) {
 		pos_in = 0;
 		err = 0;
-		sprintf( buf, "&#%u ;", i );
+		sprintf_s( buf, countof(buf), "&#%u ;", i );
 		answer = decode_entity( buf, &pos_in, &unicode, &err );
 		if ( !err ) {
 			failed = 1;
@@ -87,7 +87,7 @@ test_hex_entities( void )
 	for ( i=0; i<10000; ++i ) {
 		pos_in = 0;
 		err = 0;
-		sprintf( buf, "&#x%x;*", i );
+		sprintf_s( buf, countof(buf), "&#x%x;*", i );
 		answer = decode_entity( buf, &pos_in, &unicode, &err );
 		if ( err ) {
 			failed = 1;

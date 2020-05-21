@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include "utf8.h"
 
-char progname[] = "utf8_test";
+const char progname[] = "utf8_test";
 
 int
 test_utf8( void )

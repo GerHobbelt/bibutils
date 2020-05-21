@@ -1,6 +1,10 @@
 #ifndef __WIN32_BIBUTILS_CONFIG_H__
 #define __WIN32_BIBUTILS_CONFIG_H__
 
+#undef HAVE_UNISTD_H
+#define HAVE_PROCESS_H		1
+
+
 #undef HAVE_DESIGNATED_INITIALIZER_GNU_EXTENSION
 
 #define countof(array)					( sizeof(array) / sizeof(array[0]) )

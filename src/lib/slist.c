@@ -322,7 +322,6 @@ slist_ensure_space( slist *a, slist_index n, int mode )
 		if ( mode == SLIST_DOUBLE_SIZE && alloc < SLIST_MINALLOC ) alloc = SLIST_MINALLOC;
 		status = slist_alloc( a, alloc );
 	}
-
 	else if ( a->max < n ) {
 		if ( mode == SLIST_DOUBLE_SIZE && alloc < a->max * 2 ) alloc = a->max * 2;
 		status = slist_realloc( a, alloc );
@@ -332,7 +331,7 @@ slist_ensure_space( slist *a, slist_index n, int mode )
 }
 
 int
-slist_addvp( slist *a, int mode, void *vp )
+slist_addvp( slist *a, int mode, const void *vp )
 {
 	str *s = NULL;
 	int status;
@@ -340,13 +339,12 @@ slist_addvp( slist *a, int mode, void *vp )
 	status = slist_ensure_space( a, a->n+1, SLIST_DOUBLE_SIZE );
 
 	if ( status==SLIST_OK ) {
-
 		s = &( a->strs[a->n] );
 
 		if ( mode==SLIST_CHR )
 			str_strcpyc( s, (const char*) vp );
 		else
-			str_strcpy( s, (str*) vp );
+			str_strcpy( s, (const str*) vp );
 
 		if ( str_memerr( s ) ) return SLIST_ERR_MEMERR;
 		a->n++;
@@ -354,7 +352,6 @@ slist_addvp( slist *a, int mode, void *vp )
 			if ( slist_comp_step( a, a->n-2, a->n-1 ) > 0 )
 				a->sorted = 0;
 		}
-
 	}
 
 	return SLIST_OK;
@@ -362,16 +359,16 @@ slist_addvp( slist *a, int mode, void *vp )
 int
 slist_addc( slist *a, const char *s )
 {
-	return slist_addvp( a, SLIST_CHR, (void*)s );
+	return slist_addvp( a, SLIST_CHR, (const void*)s );
 }
 int
-slist_add( slist *a, str *s )
+slist_add( slist *a, const str *s )
 {
-	return slist_addvp( a, SLIST_STR, (void*)s );
+	return slist_addvp( a, SLIST_STR, (const void*)s );
 }
 
 int
-slist_addvp_ret( slist *a, int mode, void *vp, int retok, int reterr )
+slist_addvp_ret( slist *a, int mode, const void *vp, int retok, int reterr )
 {
 	int status = slist_addvp( a, mode, vp );
 	if ( status==SLIST_OK ) return retok;
@@ -385,7 +382,7 @@ slist_addc_ret( slist *a, const char *value, int retok, int reterr )
 	else return reterr;
 }
 int
-slist_add_ret( slist *a, str *value, int retok, int reterr )
+slist_add_ret( slist *a, const str *value, int retok, int reterr )
 {
 	int status = slist_add( a, value );
 	if ( status==SLIST_OK ) return retok;
@@ -393,7 +390,7 @@ slist_add_ret( slist *a, str *value, int retok, int reterr )
 }
 
 int
-slist_addvp_unique( slist *a, int mode, void *vp )
+slist_addvp_unique( slist *a, int mode, const void *vp )
 {
 	int n;
 
@@ -410,16 +407,16 @@ slist_addvp_unique( slist *a, int mode, void *vp )
 int
 slist_addc_unique( slist *a, const char *s )
 {
-	return slist_addvp_unique( a, SLIST_CHR, (void*)s );
+	return slist_addvp_unique( a, SLIST_CHR, (const void*)s );
 }
 int
-slist_add_unique( slist *a, str *s )
+slist_add_unique( slist *a, const str *s )
 {
-	return slist_addvp_unique( a, SLIST_STR, (void*)s );
+	return slist_addvp_unique( a, SLIST_STR, (const void*)s );
 }
 
 int
-slist_addvp_unique_ret( slist *a, int mode, void *vp, int retok, int reterr )
+slist_addvp_unique_ret( slist *a, int mode, const void *vp, int retok, int reterr )
 {
 	int status = slist_addvp_unique( a, mode, vp );
 	if ( status==SLIST_OK ) return retok;
@@ -433,7 +430,7 @@ slist_addc_unique_ret( slist *a, const char *s, int retok, int reterr )
 	else return reterr;
 }
 int
-slist_add_unique_ret( slist *a, str *s, int retok, int reterr )
+slist_add_unique_ret( slist *a, const str *s, int retok, int reterr )
 {
 	int status = slist_add_unique( a, s );
 	if ( status==SLIST_OK ) return retok;
@@ -445,22 +442,20 @@ slist_addvp_all( slist *a, int mode, ... )
 {
 	int status = SLIST_OK;
 	va_list ap;
-	void *v;
+	const void *v;
 
 	va_start( ap, mode );
 
 	do {
-
 		if ( mode==SLIST_CHR )
-			v = va_arg( ap, char * );
+			v = va_arg( ap, const char * );
 		else
-			v = va_arg( ap, str * );
+			v = va_arg( ap, const str * );
 
 		if ( v ) {
 			status = slist_addvp( a, mode, v );
 			if ( status!=SLIST_OK ) goto out;
 		}
-
 	} while ( v );
 
 out:
@@ -473,18 +468,17 @@ slist_add_all( slist *a, ... )
 {
 	int status = SLIST_OK;
 	va_list ap;
-	str *v;
+	const str *v;
 
 	va_start( ap, a );
 
 	do {
-		v = va_arg( ap, str * );
+		v = va_arg( ap, const str * );
 
 		if ( v ) {
-			status = slist_addvp( a, SLIST_STR, (void*)v );
+			status = slist_addvp( a, SLIST_STR, (const void*)v );
 			if ( status!=SLIST_OK ) goto out;
 		}
-
 	} while ( v );
 out:
 	va_end( ap );
@@ -501,14 +495,12 @@ slist_addc_all( slist *a, ... )
 	va_start( ap, a );
 
 	do {
-
 		v = va_arg( ap, const char * );
 
 		if ( v ) {
-			status = slist_addvp( a, SLIST_CHR, (void*)v );
+			status = slist_addvp( a, SLIST_CHR, (const void*)v );
 			if ( status!=SLIST_OK ) goto out;
 		}
-
 	} while ( v );
 out:
 	va_end( ap );
@@ -540,7 +532,6 @@ slist_append( slist *a, slist *toadd )
 		}
 
 		a->n += toadd->n;
-
 	}
 
 	return status;
@@ -836,7 +827,6 @@ slist_dump( const slist *a, FILE *fp, int newline )
 		for ( i=0; i<a->n; ++i )
 			fprintf( fp, "%s\n", slist_cstr( a, i ) );
 	}
-
 	else {
 		for ( i=0; i<a->n; ++i )
 			fprintf( fp, "%s", slist_cstr( a, i ) );
@@ -887,10 +877,10 @@ slist_tokenizec( slist *tokens, const char *p, const char *delim, int merge_deli
 		str_segcpy( &s, p, q );
 		if ( str_memerr( &s ) ) { ret = SLIST_ERR_MEMERR; goto out; }
 		if ( s.len ) {
-			status = slist_addvp( tokens, SLIST_STR, (void*) &s );
+			status = slist_addvp( tokens, SLIST_STR, (const void*) &s );
 			if ( status!=SLIST_OK ) { ret = SLIST_ERR_MEMERR; goto out; }
 		} else if ( !merge_delim ) {
-			status = slist_addvp( tokens, SLIST_CHR, (void*) "" );
+			status = slist_addvp( tokens, SLIST_CHR, (const void*) "" );
 			if ( status!=SLIST_OK ) { ret = SLIST_ERR_MEMERR; goto out; }
 		}
 		p = q;

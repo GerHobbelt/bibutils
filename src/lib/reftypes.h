@@ -9,6 +9,11 @@
 #ifndef REFTYPES_H
 #define REFTYPES_H
 
+#if defined(WIN32) || defined(WIN64)
+#include "../win32/config.h"
+#endif
+
+
 #define REFTYPE_CHATTY  (0)
 #define REFTYPE_SILENT  (1)
 

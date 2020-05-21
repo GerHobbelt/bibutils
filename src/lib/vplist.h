@@ -14,6 +14,10 @@
 #ifndef VPLIST_H
 #define VPLIST_H
 
+#if defined(WIN32) || defined(WIN64)
+#include "../win32/config.h"
+#endif
+
 #define VPLIST_MEMERR (-1)
 #define VPLIST_OK     (0)
 

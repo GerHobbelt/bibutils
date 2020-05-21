@@ -10,17 +10,17 @@
 #include <stdlib.h>
 #include "url.h"
 
-char progname[] = "doi_test";
+const char progname[] = "doi_test";
 
 typedef struct test_t {
-	char *s;
+	const char *s;
 	int expected;
 } test_t;
 
 int
 test_is_doi( void )
 {
-	test_t tests[] = {
+	const test_t tests[] = {
 		{ "10.1021/",            0 },
 		{ "00.0000/",            0 },
 		{ "00,0000/",            -1 },
@@ -47,7 +47,7 @@ test_is_doi( void )
 int
 test_is_uri_remote_scheme( void )
 {
-	test_t tests[] = {
+	const test_t tests[] = {
 		{ "This is a note",           -1 },
 		{ "doi:99.9999/",             -1 },
 		{ "git://www.git.com",        4 },
@@ -76,7 +76,7 @@ test_is_uri_remote_scheme( void )
 int
 test_is_embedded_link( void )
 {
-	test_t tests[] = {
+	const test_t tests[] = {
 		{ "This is a note",           0 },
 		{ "doi:99.9999/",             1 },
 		{ "git://www.git.com",        1 },

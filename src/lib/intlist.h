@@ -12,6 +12,10 @@
 #ifndef INTLIST_H
 #define INTLIST_H
 
+#if defined(WIN32) || defined(WIN64)
+#include "../win32/config.h"
+#endif
+
 #define INTLIST_OK            (0)
 #define INTLIST_MEMERR        (-1)
 #define INTLIST_VALUE_MISSING (-2)

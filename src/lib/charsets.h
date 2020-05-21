@@ -9,6 +9,10 @@
 #ifndef CHARSETS_H
 #define CHARSETS_H
 
+#if defined(WIN32) || defined(WIN64)
+#include "../win32/config.h"
+#endif
+
 #define CHARSET_UNKNOWN      (-1)
 #define CHARSET_UNICODE      (-2)
 #define CHARSET_GB18030      (-3)

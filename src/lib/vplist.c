@@ -92,7 +92,6 @@ vplist_ensure_space( vplist *vpl, vplist_index n, unsigned char mode )
 		if ( mode == VPLIST_DOUBLE_SIZE && alloc < VPLIST_MINALLOC ) alloc = VPLIST_MINALLOC;
 		status = vplist_alloc( vpl, alloc );
 	}
-
 	else if ( vpl->max < n ) {
 		if ( mode == VPLIST_DOUBLE_SIZE && alloc < 2 * vpl->max ) alloc = 2 * vpl->max;
 		status = vplist_realloc( vpl, alloc );
@@ -113,11 +112,9 @@ vplist_copy( vplist *to, vplist *from )
 	status = vplist_ensure_space( to, from->n, VPLIST_EXACT_SIZE );
 
 	if ( status == VPLIST_OK ) {
-
 		for ( i=0; i<from->n; ++i )
 			to->data[i] = from->data[i];
 		to->n = from->n;
-
 	}
 
 	return status;
@@ -152,10 +149,8 @@ vplist_add( vplist *vpl, const void *v )
 	status = vplist_ensure_space( vpl, vpl->n + 1, VPLIST_DOUBLE_SIZE );
 
 	if ( status == VPLIST_OK ) {
-
 		vpl->data[vpl->n] = v;
 		vpl->n++;
-
 	}
 
 	return status;
@@ -177,7 +172,6 @@ vplist_insert_list( vplist *vpl, vplist_index pos, vplist *add )
 	status = vplist_ensure_space( vpl, vpl->n + add->n, VPLIST_DOUBLE_SIZE );
 
 	if ( status == VPLIST_OK ) {
-
 		for ( i=vpl->n-1; i>=pos; --i )
 			vpl->data[i+add->n] = vpl->data[i];
 
@@ -202,12 +196,10 @@ vplist_append( vplist *vpl, vplist *add )
 	status = vplist_ensure_space( vpl, vpl->n + add->n, VPLIST_DOUBLE_SIZE );
 
 	if ( status == VPLIST_OK ) {
-
 		for ( i=0; i<add->n; ++i )
 			vpl->data[ vpl->n + i ] = add->data[i];
 
 		vpl->n += add->n;
-
 	}
 
 	return status;

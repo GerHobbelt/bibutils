@@ -16,7 +16,7 @@
 #include "strsearch.h"
 #include "xml.h"
 
-char *xml_pns = NULL;
+const char *xml_pns = NULL;
 
 void
 xml_init( xml *node )

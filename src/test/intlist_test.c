@@ -10,8 +10,8 @@
 #include <math.h>
 #include "intlist.h"
 
-char progname[] = "intlist_test";
-char version[] = "0.1";
+const char progname[] = "intlist_test";
+const char version[] = "0.1";
 
 #define check( a, b ) { \
 	if ( !(a) ) { \

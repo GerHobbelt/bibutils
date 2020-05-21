@@ -9,6 +9,10 @@
 #ifndef MODSTYPES_H
 #define MODSTYPES_H
 
+#if defined(WIN32) || defined(WIN64)
+#include "../win32/config.h"
+#endif
+
 typedef struct convert {
 	char *mods;     /* old */
 	char *internal; /* new */

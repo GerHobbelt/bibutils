@@ -11,6 +11,10 @@
 #ifndef MARC_AUTH_H
 #define MARC_AUTH_H
 
+#if defined(WIN32) || defined(WIN64)
+#include "../win32/config.h"
+#endif
+
 int is_marc_genre( const char *query );
 int is_marc_resource( const char *query );
 

@@ -18,8 +18,8 @@ int  str_fgetline    ( str *s, FILE *fp );
 #include <string.h>
 #include "str.h"
 
-char progname[] = "str_test";
-char version[] = "0.3";
+const char progname[] = "str_test";
+const char version[] = "0.3";
 
 int
 _inconsistent_len( str *s, unsigned long numchars, const char *fn, unsigned long line )

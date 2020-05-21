@@ -79,7 +79,7 @@ modsin_initparams( param *pm, const char *progname )
  PUBLIC: int modsin_processf()
 *****************************************************/
 
-static char modsns[]="mods";
+static const char modsns[]="mods";
 
 static int
 modsin_detailr( xml *node, str *value )

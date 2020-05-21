@@ -37,7 +37,7 @@ int    xml_tag_has_attribute    ( const xml *node, const char *tag, const char *
 int    xml_has_attribute        ( const xml *node, const char *attribute, const char *attribute_value );
 const char * xml_parse          ( const char *p, xml *onode );
 
-extern char * xml_pns; /* global Namespace */
+extern const char * xml_pns; /* global Namespace */
 
 #endif
 

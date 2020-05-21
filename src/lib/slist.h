@@ -58,25 +58,25 @@ int     slist_copy( slist *to, const slist *from );
 int     slist_copy_ret( slist *to, const slist *from, int retok, int reterr );
 void    slist_swap( slist *a, slist_index n1, slist_index n2 );
 
-int     slist_addvp( slist *a, int mode, void *vp );
+int     slist_addvp( slist *a, int mode, const void *vp );
 int     slist_addc( slist *a, const char *value );
-int     slist_add( slist *a, str *value );
+int     slist_add( slist *a, const str *value );
 
-int     slist_addvp_ret( slist *a, int mode, void *vp, int retok, int reterr );
+int     slist_addvp_ret( slist *a, int mode, const void *vp, int retok, int reterr );
 int     slist_addc_ret( slist *a, const char *value, int retok, int reterr );
-int     slist_add_ret( slist *a, str *value, int retok, int reterr );
+int     slist_add_ret( slist *a, const str *value, int retok, int reterr );
 
 int     slist_addvp_all( slist *a, int mode, ... );
 int     slist_addc_all( slist *a, ... );
 int     slist_add_all( slist *a, ... );
 
-int     slist_addvp_unique( slist *a, int mode, void *vp );
+int     slist_addvp_unique( slist *a, int mode, const void *vp );
 int     slist_addc_unique( slist *a, const char *value );
-int     slist_add_unique( slist *a, str *value );
+int     slist_add_unique( slist *a, const str *value );
 
-int     slist_addvp_unique_ret( slist *a, int mode, void *vp, int retok, int reterr );
+int     slist_addvp_unique_ret( slist *a, int mode, const void *vp, int retok, int reterr );
 int     slist_addc_unique_ret( slist *a, const char *value, int retok, int reterr );
-int     slist_add_unique_ret( slist *a, str *value, int retok, int reterr );
+int     slist_add_unique_ret( slist *a, const str *value, int retok, int reterr );
 
 int     slist_append( slist *a, slist *toadd );
 int     slist_append_ret( slist *a, slist *toadd, int retok, int reterr );

@@ -8,11 +8,17 @@
  *
  * test vplist functions
  */
+#if defined(WIN32) || defined(WIN64)
+#include "../win32/config.h"
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
 #include "vplist.h"
 
 /*
@@ -78,9 +84,8 @@ build_vplist_a( vplist *a, char *s[], int lens )
 	int status;
 
 	for ( i=0; i<lens; ++i ) {
-
-		sprintf( buf, "%c", '0' + i );
-		s[i] = strdup( buf );
+		sprintf_s( buf, countof(buf), "%c", '0' + i );
+		s[i] = _strdup( buf );
 
 		status = vplist_add( a, s[i] );
 		if ( status!=VPLIST_OK ) report_memerr( "vplist_add" );
@@ -90,7 +95,6 @@ build_vplist_a( vplist *a, char *s[], int lens )
 		for ( j=0; j<=i; ++j )
 			check_entry( a, j, s[j] );
 		check_entry( a, i+1, NULL );
-
 	}
 	check_len( a, lens );
 
@@ -106,9 +110,8 @@ build_vplist_b( vplist *b, char *t[], int lent )
 	int status;
 
 	for ( i=0; i<lent; ++i ) {
-
-		sprintf( buf, "%c", 'a' + i );
-		t[i] = strdup( buf );
+		sprintf_s( buf, countof(buf), "%c", 'a' + i );
+		t[i] = _strdup( buf );
 
 		status = vplist_add( b, t[i] );
 		if ( status!=VPLIST_OK ) report_memerr( "vplist_add" );
@@ -118,7 +121,6 @@ build_vplist_b( vplist *b, char *t[], int lent )
 		for ( j=0; j<=i; ++j )
 			check_entry( b, j, t[j] );
 		check_entry( b, i+1, NULL );
-
 	}
 	check_len( b, lent );
 
@@ -460,8 +462,8 @@ test_set( void )
 
 	/* t[] will hold strings "a", "b", "c", ... */
 	for ( i=0; i<LENS; ++i ) {
-		sprintf( buf, "%c", 'a' + i );
-		t[i] = strdup( buf );
+		sprintf_s( buf, countof(buf), "%c", 'a' + i );
+		t[i] = _strdup( buf );
 	}
 
 	for ( i=0; i<LENS; ++i ) {
@@ -546,8 +548,8 @@ test_find( void )
 
 	/* t[] will hold strings "a", "b", "c", ... */
 	for ( i=0; i<LENT; ++i ) {
-		sprintf( buf, "%c", 'a' + i );
-		t[i] = strdup( buf );
+		sprintf_s( buf, countof(buf), "%c", 'a' + i );
+		t[i] = _strdup( buf );
 	}
 
 	for ( i=0; i<LENS; ++i ) {
