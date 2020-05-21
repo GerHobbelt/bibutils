@@ -17,11 +17,15 @@ int  str_fgetline    ( str *s, FILE *fp );
 #include <stdlib.h>
 #include <string.h>
 #include "str.h"
+#ifdef BUNDLE_BIBUTILS_TESTS
+#include "bibutils_tests.h"
+#endif
 
-const char progname[] = "str_test";
-const char version[] = "0.3";
 
-int
+static const char progname[] = "str_test";
+static const char version[] = "0.3";
+
+static int
 _inconsistent_len( str *s, unsigned long numchars, const char *fn, unsigned long line )
 {
 	if ( s->len > s->dim ) {
@@ -48,7 +52,7 @@ _inconsistent_len( str *s, unsigned long numchars, const char *fn, unsigned long
 
 #define inconsistent_len( a, b ) _inconsistent_len( (a), (b), __FUNCTION__, __LINE__ )
 
-int
+static int
 _test_identity( str *s, const char *expected, const char *fn, unsigned long line )
 {
 	/* Unallocated strings are considered identical to empty strings */
@@ -1024,8 +1028,13 @@ test_swapstrings( str *s )
 	return failed;
 }
 
+#ifdef BUNDLE_BIBUTILS_TESTS
+int
+str_test(void)
+#else
 int
 main ( int argc, char *argv[] )
+#endif
 {
 	int failed = 0;
 	int ntest = 2;

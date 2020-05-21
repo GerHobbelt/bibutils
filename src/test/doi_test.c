@@ -9,15 +9,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "url.h"
+#ifdef BUNDLE_BIBUTILS_TESTS
+#include "bibutils_tests.h"
+#endif
 
-const char progname[] = "doi_test";
+
+static const char progname[] = "doi_test";
 
 typedef struct test_t {
 	const char *s;
 	int expected;
 } test_t;
 
-int
+static int
 test_is_doi( void )
 {
 	const test_t tests[] = {
@@ -44,7 +48,7 @@ test_is_doi( void )
 	return failed;
 }
 
-int
+static int
 test_is_uri_remote_scheme( void )
 {
 	const test_t tests[] = {
@@ -73,7 +77,7 @@ test_is_uri_remote_scheme( void )
 	return failed;
 }
 
-int
+static int
 test_is_embedded_link( void )
 {
 	const test_t tests[] = {
@@ -103,8 +107,13 @@ test_is_embedded_link( void )
 }
 
 
+#ifdef BUNDLE_BIBUTILS_TESTS
+int 
+doi_test(void)
+#else
 int
 main( int argc, char *argv[] )
+#endif
 {
 	int failed = 0;
 	failed += test_is_doi();

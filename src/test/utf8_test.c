@@ -9,10 +9,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "utf8.h"
+#ifdef BUNDLE_BIBUTILS_TESTS
+#include "bibutils_tests.h"
+#endif
 
-const char progname[] = "utf8_test";
 
-int
+static const char progname[] = "utf8_test";
+
+static int
 test_utf8( void )
 {
 	unsigned char ubuf[512];
@@ -42,8 +46,13 @@ test_utf8( void )
 }
 
 
+#ifdef BUNDLE_BIBUTILS_TESTS
+int
+utf8_test(void)
+#else
 int
 main( int argc, char *argv[] )
+#endif
 {
 	int failed = 0;
 	failed += test_utf8();

@@ -18,9 +18,13 @@
 #include <process.h>
 #endif
 #include "slist.h"
+#ifdef BUNDLE_BIBUTILS_TESTS
+#include "bibutils_tests.h"
+#endif
 
-const char progname[] = "slist_test";
-const char version[] = "0.3";
+
+static const char progname[] = "slist_test";
+static const char version[] = "0.3";
 
 #define check( a, b ) { \
 	if ( !(a) ) { \
@@ -30,7 +34,7 @@ const char version[] = "0.3";
 }
 
 #define check_len( a, b ) if ( !_check_len( a, b, __FUNCTION__, __LINE__ ) ) return 1;
-int
+static int
 _check_len( const slist *a, int expected, const char *fn, int line )
 {
 	if ( a->n == expected ) return 1;
@@ -39,7 +43,7 @@ _check_len( const slist *a, int expected, const char *fn, int line )
 }
 
 #define check_entry( a, b, c ) if ( !_check_entry( a, b, c, __FUNCTION__, __LINE__ ) ) return 1;
-int
+static int
 _check_entry( const slist *a, int n, const char *expected, const char *fn, int line )
 {
 	const char *s;
@@ -62,7 +66,7 @@ _check_entry( const slist *a, int n, const char *expected, const char *fn, int l
 }
 
 #define check_add_result( a, b ) if ( !_check_add_result( a, b, __FUNCTION__, __LINE__ ) ) return 1;
-int
+static int
 _check_add_result( const str *obtained, const str *expected, const char *fn, int line )
 {
 	if ( obtained==NULL && expected!=NULL ) {
@@ -74,7 +78,7 @@ _check_add_result( const str *obtained, const str *expected, const char *fn, int
 }
 
 #define check_addc_result( a, b ) if ( !_check_addc_result( a, b, __FUNCTION__, __LINE__ ) ) return 1;
-int
+static int
 _check_addc_result( const str *obtained, const char *expected, const char *fn, int line )
 {
 	if ( obtained==NULL && expected!=NULL ) {
@@ -85,7 +89,7 @@ _check_addc_result( const str *obtained, const char *expected, const char *fn, i
 	return 1;
 }
 
-int
+static int
 test_init( void )
 {
 	slist a;
@@ -102,7 +106,7 @@ test_init( void )
 	return 0;
 }
 
-int
+static int
 test_add( void )
 {
 	str s;
@@ -136,7 +140,7 @@ test_add( void )
 	return 0;
 }
 
-int
+static int
 test_addc( void )
 {
 	const str *t;
@@ -166,7 +170,7 @@ test_addc( void )
 }
 
 #if 0
-int
+static int
 test_addvp( void )
 {
 	str s;
@@ -200,7 +204,7 @@ test_addvp( void )
 }
 #endif
 
-int
+static int
 test_add_all( void )
 {
 	str s, t;
@@ -235,7 +239,7 @@ test_add_all( void )
 }
 
 #define COUNT (10)
-int
+static int
 test_addc_all( void )
 {
 	const char *u;
@@ -266,7 +270,7 @@ test_addc_all( void )
 
 #if 0
 #define COUNT (10)
-int
+static int
 test_addvp_all( void )
 {
 	str s, t;
@@ -309,7 +313,7 @@ test_addvp_all( void )
 /*
  * str * slist_add_unique( slist *a, str *value );
  */
-int
+static int
 test_add_unique( void )
 {
 	str s, t;
@@ -347,7 +351,7 @@ test_add_unique( void )
 /*
  * str * slist_addc_unique( slist *a, const char *value );
  */
-int
+static int
 test_addc_unique( void )
 {
 	int i, j;
@@ -381,7 +385,7 @@ test_addc_unique( void )
 /*
  * str * slist_addvp_unique( slist *a, unsigned char mode, const void *vp );
  */
-int
+static int
 test_addvp_unique( void )
 {
 	str s, t;
@@ -426,7 +430,7 @@ test_addvp_unique( void )
 }
 #endif
 
-int
+static int
 test_addsorted( void )
 {
 	int status, i;
@@ -487,7 +491,7 @@ test_addsorted( void )
 /*
  * int     slist_tokenize( slist *tokens, str *in, const char *delim, int merge_delim );
  */
-int
+static int
 test_tokenize( void )
 {
 	int status;
@@ -562,7 +566,7 @@ out:
 /*
  * int     slist_tokenizec( slist *tokens, char *p, const char *delim, int merge_delim );
  */
-int
+static int
 test_tokenizec( void )
 {
 	int status;
@@ -630,7 +634,7 @@ out:
 /*
  * void    slist_empty( slist *a );
  */
-int
+static int
 test_empty( void )
 {
 	str s;
@@ -671,7 +675,7 @@ test_empty( void )
 /*
  * slist * slist_new( void );
  */
-int
+static int
 test_new( void )
 {
 	char buf[1000];
@@ -714,7 +718,7 @@ out:
 /*
  * slist * slist_dup( slist *a );
  */
-int
+static int
 test_dup( void )
 {
 	char buf[1000];
@@ -759,7 +763,7 @@ out:
 /*
  * int slist_copy( slist *to, slist *from );
  */
-int
+static int
 test_copy( void )
 {
 	int i, status, ret = 0;
@@ -824,7 +828,7 @@ out:
 /*
  * int slist_append( slist *a, slist *toadd );
  */
-int
+static int
 test_append( void )
 {
 	int status;
@@ -873,7 +877,7 @@ test_append( void )
 /*
  * int slist_append_unique( slist *a, slist *toadd );
  */
-int
+static int
 test_append_unique( void )
 {
 	int status;
@@ -935,7 +939,7 @@ test_append_unique( void )
 /*
  * int slist_remove( slist *a, int n );
  */
-int
+static int
 test_remove( void )
 {
 	int status;
@@ -986,7 +990,7 @@ test_remove( void )
 /*
  * void slist_swap( slist *a, int n1, int n2 );
  */
-int
+static int
 test_swap( void )
 {
 	int status;
@@ -1048,7 +1052,7 @@ test_swap( void )
 /*
  * void slist_sort( slist *a );
  */
-int
+static int
 test_sort( void )
 {
 	int status;
@@ -1106,7 +1110,7 @@ test_sort( void )
 /*
  * str* list_str( list *a, int n );
  */
-int
+static int
 test_get( void )
 {
 	int status;
@@ -1141,7 +1145,7 @@ test_get( void )
 /*
  * char* slist_cstr( list *a, int n );
  */
-int
+static int
 test_getc( void )
 {
 	int status;
@@ -1176,7 +1180,7 @@ test_getc( void )
 /*
  * str* slist_set( list *a, int n, str *s );
  */
-int
+static int
 test_set( void )
 {
 	int status;
@@ -1230,7 +1234,7 @@ test_set( void )
 /*
  * str* slist_setc( list *a, int n, const char *s );
  */
-int
+static int
 test_setc( void )
 {
 	int status;
@@ -1280,7 +1284,7 @@ test_setc( void )
 /*
  * int slist_find( list *a, str *searchstr );
  */
-int
+static int
 test_find( void )
 {
 	int n, status;
@@ -1325,7 +1329,7 @@ test_find( void )
 /*
  * int slist_findc( list *a, const char *searchstr );
  */
-int
+static int
 test_findc( void )
 {
 	int n, status;
@@ -1363,7 +1367,7 @@ test_findc( void )
 /*
  * int slist_findnocase( list *a, const char *searchstr );
  */
-int
+static int
 test_findnocase( void )
 {
 	int n, status;
@@ -1432,7 +1436,7 @@ test_findnocase( void )
 /*
  * int slist_findnocasec( list *a, const char *searchstr );
  */
-int
+static int
 test_findnocasec( void )
 {
 	int n, status;
@@ -1490,7 +1494,7 @@ test_findnocasec( void )
 /*
  * int slist_match_entry( slist *a, int n, const char *s );
  */
-int
+static int
 test_match_entry( void )
 {
 	int n, status;
@@ -1545,7 +1549,7 @@ test_match_entry( void )
 /*
  * void slist_trimend( slist *a, int n );
  */
-int
+static int
 test_trimend( void )
 {
 	int status;
@@ -1584,7 +1588,7 @@ extern int     list_fill( list *a, const char *filename, unsigned char skip_blan
 extern int     list_fillfp( list *a, FILE *fp, unsigned char skip_blank_lines );
 */
 
-int
+static int
 test_fill( void )
 {
 	char filename[512];
@@ -1652,7 +1656,7 @@ test_fill( void )
 /*
  * void    slist_dump( slist *a, FILE *fp, int newline );
  */
-int
+static int
 test_dump( void )
 {
 	char filename[512];
@@ -1705,7 +1709,7 @@ test_dump( void )
  * void slists_free( slist *a, ... );
  * void slists_empty( slist *a, ... );
  */
-int
+static int
 test_lists( void )
 {
 	char buf[1000];
@@ -1767,7 +1771,7 @@ test_lists( void )
 /*
  * unsigned long slist_get_maxlen( slist *a );
  */
-int
+static int
 test_get_maxlen( void )
 {
 	unsigned long n;
@@ -1806,8 +1810,13 @@ test_get_maxlen( void )
 	return 0;
 }
 
+#ifdef BUNDLE_BIBUTILS_TESTS
+int
+slist_test(void)
+#else
 int
 main( int argc, char *argv[] )
+#endif
 {
 	int failed = 0;
 

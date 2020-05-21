@@ -20,6 +20,10 @@
 #include <unistd.h>
 #endif
 #include "vplist.h"
+#ifdef BUNDLE_BIBUTILS_TESTS
+#include "bibutils_tests.h"
+#endif
+
 
 /*
  * typedef struct vplist {
@@ -28,8 +32,8 @@
  * } vplist;
  */
 
-const char progname[] = "vplist_test";
-const char version[] = "0.1";
+static const char progname[] = "vplist_test";
+static const char version[] = "0.1";
 
 #define report_memerr( a ) { \
 	fprintf( stderr, "Failed: %s() line %d: %s() did not return VPLIST_OK, memory error\n", __FUNCTION__, __LINE__, a ); \
@@ -37,7 +41,7 @@ const char version[] = "0.1";
 }
 
 #define check_len( a, b ) if ( !_check_len( a, b, __FUNCTION__, __LINE__ ) ) return 1;
-int
+static int
 _check_len( vplist *a, int expected, const char *fn, int line )
 {
 	if ( a->n == expected ) return 1;
@@ -46,7 +50,7 @@ _check_len( vplist *a, int expected, const char *fn, int line )
 }
 
 #define check_entry( a, b, c ) if ( !_check_entry( a, b, c, __FUNCTION__, __LINE__ ) ) return 1;
-int
+static int
 _check_entry( vplist *a, int n, const void *expected, const char *fn, int line )
 {
 	const void *v;
@@ -130,7 +134,7 @@ build_vplist_b( vplist *b, const char *t[], int lent )
 /*
  * void vplist_init( vplist *vpl );
  */
-int
+static int
 test_init( void )
 {
 	vplist a;
@@ -145,7 +149,7 @@ test_init( void )
 /*
  * vplist * vplist_new( void );
  */
-int
+static int
 test_new( void )
 {
 	vplist *a;
@@ -163,7 +167,7 @@ test_new( void )
  * returns VPLIST_OK or VPLIST_MEMERR
  */
 #define LENS (5)
-int
+static int
 test_add( void )
 {
 	vplist_index i;
@@ -179,7 +183,7 @@ test_add( void )
 	if ( status!=0 ) return 1;
 
 	for ( i=0; i<LENS; ++i )
-		free( s[i] );
+		free( (void *)s[i] );
 
 	vplist_free( &a );
 
@@ -192,7 +196,7 @@ test_add( void )
  *
  * returns VPLIST_OK or VPLIST_MEMERR
  */
-int
+static int
 test_fill( void )
 {
 	vplist_index i, n = 5;
@@ -242,7 +246,7 @@ test_fill( void )
  */
 #define LENS (5)
 #define LENT (20)
-int
+static int
 test_copy( void )
 {
 	const char* s[LENS];
@@ -275,10 +279,10 @@ test_copy( void )
 	check_entry( &b, LENS, NULL );
 
 	for ( i=0; i<LENS; ++i )
-		free( s[i] );
+		free((void*)s[i] );
 
 	for ( i=0; i<LENT; ++i )
-		free( t[i] );
+		free((void*)t[i] );
 
 	vplist_free( &a );
 	vplist_free( &b );
@@ -295,7 +299,7 @@ test_copy( void )
  */
 #define LENS (15)
 #define LENT (3)
-int
+static int
 test_append( void )
 {
 	const char* s[LENS];
@@ -336,9 +340,9 @@ test_append( void )
 		check_entry( &b, i+LENT, s[i] );
 	check_entry( &b, LENS+LENT, NULL );
 
-	for ( i=0; i<LENS; ++i ) free( s[i] );
+	for ( i=0; i<LENS; ++i ) free((void*)s[i] );
 
-	for ( i=0; i<LENT; ++i ) free( t[i] );
+	for ( i=0; i<LENT; ++i ) free((void*)t[i] );
 
 	vplist_free( &a );
 	vplist_free( &b );
@@ -356,7 +360,7 @@ test_append( void )
 #define LENS (5)
 #define INSERTPOS (3)
 #define LENT (26)
-int
+static int
 test_insert_list( void )
 {
 	const char* s[LENS];
@@ -394,10 +398,10 @@ test_insert_list( void )
 	for ( i=INSERTPOS; i<INSERTPOS+LENT; ++i ) check_entry( &a, i, t[i-INSERTPOS] );
 
 	for ( i=0; i<LENS; ++i )
-		free( s[i] );
+		free((void*)s[i] );
 
 	for ( i=0; i<LENT; ++i )
-		free( t[i] );
+		free((void*)t[i] );
 
 	vplist_free( &a );
 	vplist_free( &b );
@@ -412,7 +416,7 @@ test_insert_list( void )
  * void * vplist_get( vplist *vpl, vplist_index n );
  */
 #define LENS (5)
-int
+static int
 test_get( void )
 {
 	vplist_index i;
@@ -431,13 +435,13 @@ test_get( void )
 		v = vplist_get( &a, i );
 		if ( v != s[i] ) {
 			fprintf( stderr, "Failed: %s() line %d: vplist_get() returned %p '%s', expected %p '%s'\n",
-				__FUNCTION__, __LINE__, vplist_get( &a, i ), vplist_get( &a, i ),
+				__FUNCTION__, __LINE__, vplist_get( &a, i ), (const char *)vplist_get( &a, i ),
 				s[i], s[i] );
 			return 1;
 		}
 	}
 
-	for ( i=0; i<LENS; ++i ) free( s[i] );
+	for ( i=0; i<LENS; ++i ) free((void*)s[i] );
 
 	vplist_free( &a );
 
@@ -449,7 +453,7 @@ test_get( void )
  * void vplist_set( vplist *vpl, vplist_index n, void *v );
  */
 #define LENS (5)
-int
+static int
 test_set( void )
 {
 	const char* s[LENS];
@@ -482,8 +486,8 @@ test_set( void )
 	}
 
 	for ( i=0; i<LENS; ++i ) {
-		free( s[i] );
-		free( t[i] );
+		free((void*)s[i] );
+		free((void*)t[i] );
 	}
 	vplist_free( &a );
 
@@ -495,7 +499,7 @@ test_set( void )
  * void vplist_swap( vplist *vpl, vplist_index n1, vplist_index n2 );
  */
 #define LENS (5)
-int
+static int
 test_swap( void )
 {
 	vplist_index i;
@@ -524,7 +528,7 @@ test_swap( void )
 	check_len( &a, 5 );
 
 	for ( i=0; i<LENS; ++i )
-		free( s[i] );
+		free((void*)s[i] );
 
 	vplist_free( &a );
 
@@ -537,7 +541,7 @@ test_swap( void )
  */
 #define LENS (3)
 #define LENT (5)
-int
+static int
 test_find( void )
 {
 	const char* s[LENS];
@@ -577,8 +581,8 @@ test_find( void )
 		}
 	}
 
-	for ( i=0; i<LENS; ++i ) free( s[i] );
-	for ( i=0; i<LENT; ++i ) free( t[i] );
+	for ( i=0; i<LENS; ++i ) free((void*)s[i] );
+	for ( i=0; i<LENT; ++i ) free((void*)t[i] );
 	vplist_free( &a );
 
 	return 0;
@@ -591,7 +595,7 @@ test_find( void )
  * void vplist_remove( vplist *vpl, vplist_index n );
  */
 #define LENS (5)
-int
+static int
 test_remove( void )
 {
 	vplist_index i;
@@ -631,7 +635,7 @@ test_remove( void )
 	check_isempty( &a );
 
 	for ( i=0; i<LENS; ++i )
-		free( s[i] );
+		free((void*)s[i] );
 
 	vplist_free( &a );
 
@@ -643,7 +647,7 @@ test_remove( void )
  * void vplist_removevp( vplist *vpl, void *v );
  */
 #define LENS (5)
-int
+static int
 test_removevp( void )
 {
 	int status, ret, failed = 0;
@@ -716,7 +720,7 @@ test_removevp( void )
 	check_isempty( &a );
 
 	for ( i=0; i<LENS; ++i )
-		free( s[i] );
+		free((void*)s[i] );
 
 	vplist_free( &a );
 
@@ -728,7 +732,7 @@ test_removevp( void )
  * void vplist_remove_range( vplist *vpl, vplist_index start, vplist_index endplusone );
  */
 #define LENS (5)
-int
+static int
 test_remove_range( void )
 {
 	int status, failed = 0;
@@ -757,7 +761,7 @@ test_remove_range( void )
 	check_isempty( &a );
 
 	for ( i=0; i<LENS; ++i )
-		free( s[i] );
+		free((void*)s[i] );
 
 	vplist_free( &a );
 
@@ -765,8 +769,13 @@ test_remove_range( void )
 }
 #undef LENS
 
+#ifdef BUNDLE_BIBUTILS_TESTS
+int
+vplist_test(void)
+#else
 int
 main( int argc, char *argv[] )
+#endif
 {
 	int failed = 0;
 

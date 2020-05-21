@@ -8,11 +8,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "entities.h"
+#ifdef BUNDLE_BIBUTILS_TESTS
+#include "bibutils_tests.h"
+#endif
 
-const char progname[] = "entities_test";
-const char version[] = "0.1";
 
-int
+static const char progname[] = "entities_test";
+static const char version[] = "0.1";
+
+static int
 test_decimal_entities1( void )
 {
 	unsigned int i, answer, pos_in;
@@ -45,7 +49,7 @@ test_decimal_entities1( void )
 	return failed;
 }
 
-int
+static int
 test_decimal_entities2( void )
 {
 	unsigned int i, answer, pos_in;
@@ -78,7 +82,7 @@ test_decimal_entities2( void )
 	return failed;
 }
 
-int
+static int
 test_hex_entities( void )
 {
 	unsigned int i, answer, pos_in;
@@ -111,8 +115,13 @@ test_hex_entities( void )
 	return failed;
 }
 
+#ifdef BUNDLE_BIBUTILS_TESTS
+int
+entities_test(void)
+#else
 int
 main( int argc, char *argv[] )
+#endif
 {
 	int failed = 0;
 	failed += test_decimal_entities1();

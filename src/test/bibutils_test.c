@@ -8,45 +8,29 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
-#include "utf8.h"
+#ifdef BUNDLE_BIBUTILS_TESTS
+#include "bibutils_tests.h"
+#endif
 
-const char progname[] = "utf8_test";
 
-int
-test_utf8( void )
-{
-	unsigned char ubuf[512];
-	char buf[512];
-	unsigned int i, j, pos_out;
-	int nc, pos, failed = 0;
-	for ( i=0; i<1000000; ++i ) {
-		nc = utf8_encode( i, ubuf );
-		ubuf[ nc ] = '*';
-		ubuf[ nc+1 ] = '\0';
-		for ( pos=0; pos < nc+2; ++pos )
-			buf[pos] = (char)ubuf[pos];
-		pos_out = 0;
-		j = utf8_decode( buf, &pos_out );
-		if ( i != j ) {
-			printf( "%s: Error test_utf8 mismatch, "
-				"send %u got back %u\n", progname, i, j );
-			failed = 1;
-		}
-		if ( buf[pos_out]!='*' ) {
-			printf( "%s: Error test_utf8 bad ending pos, "
-				"expect '*', got back '%c'\n", progname,
-				buf[pos] );
-		}
-	}
-	return failed;
-}
-
+static const char progname[] = "bibutils_test";
 
 int
 main( int argc, char *argv[] )
 {
 	int failed = 0;
-	failed += test_utf8();
+#ifndef BUNDLE_BIBUTILS_TESTS
+	printf("FAIL: the bibutils unit tests have not been included in this test.");
+	failed += 1;				
+#else
+	failed += utf8_test();
+	failed += str_test();
+	failed += intlist_test();
+	failed += slist_test();
+	failed += vplist_test();
+	failed += entities_test();
+	failed += doi_test();
+#endif
 	if ( !failed ) {
 		printf( "%s: PASSED\n", progname );
 		return EXIT_SUCCESS;
@@ -55,3 +39,4 @@ main( int argc, char *argv[] )
 		return EXIT_FAILURE;
 	}
 }
+

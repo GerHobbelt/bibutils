@@ -9,9 +9,13 @@
 #include <stdlib.h>
 #include <math.h>
 #include "intlist.h"
+#ifdef BUNDLE_BIBUTILS_TESTS
+#include "bibutils_tests.h"
+#endif
 
-const char progname[] = "intlist_test";
-const char version[] = "0.1";
+
+static const char progname[] = "intlist_test";
+static const char version[] = "0.1";
 
 #define check( a, b ) { \
 	if ( !(a) ) { \
@@ -21,7 +25,7 @@ const char version[] = "0.1";
 }
 
 #define check_len( a, b ) if ( !_check_len( a, b, __FUNCTION__, __LINE__ ) ) return 1;
-int
+static int
 _check_len( intlist *a, int expected, const char *fn, int line )
 {
 	if ( a->n == expected ) return 1;
@@ -30,7 +34,7 @@ _check_len( intlist *a, int expected, const char *fn, int line )
 }
 
 #define check_entry( a, b, c ) if ( !_check_entry( a, b, c, __FUNCTION__, __LINE__ ) ) return 1;
-int
+static int
 _check_entry( intlist *a, int n, int expected, const char *fn, int line )
 {
 	int m;
@@ -44,7 +48,7 @@ _check_entry( intlist *a, int n, int expected, const char *fn, int line )
 /*
  * void      intlist_init( intlist *il );
  */
-int
+static int
 test_init( void )
 {
 	intlist il;
@@ -62,7 +66,7 @@ test_init( void )
  * void      intlist_init_fill( intlist *il, int n, int value );
  */
 #define COUNT (150)
-int
+static int
 test_init_fill( void )
 {
 	int i, status;
@@ -84,7 +88,7 @@ test_init_fill( void )
 /*
  * int       intlist_init_range( intlist *il, int low, int high, int step );
  */
-int
+static int
 test_init_range( void )
 {
 	intlist i1, i2, i3;
@@ -121,7 +125,7 @@ test_init_range( void )
 /*
  * intlist * intlist_new( void );
  */
-int
+static int
 test_new( void )
 {
 	intlist *il;
@@ -140,7 +144,7 @@ test_new( void )
  * intlist * intlist_new_fill( int n, int value );
  */
 #define COUNT (1000)
-int
+static int
 test_new_fill( void )
 {
 	intlist *il;
@@ -162,7 +166,7 @@ test_new_fill( void )
 /*
  * intlist * intlist_new_range( int low, int high, int step );
  */
-int
+static int
 test_new_range( void )
 {
 	intlist *i1, *i2, *i3;
@@ -199,7 +203,7 @@ test_new_range( void )
 /*
  * int       intlist_add( intlist *il, int value );
  */
-int
+static int
 test_add( void )
 {
 	int status;
@@ -226,7 +230,7 @@ test_add( void )
 /*
  * int       intlist_add( intlist *il, int value );
  */
-int
+static int
 test_add_unique( void )
 {
 	int status;
@@ -258,7 +262,7 @@ test_add_unique( void )
 /*
  * void      intlist_randomize( intlist *il );
  */
-int
+static int
 test_randomize( void )
 {
 	intlist a;
@@ -291,7 +295,7 @@ test_randomize( void )
 /*
  * void      intlist_sort( intlist *il );
  */
-int
+static int
 test_sort( void )
 {
 	intlist a;
@@ -314,7 +318,7 @@ test_sort( void )
  * int       intlist_fill( intlist *il, int n, int value );
  */
 #define COUNT (1011)
-int
+static int
 test_fill( void )
 {
 	int i, status;
@@ -344,7 +348,7 @@ test_fill( void )
  * int       intlist_fill_range( intlist *il, int low, int high, int step );
  */
 #define COUNT (971)
-int
+static int
 test_fill_range( void )
 {
 	int i, status;
@@ -374,7 +378,7 @@ test_fill_range( void )
  * int       intlist_find( intlist *il, int searchvalue );
  */
 #define COUNT (315)
-int
+static int
 test_find( void )
 {
 	int i, m, status;
@@ -407,7 +411,7 @@ test_find( void )
 /*
  * int       intlist_find_or_add( intlist *il, int searchvalue );
  */
-int
+static int
 test_find_or_add( void )
 {
 	int i, m, n;
@@ -443,7 +447,7 @@ test_find_or_add( void )
 /*
  * void      intlist_empty( intlist *il );
  */
-int
+static int
 test_empty( void )
 {
 	intlist a;
@@ -471,7 +475,7 @@ test_empty( void )
 /*
  * int       intlist_copy( intlist *to, intlist *from );
  */
-int
+static int
 test_copy( void )
 {
 	int i, status;
@@ -507,7 +511,7 @@ test_copy( void )
 /*
  * intlist * intlist_dup( intlist *from );
  */
-int
+static int
 test_dup( void )
 {
 	intlist a, *b;
@@ -534,7 +538,7 @@ test_dup( void )
 /*
  * int intlist_get( intlist *il, int pos );
  */
-int
+static int
 test_get( void )
 {
 	int i, m, status;
@@ -556,7 +560,7 @@ test_get( void )
 /*
  * int intlist_set( intlist *il, int pos );
  */
-int
+static int
 test_set( void )
 {
 	int i, m, status;
@@ -590,7 +594,7 @@ test_set( void )
 /*
  * int       intlist_append( intlist *to, intlist *from );
  */
-int
+static int
 test_append( void )
 {
 	int i, status;
@@ -620,7 +624,7 @@ test_append( void )
 /*
  * int       intlist_append_unique( intlist *to, intlist *from );
  */
-int
+static int
 test_append_unique( void )
 {
 	intlist a, b, c;
@@ -666,7 +670,7 @@ test_append_unique( void )
 /*
  * int       intlist_remove( intlist *il, int searchvalue );
  */
-int
+static int
 test_remove( void )
 {
 	int i, status;
@@ -700,7 +704,7 @@ test_remove( void )
 /*
  * int intlist_remove_pos( intlist *il, int pos );
  */
-int
+static int
 test_remove_pos( void )
 {
 	int status;
@@ -756,7 +760,7 @@ test_remove_pos( void )
 /*
  * float     intlist_median( intlist *il );
  */
-int
+static int
 test_median( void )
 {
 	intlist a, b, c, d;
@@ -798,7 +802,7 @@ test_median( void )
 /*
  * float     intlist_mean( intlist *il );
  */
-int
+static int
 test_mean( void )
 {
 	intlist a, b, c, d;
@@ -837,8 +841,13 @@ test_mean( void )
 	return 0;
 }
 
+#ifdef BUNDLE_BIBUTILS_TESTS
+int
+intlist_test(void)
+#else
 int
 main( int argc, char *argv[] )
+#endif
 {
 	int failed = 0;
 

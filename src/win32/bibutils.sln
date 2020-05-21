@@ -103,6 +103,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_utf8_test", "test_utf8
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_vplist_test", "test_vplist_test.vcxproj", "{19FE8FF6-10BE-440A-B359-D89A65655D71}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_bibutils_test", "test_bibutils_test.vcxproj", "{EB4FA4A7-6987-4E92-9512-B9A051B96FEC}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		binhelpers.vcxitems*{0335782c-383f-4fe1-a875-e9d499dabbf9}*SharedItemsImports = 4
@@ -387,6 +389,14 @@ Global
 		{19FE8FF6-10BE-440A-B359-D89A65655D71}.Release|x64.Build.0 = Release|x64
 		{19FE8FF6-10BE-440A-B359-D89A65655D71}.Release|x86.ActiveCfg = Release|Win32
 		{19FE8FF6-10BE-440A-B359-D89A65655D71}.Release|x86.Build.0 = Release|Win32
+		{EB4FA4A7-6987-4E92-9512-B9A051B96FEC}.Debug|x64.ActiveCfg = Debug|x64
+		{EB4FA4A7-6987-4E92-9512-B9A051B96FEC}.Debug|x64.Build.0 = Debug|x64
+		{EB4FA4A7-6987-4E92-9512-B9A051B96FEC}.Debug|x86.ActiveCfg = Debug|Win32
+		{EB4FA4A7-6987-4E92-9512-B9A051B96FEC}.Debug|x86.Build.0 = Debug|Win32
+		{EB4FA4A7-6987-4E92-9512-B9A051B96FEC}.Release|x64.ActiveCfg = Release|x64
+		{EB4FA4A7-6987-4E92-9512-B9A051B96FEC}.Release|x64.Build.0 = Release|x64
+		{EB4FA4A7-6987-4E92-9512-B9A051B96FEC}.Release|x86.ActiveCfg = Release|Win32
+		{EB4FA4A7-6987-4E92-9512-B9A051B96FEC}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -424,6 +434,7 @@ Global
 		{97A9A1F9-AFAC-4F1E-98A1-2F2CC666803A} = {71FD12F4-0BCB-422A-9FB0-4137E898E991}
 		{9E5CFA63-CC03-409B-A433-E3D4A82D5EFC} = {71FD12F4-0BCB-422A-9FB0-4137E898E991}
 		{19FE8FF6-10BE-440A-B359-D89A65655D71} = {71FD12F4-0BCB-422A-9FB0-4137E898E991}
+		{EB4FA4A7-6987-4E92-9512-B9A051B96FEC} = {71FD12F4-0BCB-422A-9FB0-4137E898E991}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5617659E-FC7E-40D7-9D62-258513329CA1}
