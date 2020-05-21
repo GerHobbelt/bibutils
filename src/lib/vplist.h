@@ -14,9 +14,7 @@
 #ifndef VPLIST_H
 #define VPLIST_H
 
-#if defined(WIN32) || defined(WIN64)
-#include "../win32/config.h"
-#endif
+#include "cross_platform_porting.h"
 
 #define VPLIST_MEMERR (-1)
 #define VPLIST_OK     (0)

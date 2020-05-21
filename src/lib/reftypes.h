@@ -9,9 +9,7 @@
 #ifndef REFTYPES_H
 #define REFTYPES_H
 
-#if defined(WIN32) || defined(WIN64)
-#include "../win32/config.h"
-#endif
+#include "cross_platform_porting.h"
 
 
 #define REFTYPE_CHATTY  (0)

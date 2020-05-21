@@ -12,9 +12,7 @@
 #ifndef INTLIST_H
 #define INTLIST_H
 
-#if defined(WIN32) || defined(WIN64)
-#include "../win32/config.h"
-#endif
+#include "cross_platform_porting.h"
 
 #define INTLIST_OK            (0)
 #define INTLIST_MEMERR        (-1)

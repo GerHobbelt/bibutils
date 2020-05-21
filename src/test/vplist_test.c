@@ -8,9 +8,7 @@
  *
  * test vplist functions
  */
-#if defined(WIN32) || defined(WIN64)
-#include "../win32/config.h"
-#endif
+#include "cross_platform_porting.h"
 
 #include <stdio.h>
 #include <stdlib.h>

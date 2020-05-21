@@ -9,9 +9,7 @@
 #ifndef BIBDEFS_H
 #define BIBDEFS_H
 
-#if defined(WIN32) || defined(WIN64)
-#include "../win32/config.h"
-#endif
+#include "cross_platform_porting.h"
 
 #define BIBL_OK           (0)
 #define BIBL_ERR_BADINPUT (-1)

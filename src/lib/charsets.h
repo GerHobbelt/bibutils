@@ -9,9 +9,7 @@
 #ifndef CHARSETS_H
 #define CHARSETS_H
 
-#if defined(WIN32) || defined(WIN64)
-#include "../win32/config.h"
-#endif
+#include "cross_platform_porting.h"
 
 #define CHARSET_UNKNOWN      (-1)
 #define CHARSET_UNICODE      (-2)

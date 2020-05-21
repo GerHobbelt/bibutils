@@ -9,9 +9,7 @@
 #ifndef REFTYPES_INTERNALS_H
 #define REFTYPES_INTERNALS_H
 
-#if defined(WIN32) || defined(WIN64)
-#include "../win32/config.h"
-#endif
+#include "cross_platform_porting.h"
 
 #define ORIG(a) 		( &(a[0]) )
 #define SIZE(a) 		countof(a)

@@ -8,9 +8,7 @@
  * Source code released under the GPL version 2
  *
  */
-#if defined(WIN32) || defined(WIN64)
-#include "../win32/config.h"
-#endif
+#include "cross_platform_porting.h"
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>

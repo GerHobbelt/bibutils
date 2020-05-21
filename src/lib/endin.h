@@ -9,9 +9,7 @@
 #ifndef ENDIN_H
 #define ENDIN_H
 
-#if defined(WIN32) || defined(WIN64)
-#include "../win32/config.h"
-#endif
+#include "cross_platform_porting.h"
 #include "reftypes.h"
 
 extern int endin_typef(fields* endin, const char* filename, int nrefs, param* p);

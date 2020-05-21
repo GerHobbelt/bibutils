@@ -9,9 +9,7 @@
 #ifndef ISITYPES_H
 #define ISITYPES_H
 
-#if defined(WIN32) || defined(WIN64)
-#include "../win32/config.h"
-#endif
+#include "cross_platform_porting.h"
 #include "reftypes.h"
 
 extern const variants isi_all[];

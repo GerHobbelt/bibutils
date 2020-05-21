@@ -9,9 +9,7 @@
 #ifndef ENTITIES_H
 #define ENTITIES_H
 
-#if defined(WIN32) || defined(WIN64)
-#include "../win32/config.h"
-#endif
+#include "cross_platform_porting.h"
 
 extern unsigned int decode_entity( const char *s, unsigned int *pi, 
 		int *unicode, int *err );

@@ -4,9 +4,7 @@
  * Helper unicode functions/values to determine the
  * types of unicode characters.
  */
-#if defined(WIN32) || defined(WIN64)
-#include "../win32/config.h"
-#endif
+#include "cross_platform_porting.h"
 #include "utf8.h"
 #include "unicode.h"
 

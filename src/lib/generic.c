@@ -6,9 +6,7 @@
  *
  * xxxx_convertf() stubs that can be shared.
  */
-#if defined(WIN32) || defined(WIN64)
-#include "../win32/config.h"
-#endif
+#include "cross_platform_porting.h"
 #include "bu_auth.h"
 #include "marc_auth.h"
 #include "name.h"

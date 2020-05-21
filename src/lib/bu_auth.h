@@ -11,9 +11,7 @@
 #ifndef BU_AUTH_H
 #define BU_AUTH_H
 
-#if defined(WIN32) || defined(WIN64)
-#include "../win32/config.h"
-#endif
+#include "cross_platform_porting.h"
 
 int bu_findgenre( const char *query );
 int is_bu_genre( const char *query );

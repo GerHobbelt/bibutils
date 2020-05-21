@@ -9,9 +9,7 @@
 #ifndef STRSEARCH_H
 #define STRSEARCH_H
 
-#if defined(WIN32) || defined(WIN64)
-#include "../win32/config.h"
-#endif
+#include "cross_platform_porting.h"
 
 const char *strsearch (const char *haystack, const char *needle);
 

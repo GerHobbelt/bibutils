@@ -9,9 +9,7 @@
 #ifndef IS_WS_H
 #define IS_WS_H
 
-#if defined(WIN32) || defined(WIN64)
-#include "../win32/config.h"
-#endif
+#include "cross_platform_porting.h"
 
 int is_ws( const char ch );
 const char *skip_ws( const char *p );

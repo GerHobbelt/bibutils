@@ -9,9 +9,7 @@
 #ifndef LATEX_H
 #define LATEX_H
 
-#if defined(WIN32) || defined(WIN64)
-#include "../win32/config.h"
-#endif
+#include "cross_platform_porting.h"
 
 extern unsigned int latex2char( const char *s, unsigned int *pos, int *unicode );
 extern void uni2latex( unsigned int ch, char buf[], int buf_size );
