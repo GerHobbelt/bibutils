@@ -361,15 +361,19 @@ str_prepend( str *s, const char *addstr )
 	lenaddstr = strlen( addstr );
 	if ( lenaddstr==0 ) return; /* appending an empty string is a null op */
 
-	if ( !s->data || !s->dim )
-		str_initalloc( s, lenaddstr+1 );
+	if (!s->data || !s->dim) {
+		str_initalloc(s, lenaddstr + 1);
+	}
 	else {
 		if ( s->len + lenaddstr  + 1 > s->dim )
 			str_realloc( s, s->len + lenaddstr + 1 );
 		for ( i=s->len+lenaddstr-1; i>=lenaddstr; i-- )
 			s->data[i] = s->data[i-lenaddstr];
 	}
-	strncpy_s( s->data, s->dim, addstr, lenaddstr );
+	// A *safe* strncpy() operation would plonk a NUL at the end of the copy anyway.
+	// We DO NOT want that here, hence we use memcpy() instead:
+	//strncpy_s( s->data, s->dim, addstr, lenaddstr );
+	memcpy(s->data, addstr, lenaddstr);
 	s->len += lenaddstr;
 	assert(s->len < s->dim);
 	s->data[ s->len ] = '\0';
