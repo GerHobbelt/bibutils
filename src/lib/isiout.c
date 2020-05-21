@@ -357,8 +357,8 @@ isiout_write( fields *out, FILE *fp, param *p, unsigned long refnum )
 
 	for ( i=0; i<out->n; ++i ) {
 		fprintf( fp, "%s %s\n",
-			( char * ) fields_tag  ( out, i, FIELDS_CHRP ),
-			( char * ) fields_value( out, i, FIELDS_CHRP )
+			( const char * ) fields_tag  ( out, i, FIELDS_CHRP ),
+			( const char * ) fields_value( out, i, FIELDS_CHRP )
 		);
 	}
         fprintf( fp, "ER\n\n" );

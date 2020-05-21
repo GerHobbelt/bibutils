@@ -493,9 +493,9 @@ risin_thesis_hints( fields *bibin, int reftype, param *p, fields *bibout )
 
 	nfields = fields_num( bibin );
 	for ( i=0; i<nfields; ++i ) {
-		tag = fields_tag( bibin, i, FIELDS_CHRP );
+		tag = (const char *)fields_tag( bibin, i, FIELDS_CHRP );
 		if ( strcasecmp( tag, "U1" ) ) continue;
-		value = fields_value( bibin, i, FIELDS_CHRP );
+		value = (const char *)fields_value( bibin, i, FIELDS_CHRP );
 		if ( !strcasecmp(value,"Ph.D. Thesis")||
 		     !strcasecmp(value,"Masters Thesis")||
 		     !strcasecmp(value,"Diploma Thesis")||

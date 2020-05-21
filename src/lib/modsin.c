@@ -304,11 +304,11 @@ out:
  * "author" or "author|creator" or "edt" or "editor|edt".
  */
 static int
-modsin_marcrole_convert( str *s, char *suffix, str *out )
+modsin_marcrole_convert( const str *s, const char *suffix, str *out )
 {
 	int i, sstatus, status = BIBL_OK;
 	slist tokens;
-	char *p;
+	const char *p;
 
 	slist_init( &tokens );
 
@@ -365,7 +365,7 @@ modsin_asis_corp_r( xml *node, str *name, str *role )
 }
 
 static int
-modsin_asis_corp( xml *node, fields *info, int level, char *suffix )
+modsin_asis_corp( xml *node, fields *info, int level, const char *suffix )
 {
 	int fstatus, status = BIBL_OK;
 	str name, roles, role_out;
@@ -794,7 +794,7 @@ modsin_language( xml *node, fields *info, int level )
 }
 
 static int
-modsin_simple( xml *node, fields *info, char *tag, int level )
+modsin_simple( xml *node, fields *info, const char *tag, int level )
 {
 	int fstatus;
 	if ( xml_has_value( node ) ) {

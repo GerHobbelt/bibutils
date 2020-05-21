@@ -128,8 +128,8 @@ static const int nmarc_resource = sizeof( marc_resource ) / sizeof( const char* 
 /* www.loc.gov/marc/relators/relacode.html */
 
 typedef struct marc_trans {
-	char *internal_name;
-	char *abbreviation;
+	const char *internal_name;
+	const char *abbreviation;
 } marc_trans;
 
 static const marc_trans relators[] = {
@@ -416,7 +416,7 @@ static const marc_trans relators[] = {
 
 static const int nrealtors = sizeof( relators ) / sizeof( relators[0] );
 
-char *
+const char *
 marc_convert_role( const char *query )
 {
 	int i;

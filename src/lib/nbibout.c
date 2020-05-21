@@ -82,7 +82,7 @@ append_type( fields *in, fields *out, int *status )
 	char *s;
     int type = TYPE_UNKNOWN, i, n, level;
 	const char* tag;
-	char* value;
+	const char* value;
 
 	n = fields_num( in );
         for ( i=0; i<n; ++i ) {
@@ -138,7 +138,7 @@ out:
 }
 
 static void
-append_title( fields *in, char *nbibtag, int level, fields *out, int *status )
+append_title( fields *in, const char *nbibtag, int level, fields *out, int *status )
 {
 	append_titlecore( in, nbibtag, level, "TITLE", "SUBTITLE", out, status );
 }
@@ -459,7 +459,7 @@ output_verbose( fields *f, const char *type, unsigned long refnum )
 }
 
 static void
-output_tag( FILE *fp, char *p )
+output_tag( FILE *fp, const char *p )
 {
 	int i = 0;
 
@@ -522,14 +522,13 @@ output_reference( FILE *fp, fields *out )
 	int i;
 
 	for ( i=0; i<out->n; ++i ) {
-
-		output_tag( fp, ( char * ) fields_tag( out, i, FIELDS_CHRP ) );
-		output_value( fp, ( str * ) fields_value( out, i, FIELDS_STRP ) );
+		output_tag( fp, ( const char * ) fields_tag( out, i, FIELDS_CHRP ) );
+		output_value( fp, ( const str * ) fields_value( out, i, FIELDS_STRP ) );
 		fprintf( fp, "\n" );
 	}
 
-        fprintf( fp, "\n\n" );
-        fflush( fp );
+    fprintf( fp, "\n\n" );
+    fflush( fp );
 }
 
 static int

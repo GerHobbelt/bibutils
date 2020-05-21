@@ -46,7 +46,7 @@ compare_references( fields *f1, const char *fname1, fields *f2, const char *fnam
 	int i, j, cnt, cnt1, cnt2, level, diff = 0;
 	intlist found1, found2, matches;
 	const char* tag;
-	char* data;
+	const char* data;
 
 	intlist_init_fill( &found1, f1->n, -1 );
 	intlist_init_fill( &found2, f2->n, -1 );
@@ -54,8 +54,8 @@ compare_references( fields *f1, const char *fname1, fields *f2, const char *fnam
 
 	for ( i=0; i<f1->n; ++i ) {
 
-		tag   = fields_tag(   f1, i, FIELDS_CHRP_NOLEN );
-		data  = fields_value( f1, i, FIELDS_CHRP_NOLEN );
+		tag   = (const char *)fields_tag(   f1, i, FIELDS_CHRP_NOLEN );
+		data  = (const char *)fields_value( f1, i, FIELDS_CHRP_NOLEN );
 		level = fields_level( f1, i );
 
 		cnt = find_tag_level_matches( f2, tag, level, &matches );
@@ -66,7 +66,7 @@ compare_references( fields *f1, const char *fname1, fields *f2, const char *fnam
 		for ( j=0; j<f2->n; ++j ) {
 			if ( intlist_get( &matches, j ) == 0 ) continue; /* not a potential match */
 			if ( intlist_get( &found2, j ) != -1 ) continue; /* already claimed */
-			if ( strcmp( data, fields_value( f2, j, FIELDS_CHRP_NOLEN ) ) ) continue; /* values don't match */
+			if ( strcmp( data, (const char *)fields_value( f2, j, FIELDS_CHRP_NOLEN ) ) ) continue; /* values don't match */
 			intlist_set( &found1, i, j );
 			intlist_set( &found2, j, i );
 			break;
@@ -87,20 +87,19 @@ compare_references( fields *f1, const char *fname1, fields *f2, const char *fnam
 
 		for ( i=0; i<f1->n; ++i ) {
 			if ( intlist_get( &found1, i ) != -1 ) continue;
-			tag = fields_tag( f1, i, FIELDS_CHRP_NOLEN );
-			data = fields_value( f1, i, FIELDS_CHRP_NOLEN );
+			tag = (const char *)fields_tag( f1, i, FIELDS_CHRP_NOLEN );
+			data = (const char*)fields_value( f1, i, FIELDS_CHRP_NOLEN );
 			level = fields_level( f1, i );
 			printf( "< '%s' '%s' %d\n", tag, data, level );
 		}
 
 		for ( i=0; i<f2->n; ++i ) {
 			if ( intlist_get( &found2, i ) != -1 ) continue;
-			tag = fields_tag( f2, i, FIELDS_CHRP_NOLEN );
-			data = fields_value( f2, i, FIELDS_CHRP_NOLEN );
+			tag = (const char*)fields_tag( f2, i, FIELDS_CHRP_NOLEN );
+			data = (const char*)fields_value( f2, i, FIELDS_CHRP_NOLEN );
 			level = fields_level( f2, i );
 			printf( "> '%s' '%s' %d\n", tag, data, level );
 		}
-
 	}
 
 	intlist_free( &found1 );

@@ -18,7 +18,7 @@
  *       <identifier type="issn">XXXX-XXXX</identifier>
  *
  */
-convert identifier_types[] = {
+const convert identifier_types[] = {
 	{ "citekey",       "REFNUM"    },
 	{ "issn",          "ISSN"      },
 	{ "isbn",          "ISBN"      },
@@ -37,8 +37,8 @@ convert identifier_types[] = {
 
 int nidentifier_types = sizeof( identifier_types ) / sizeof( identifier_types[0] );
 
-char *
-mods_find_attrib( char *internal_name, convert *data, int ndata )
+const char *
+mods_find_attrib( const char *internal_name, const convert *data, int ndata )
 {
 	int i;
 	for ( i=0; i<ndata; ++i ) {
@@ -48,8 +48,8 @@ mods_find_attrib( char *internal_name, convert *data, int ndata )
 	return NULL;
 }
 
-char *
-mods_find_internal( char *mods_name, convert *data, int ndata )
+const char *
+mods_find_internal( const char *mods_name, const convert *data, int ndata )
 {
 	int i;
 	for ( i=0; i<ndata; ++i ) {

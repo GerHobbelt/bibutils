@@ -192,7 +192,7 @@ type_from_default( fields *in, param *p, unsigned long refnum )
 	fprintf( stderr, "Cannot identify TYPE in reference %lu ", refnum+1 );
 	n = fields_find( in, "REFNUM", LEVEL_ANY );
 	if ( n!=FIELDS_NOTFOUND )
-		fprintf( stderr, " %s", (char *) fields_value( in, n, FIELDS_CHRP ) );
+		fprintf( stderr, " %s", (const char *) fields_value( in, n, FIELDS_CHRP ) );
 	if ( type==TYPE_INBOOK )
 		fprintf( stderr, " (defaulting to book chapter)\n" );
 	else
@@ -452,7 +452,7 @@ append_people( fields *in, char *tag, char *entag, int level, fields *out, int *
 		if ( level!=LEVEL_ANY && flvl!=level ) continue;
 		ftag = fields_tag( in, i, FIELDS_CHRP );
 		if ( !strcasecmp( ftag, tag ) ) {
-			name_build_withcomma( &oneperson, fields_value( in, i, FIELDS_CHRP ) );
+			name_build_withcomma( &oneperson, (const char *)fields_value( in, i, FIELDS_CHRP ) );
 			fstatus = fields_add_can_dup( out, entag, str_cstr( &oneperson ), LEVEL_MAIN );
 			if ( fstatus!=FIELDS_OK ) *status = BIBL_ERR_MEMERR;
 		}
@@ -768,8 +768,8 @@ endout_write( fields *out, FILE *fp, param *pm, unsigned long refnum )
 
 	for ( i=0; i<out->n; ++i ) {
 		fprintf( fp, "%s %s\n",
-			(char*) fields_tag( out, i, FIELDS_CHRP ),
-			(char*) fields_value( out, i, FIELDS_CHRP )
+			(const char*) fields_tag( out, i, FIELDS_CHRP ),
+			(const char*) fields_value( out, i, FIELDS_CHRP )
 		);
 	}
 

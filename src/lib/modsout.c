@@ -91,7 +91,7 @@ modsout_initparams( param *pm, const char *progname )
 static void
 output_tag_core( FILE *outptr, int nindents, const char *tag, const char *data, unsigned char mode, unsigned char newline, va_list *attrs )
 {
-	char *attr, *val;
+	const char *attr, *val;
 	int i;
 
 	for ( i=0; i<nindents; ++i ) fprintf( outptr, "    " );
@@ -105,9 +105,9 @@ output_tag_core( FILE *outptr, int nindents, const char *tag, const char *data, 
 
 	val = NULL;
 	do {
-		attr = va_arg( *attrs, char * );
+		attr = va_arg( *attrs, const char * );
 		if (attr) {
-			val = va_arg(*attrs, char*);
+			val = va_arg(*attrs, const char *);
 			if (val) {
 				fprintf(outptr, " %s=\"%s\"", attr, val);
 			}
@@ -160,10 +160,10 @@ static void
 output_fil( FILE *outptr, int nindents, const char *tag, fields *f, int n, unsigned char mode, unsigned char newline, ... )
 {
 	va_list attrs;
-	char *value;
+	const char *value;
 
 	if ( n!=-1 ) {
-		value = (char *) fields_value( f, n, FIELDS_CHRP );
+		value = (const char *) fields_value( f, n, FIELDS_CHRP );
 		va_start( attrs, newline );
 		output_tag_core( outptr, nindents, tag, value, mode, newline, &attrs );
 		va_end( attrs );
@@ -211,7 +211,7 @@ output_title( fields *f, FILE *outptr, int level )
 	int subttl = fields_find( f, "SUBTITLE", level );
 	int shrttl = fields_find( f, "SHORTTITLE", level );
 	int parttl = fields_find( f, "PARTTITLE", level );
-	char *val;
+	const char *val;
 
 	output_tag( outptr, lvl2indent(level),               "titleInfo", NULL,      TAG_OPEN,      TAG_NEWLINE, NULL );
 	output_fil( outptr, lvl2indent(incr_level(level,1)), "title",     f, ttl,    TAG_OPENCLOSE, TAG_NEWLINE, NULL );
@@ -224,7 +224,7 @@ output_title( fields *f, FILE *outptr, int level )
 
 	/* output shorttitle if it's different from normal title */
 	if ( shrttl!=FIELDS_NOTFOUND ) {
-		val = (char *) fields_value( f, shrttl, FIELDS_CHRP );
+		val = (const char *) fields_value( f, shrttl, FIELDS_CHRP );
 		if ( ttl==FIELDS_NOTFOUND || subttl!=FIELDS_NOTFOUND || strcmp(fields_value(f,ttl,FIELDS_CHRP),val) ) {
 			output_tag( outptr, lvl2indent(level),               "titleInfo", NULL, TAG_OPEN,      TAG_NEWLINE, "type", "abbreviated", NULL );
 			output_tag( outptr, lvl2indent(incr_level(level,1)), "title",     val,  TAG_OPENCLOSE, TAG_NEWLINE, NULL );
@@ -234,7 +234,7 @@ output_title( fields *f, FILE *outptr, int level )
 }
 
 static void
-output_name( FILE *outptr, char *p, int level )
+output_name( FILE *outptr, const char *p, int level )
 {
 	str family, part, suffix;
 	int n=0;
@@ -440,7 +440,7 @@ find_dateinfo( fields *f, int level, int datepos[ NUM_DATE_TYPES ] )
 static void
 output_datepieces( fields *f, FILE *outptr, int pos[ NUM_DATE_TYPES ] )
 {
-	str *s;
+	const str *s;
 	int i;
 
 	for ( i=0; i<3 && pos[i]!=-1; ++i ) {
@@ -452,7 +452,7 @@ output_datepieces( fields *f, FILE *outptr, int pos[ NUM_DATE_TYPES ] )
 				fprintf( outptr, "0" );
 			}
 		}
-		fprintf( outptr, "%s", (char *) fields_value( f, pos[i], FIELDS_CHRP ) );
+		fprintf( outptr, "%s", (const char *) fields_value( f, pos[i], FIELDS_CHRP ) );
 	}
 }
 
@@ -463,7 +463,7 @@ output_dateissued( fields *f, FILE *outptr, int level, int pos[ NUM_DATE_TYPES ]
 	if ( pos[ DATE_YEAR ]!=-1 || pos[ DATE_MONTH ]!=-1 || pos[ DATE_DAY ]!=-1 ) {
 		output_datepieces( f, outptr, pos );
 	} else {
-		fprintf( outptr, "%s", (char *) fields_value( f, pos[ DATE_ALL ], FIELDS_CHRP ) );
+		fprintf( outptr, "%s", (const char *) fields_value( f, pos[ DATE_ALL ], FIELDS_CHRP ) );
 	}
 	fprintf( outptr, "</dateIssued>\n" );
 }
@@ -486,7 +486,6 @@ output_origin( fields *f, FILE *outptr, int level )
 	found     = convert_findallfields( f, parts, nparts, level );
 	datefound = find_dateinfo( f, level, datepos );
 	if ( !found && !datefound ) return;
-
 
 	output_tag( outptr, lvl2indent(level), "originInfo", NULL, TAG_OPEN, TAG_NEWLINE, NULL );
 
@@ -536,7 +535,7 @@ output_origin( fields *f, FILE *outptr, int level )
  *
  */
 static void
-output_language_core( fields *f, int n, FILE *outptr, char *tag, int level )
+output_language_core( fields *f, int n, FILE *outptr, const char *tag, int level )
 {
 	const char *lang, *code;
 
@@ -563,12 +562,12 @@ output_language( fields *f, FILE *outptr, int level )
 static void
 output_description( fields *f, FILE *outptr, int level )
 {
-	char *val;
+	const char *val;
 	int n;
 
 	n = fields_find( f, "DESCRIPTION", level );
 	if ( n!=FIELDS_NOTFOUND ) {
-		val = ( char * ) fields_value( f, n, FIELDS_CHRP );
+		val = ( const char * ) fields_value( f, n, FIELDS_CHRP );
 		output_tag( outptr, lvl2indent(level),               "physicalDescription", NULL, TAG_OPEN,      TAG_NEWLINE, NULL );
 		output_tag( outptr, lvl2indent(incr_level(level,1)), "note",                val,  TAG_OPENCLOSE, TAG_NEWLINE, NULL );
 		output_tag( outptr, lvl2indent(level),               "physicalDescription", NULL, TAG_CLOSE,     TAG_NEWLINE, NULL );
@@ -578,12 +577,12 @@ output_description( fields *f, FILE *outptr, int level )
 static void
 output_toc( fields *f, FILE *outptr, int level )
 {
-	char *val;
+	const char *val;
 	int n;
 
 	n = fields_find( f, "CONTENTS", level );
 	if ( n!=FIELDS_NOTFOUND ) {
-		val = (char *) fields_value( f, n, FIELDS_CHRP );
+		val = (const char *) fields_value( f, n, FIELDS_CHRP );
 		output_tag( outptr, lvl2indent(level), "tableOfContents", val, TAG_OPENCLOSE, TAG_NEWLINE, NULL );
 	}
 }
@@ -595,7 +594,7 @@ output_toc( fields *f, FILE *outptr, int level )
  * <detail type="volume"><number>xxx</number></detail
  */
 static void
-mods_output_detail( fields *f, FILE *outptr, int n, char *item_name, int level )
+mods_output_detail( fields *f, FILE *outptr, int n, const char *item_name, int level )
 {
 	if ( n!=-1 ) {
 		output_tag( outptr, lvl2indent(incr_level(level,1)), "detail", NULL,  TAG_OPEN,      TAG_NONEWLINE, "type", item_name, NULL );
@@ -613,21 +612,21 @@ mods_output_detail( fields *f, FILE *outptr, int n, char *item_name, int level )
  * </extent>
  */
 static void
-mods_output_extents( fields *f, FILE *outptr, int start, int end, int total, char *extype, int level )
+mods_output_extents( fields *f, FILE *outptr, int start, int end, int total, const char *extype, int level )
 {
-	char *val;
+	const char *val;
 
 	output_tag( outptr, lvl2indent(incr_level(level,1)), "extent", NULL, TAG_OPEN, TAG_NEWLINE, "unit", extype, NULL );
 	if ( start!=-1 ) {
-		val = (char *) fields_value( f, start, FIELDS_CHRP );
+		val = (const char *) fields_value( f, start, FIELDS_CHRP );
 		output_tag( outptr, lvl2indent(incr_level(level,2)), "start", val, TAG_OPENCLOSE, TAG_NEWLINE, NULL );
 	}
 	if ( end!=-1 ) {
-		val = (char *) fields_value( f, end, FIELDS_CHRP );
+		val = (const char *) fields_value( f, end, FIELDS_CHRP );
 		output_tag( outptr, lvl2indent(incr_level(level,2)), "end",   val, TAG_OPENCLOSE, TAG_NEWLINE, NULL );
 	}
 	if ( total!=-1 ) {
-		val = (char *) fields_value( f, total, FIELDS_CHRP );
+		val = (const char *) fields_value( f, total, FIELDS_CHRP );
 		output_tag( outptr, lvl2indent(incr_level(level,2)), "total", val, TAG_OPENCLOSE, TAG_NEWLINE, NULL );
 	}
 	output_tag( outptr, lvl2indent(incr_level(level,1)), "extent", NULL, TAG_CLOSE,     TAG_NEWLINE, NULL );
@@ -669,17 +668,17 @@ output_partdate( fields *f, FILE *outptr, int level, int wrote_header )
 	output_tag( outptr, lvl2indent(incr_level(level,1)), "date", NULL, TAG_OPEN, TAG_NONEWLINE, NULL );
 
 	if ( parts[0].pos!=-1 ) {
-		fprintf( outptr, "%s", (char *) fields_value( f, parts[0].pos, FIELDS_CHRP ) );
+		fprintf( outptr, "%s", (const char *) fields_value( f, parts[0].pos, FIELDS_CHRP ) );
 	} else fprintf( outptr, "XXXX" );
 
 	if ( parts[1].pos!=-1 ) {
-		fprintf( outptr, "-%s", (char *) fields_value( f, parts[1].pos, FIELDS_CHRP ) );
+		fprintf( outptr, "-%s", (const char *) fields_value( f, parts[1].pos, FIELDS_CHRP ) );
 	}
 
 	if ( parts[2].pos!=-1 ) {
 		if ( parts[1].pos==-1 )
 			fprintf( outptr, "-XX" );
-		fprintf( outptr, "-%s", (char *) fields_value( f, parts[2].pos, FIELDS_CHRP ) );
+		fprintf( outptr, "-%s", (const char *) fields_value( f, parts[2].pos, FIELDS_CHRP ) );
 	}
 
 	fprintf( outptr,"</date>\n");
@@ -785,7 +784,7 @@ output_recordInfo( fields *f, FILE *outptr, int level )
 static void
 output_genre( fields *f, FILE *outptr, int level )
 {
-	char *value, *attr = NULL, *attrvalue = NULL;
+	const char *value, *attr = NULL, *attrvalue = NULL;
 	int i, n;
 
 	n = fields_num( f );
@@ -812,7 +811,7 @@ output_genre( fields *f, FILE *outptr, int level )
 static void
 output_resource( fields *f, FILE *outptr, int level )
 {
-	char *value;
+	const char *value;
 	int n;
 
 	n = fields_find( f, "RESOURCE", level );

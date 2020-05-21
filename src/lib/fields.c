@@ -447,7 +447,7 @@ fields_num( fields *f )
  *
  */
 
-void *
+const void *
 fields_value( fields *f, int n, int mode )
 {
 	intptr_t retn;
@@ -458,11 +458,11 @@ fields_value( fields *f, int n, int mode )
 		fields_set_used( f, n );
 
 	if ( mode & FIELDS_STRP_FLAG ) {
-		return ( void * ) _fields_value( f, n );
+		return _fields_value( f, n );
 	}
 	else if ( mode & FIELDS_POSP_FLAG ) {
 		retn = n;               /* avoid compiler warning */
-		return ( void * ) retn; /* Rather pointless -- the user provided "n" */
+		return ( const void * ) retn; /* Rather pointless -- the user provided "n" */
 	}
 	else {
 		if ( str_has_value( _fields_value( f, n ) ) )

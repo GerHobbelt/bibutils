@@ -838,8 +838,7 @@ bibtexin_cleanref( fields *bibin, param *pm )
 	n = fields_num( bibin );
 
 	for ( i=0; i<n; ++i ) {
-
-		tag = fields_tag( bibin, i, FIELDS_STRP_NOUSE );
+		tag = (const str *)fields_tag( bibin, i, FIELDS_STRP_NOUSE );
 		if ( is_url_tag( tag ) ) continue; /* protect url from parsing */
 
 		value = fields_value( bibin, i, FIELDS_STRP_NOUSE );
@@ -852,12 +851,10 @@ bibtexin_cleanref( fields *bibin, param *pm )
 			fstatus = intlist_add( &toremove, i );
 			if ( fstatus!=INTLIST_OK ) { status = BIBL_ERR_MEMERR; goto out; }
 		}
-
 		else {
 			status = bibtex_cleanvalue( value );
 			if ( status!=BIBL_OK ) goto out;
 		}
-
 	}
 
 	for ( i=toremove.n-1; i>=0; i-- ) {
@@ -1210,7 +1207,7 @@ process_eprint_without_prefix( fields *bibout, str *value, int level )
 static int
 bibtexin_eprint( fields *bibin, int m, const str *intag, str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
-	char *prefix;
+	const char *prefix;
 	int n;
 
 	/* ...do we have an archivePrefix too? */
@@ -1303,7 +1300,7 @@ bibtexin_titleinbook_isbooktitle( fields *bibin, char *intag )
 	/* ...look only at '@inbook' references */
 	n = fields_find( bibin, "INTERNAL_TYPE", LEVEL_ANY );
 	if ( n==FIELDS_NOTFOUND ) return 0;
-	if ( strcasecmp( fields_value( bibin, n, FIELDS_CHRP ), "INBOOK" ) ) return 0;
+	if ( strcasecmp( (const char *)fields_value( bibin, n, FIELDS_CHRP ), "INBOOK" ) ) return 0;
 
 	/* ...look to see if 'booktitle="yyy"' exists */
 	n = fields_find( bibin, "BOOKTITLE", LEVEL_ANY );

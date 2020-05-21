@@ -283,9 +283,9 @@ static int
 is_wiley_author( fields *endin, int n )
 {
 	const str *t, *v;
-	t = fields_tag( endin, n, FIELDS_STRP_NOUSE );
+	t = (const str *)fields_tag( endin, n, FIELDS_STRP_NOUSE );
 	if ( str_is_empty( t ) || strcmp( str_cstr( t ), "%A" ) ) return 0;
-	v = fields_value( endin, n, FIELDS_STRP_NOUSE );
+	v = (const str *)fields_value( endin, n, FIELDS_STRP_NOUSE );
 	if ( str_is_empty( v ) ) return 0;
 	if ( v->data[v->len-1]!=',' ) return 0;
 	return 1;
@@ -323,7 +323,7 @@ cleanup_wiley_author( fields *endin, int n )
 	strs_init( &copy, &name, NULL );
 
 	intag    = (const char *)fields_tag  ( endin, n, FIELDS_CHRP_NOUSE );
-	instring = (str *)fields_value( endin, n, FIELDS_STRP_NOUSE );
+	instring = fields_value( endin, n, FIELDS_STRP_NOUSE );
 	inlevel  = fields_level( endin, n );
 
 	str_strcpy( &copy, instring );
@@ -596,7 +596,7 @@ endin_convertf( fields *bibin, fields *bibout, int reftype, param *p )
 			continue;
 		}
 
-		intag = fields_tag( bibin, i, FIELDS_STRP );
+		intag = (const str *)fields_tag( bibin, i, FIELDS_STRP );
 		invalue = fields_value( bibin, i, FIELDS_STRP );
 
 		/*
@@ -619,7 +619,6 @@ endin_convertf( fields *bibin, fields *bibout, int reftype, param *p )
 
 		status = convertfns[ process ]( bibin, i, intag, invalue, level, p, outtag, bibout );
 		if ( status!=BIBL_OK ) return status;
-
 	}
 
 	return status;

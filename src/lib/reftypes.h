@@ -63,6 +63,6 @@ typedef struct {
 
 int get_reftype( const char *q, long refnum, const char *progname, variants *all, int nall, const char *tag, int *is_default, int chattiness );
 int process_findoldtag( const char *oldtag, int reftype, variants all[], int nall );
-int translate_oldtag( const char *oldtag, int reftype, variants all[], int nall, int *processingtype, int *level, char **newtag );
+int translate_oldtag( const char *oldtag, int reftype, variants all[], int nall, int *processingtype, int *level, const char **newtag );
 
 #endif

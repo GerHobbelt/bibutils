@@ -89,7 +89,7 @@ void fields_report( fields *f, FILE *fp );
 #define FIELDS_STRP_NOUSE  (                     FIELDS_STRP_FLAG                      )
 
 const void *fields_tag( fields *f, int n, int mode );
-void *fields_value( fields *f, int n, int mode );
+const void *fields_value( fields *f, int n, int mode );
 int   fields_level( fields *f, int n );
  
 int   fields_find( fields *f, const char *searchtag, int level );

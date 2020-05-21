@@ -573,11 +573,12 @@ bibl_addcount( bibl *b )
 		if ( n==FIELDS_NOTFOUND ) continue;
 
 		sprintf_s( buf, countof(buf), "_%ld", i+1 );
-		str_strcatc( fields_value( ref, n, FIELDS_STRP_NOUSE ), buf );
-		if ( str_memerr( fields_value( ref, n, FIELDS_STRP_NOUSE ) ) ) {
+
+		str* s = fields_value(ref, n, FIELDS_STRP_NOUSE);
+		str_strcatc( s, buf );
+		if ( str_memerr( s ) ) {
 			return BIBL_ERR_MEMERR;
 		}
-
 	}
 
 	return BIBL_OK;
@@ -652,7 +653,7 @@ get_citekeys( bibl *bin, slist *citekeys )
 		n = fields_find( f, "REFNUM", LEVEL_ANY );
 		if ( n==FIELDS_NOTFOUND ) n = generate_citekey( f, i+1 );
 		if ( n!=FIELDS_NOTFOUND && fields_has_value( f, n ) ) {
-			status = slist_add( citekeys, fields_value( f, n, FIELDS_STRP_NOUSE ) );
+			status = slist_add( citekeys, (const str *)fields_value( f, n, FIELDS_STRP_NOUSE ) );
 			if ( status!=SLIST_OK ) return BIBL_ERR_MEMERR;
 		} else {
 			status = slist_addc( citekeys, "" );
@@ -704,7 +705,8 @@ static int
 resolve_duplicates( bibl *b, slist *citekeys, int *dup )
 {
 	int nsame, n, i, j, status = BIBL_OK;
-	str new_citekey, *ref_citekey;
+	str new_citekey;
+	str* ref_citekey;
 
 	str_init( &new_citekey );
 

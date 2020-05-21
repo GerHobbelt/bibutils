@@ -156,7 +156,7 @@ output_item( fields *info, FILE *outptr, const char *tag, const char *prefix, in
 		fprintf( outptr, "<%s>%s%s</%s>\n",
 			tag,
 			prefix,
-			(char*) fields_value( info, item, FIELDS_CHRP ),
+			(const char*) fields_value( info, item, FIELDS_CHRP ),
 			tag
 		);
 	}
@@ -275,11 +275,11 @@ static int
 get_type_from_resource( fields *info )
 {
 	int type = TYPE_UNKNOWN, i;
-	char *tag, *resource;
+	const char *tag, *resource;
 	for ( i=0; i<info->n; ++i ) {
-		tag = (char *) fields_tag( info, i, FIELDS_CHRP );
+		tag = (const char *) fields_tag( info, i, FIELDS_CHRP );
 		if ( strcasecmp( tag, "RESOURCE" ) ) continue;
-		resource = (char *) fields_value( info, i, FIELDS_CHRP );
+		resource = (const char *) fields_value( info, i, FIELDS_CHRP );
 		if ( !strcasecmp( resource, "moving image" ) )
 			type = TYPE_FILM;
 	}
@@ -423,7 +423,7 @@ extract_name_and_info( str *outtag, str *intag )
 }
 
 static void
-output_name_type( fields *info, FILE *outptr, int level, char *map[], int nmap, const char *tag )
+output_name_type( fields *info, FILE *outptr, int level, const char *map[], int nmap, const char *tag )
 {
 	str ntag;
 	int i, j, n=0, code, nfields;
@@ -436,9 +436,9 @@ output_name_type( fields *info, FILE *outptr, int level, char *map[], int nmap, 
 			if ( n==0 )
 				fprintf( outptr, "<%s><b:NameList>\n", tag );
 			if ( code != NAME )
-				output_name_nomangle( outptr, (char *) fields_value( info, i, FIELDS_CHRP ) );
+				output_name_nomangle( outptr, (const char *) fields_value( info, i, FIELDS_CHRP ) );
 			else 
-				output_name( outptr, (char *) fields_value( info, i, FIELDS_CHRP ) );
+				output_name( outptr, (const char *) fields_value( info, i, FIELDS_CHRP ) );
 			n++;
 		}
 	}
@@ -450,18 +450,18 @@ output_name_type( fields *info, FILE *outptr, int level, char *map[], int nmap, 
 static void
 output_names( fields *info, FILE *outptr, int level, int type )
 {
-	char *authors[] = { "AUTHOR", "WRITER", "ASSIGNEE", "ARTIST",
+	const char *authors[] = { "AUTHOR", "WRITER", "ASSIGNEE", "ARTIST",
 		"CARTOGRAPHER", "INVENTOR", "ORGANIZER", "DIRECTOR",
 		"PERFORMER", "REPORTER", "TRANSLATOR", "ADDRESSEE",
 		"2ND_AUTHOR", "3RD_AUTHOR", "SUB_AUTHOR", "COMMITTEE",
 		"COURT", "LEGISLATIVEBODY" };
 	int nauthors = sizeof( authors ) / sizeof( authors[0] );
 
-	char *editors[] = { "EDITOR" };
+	const char *editors[] = { "EDITOR" };
 	int neditors = sizeof( editors ) / sizeof( editors[0] );
 
-	char author_default[] = "b:Author", inventor[] = "b:Inventor";
-	char *author_type = author_default;
+	const char author_default[] = "b:Author", inventor[] = "b:Inventor";
+	const char *author_type = author_default;
 
 	if ( type == TYPE_PATENT ) author_type = inventor;
 
@@ -474,11 +474,11 @@ output_names( fields *info, FILE *outptr, int level, int type )
 static void
 output_date( fields *info, FILE *outptr, int level )
 {
-	const char *year  = fields_findv_firstof( info, level, FIELDS_CHRP,
+	const char *year  = (const char *)fields_findv_firstof( info, level, FIELDS_CHRP,
 			"PARTDATE:YEAR", "DATE:YEAR", NULL );
-	const char *month = fields_findv_firstof( info, level, FIELDS_CHRP,
+	const char *month = (const char *)fields_findv_firstof( info, level, FIELDS_CHRP,
 			"PARTDATE:MONTH", "DATE:MONTH", NULL );
-	const char *day   = fields_findv_firstof( info, level, FIELDS_CHRP,
+	const char *day   = (const char *)fields_findv_firstof( info, level, FIELDS_CHRP,
 			"PARTDATE:DAY", "DATE:DAY", NULL );
 	if ( year )  output_itemv( outptr, "b:Year", year, 0 );
 	if ( month ) output_itemv( outptr, "b:Month", month, 0 );
@@ -488,9 +488,9 @@ output_date( fields *info, FILE *outptr, int level )
 static void
 output_pages( fields *info, FILE *outptr, int level )
 {
-	const char *sn = fields_findv( info, LEVEL_ANY, FIELDS_CHRP, "PAGES:START" );
-	const char *en = fields_findv( info, LEVEL_ANY, FIELDS_CHRP, "PAGES:STOP" );
-	const char *ar = fields_findv( info, LEVEL_ANY, FIELDS_CHRP, "ARTICLENUMBER" );
+	const char *sn = (const char *)fields_findv( info, LEVEL_ANY, FIELDS_CHRP, "PAGES:START" );
+	const char *en = (const char *)fields_findv( info, LEVEL_ANY, FIELDS_CHRP, "PAGES:STOP" );
+	const char *ar = (const char *)fields_findv( info, LEVEL_ANY, FIELDS_CHRP, "ARTICLENUMBER" );
 	if ( sn || en )
 		output_range( outptr, "b:Pages", sn, en, level );
 	else if ( ar )

@@ -146,7 +146,7 @@ bibtexout_type( fields *in, const char *progname, const char *filename, unsigned
 			fprintf( stderr, "Cannot identify TYPE in reference %lu ", refnum+1 );
 			n = fields_find( in, "REFNUM", LEVEL_ANY );
 			if ( n!=FIELDS_NOTFOUND ) 
-				fprintf( stderr, " %s", (char*) fields_value( in, n, FIELDS_CHRP ) );
+				fprintf( stderr, " %s", (const char*) fields_value( in, n, FIELDS_CHRP ) );
 			fprintf( stderr, " (defaulting to @Misc)\n" );
 			type = TYPE_MISC;
 		}
@@ -189,7 +189,7 @@ append_citekey( fields *in, fields *out, int format_opts, int *status )
 {
 	int n, fstatus;
 	str s;
-	char *p;
+	const char *p;
 
 	n = fields_find( in, "REFNUM", LEVEL_ANY );
 	if ( ( format_opts & BIBL_FORMAT_BIBOUT_DROPKEY ) || n==FIELDS_NOTFOUND ) {
@@ -222,27 +222,27 @@ append_citekey( fields *in, fields *out, int format_opts, int *status )
 }
 
 static void
-append_simple( fields *in, char *intag, char *outtag, fields *out, int *status )
+append_simple( fields *in, const char *intag, const char *outtag, fields *out, int *status )
 {
 	int n, fstatus;
 
 	n = fields_find( in, intag, LEVEL_ANY );
 	if ( n!=FIELDS_NOTFOUND ) {
 		fields_set_used( in, n );
-		fstatus = fields_add( out, outtag, fields_value( in, n, FIELDS_CHRP ), LEVEL_MAIN );
+		fstatus = fields_add( out, outtag, (const char *)fields_value( in, n, FIELDS_CHRP ), LEVEL_MAIN );
 		if ( fstatus!=FIELDS_OK ) *status = BIBL_ERR_MEMERR;
 	}
 }
 
 static void
-append_simpleall( fields *in, char *intag, char *outtag, fields *out, int *status )
+append_simpleall( fields *in, const char *intag, const char *outtag, fields *out, int *status )
 {
 	int i, fstatus;
 
 	for ( i=0; i<in->n; ++i ) {
 		if ( fields_match_tag( in, i, intag ) ) {
 			fields_set_used( in, i );
-			fstatus = fields_add( out, outtag, fields_value( in, i, FIELDS_CHRP ), LEVEL_MAIN );
+			fstatus = fields_add( out, outtag, (const char *)fields_value( in, i, FIELDS_CHRP ), LEVEL_MAIN );
 			if ( fstatus!=FIELDS_OK ) {
 				*status = BIBL_ERR_MEMERR;
 				return;
@@ -290,7 +290,7 @@ static void
 append_fileattach( fields *in, fields *out, int *status )
 {
 	const char* tag;
-	char* value;
+	const char* value;
 	int i, fstatus;
 	str data;
 
@@ -329,8 +329,8 @@ out:
 }
 
 static void
-append_people( fields *in, char *tag, char *ctag, char *atag,
-		char *bibtag, int level, fields *out, int format_opts, int latex_out, int *status )
+append_people( fields *in, const char *tag, const char *ctag, const char *atag,
+		const char *bibtag, int level, fields *out, int format_opts, int latex_out, int *status )
 {
 	int i, npeople, person, corp, asis, fstatus;
 	str allpeople, oneperson;
@@ -352,14 +352,14 @@ append_people( fields *in, char *tag, char *ctag, char *atag,
 			}
 			if ( corp ) {
 				if ( latex_out ) str_addchar( &allpeople, '{' );
-				str_strcat( &allpeople, fields_value( in, i, FIELDS_STRP ) );
+				str_strcat( &allpeople, (const str *)fields_value( in, i, FIELDS_STRP ) );
 				if ( latex_out ) str_addchar( &allpeople, '}' );
 			} else if ( asis ) {
 				if ( latex_out ) str_addchar( &allpeople, '{' );
-				str_strcat( &allpeople, fields_value( in, i, FIELDS_STRP ) );
+				str_strcat( &allpeople, (const str *)fields_value( in, i, FIELDS_STRP ) );
 				if ( latex_out ) str_addchar( &allpeople, '}' );
 			} else {
-				name_build_withcomma( &oneperson, fields_value( in, i, FIELDS_CHRP ) );
+				name_build_withcomma( &oneperson, (const char *)fields_value( in, i, FIELDS_CHRP ) );
 				str_strcat( &allpeople, &oneperson );
 			}
 			npeople++;
@@ -374,9 +374,10 @@ append_people( fields *in, char *tag, char *ctag, char *atag,
 }
 
 static int
-append_title_chosen( fields *in, char *bibtag, fields *out, int nmainttl, int nsubttl )
+append_title_chosen( fields *in, const char *bibtag, fields *out, int nmainttl, int nsubttl )
 {
-	str fulltitle, *mainttl = NULL, *subttl = NULL;
+	str fulltitle;
+	const str* mainttl = NULL, * subttl = NULL;
 	int status, ret = BIBL_OK;
 
 	str_init( &fulltitle );
@@ -409,7 +410,7 @@ out:
 }
 
 static int
-append_title( fields *in, char *bibtag, int level, fields *out, int format_opts )
+append_title( fields *in, const char *bibtag, int level, fields *out, int format_opts )
 {
 	int title, short_title, subtitle, short_subtitle, use_title, use_subtitle;
 
@@ -479,7 +480,7 @@ append_titles( fields *in, int type, fields *out, int format_opts, int *status )
 }
 
 static int
-find_date( fields *in, char *date_element )
+find_date( fields *in, const char *date_element )
 {
 	char date[100], partdate[100];
 	int n;
@@ -498,14 +499,14 @@ find_date( fields *in, char *date_element )
 static void
 append_date( fields *in, fields *out, int *status )
 {
-	char *months[12] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+	const char *months[12] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", 
 		"Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 	int n, month, fstatus;
 
 	n = find_date( in, "YEAR" );
 	if ( n!=FIELDS_NOTFOUND ) {
 		fields_set_used( in, n );
-		fstatus = fields_add( out, "year", fields_value( in, n, FIELDS_CHRP ), LEVEL_MAIN );
+		fstatus = fields_add( out, "year", (const char *)fields_value( in, n, FIELDS_CHRP ), LEVEL_MAIN );
 		if ( fstatus!=FIELDS_OK ) {
 			*status = BIBL_ERR_MEMERR;
 			return;
@@ -790,10 +791,11 @@ static int
 bibtexout_write( fields *out, FILE *fp, param *pm, unsigned long refnum )
 {
 	int i, j, len, nquotes, format_opts = pm->format_opts;
-	char *tag, *value, ch;
+	const char* tag, * value;
+	char ch;
 
 	/* ...output type information "@article{" */
-	value = ( char * ) fields_value( out, 0, FIELDS_CHRP );
+	value = ( const char * ) fields_value( out, 0, FIELDS_CHRP );
 	if ( !(format_opts & BIBL_FORMAT_BIBOUT_UPPERCASE) ) fprintf( fp, "@%s{", value );
 	else {
 		len = (value) ? strlen( value ) : 0;
@@ -804,14 +806,14 @@ bibtexout_write( fields *out, FILE *fp, param *pm, unsigned long refnum )
 	}
 
 	/* ...output refnum "Smith2001" */
-	value = ( char * ) fields_value( out, 1, FIELDS_CHRP );
+	value = ( const char * ) fields_value( out, 1, FIELDS_CHRP );
 	fprintf( fp, "%s", value );
 
 	/* ...rest of the references */
 	for ( j=2; j<out->n; ++j ) {
 		nquotes = 0;
-		tag   = ( char * ) fields_tag( out, j, FIELDS_CHRP );
-		value = ( char * ) fields_value( out, j, FIELDS_CHRP );
+		tag   = ( const char * ) fields_tag( out, j, FIELDS_CHRP );
+		value = ( const char * ) fields_value( out, j, FIELDS_CHRP );
 		fprintf( fp, ",\n" );
 		if ( format_opts & BIBL_FORMAT_BIBOUT_WHITESPACE ) fprintf( fp, "  " );
 		if ( !(format_opts & BIBL_FORMAT_BIBOUT_UPPERCASE ) ) fprintf( fp, "%s", tag );

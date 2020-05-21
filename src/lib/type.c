@@ -69,7 +69,7 @@ int
 type_from_mods_hints( fields *in, int mode, const match_type matches[], int nmatches, int type_unknown )
 {
 	int i, j, level, type = type_unknown;
-	char *value;
+	const char *value;
 
 	for ( i=0; i<nmatches; ++i ) {
 

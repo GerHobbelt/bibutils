@@ -58,7 +58,7 @@ process_findoldtag( const char *oldtag, int reftype, variants all[], int nall )
  */
 int
 translate_oldtag( const char *oldtag, int reftype, variants all[], int nall,
-		int *processingtype, int *level, char **newtag )
+		int *processingtype, int *level, const char **newtag )
 {
 	int n;
 

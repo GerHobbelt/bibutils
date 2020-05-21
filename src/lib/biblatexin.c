@@ -603,7 +603,7 @@ biblatexin_cleanref( fields *bibin, param *p )
 	str* d;
 	n = fields_num( bibin );
 	for ( i=0; i<n; ++i ) {
-		t = fields_tag( bibin, i, FIELDS_STRP_NOUSE );
+		t = (const str *)fields_tag( bibin, i, FIELDS_STRP_NOUSE );
 		d = fields_value( bibin, i, FIELDS_STRP_NOUSE );
 		status = biblatexin_cleanvalue( t, d, bibin, p );
 		if ( status!=BIBL_OK ) return status;
@@ -648,7 +648,7 @@ biblatexin_typef( fields *bibin, const char *filename, int nrefs, param *p )
 	ntypename = fields_find( bibin, "INTERNAL_TYPE", LEVEL_MAIN );
 	nrefname  = fields_find( bibin, "REFNUM",        LEVEL_MAIN );
 	if ( nrefname!=FIELDS_NOTFOUND )  refname  = (const char *)fields_value( bibin, nrefname,  FIELDS_CHRP_NOUSE );
-        if ( ntypename!=FIELDS_NOTFOUND ) typename1 = (const char *)fields_value( bibin, ntypename, FIELDS_CHRP_NOUSE );
+    if ( ntypename!=FIELDS_NOTFOUND ) typename1 = (const char *)fields_value( bibin, ntypename, FIELDS_CHRP_NOUSE );
 
 	return get_reftype( typename1, nrefs, p->progname, p->all, p->nall, refname, &is_default, REFTYPE_CHATTY );
 }
@@ -673,7 +673,7 @@ get_title_elements( fields *bibin, int currlevel, int reftype, variants *all, in
 {
 	int nfields, process, level, i;
 	const str* t;
-	str* d;
+	const str* d;
 	char *newtag;
 
 	strs_empty( ttl, subttl, ttladdon, NULL );
@@ -686,8 +686,8 @@ get_title_elements( fields *bibin, int currlevel, int reftype, variants *all, in
 		if ( fields_used( bibin, i ) ) continue;
 
 		/* ...skip empty elements */
-		t = fields_tag  ( bibin, i, FIELDS_STRP_NOUSE );
-		d = fields_value( bibin, i, FIELDS_STRP_NOUSE );
+		t = (const str *)fields_tag  ( bibin, i, FIELDS_STRP_NOUSE );
+		d = (const str *)fields_value( bibin, i, FIELDS_STRP_NOUSE );
 		if ( d->len == 0 ) continue;
 
 		if ( !translate_oldtag( t->data, reftype, all, nall, &process, &level, &newtag ) )
@@ -965,8 +965,8 @@ biblatexin_bteprint( fields *bibin, int n, const str *intag, str *invalue, int l
 	neprint = fields_find( bibin, "eprint",     LEVEL_ANY );
 	netype  = fields_find( bibin, "eprinttype", LEVEL_ANY );
 
-	if ( neprint!=FIELDS_NOTFOUND ) eprint = fields_value( bibin, neprint, FIELDS_CHRP );
-	if ( netype!=FIELDS_NOTFOUND )  etype =  fields_value( bibin, netype,  FIELDS_CHRP );
+	if ( neprint!=FIELDS_NOTFOUND ) eprint = (const char *)fields_value( bibin, neprint, FIELDS_CHRP );
+	if ( netype!=FIELDS_NOTFOUND )  etype =  (const char *)fields_value( bibin, netype,  FIELDS_CHRP );
 
 	if ( eprint && etype ) {
 		if ( !strncasecmp( etype, "arxiv", 5 ) ) {
@@ -1131,11 +1131,11 @@ biblatexin_convertf( fields *bibin, fields *bibout, int reftype, param *p )
 	nfields = fields_num( bibin );
 	for ( i=0; i<nfields; ++i ) {
 
-               /* skip ones already "used" such as successful crossref */
-                if ( fields_used( bibin, i ) ) continue;
+        /* skip ones already "used" such as successful crossref */
+        if ( fields_used( bibin, i ) ) continue;
 
 		/* skip ones with no data or no tags (e.g. don't match ALWAYS/DEFAULT entries) */
-		intag   = fields_tag  ( bibin, i, FIELDS_STRP_NOUSE );
+		intag   = (const str *)fields_tag  ( bibin, i, FIELDS_STRP_NOUSE );
 		invalue = fields_value( bibin, i, FIELDS_STRP_NOUSE );
 		if ( str_is_empty( intag ) || str_is_empty( invalue ) ) continue;
 
