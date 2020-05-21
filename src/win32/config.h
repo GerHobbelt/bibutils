@@ -4,6 +4,9 @@
 #undef HAVE_UNISTD_H
 #define HAVE_PROCESS_H		1
 #undef HAVE_DIRENT_H
+#define HAVE_IO_H			1
+#define HAVE_DIRECT_H		1
+
 
 
 #undef HAVE_DESIGNATED_INITIALIZER_GNU_EXTENSION
@@ -53,6 +56,15 @@
 
 // warning C5045: Compiler will insert Spectre mitigation for memory load if /Qspectre switch specified
 #pragma warning(disable:5045)
+
+// warning C4514 : 'mktime' : unreferenced inline function has been removed
+#pragma warning(disable:4514)
+
+// warning C4505: 'strncasecmp': unreferenced local function has been removed
+#pragma warning(disable:4505)
+
+// warning C4711: function 'bibl_free' selected for automatic inline expansion
+#pragma warning(disable:4711)
 
 #endif
 

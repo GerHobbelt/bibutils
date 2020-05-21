@@ -9,19 +9,40 @@
 #include "cross_platform_porting.h"
 #include <stdio.h>
 #include <stdlib.h>
-#ifdef BUNDLE_BIBUTILS_TESTS
-#include "bibutils_tests.h"
-#endif
 #ifdef HAVE_DIRENT_H
 #include <dirent.h>
 #else
 // ripped from https://github.com/tronkko/dirent
 #include "../win32/include/dirent.h"
 #endif
+#ifdef HAVE_IO_H
+#include <io.h>
+#endif
+#ifdef HAVE_DIRECT_H
+#include <direct.h>
+#endif
+#include <string.h>
+#include <sys/stat.h>
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+#include <limits.h>
+
 #include "bibutils.h"
 #include "bibformats.h"
 #include "tomods.h"
 #include "bibprog.h"
+#include "measure_time.h"
+
+#ifdef BUNDLE_BIBUTILS_TESTS
+#include "bibutils_tests.h"
+#endif
+
+
+#ifndef F_OK
+#define F_OK 0
+#endif
+
 
 #ifndef MAX
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
@@ -30,10 +51,142 @@
 
 static const char progname[] = "bibutils_test";
 
+// Based on http://nion.modprobe.de/blog/archives/357-Recursive-directory-creation.html
+
+static int mkdirRecursiveForFile(const char* path) {
+    char opath[MAX(PATH_MAX + 1, 2048)];
+    char* p;
+    size_t len;
+
+    strncpy_s(opath, countof(opath), path, strlen(path));
+    opath[sizeof(opath) - 1] = '\0';
+    len = strlen(opath);
+    if (len == 0)
+        return 0;
+#if 0
+    else if (strchr("/\\", opath[len - 1]))
+        opath[len - 1] = '\0';
+#endif
+    for (p = opath; *p; p++) {
+        if (strchr("/\\", *p)) {
+            *p = '\0';
+            if (_access_s(opath, F_OK)) {
+                _mkdir(opath);
+            }
+            *p = '/';
+        }
+    }
+#if 0
+    if (_access_s(opath, F_OK)) {         /* if path is not terminated with / */
+        _mkdir(opath);
+    }
+#endif
+    return 0;
+}
+
+struct closure {
+    const char* srcfile;
+    const char* dstfile;
+    int subpart_offset;
+    int dst_subpart_offset;
+
+    param* p;
+
+    bibl b;
+    errno_t err;
+};
+
+// int measure(work_fn work, report_fn report, void* closure);
+
+static int loadIntoBibl(const char *title, struct closure* closure)
+{
+    FILE* fp;
+
+    bibl_init(&closure->b);
+
+    fprintf(stderr, "%s: Processing input file '%s'...\n", title, closure->srcfile + closure->subpart_offset);
+
+    closure->err = fopen_s(&fp, closure->srcfile, "r");
+    if (fp) {
+        closure->err = bibl_read(&closure->b, fp, closure->srcfile, closure->p);
+        if (closure->err) bibl_reporterr(closure->err);
+        fclose(fp);
+    }
+    else {
+        bibl_reporterr(closure->err);
+    }
+    return closure->err;
+}
+
+static int storeFromBibl(const char *title, struct closure* closure)
+{
+    FILE* fp;
+
+    fprintf(stderr, "%s: Writing processed data to output file '%s'...\n", title, closure->dstfile + closure->dst_subpart_offset);
+
+    closure->err = mkdirRecursiveForFile(closure->dstfile);
+    if (closure->err) {
+        return closure->err;
+    }
+
+    closure->err = fopen_s(&fp, closure->dstfile, "w");
+    if (fp) {
+        closure->err = bibl_write(&closure->b, fp, closure->p);
+        if (closure->err) bibl_reporterr(closure->err);
+        fclose(fp);
+    }
+    else {
+        bibl_reporterr(closure->err);
+    }
+    if (closure->p->progname) fprintf(stderr, "%s: ", closure->p->progname);
+    fprintf(stderr, "Processed %ld references.\n", closure->b.n);
+    bibl_free(&closure->b);
+    return EXIT_SUCCESS;
+}
+
+static int workReporter(double ms, const char* title, struct closure* closure)
+{
+    fprintf(stderr, "\n%s: ***** task '%s' took %0.3lf msecs to run. *****\n\n", title, closure->srcfile + closure->subpart_offset, ms);
+    return 0;
+}
+
+// rip & patch from bibprog():
+static int bibprog2(const char* srcfile, const char* dstfile, int subpart_filepath_offset, int dstsubpart_filepath_offset, param* p)
+{
+    struct closure closure = {
+        .srcfile = srcfile,
+        .dstfile = dstfile,
+        .subpart_offset = subpart_filepath_offset,
+        .dst_subpart_offset = dstsubpart_filepath_offset,
+        .p = p
+    };
+
+    int rv = measure(loadIntoBibl, workReporter, "LOAD.DATA", &closure);
+
+    if (!rv) {
+        rv += measure(storeFromBibl, workReporter, "SAVE.XML", &closure);
+    }
+
+    return rv;
+}
+
 static int process_input_file(const char* filepath, const char* filepath_subtree_part, struct dirent* ent)
 {
     // ignore hidden dot files:
     if (ent->d_name[0] == '.') return EXIT_SUCCESS;
+
+    str dst;
+    str_initstrc(&dst, filepath);
+    str_findreplace(&dst, "inputs", "outputs");
+    if (0 == strcmp(str_cstr(&dst), filepath)) {
+        fprintf(stderr, "Input path must point to a file inside a 'inputs' directory somewhere; output will then be written to the equivalent 'outputs' directory.");
+        return EXIT_FAILURE;
+    }
+    str_strcatc(&dst, ".xml");
+    int offset = filepath_subtree_part - filepath;
+    int dstoffset = offset + strlen("outputs") - strlen("inputs");
+
+    const char *dstpath = str_cstr(&dst);
 
     const char* ext = strrchr(ent->d_name, '.');
     if (strcasecmp(ext, ".bib") == 0) {
@@ -47,7 +200,7 @@ static int process_input_file(const char* filepath, const char* filepath_subtree
         };
         int argc = countof(argv) - 1;
         tomods_processargs(&argc, argv, &p, NULL, NULL);
-        bibprog(argc, argv, &p);
+        bibprog2(filepath, dstpath, offset, dstoffset, &p);
         bibl_freeparams(&p);
         return EXIT_SUCCESS;
     }
@@ -62,7 +215,7 @@ static int process_input_file(const char* filepath, const char* filepath_subtree
         };
         int argc = countof(argv) - 1;
         tomods_processargs(&argc, argv, &p, NULL, NULL);
-        bibprog(argc, argv, &p);
+        bibprog2(filepath, dstpath, offset, dstoffset, &p);
         bibl_freeparams(&p);
         return EXIT_SUCCESS;
     }
@@ -136,7 +289,7 @@ main( int argc, char *argv[] )
 	int failed = 0;
 #ifndef BUNDLE_BIBUTILS_TESTS
 	printf("FAIL: the bibutils unit tests have not been included in this test.");
-	failed += 1;				
+	failed += 1;
 #else
 	failed += utf8_test();
 	failed += str_test();

@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\bin\measure_time.cpp" />
     <ClCompile Include="..\test\bibutils_test.c" />
     <ClCompile Include="..\test\doi_test.c" />
     <ClCompile Include="..\test\entities_test.c" />
@@ -34,6 +35,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\bin\measure_time.h" />
     <ClInclude Include="..\test\bibutils_tests.h" />
     <ClInclude Include="include\dirent.h" />
   </ItemGroup>
