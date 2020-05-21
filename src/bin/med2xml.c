@@ -13,8 +13,8 @@
 #include "tomods.h"
 #include "bibprog.h"
 
-char help1[] =  "Converts a Medline XML file into MODS XML\n\n";
-char help2[] = "medline_file";
+const char help1[] =  "Converts a Medline XML file into MODS XML\n\n";
+const char help2[] = "medline_file";
 
 const char progname[] = "med2xml";
 

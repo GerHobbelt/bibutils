@@ -23,15 +23,15 @@
  */
 
 typedef struct url_t {
-	char *prefix;
-	char *tag;
+	const char *prefix;
+	const char *tag;
 	int offset;
 } url_t;
 
 static void
-notes_added_url( fields *bibout, str *invalue, int level, int *ok )
+notes_added_url( fields *bibout, const str *invalue, int level, int *ok )
 {
-	url_t prefixes[] = {
+	const url_t prefixes[] = {
 		{ "arXiv:",                                    "ARXIV",     6 },
 		{ "http://arxiv.org/abs/",                     "ARXIV",    21 },
 		{ "jstor:",                                    "JSTOR",     6 },
@@ -46,7 +46,7 @@ notes_added_url( fields *bibout, str *invalue, int level, int *ok )
 	int nprefixes = sizeof( prefixes ) / sizeof( prefixes[0] );
 
 	const char *p = str_cstr( invalue );
-	char *tag = "URL";
+	const char *tag = "URL";
 	int fstatus;
 	int i;
 
@@ -69,7 +69,7 @@ notes_added_url( fields *bibout, str *invalue, int level, int *ok )
 }
 
 static int
-notes_added_doi( fields *bibout, str *invalue, int level, int *ok )
+notes_added_doi( fields *bibout, const str *invalue, int level, int *ok )
 {
 	int doi, fstatus;
 
@@ -80,12 +80,11 @@ notes_added_doi( fields *bibout, str *invalue, int level, int *ok )
 		if ( fstatus != FIELDS_OK ) *ok = 0;
 		return 1;
 	}
-
 	else return 0;
 }
 
 int
-notes_add( fields *bibout, str *invalue, int level )
+notes_add( fields *bibout, const str *invalue, int level )
 {
 	int fstatus, done = 0, ok = 1;
 
@@ -93,12 +92,9 @@ notes_add( fields *bibout, str *invalue, int level )
 		fstatus = fields_add( bibout, "NOTES", str_cstr( invalue ), level );
 		if ( fstatus != FIELDS_OK ) ok = 0;
 	}
-
 	else {
-
 		done = notes_added_doi( bibout, invalue, level, &ok );
 		if ( !done ) notes_added_url( bibout, invalue, level, &ok );
-
 	}
 
 	return ok;

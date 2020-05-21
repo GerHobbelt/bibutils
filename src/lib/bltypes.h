@@ -1,20 +1,20 @@
 /*
- * entities.h
+ * bltypes.h
  *
  * Copyright (c) Chris Putnam 2003-2019
  *
  * Source code released under the GPL version 2
  *
  */
-#ifndef ENTITIES_H
-#define ENTITIES_H
+#ifndef BLTYPES_H
+#define BLTYPES_H
 
 #if defined(WIN32) || defined(WIN64)
 #include "../win32/config.h"
 #endif
+#include "reftypes.h"
 
-extern unsigned int decode_entity( const char *s, unsigned int *pi, 
-		int *unicode, int *err );
+extern const variants biblatex_all[];
+extern int biblatex_nall;
 
 #endif
-

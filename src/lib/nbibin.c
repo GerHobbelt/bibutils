@@ -24,9 +24,8 @@
 #include "reftypes.h"
 #include "bibformats.h"
 #include "generic.h"
+#include "nbibtypes.h"
 
-extern variants nbib_all[];
-extern int nbib_nall;
 
 /*****************************************************
  PUBLIC: void nbib_initparams()
@@ -382,7 +381,7 @@ out:
 
 /* the LID and AID fields that can be doi's or pii's */
 static int
-nbibin_doi( fields *bibin, int n, const str *intag, str *invalue, int level, param *pm, const char *outtag, fields *bibout )
+nbibin_doi( fields *bibin, int n, const str *intag, const str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
 	int fstatus, sstatus, status = BIBL_OK;
 	const char* id;
@@ -417,7 +416,7 @@ out:
 }
 
 static int
-nbibin_pages( fields *bibin, int n, const str *intag, str *invalue, int level, param *pm, const char *outtag, fields *bibout )
+nbibin_pages( fields *bibin, int n, const str *intag, const str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
 	int fstatus, status = BIBL_OK;
 	str sp, tmp, ep;

@@ -19,20 +19,17 @@
 #include "xml_encoding.h"
 #include "reftypes.h"
 #include "bibformats.h"
+#include "endtypes.h"
+#include "endin.h"
+
 
 typedef struct {
-	char *attrib;
-	char *internal;
+	const char *attrib;
+	const char *internal;
 } attribs;
-
-extern variants end_all[];
-extern int end_nall;
 
 static int endxmlin_readf( FILE *fp, char *buf, int bufsize, int *bufpos, str *line, str *reference, int *fcharset );
 static int endxmlin_processf( fields *endin, const char *p, const char *filename, long nref, param *pm );
-extern int endin_typef( fields *endin, const char *filename, int nrefs, param *p );
-extern int endin_convertf( fields *endin, fields *info, int reftype, param *p );
-extern int endin_cleanf( bibl *bin, param *p );
 
 
 /*****************************************************
@@ -188,7 +185,7 @@ endxmlin_datar( xml *node, str *s )
 }
 
 static int
-endxmlin_data( xml *node, char *inttag, fields *info, int level )
+endxmlin_data( xml *node, const char *inttag, fields *info, int level )
 {
 	int status;
 	str s;
@@ -216,7 +213,7 @@ endxmlin_data( xml *node, char *inttag, fields *info, int level )
 static int
 endxmlin_titles( xml *node, fields *info )
 {
-	attribs a[] = {
+	const attribs a[] = {
 		{ "title",           "%T"         },
 		{ "secondary-title", "%B"         },
 		{ "tertiary-title",  "%S"         },
@@ -276,7 +273,7 @@ out:
  *
  */
 static int
-endxmlin_contributor( xml *node, fields *info, char *int_tag, int level )
+endxmlin_contributor( xml *node, fields *info, const char *int_tag, int level )
 {
 	int status;
 	status = endxmlin_data( node, int_tag, info, level );
@@ -291,7 +288,7 @@ endxmlin_contributor( xml *node, fields *info, char *int_tag, int level )
 static int
 endxmlin_contributors( xml *node, fields *info )
 {
-	attribs a[] = {
+	const attribs a[] = {
 		{ "authors",            "%A" },
 		{ "secondary-authors",  "%E" },
 		{ "tertiary-authors",   "%Y" },

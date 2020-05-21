@@ -15,8 +15,8 @@
 
 const char progname[] = "bib2xml";
 
-char help1[] = "Converts a Bibtex reference file into MODS XML\n\n";
-char help2[] = "bibtex_file";
+const char help1[] = "Converts a Bibtex reference file into MODS XML\n\n";
+const char help2[] = "bibtex_file";
 
 int
 main( int argc, char *argv[] )

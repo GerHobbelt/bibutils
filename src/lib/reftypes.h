@@ -56,13 +56,13 @@ typedef struct {
 } lookups;
 
 typedef struct {
-	char    type[25];
-	lookups *tags;
+	const char *type;
+	const lookups *tags;
 	int     ntags;
 } variants;
 
-int get_reftype( const char *q, long refnum, const char *progname, variants *all, int nall, const char *tag, int *is_default, int chattiness );
-int process_findoldtag( const char *oldtag, int reftype, variants all[], int nall );
-int translate_oldtag( const char *oldtag, int reftype, variants all[], int nall, int *processingtype, int *level, const char **newtag );
+int get_reftype( const char *q, long refnum, const char *progname, const variants *all, int nall, const char *tag, int *is_default, int chattiness );
+int process_findoldtag( const char *oldtag, int reftype, const variants *all, int nall );
+int translate_oldtag( const char *oldtag, int reftype, const variants *all, int nall, int *processingtype, int *level, const char **newtag );
 
 #endif

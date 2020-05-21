@@ -13,8 +13,8 @@
 #include "tomods.h"
 #include "bibprog.h"
 
-char help1[] = "Converts a biblatex (not to be confused with bibtex) reference file into MODS XML\n\n";
-char help2[] = "bibtex_file";
+const char help1[] = "Converts a biblatex (not to be confused with bibtex) reference file into MODS XML\n\n";
+const char help2[] = "bibtex_file";
 
 const char progname[] = "biblatex2xml";
 

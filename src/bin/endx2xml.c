@@ -13,8 +13,8 @@
 #include "tomods.h"
 #include "bibprog.h"
 
-char help1[] =  "Converts a Endnote XML file (v8 or later) into MODS XML\n\n";
-char help2[] = "endnotexml_file";
+const char help1[] =  "Converts a Endnote XML file (v8 or later) into MODS XML\n\n";
+const char help2[] = "endnotexml_file";
 
 const char progname[] = "endx2xml";
 

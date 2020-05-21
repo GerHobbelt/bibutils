@@ -13,10 +13,10 @@
 #include "args.h"
 #include "bibprog.h"
 
-const char progname[] = "xml2isi";
+static const char progname[] = "xml2isi";
 
-void
-help( char *progname )
+static void
+help( const char *progname )
 {
 	args_tellversion( progname );
 	fprintf(stderr,"Converts an XML intermediate reference file into ISI format\n\n");
@@ -38,7 +38,7 @@ help( char *progname )
 	fprintf(stderr,"http://sourceforge.net/p/bibutils/home/Bibutils for more details\n\n");
 }
 
-void
+static void
 process_args( int *argc, char *argv[], param *p )
 {
 	int i, j, subtract;

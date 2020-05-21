@@ -361,7 +361,7 @@ decode_hex_entity( char *s, unsigned int *pi, int *err )
  *    but we'll be generous and accept "X" as well.
  */
 static unsigned int
-decode_numeric_entity( char *s, unsigned int *pi, int *err )
+decode_numeric_entity( const char *s, unsigned int *pi, int *err )
 {
 	unsigned int c;
 	*err = 0;
@@ -385,7 +385,7 @@ decode_numeric_entity( char *s, unsigned int *pi, int *err )
  *
  */
 unsigned int
-decode_entity( char *s, unsigned int *pi, int *unicode, int *err )
+decode_entity( const char *s, unsigned int *pi, int *unicode, int *err )
 {
 	unsigned int c = '&';
 	*unicode = 0;

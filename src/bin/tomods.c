@@ -6,6 +6,9 @@
  * Program and source code released under the GPL version 2
  *
  */
+#if defined(WIN32) || defined(WIN64)
+#include "../win32/config.h"
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,14 +20,20 @@
 #include "bibprog.h"
 
 static void
-args_tomods_help( char *progname, char *help1, char *help2 )
+args_tomods_help(const char *progname, const char *help1, const char *help2 )
 {
 	args_tellversion( progname );
-	fprintf(stderr,"%s", help1 );
+	if (help1)
+		fprintf(stderr,"%s", help1 );
 
-	fprintf(stderr,"usage: %s %s > xml_file\n\n", progname, help2 );
-        fprintf(stderr,"  %s can be replaced with file list or "
-			"omitted to use as a filter\n\n", help2 );
+	if (help2) {
+		fprintf(stderr, "usage: %s %s > xml_file\n\n", progname, help2);
+		fprintf(stderr, "  %s can be replaced with file list or "
+			"omitted to use as a filter\n\n", help2);
+	}
+	else {
+		fprintf(stderr, "usage: %s\n\n", progname);
+	}
 
 	fprintf(stderr,"  -h, --help                display this help\n");
 	fprintf(stderr,"  -v, --version             display version\n");
@@ -47,8 +56,8 @@ args_tomods_help( char *progname, char *help1, char *help2 )
 }
 
 static void
-args_namelist( int argc, char *argv[], int i, char *progname, char *shortarg, 
-		char *longarg )
+args_namelist( int argc, char *argv[], int i, const char *progname, const char *shortarg,
+	const char *longarg )
 {
 	if ( i+1 >= argc ) {
 		fprintf( stderr, "%s: error %s (%s) takes the argument of "
@@ -59,7 +68,7 @@ args_namelist( int argc, char *argv[], int i, char *progname, char *shortarg,
 
 void
 tomods_processargs( int *argc, char *argv[], param *p,
-	char *help1, char *help2 )
+	const char *help1, const char *help2 )
 {
 	int i, j, subtract, status;
 	process_charsets( argc, argv, p );

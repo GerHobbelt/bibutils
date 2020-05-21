@@ -14,13 +14,15 @@
 #include <stdio.h>
 #include "fields.h"
 #include "reftypes.h"
+#include "reftypes_internals.h"
+#include "bltypes.h"
 
 /* Entry types for biblatex formatted bibliographies */
 
 /*
  * Article in a journal, newspaper, other periodical
  */
-static lookups article[] = {
+static const lookups article[] = {
 	{ "author",          "AUTHOR",                 PERSON,          LEVEL_MAIN   },
 	{ "editor",          "EDITOR",                 BLT_EDITOR,      LEVEL_MAIN   },
 	{ "editora",         "EDITOR",                 BLT_EDITOR,      LEVEL_MAIN   },
@@ -95,7 +97,7 @@ static lookups article[] = {
 
 /* Book */
 
-static lookups book[] = {
+static const lookups book[] = {
 	{ "author",          "AUTHOR",                 PERSON,          LEVEL_MAIN   },
 	{ "editor",          "EDITOR",                 BLT_EDITOR,      LEVEL_MAIN   },
 	{ "editora",         "EDITOR",                 BLT_EDITOR,      LEVEL_MAIN   },
@@ -169,7 +171,7 @@ static lookups book[] = {
 
 /* Booklet */
 
-static lookups booklet[] = {
+static const lookups booklet[] = {
 	{ "author",          "AUTHOR",                 PERSON,          LEVEL_MAIN   },
 	{ "editor",          "EDITOR",                 BLT_EDITOR,      LEVEL_MAIN   },
 	{ "editora",         "EDITOR",                 BLT_EDITOR,      LEVEL_MAIN   },
@@ -220,7 +222,7 @@ static lookups booklet[] = {
 	{ "",                "GENRE:MARC|book",        ALWAYS,          LEVEL_MAIN   }
 };
 
-static lookups collection[] = {
+static const lookups collection[] = {
 	{ "editor",          "EDITOR",                 BLT_EDITOR,      LEVEL_MAIN   },
 	{ "editora",         "EDITOR",                 BLT_EDITOR,      LEVEL_MAIN   },
 	{ "editorb",         "EDITOR",                 BLT_EDITOR,      LEVEL_MAIN   },
@@ -293,7 +295,7 @@ static lookups collection[] = {
 
 /* Part of a book (e.g. chapter or section) */
 
-static lookups inbook[] = {
+static const lookups inbook[] = {
 	{ "author",          "AUTHOR",                 PERSON,          LEVEL_MAIN   },
 	{ "editor",          "EDITOR",                 BLT_EDITOR,      LEVEL_HOST   },
 	{ "editora",         "EDITOR",                 BLT_EDITOR,      LEVEL_HOST   },
@@ -371,7 +373,7 @@ static lookups inbook[] = {
 
 /* incollection */
 
-static lookups incollection[] = {
+static const lookups incollection[] = {
 	{ "author",          "AUTHOR",                 PERSON,          LEVEL_MAIN   },
 	{ "year",            "DATE:YEAR",              SIMPLE,          LEVEL_MAIN   },
 	{ "month",           "DATE:MONTH",             SIMPLE,          LEVEL_MAIN   },
@@ -452,7 +454,7 @@ static lookups incollection[] = {
 
 /* inproceedings */
 
-static lookups inproceedings[] = {
+static const lookups inproceedings[] = {
 	{ "author",          "AUTHOR",                 PERSON,          LEVEL_MAIN   },
 	{ "editor",          "EDITOR",                 BLT_EDITOR,      LEVEL_HOST   },
 	{ "editora",         "EDITOR",                 BLT_EDITOR,      LEVEL_HOST   },
@@ -533,7 +535,7 @@ static lookups inproceedings[] = {
 	{ "",                "GENRE:MARC|conference publication", ALWAYS,    LEVEL_HOST   }
 };
 
-static lookups manual[] = {
+static const lookups manual[] = {
 	{ "author",          "AUTHOR",                 PERSON,          LEVEL_MAIN   },
 	{ "editor",          "EDITOR",                 BLT_EDITOR,      LEVEL_MAIN   },
 	{ "editora",         "EDITOR",                 BLT_EDITOR,      LEVEL_MAIN   },
@@ -595,7 +597,7 @@ static lookups manual[] = {
 	{ "",                "GENRE:MARC|instruction",      ALWAYS,          LEVEL_MAIN   }
 };
 
-static lookups misc[] = {
+static const lookups misc[] = {
 	{ "author",          "AUTHOR",                 PERSON,          LEVEL_MAIN   },
 	{ "editor",          "EDITOR",                 BLT_EDITOR,      LEVEL_MAIN   },
 	{ "editora",         "EDITOR",                 BLT_EDITOR,      LEVEL_MAIN   },
@@ -644,7 +646,7 @@ static lookups misc[] = {
 	{ "",                "GENRE:BIBUTILS|miscellaneous",   ALWAYS,          LEVEL_MAIN   },
 };
 
-static lookups online[] = {
+static const lookups online[] = {
 	{ "author",          "AUTHOR",                 PERSON,          LEVEL_MAIN   },
 	{ "editor",          "EDITOR",                 BLT_EDITOR,      LEVEL_MAIN   },
 	{ "editora",         "EDITOR",                 BLT_EDITOR,      LEVEL_MAIN   },
@@ -692,7 +694,7 @@ static lookups online[] = {
 	{ "",                "GENRE:MARC|web page",    ALWAYS,          LEVEL_MAIN   },
 };
 
-static lookups patent[] = {
+static const lookups patent[] = {
 	{ "author",          "AUTHOR",                 PERSON,          LEVEL_MAIN   },
 	{ "holder",          "ASSIGNEE",               PERSON,          LEVEL_MAIN   },
 	{ "title",           "TITLE",                  TITLE,           LEVEL_MAIN   },
@@ -733,7 +735,7 @@ static lookups patent[] = {
  * its own title in addition to the main title of the periodical, it goes in 
  * the issuetitle field. The editor is omissible..."
  */
-static lookups periodical[] = {
+static const lookups periodical[] = {
 	{ "editor",          "EDITOR",                 BLT_EDITOR,      LEVEL_MAIN   },
 	{ "editora",         "EDITOR",                 BLT_EDITOR,      LEVEL_MAIN   },
 	{ "editorb",         "EDITOR",                 BLT_EDITOR,      LEVEL_MAIN   },
@@ -786,7 +788,7 @@ static lookups periodical[] = {
 	{ "",                "GENRE:MARC|periodical",  ALWAYS,          LEVEL_HOST   }
 };
 
-static lookups proceedings[] = {
+static const lookups proceedings[] = {
 	{ "editor",          "EDITOR",                 BLT_EDITOR,      LEVEL_MAIN   },
 	{ "editora",         "EDITOR",                 BLT_EDITOR,      LEVEL_MAIN   },
 	{ "editorb",         "EDITOR",                 BLT_EDITOR,      LEVEL_MAIN   },
@@ -859,7 +861,7 @@ static lookups proceedings[] = {
 };
 
 /* Technical reports */
-static lookups report[] = {
+static const lookups report[] = {
 	{ "author",          "AUTHOR",                 PERSON,          LEVEL_MAIN   },
 	{ "title",           "TITLE",                  TITLE,           LEVEL_MAIN   },
 	{ "subtitle",        "SUBTITLE",               TITLE,           LEVEL_MAIN   },
@@ -901,7 +903,7 @@ static lookups report[] = {
 };
 
 /* Unpublished */
-static lookups unpublished[] = {
+static const lookups unpublished[] = {
 	{ "author",          "AUTHOR",                 PERSON,          LEVEL_MAIN   },
 	{ "title",           "TITLE",                  TITLE,           LEVEL_MAIN   },
 	{ "subtitle",        "SUBTITLE",               TITLE,           LEVEL_MAIN   },
@@ -930,7 +932,7 @@ static lookups unpublished[] = {
 	{ "",                "GENRE:BIBUTILS|unpublished",     ALWAYS,          LEVEL_MAIN   }
 };
 
-static lookups thesis[] = {
+static const lookups thesis[] = {
 	{ "author",          "AUTHOR",                 PERSON,          LEVEL_MAIN   },
 	{ "title",           "TITLE",                  TITLE,           LEVEL_MAIN   },
 	{ "subtitle",        "SUBTITLE",               TITLE,           LEVEL_MAIN   },
@@ -964,7 +966,7 @@ static lookups thesis[] = {
 	{ "",                "GENRE:MARC|thesis",      ALWAYS,          LEVEL_MAIN   },
 };
 
-static lookups phdthesis[] = {
+static const lookups phdthesis[] = {
 	{ "author",          "AUTHOR",                 PERSON,          LEVEL_MAIN   },
 	{ "title",           "TITLE",                  TITLE,           LEVEL_MAIN   },
 	{ "subtitle",        "SUBTITLE",               TITLE,           LEVEL_MAIN   },
@@ -999,7 +1001,7 @@ static lookups phdthesis[] = {
 	{ "",                "GENRE:BIBUTILS|Ph.D. thesis",DEFAULT,     LEVEL_MAIN   },
 };
 
-static lookups mastersthesis[] = {
+static const lookups mastersthesis[] = {
 	{ "author",          "AUTHOR",                 PERSON,          LEVEL_MAIN   },
 	{ "title",           "TITLE",                  TITLE,           LEVEL_MAIN   },
 	{ "subtitle",        "SUBTITLE",               TITLE,           LEVEL_MAIN   },
@@ -1034,11 +1036,8 @@ static lookups mastersthesis[] = {
 	{ "",                "GENRE:BIBUTILS|Masters thesis",  DEFAULT, LEVEL_MAIN   },
 };
 
-#define ORIG(a) ( &(a[0]) )
-#define SIZE(a) ( sizeof( a ) / sizeof( lookups ) )
-#define REFTYPE(a,b) { a, ORIG(b), SIZE(b) }
 
-variants biblatex_all[] = {
+const variants biblatex_all[] = {
 	REFTYPE( "article", article ),
 	REFTYPE( "suppperiodical", article ),
 	REFTYPE( "booklet", booklet ),

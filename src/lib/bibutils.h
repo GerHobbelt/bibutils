@@ -18,6 +18,7 @@ extern "C" {
 #endif
 #include <stdio.h>
 #include "bibdefs.h"
+#include "reftypes.h"
 #include "bibl.h"
 #include "slist.h"
 #include "charsets.h"
@@ -108,7 +109,7 @@ typedef struct param {
 	slist asis;  /* Names that shouldn't be mangled */
 	slist corps; /* Names that shouldn't be mangled-MODS corporation type */
 
-	char *progname;
+	const char *progname;
 
 	int  (*readf)(FILE* fp, char* buf, int bufsize, int* bufpos, str* line, str* reference, int* fcharset);
 	int  (*processf)(fields* bibin, const char* data, const char* filename, long nref, struct param* pm);
@@ -119,7 +120,7 @@ typedef struct param {
 	void (*footerf)(FILE* outptr);
 	int  (*assemblef)(fields* in, fields* out, struct param* pm, unsigned long refnum);
 	int  (*writef)(fields* out, FILE* fp, struct param* pm, unsigned long refnum);
-	variants *all;
+	const variants *all;
 	int  nall;
 } param;
 

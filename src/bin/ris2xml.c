@@ -13,8 +13,8 @@
 #include "tomods.h"
 #include "bibprog.h"
 
-char help1[] = "Converts a RIS reference file into MODS XML";
-char help2[] = "ris_file";
+const char help1[] = "Converts a RIS reference file into MODS XML";
+const char help2[] = "ris_file";
 
 const char progname[] = "ris2xml";
 

@@ -10,7 +10,7 @@
 #define TOMODS_H
 
 void tomods_processargs( int *argc, char *argv[], param *p,
-        char *help1, char *help2 );
+    const char *help1, const char *help2 );
 
 
 #endif

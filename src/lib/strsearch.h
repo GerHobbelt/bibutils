@@ -13,7 +13,7 @@
 #include "../win32/config.h"
 #endif
 
-char *strsearch (const char *haystack, const char *needle);
+const char *strsearch (const char *haystack, const char *needle);
 
 #endif
 

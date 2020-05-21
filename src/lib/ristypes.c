@@ -14,8 +14,11 @@
 #include <string.h>
 #include "fields.h"
 #include "reftypes.h"
-	
-static lookups generic[] = {
+#include "reftypes_internals.h"
+#include "ristypes.h"
+
+
+static const lookups generic[] = {
 	{ "A1", "AUTHOR",       PERSON,  LEVEL_MAIN },   /* Deprecated? */
 	{ "A2", "AUTHOR",       PERSON,  LEVEL_HOST },   /* 'Secondary' Author */
 	{ "A3", "EDITOR",       PERSON,  LEVEL_SERIES }, /* 'Tertiary' Author -- Series editors */
@@ -90,7 +93,7 @@ static lookups generic[] = {
 	{ "Y2", "DATE:MONTH",   SIMPLE,  LEVEL_MAIN },   /* Access Date */
 };
 
-static lookups article[] = {
+static const lookups article[] = {
 	{ "A1", "AUTHOR",       PERSON,  LEVEL_MAIN },   /* Deprecated? */
 	{ "A2", "AUTHOR",       PERSON,  LEVEL_HOST },   /* 'Secondary' Author */
 	{ "A3", "EDITOR",       PERSON,  LEVEL_SERIES }, /* 'Tertiary' Author -- Series editor */
@@ -171,7 +174,7 @@ static lookups article[] = {
 };
 
 /* magazine article */
-static lookups magarticle[] = {
+static const lookups magarticle[] = {
 	{ "A1", "AUTHOR",       PERSON,  LEVEL_MAIN },   /* Deprecated? */
 	{ "A2", "AUTHOR",       PERSON,  LEVEL_HOST },   /* 'Secondary' Author */
 	{ "A3", "EDITOR",       PERSON,  LEVEL_SERIES }, /* 'Tertiary' Author - Series editors */
@@ -249,7 +252,7 @@ static lookups magarticle[] = {
 	{ "  ", "GENRE:BIBUTILS|magazine", ALWAYS, LEVEL_HOST }
 };
 
-static lookups newsarticle[] = {
+static const lookups newsarticle[] = {
 	{ "A1", "AUTHOR",       PERSON,  LEVEL_MAIN },   /* Deprecated? */
 	{ "A2", "AUTHOR",       PERSON,  LEVEL_HOST },   /* 'Secondary' Author */
 	{ "A3", "EDITOR",       PERSON,  LEVEL_SERIES }, /* 'Tertiary' Author - Series editor */
@@ -327,7 +330,7 @@ static lookups newsarticle[] = {
 	{ "  ", "GENRE:MARC|newspaper",           ALWAYS, LEVEL_HOST }
 };
 
-static lookups book[] = {
+static const lookups book[] = {
 	{ "A1", "AUTHOR",       PERSON,  LEVEL_MAIN },   /* Deprecated? */
 	{ "A2", "AUTHOR",       PERSON,  LEVEL_HOST },   /* 'Secondary' Author */
 	{ "A3", "EDITOR",       PERSON,  LEVEL_HOST },   /* 'Tertiary' Author - Series editor */
@@ -405,7 +408,7 @@ static lookups book[] = {
 	{ "  ", "RESOURCE|text",          ALWAYS, LEVEL_MAIN }
 };
 
-static lookups inbook[] = {
+static const lookups inbook[] = {
 	{ "A1", "AUTHOR",       PERSON,  LEVEL_MAIN },   /* Deprecated? */
 	{ "A2", "AUTHOR",       PERSON,  LEVEL_HOST },   /* 'Secondary' Author */
 	{ "A3", "EDITOR",       PERSON,  LEVEL_SERIES }, /* 'Tertiary' Author - series editor */
@@ -484,7 +487,7 @@ static lookups inbook[] = {
 	{ "  ", "RESOURCE|text",        ALWAYS, LEVEL_MAIN }
 };
 
-static lookups conference[] = {
+static const lookups conference[] = {
 	{ "A1", "AUTHOR",       PERSON,  LEVEL_MAIN },   /* Deprecated? */
 	{ "A2", "AUTHOR:ASIS",  SIMPLE,  LEVEL_HOST },   /* 'Secondary' Author - Name of conference */
 	{ "A3", "EDITOR",       PERSON,  LEVEL_SERIES }, /* 'Tertiary' Author - Series editor */
@@ -562,7 +565,7 @@ static lookups conference[] = {
 	{ "  ", "GENRE:MARC|conference publication", ALWAYS, LEVEL_HOST }
 };
 
-static lookups statute[] = {
+static const lookups statute[] = {
 	{ "A1", "AUTHOR",       PERSON,  LEVEL_MAIN },   /* Deprecated? */
 	{ "A2", "AUTHOR",       PERSON,  LEVEL_HOST },   /* 'Secondary' Author */
 	{ "A3", "EDITOR",       PERSON,  LEVEL_SERIES }, /* 'Tertiary' Author - Series editor */
@@ -640,7 +643,7 @@ static lookups statute[] = {
 	{ "  ", "GENRE:MARC|legislation",     ALWAYS, LEVEL_MAIN }
 };
 
-static lookups hearing[] = {
+static const lookups hearing[] = {
 	{ "A1", "AUTHOR",       PERSON,  LEVEL_MAIN },   /* Deprecated? */
 	{ "A2", "AUTHOR",       PERSON,  LEVEL_HOST },   /* 'Secondary' Author */
 	{ "A3", "EDITOR",       PERSON,  LEVEL_SERIES }, /* 'Tertiary' Author - series editor */
@@ -717,7 +720,7 @@ static lookups hearing[] = {
 	{ "  ", "GENRE:BIBUTILS|hearing",         ALWAYS, LEVEL_MAIN }
 };
 
-static lookups cases[] = {
+static const lookups cases[] = {
 	{ "A1", "AUTHOR",       PERSON,  LEVEL_MAIN },   /* Deprecated? */
 	{ "A2", "AUTHOR",       PERSON,  LEVEL_HOST },   /* 'Secondary' Author */
 	{ "A3", "EDITOR",       PERSON,  LEVEL_SERIES }, /* 'Tertiary' Author - series editor */
@@ -794,7 +797,7 @@ static lookups cases[] = {
 	{ "  ", "GENRE:MARC|legal case and case notes", ALWAYS, LEVEL_MAIN }
 };
 
-static lookups communication[] = {
+static const lookups communication[] = {
 	{ "A1", "AUTHOR",       PERSON,  LEVEL_MAIN },   /* Deprecated? */
 	{ "A2", "ADDRESSEE",    PERSON,  LEVEL_MAIN },   /* SPECIAL */
 	{ "A3", "EDITOR",       PERSON,  LEVEL_SERIES }, /* 'Tertiary' Author - Series editor */
@@ -871,7 +874,7 @@ static lookups communication[] = {
 	{ "  ", "GENRE:BIBUTILS|communication",   ALWAYS, LEVEL_MAIN }
 };
 
-static lookups thesis[] = {
+static const lookups thesis[] = {
 	{ "A1", "AUTHOR",       PERSON,  LEVEL_MAIN },   /* Deprecated? */
 	{ "A2", "AUTHOR",       PERSON,  LEVEL_HOST },   /* 'Secondary' Author */
 	{ "A3", "EDITOR",       PERSON,  LEVEL_SERIES }, /* 'Tertiary' Author - Series editor */
@@ -949,7 +952,7 @@ static lookups thesis[] = {
 	{ "  ", "GENRE:MARC|thesis",          ALWAYS,  LEVEL_MAIN },
 };
 
-static lookups report[] = {
+static const lookups report[] = {
 	{ "A1", "AUTHOR",       PERSON,  LEVEL_MAIN },   /* Deprecated? */
 	{ "A2", "AUTHOR",       PERSON,  LEVEL_HOST },   /* 'Secondary' Author */
 	{ "A3", "EDITOR",       PERSON,  LEVEL_SERIES }, /* 'Tertiary' Author - Series editor */
@@ -1027,7 +1030,7 @@ static lookups report[] = {
 	{ "  ", "GENRE:MARC|technical report", ALWAYS, LEVEL_MAIN }
 };
 
-static lookups abstract[] = {
+static const lookups abstract[] = {
 	{ "A1", "AUTHOR",       PERSON,  LEVEL_MAIN },   /* Deprecated? */
 	{ "A2", "AUTHOR",       PERSON,  LEVEL_HOST },   /* 'Secondary' Author */
 	{ "A3", "EDITOR",       PERSON,  LEVEL_SERIES }, /* 'Tertiary' Author - Series editor */
@@ -1103,7 +1106,7 @@ static lookups abstract[] = {
 	{ "  ", "GENRE:MARC|abstract or summary", ALWAYS,  LEVEL_MAIN }
 };
 
-static lookups program[] = {
+static const lookups program[] = {
 	{ "A1", "AUTHOR",       PERSON,  LEVEL_MAIN },   /* Deprecated? */
 	{ "A2", "AUTHOR",       PERSON,  LEVEL_HOST },   /* 'Secondary' Author */
 	{ "A3", "EDITOR",       PERSON,  LEVEL_SERIES }, /* 'Tertiary' Author - Series editor */
@@ -1179,7 +1182,7 @@ static lookups program[] = {
 	{ "  ", "RESOURCE|software, multimedia", ALWAYS, LEVEL_MAIN }
 };
 
-static lookups patent[] = {
+static const lookups patent[] = {
 	{ "A1", "AUTHOR",       PERSON,  LEVEL_MAIN },   /* Deprecated? */
 	{ "A2", "AUTHOR",       PERSON,  LEVEL_HOST },   /* 'Secondary' Author */
 	{ "A3", "EDITOR",       PERSON,  LEVEL_SERIES }, /* 'Tertiary' Author - Series editor */
@@ -1256,7 +1259,7 @@ static lookups patent[] = {
 	{ "  ", "GENRE:MARC|patent",  ALWAYS, LEVEL_MAIN }
 };
 
-static lookups electric[] = {
+static const lookups electric[] = {
 	{ "A1", "AUTHOR",       PERSON,  LEVEL_MAIN },   /* Deprecated? */
 	{ "A2", "AUTHOR",       PERSON,  LEVEL_HOST },   /* 'Secondary' Author */
 	{ "A3", "EDITOR",       PERSON,  LEVEL_SERIES }, /* 'Tertiary' Author - Series editor */
@@ -1333,7 +1336,7 @@ static lookups electric[] = {
 	{ " ",  "GENRE:MARC|electronic",              ALWAYS, LEVEL_MAIN },
 };
 
-static lookups pamphlet[] = {
+static const lookups pamphlet[] = {
 	{ "A1", "AUTHOR",       PERSON,  LEVEL_MAIN },   /* Deprecated? */
 	{ "A2", "AUTHOR",       PERSON,  LEVEL_HOST },   /* 'Secondary' Author */
 	{ "A3", "EDITOR",       PERSON,  LEVEL_SERIES }, /* 'Tertiary' Author - Series editor */
@@ -1410,7 +1413,7 @@ static lookups pamphlet[] = {
 	{ " ",  "GENRE:BIBUTILS|pamphlet", ALWAYS, LEVEL_MAIN },
 };
 
-static lookups map[] = {
+static const lookups map[] = {
 	{ "A1", "AUTHOR",       PERSON,  LEVEL_MAIN },   /* Deprecated? */
 	{ "A2", "AUTHOR",       PERSON,  LEVEL_HOST },   /* 'Secondary' Author */
 	{ "A3", "EDITOR",       PERSON,  LEVEL_SERIES }, /* 'Tertiary' Author - Series editor */
@@ -1487,7 +1490,7 @@ static lookups map[] = {
 	{ " ",  "GENRE:MARC|map",        ALWAYS, LEVEL_MAIN }
 };
 
-static lookups unpublished[] = {
+static const lookups unpublished[] = {
 	{ "A1", "AUTHOR",       PERSON,  LEVEL_MAIN },   /* Deprecated? */
 	{ "A2", "AUTHOR",       PERSON,  LEVEL_HOST },   /* 'Secondary' Author */
 	{ "A3", "EDITOR",       PERSON,  LEVEL_SERIES }, /* 'Tertiary' Author - Series editor */
@@ -1564,11 +1567,7 @@ static lookups unpublished[] = {
 	{ " ",  "GENRE:BIBUTILS|unpublished", ALWAYS, LEVEL_MAIN }
 };
 
-#define ORIG(a) ( &(a[0]) )
-#define SIZE(a) ( sizeof( a ) / sizeof( lookups ) )
-#define REFTYPE(a,b) { a, ORIG(b), SIZE(b) }
-
-variants ris_all[] = {
+const variants ris_all[] = {
 	REFTYPE( "STD", generic ),
 	REFTYPE( "GEN", generic ),
 	REFTYPE( "JOUR", article ),

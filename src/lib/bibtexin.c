@@ -27,12 +27,10 @@
 #include "latex_parse.h"
 #include "bibformats.h"
 #include "generic.h"
+#include "bibtypes.h"
 
 static slist find    = { 0, 0, 0, NULL };
 static slist replace = { 0, 0, 0, NULL };
-
-extern variants bibtex_all[];
-extern int bibtex_nall;
 
 /*****************************************************
  PUBLIC: void bibtexin_initparams()
@@ -986,7 +984,7 @@ bibtexin_typef( fields *bibin, const char *filename, int nrefs, param *p )
  */
 
 static int
-bibtexin_btorg( fields *bibin, int m, const str *intag, str *invalue, int level, param *pm, const char *outtag, fields *bibout )
+bibtexin_btorg( fields *bibin, int m, const str *intag, const str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
 	int n, fstatus;
 	n = fields_find( bibin, "publisher", LEVEL_ANY );
@@ -1007,7 +1005,7 @@ bibtexin_btorg( fields *bibin, int m, const str *intag, str *invalue, int level,
  */
 
 static int
-bibtexin_btsente( fields *bibin, int n, const str *intag, str *invalue, int level, param *pm, const char *outtag, fields *bibout )
+bibtexin_btsente( fields *bibin, int n, const str *intag, const str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
 	int fstatus, status = BIBL_OK;
 	str link;
@@ -1059,7 +1057,7 @@ last_colon( const char *p )
  * file={Description:/full/path/to/file.pdf:PDF}
  */
 static int
-bibtexin_linkedfile( fields *bibin, int m, const str *intag, str *invalue, int level, param *pm, const char *outtag, fields *bibout )
+bibtexin_linkedfile( fields *bibin, int m, const str *intag, const str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
 	int fstatus, status = BIBL_OK;
 	const char *p = str_cstr( invalue );
@@ -1113,7 +1111,7 @@ out:
  */
 
 static int
-bibtexin_howpublished( fields *bibin, int n, const str *intag, str *invalue, int level, param *pm, const char *outtag, fields *bibout )
+bibtexin_howpublished( fields *bibin, int n, const str *intag, const str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
 	int fstatus, status = BIBL_OK;
 	if ( !strncasecmp( str_cstr( invalue ), "Diplom", 6 ) ) {
@@ -1205,7 +1203,7 @@ process_eprint_without_prefix( fields *bibout, str *value, int level )
 }
 
 static int
-bibtexin_eprint( fields *bibin, int m, const str *intag, str *invalue, int level, param *pm, const char *outtag, fields *bibout )
+bibtexin_eprint( fields *bibin, int m, const str *intag, const str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
 	const char *prefix;
 	int n;
@@ -1232,7 +1230,7 @@ bibtexin_eprint( fields *bibin, int m, const str *intag, str *invalue, int level
  */
 
 static int
-bibtexin_keyword( fields *bibin, int m, const str *intag, str *invalue, int level, param *pm, const char *outtag, fields *bibout )
+bibtexin_keyword( fields *bibin, int m, const str *intag, const str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
 	int fstatus, status = BIBL_OK;
 	const char *p;
@@ -1309,7 +1307,7 @@ bibtexin_titleinbook_isbooktitle( fields *bibin, char *intag )
 }
 
 static int
-bibtexin_title( fields *bibin, int n, const str *intag, str *invalue, int level, param *pm, const char *outtag, fields *bibout )
+bibtexin_title( fields *bibin, int n, const str *intag, const str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
 	int ok;
 

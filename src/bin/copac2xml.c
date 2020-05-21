@@ -13,8 +13,8 @@
 #include "tomods.h"
 #include "bibprog.h"
 
-char help1[] = "Converts a Copac reference file into MODS XML\n\n";
-char help2[] = "copac_file";
+const char help1[] = "Converts a Copac reference file into MODS XML\n\n";
+const char help2[] = "copac_file";
 
 const char progname[] = "copac2xml";
 

@@ -13,10 +13,10 @@
 #include "args.h"
 #include "bibprog.h"
 
-const char progname[] = "xml2nbib";
+static const char progname[] = "xml2nbib";
 
-void
-help( char *progname )
+static void
+help( const char *progname )
 {
 	args_tellversion( progname );
 	fprintf(stderr,"Converts an XML intermediate reference file into NBIB format\n\n");

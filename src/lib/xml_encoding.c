@@ -41,11 +41,11 @@ xml_getencodingr( const xml *node )
 			}
 		}
 	}
-        if ( node->down ) {
+    if ( node->down ) {
 		m = xml_getencodingr( node->down );
 		if ( m!=CHARSET_UNKNOWN ) n = m;
 	}
-        if ( node->next ) {
+    if ( node->next ) {
 		m = xml_getencodingr( node->next );
 		if ( m!=CHARSET_UNKNOWN ) n = m;
 	}

@@ -14,8 +14,11 @@
 #include "is_ws.h"
 #include "fields.h"
 #include "reftypes.h"
+#include "reftypes_internals.h"
+#include "nbibtypes.h"
 
-static lookups article[] = {
+
+static const lookups article[] = {
 	{ "PMID",   "PMID",               SIMPLE, LEVEL_MAIN },
 	{ "OWN",    "",                   SKIP,   LEVEL_MAIN },
 	{ "STAT",   "",                   SKIP,   LEVEL_MAIN },
@@ -60,11 +63,7 @@ static lookups article[] = {
 	{ " ",      "GENRE:BIBUTILS|academic journal", ALWAYS, LEVEL_HOST }
 };
 
-#define ORIG(a) ( &(a[0]) )
-#define SIZE(a) ( sizeof( a ) / sizeof( lookups ) )
-#define REFTYPE(a,b) { a, ORIG(b), SIZE(b) }
-
-variants nbib_all[] = {
+const variants nbib_all[] = {
 	REFTYPE( "Journal article", article ),
 	REFTYPE( "News",            article ),
 };

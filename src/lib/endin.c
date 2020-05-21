@@ -21,9 +21,9 @@
 #include "reftypes.h"
 #include "bibformats.h"
 #include "generic.h"
+#include "endtypes.h"
+#include "endin.h"
 
-extern variants end_all[];
-extern int end_nall;
 
 /*****************************************************
  PUBLIC: void endin_initparams()
@@ -31,9 +31,6 @@ extern int end_nall;
 
 static int endin_readf( FILE *fp, char *buf, int bufsize, int *bufpos, str *line, str *reference, int *fcharset );
 static int endin_processf( fields *endin, const char *p, const char *filename, long nref, param *pm );
-int endin_typef( fields *endin, const char *filename, int nrefs, param *p );
-int endin_convertf( fields *endin, fields *info, int reftype, param *p );
-int endin_cleanf( bibl *bin, param *p );
 
 int
 endin_initparams( param *pm, const char *progname )
@@ -240,12 +237,12 @@ endin_typef( fields *endin, const char *filename, int nrefs, param *p )
 {
 	int ntypename, nrefname, is_default, nj, nv, nb, nr, nt, ni;
 	const char* refname = "";
-	const char* typename = "";
+	const char* typename1 = "";
 
 	ntypename = fields_find( endin, "%0", LEVEL_MAIN );
 	nrefname  = fields_find( endin, "%F", LEVEL_MAIN );
 	if ( nrefname!=-1  ) refname  = (const char *)fields_value( endin, nrefname,  FIELDS_CHRP_NOUSE );
-	if ( ntypename!=-1 ) typename = (const char *)fields_value( endin, ntypename, FIELDS_CHRP_NOUSE );
+	if ( ntypename!=-1 ) typename1 = (const char *)fields_value( endin, ntypename, FIELDS_CHRP_NOUSE );
 	else {
 		nj = fields_find( endin, "%J", 0 );
 		nv = fields_find( endin, "%V", 0 );
@@ -254,19 +251,19 @@ endin_typef( fields *endin, const char *filename, int nrefs, param *p )
 		nt = fields_find( endin, "%T", 0 );
 		ni = fields_find( endin, "%I", 0 );
 		if ( nj!=-1 && nv!=-1 ) {
-			typename = "Journal Article";
+			typename1 = "Journal Article";
 		} else if ( nb!=-1 ) {
-			typename = "Book Section";
+			typename1 = "Book Section";
 		} else if ( nr!=-1 && nt==-1 ) {
-			typename = "Report";
+			typename1 = "Report";
 		} else if ( ni!=-1 && nb==-1 && nj==-1 && nr==-1 ) {
-			typename = "Book";
+			typename1 = "Book";
 		} else if ( nb==-1 && nj==-1 && nr==-1 && ni==-1 ) {
-			typename = "Journal Article";
+			typename1 = "Journal Article";
 		}
 	}
 
-	return get_reftype( typename, nrefs, p->progname, p->all, p->nall, refname, &is_default, REFTYPE_CHATTY );
+	return get_reftype( typename1, nrefs, p->progname, p->all, p->nall, refname, &is_default, REFTYPE_CHATTY );
 }
 
 /*****************************************************
@@ -430,7 +427,7 @@ month_convert( const char *in, char *out, size_t outsize )
 }
 
 static int
-endin_date( fields *bibin, int n, const str *intag, str *invalue, int level, param *pm, const char *outtag, fields *bibout )
+endin_date( fields *bibin, int n, const str *intag, const str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
 	const char *tags[3][2] = {
 		{ "DATE:YEAR",  "PARTDATE:YEAR" },
@@ -503,7 +500,7 @@ endin_date( fields *bibin, int n, const str *intag, str *invalue, int level, par
 }
 
 static int
-endin_type( fields *bibin, int n, const str *intag, str *invalue, int level, param *pm, const char *outtag, fields *bibout )
+endin_type( fields *bibin, int n, const str *intag, const str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
 	const lookups types[] = {
 		{ "GENERIC",                "ARTICLE" },

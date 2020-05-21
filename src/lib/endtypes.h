@@ -1,20 +1,20 @@
 /*
- * entities.h
+ * endtypes.h
  *
  * Copyright (c) Chris Putnam 2003-2019
  *
  * Source code released under the GPL version 2
  *
  */
-#ifndef ENTITIES_H
-#define ENTITIES_H
+#ifndef ENDTYPES_H
+#define ENDTYPES_H
 
 #if defined(WIN32) || defined(WIN64)
 #include "../win32/config.h"
 #endif
+#include "reftypes.h"
 
-extern unsigned int decode_entity( const char *s, unsigned int *pi, 
-		int *unicode, int *err );
+extern const variants end_all[];
+extern int end_nall;
 
 #endif
-

@@ -285,7 +285,7 @@ const char *
 xml_find_start( const char *buffer, const char *tag )
 {
 	str starttag;
-	char *p;
+	const char *p;
 
 	str_initstrsc( &starttag, "<", tag, " ", NULL );
 
@@ -304,7 +304,7 @@ const char *
 xml_find_end( const char *buffer, const char *tag )
 {
 	str endtag;
-	char *p;
+	const char *p;
 
 	if ( xml_pns )
 		str_initstrsc( &endtag, "</", xml_pns, ":", tag, ">", NULL );

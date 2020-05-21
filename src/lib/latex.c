@@ -479,7 +479,7 @@ static int num_only_from_latex = sizeof( only_from_latex ) / sizeof( only_from_l
  *
  */
 static unsigned int
-lookup_latex( struct latex_chars *lc, int n, char *p, unsigned int *pos, int *unicode )
+lookup_latex( struct latex_chars *lc, int n, const char *p, unsigned int *pos, int *unicode )
 {
 	struct latex_entry *variant;
 	int i, j;
@@ -500,10 +500,10 @@ lookup_latex( struct latex_chars *lc, int n, char *p, unsigned int *pos, int *un
 }
 
 unsigned int
-latex2char( char *s, unsigned int *pos, int *unicode )
+latex2char( const char *s, unsigned int *pos, int *unicode )
 {
 	unsigned int value, result;
-	char *p;
+	const char *p;
 
 	p = &( s[*pos] );
 	value = (unsigned char) *p;

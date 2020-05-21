@@ -13,7 +13,7 @@
 #include "../win32/config.h"
 #endif
 
-extern unsigned int latex2char( char *s, unsigned int *pos, int *unicode );
+extern unsigned int latex2char( const char *s, unsigned int *pos, int *unicode );
 extern void uni2latex( unsigned int ch, char buf[], int buf_size );
 
 

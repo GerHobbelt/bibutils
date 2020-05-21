@@ -45,7 +45,7 @@ args_next( int argc, char *argv[], int n, const char *progname, const char *shor
 }
 
 static int
-args_charset( char *charset_name, int *charset, unsigned char *utf8 )
+args_charset( const char *charset_name, int *charset, unsigned char *utf8 )
 {
 	if ( !strcasecmp( charset_name, "unicode" ) || 
 	     !strcasecmp( charset_name, "utf8" ) ) {
@@ -64,10 +64,10 @@ args_charset( char *charset_name, int *charset, unsigned char *utf8 )
 
 static void
 args_encoding( int argc, char *argv[], int i, int *charset, 
-	unsigned char *utf8, char *progname, int inout )
+	unsigned char *utf8, const char *progname, int inout )
 {
-	char *shortver[] = { "-i", "-o" };
-	char *longver[] = { "--input-encoding", "--output-encoding" };
+	const char *shortver[] = { "-i", "-o" };
+	const char *longver[] = { "--input-encoding", "--output-encoding" };
 	if ( i+1 >= argc ) {
 		fprintf( stderr, "%s: error %s (%s) takes "
 				"the argument of the character set type\n",

@@ -21,9 +21,8 @@
 #include "reftypes.h"
 #include "bibformats.h"
 #include "generic.h"
+#include "copactypes.h"
 
-extern variants copac_all[];
-extern int copac_nall;
 
 /*****************************************************
  PUBLIC: void copacin_initparams()
@@ -221,7 +220,7 @@ out:
  * editors seem to be stuck in as authors with the tag "[Editor]" in it
  */
 static int
-copacin_person( fields *bibin, int n, const str *intag, str *invalue, int level, param *pm, const char *outtag, fields *bibout )
+copacin_person( fields *bibin, int n, const str *intag, const str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
 	const char* usetag = outtag;
 	const char editor[] = "EDITOR";

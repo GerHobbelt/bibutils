@@ -13,9 +13,9 @@
 #include "tomods.h"
 #include "bibprog.h"
 
-char help1[] = "Converts an Endnote reference file (refer format) "
+const char help1[] = "Converts an Endnote reference file (refer format) "
 		"into MODS XML\n\n";
-char help2[] = "endnote_file";
+const char help2[] = "endnote_file";
 
 const char progname[] = "end2xml";
 

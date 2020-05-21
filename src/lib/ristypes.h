@@ -1,20 +1,20 @@
 /*
- * entities.h
+ * ristypes.h
  *
  * Copyright (c) Chris Putnam 2003-2019
  *
  * Source code released under the GPL version 2
  *
  */
-#ifndef ENTITIES_H
-#define ENTITIES_H
+#ifndef RISTYPES_H
+#define RISTYPES_H
 
 #if defined(WIN32) || defined(WIN64)
 #include "../win32/config.h"
 #endif
+#include "reftypes.h"
 
-extern unsigned int decode_entity( const char *s, unsigned int *pi, 
-		int *unicode, int *err );
+extern const variants ris_all[];
+extern int ris_nall;
 
 #endif
-

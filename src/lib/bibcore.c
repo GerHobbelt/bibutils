@@ -200,7 +200,7 @@ bibl_freeparams( param *p )
 	if ( p ) {
 		slist_free( &(p->asis) );
 		slist_free( &(p->corps) );
-		if ( p->progname ) free( p->progname );
+		if ( p->progname ) free( (void *)p->progname );
 	}
 }
 

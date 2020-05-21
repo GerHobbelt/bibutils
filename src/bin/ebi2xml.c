@@ -13,8 +13,8 @@
 #include "tomods.h"
 #include "bibprog.h"
 
-char help1[] =  "Converts an EBI XML file into MODS XML\n\n";
-char help2[] = "ebi_file";
+const char help1[] =  "Converts an EBI XML file into MODS XML\n\n";
+const char help2[] = "ebi_file";
 
 const char progname[] = "ebi2xml";
 

@@ -17,7 +17,6 @@
 #include <ctype.h>
 #include "utf8.h"
 #include "str.h"
-#include "strsearch.h"
 #include "fields.h"
 #include "generic.h"
 #include "name.h"
@@ -103,7 +102,7 @@ enum {
 static int
 get_type( fields *in )
 {
-	match_type genre_matches[] = {
+	const match_type genre_matches[] = {
 		{ "academic journal",          TYPE_ARTICLE,            LEVEL_ANY },
 		{ "communication",             TYPE_COMMUNICATION,      LEVEL_ANY },
 		{ "conference publication",    TYPE_INPROCEEDINGS,      LEVEL_ANY },
@@ -132,13 +131,13 @@ get_type( fields *in )
 	};
 	int ngenre_matches = sizeof( genre_matches ) / sizeof( genre_matches[0] );
 
-	match_type resource_matches[] = {
+	const match_type resource_matches[] = {
 		{ "moving image",              TYPE_BROADCAST,          LEVEL_ANY  },
 		{ "software, multimedia",      TYPE_PROGRAM,            LEVEL_ANY  },
 	};
 	int nresource_matches = sizeof( resource_matches ) /sizeof( resource_matches[0] );
 
-	match_type issuance_matches[] = {
+	const match_type issuance_matches[] = {
 		{ "monographic",               TYPE_BOOK,               LEVEL_MAIN },
 		{ "monographic",               TYPE_INBOOK,             LEVEL_ANY  },
 	};

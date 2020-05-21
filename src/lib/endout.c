@@ -15,7 +15,6 @@
 #include <ctype.h>
 #include "utf8.h"
 #include "str.h"
-#include "strsearch.h"
 #include "fields.h"
 #include "generic.h"
 #include "name.h"
@@ -206,7 +205,7 @@ get_type( fields *in, param *p, unsigned long refnum )
 {
 	/* Comment out TYPE_GENERIC entries as that is default, but
          * keep in source as record of mapping decision. */
-	match_type genre_matches[] = {
+	const match_type genre_matches[] = {
 		/* MARC Authority elements */
 		{ "art original",              TYPE_ARTWORK,            LEVEL_ANY  },
 		{ "art reproduction",          TYPE_ARTWORK,            LEVEL_ANY  },
@@ -320,13 +319,13 @@ get_type( fields *in, param *p, unsigned long refnum )
 	};
 	int ngenre_matches = sizeof( genre_matches ) / sizeof( genre_matches[0] );
 
-	match_type resource_matches[] = {
+	const match_type resource_matches[] = {
 		{ "moving image",              TYPE_FILMBROADCAST,      LEVEL_ANY  },
 		{ "software, multimedia",      TYPE_PROGRAM,            LEVEL_ANY  },
 	};
 	int nresource_matches = sizeof( resource_matches ) / sizeof( resource_matches[0] );
 
-	match_type issuance_matches[] = {
+	const match_type issuance_matches[] = {
 		{ "monographic",               TYPE_BOOK,               LEVEL_MAIN },
 		{ "monographic",               TYPE_INBOOK,             LEVEL_ANY  },
 	};
@@ -353,7 +352,7 @@ static void
 append_type( int type, fields *out, param *p, int *status )
 {
 	/* These are restricted to Endnote-defined types */
-	match_type genrenames[] = {
+	const match_type genrenames[] = {
 		{ "Generic",                TYPE_GENERIC },
 		{ "Artwork",                TYPE_ARTWORK },
 		{ "Audiovisual Material",   TYPE_AUDIOVISUAL },
@@ -416,8 +415,8 @@ static int
 append_title( fields *in, char *full, char *sub, char *endtag,
 		int level, fields *out, int *status )
 {
-	const str *mainttl = fields_findv( in, level, FIELDS_STRP, full );
-	const str *subttl  = fields_findv( in, level, FIELDS_STRP, sub );
+	const str *mainttl = (const str *)fields_findv( in, level, FIELDS_STRP, full );
+	const str *subttl  = (const str *)fields_findv( in, level, FIELDS_STRP, sub );
 	str fullttl;
 	int fstatus;
 

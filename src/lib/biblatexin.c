@@ -26,9 +26,8 @@
 #include "reftypes.h"
 #include "bibformats.h"
 #include "generic.h"
+#include "bltypes.h"
 
-extern variants biblatex_all[];
-extern int biblatex_nall;
 
 static slist find    = { 0, 0, 0, NULL };
 static slist replace = { 0, 0, 0, NULL };
@@ -902,7 +901,7 @@ out:
 }
 
 static int
-biblatexin_bltsubtype( fields *bibin, int n, const str *intag, str *invalue, int level, param *pm, const char *outtag, fields *bibout )
+biblatexin_bltsubtype( fields *bibin, int n, const str *intag, const str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
 	int fstatus1, fstatus2;
 
@@ -923,7 +922,7 @@ biblatexin_bltsubtype( fields *bibin, int n, const str *intag, str *invalue, int
 
 /* biblatex drops school field if institution is present */
 static int
-biblatexin_bltschool( fields *bibin, int n, const str *intag, str *invalue, int level, param *pm, const char *outtag, fields *bibout )
+biblatexin_bltschool( fields *bibin, int n, const str *intag, const str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
 	int fstatus;
 	if ( fields_find( bibin, "institution", LEVEL_ANY ) != FIELDS_NOTFOUND )
@@ -936,7 +935,7 @@ biblatexin_bltschool( fields *bibin, int n, const str *intag, str *invalue, int 
 }
 
 static int
-biblatexin_bltthesistype( fields *bibin, int n, const str *intag, str *invalue, int level, param *pm, const char *outtag, fields *bibout )
+biblatexin_bltthesistype( fields *bibin, int n, const str *intag, const str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
 	char *p = invalue->data;
 	int fstatus = FIELDS_OK;
@@ -957,7 +956,7 @@ biblatexin_bltthesistype( fields *bibin, int n, const str *intag, str *invalue, 
 }
 
 static int
-biblatexin_bteprint( fields *bibin, int n, const str *intag, str *invalue, int level, param *pm, const char *outtag, fields *bibout )
+biblatexin_bteprint( fields *bibin, int n, const str *intag, const str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
 	int neprint, netype, fstatus;
 	const char *eprint = NULL, *etype = NULL;
@@ -1002,7 +1001,7 @@ biblatexin_bteprint( fields *bibin, int n, const str *intag, str *invalue, int l
 }
 
 static int
-biblatexin_btgenre( fields *bibin, int n, const str *intag, str *invalue, int level, param *pm, const char *outtag, fields *bibout )
+biblatexin_btgenre( fields *bibin, int n, const str *intag, const str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
 	if ( fields_add( bibout, "GENRE:BIBUTILS", str_cstr( invalue ), level ) == FIELDS_OK ) return BIBL_OK;
 	else return BIBL_ERR_MEMERR;
@@ -1021,7 +1020,7 @@ biblatexin_btgenre( fields *bibin, int n, const str *intag, str *invalue, int le
  * into this field, so check for that first.
  */
 static int
-biblatexin_howpublished( fields *bibin, int n, const str *intag, str *invalue, int level, param *pm, const char *outtag, fields *bibout )
+biblatexin_howpublished( fields *bibin, int n, const str *intag, const str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
 	int fstatus;
 
@@ -1059,7 +1058,7 @@ biblatexin_howpublished( fields *bibin, int n, const str *intag, str *invalue, i
  *     "none" (for performer)
  */
 static int
-biblatexin_blteditor( fields *bibin, int m, const str *intag, str *invalue, int level, param *pm, const char *outtag, fields *bibout )
+biblatexin_blteditor( fields *bibin, int m, const str *intag, const str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
 	const char *editor_fields[] = { "editor", "editora", "editorb", "editorc" };
 	const char *editor_types[]  = { "editortype", "editoratype", "editorbtype", "editorctype" };
@@ -1082,7 +1081,7 @@ biblatexin_blteditor( fields *bibin, int m, const str *intag, str *invalue, int 
 }
 
 static int
-biblatexin_person( fields *bibin, int n, const str *intag, str *invalue, int level, param *pm, const char *outtag, fields *bibout )
+biblatexin_person( fields *bibin, int n, const str *intag, const str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
 	return biblatex_names( bibout, outtag, invalue, level, &(pm->asis), &(pm->corps) );
 }

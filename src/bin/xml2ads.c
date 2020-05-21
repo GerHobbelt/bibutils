@@ -13,13 +13,13 @@
 #include "args.h"
 #include "bibprog.h"
 
-const char progname[] = "xml2ads";
+static const char progname[] = "xml2ads";
 
-void
-help( char *progname )
+static void
+help( const char *progname )
 {
 	args_tellversion( progname );
-	fprintf(stderr,"Converts an XML intermediate reference file into a ADS aabstracts format\n\n");
+	fprintf(stderr,"Converts an XML intermediate reference file into a ADS abstracts format\n\n");
 
 	fprintf(stderr,"usage: %s xml_file > adsabs_file\n\n",progname);
         fprintf(stderr,"  xml_file can be replaced with file list or omitted to use as a filter\n\n");
@@ -33,7 +33,7 @@ help( char *progname )
 	fprintf(stderr,"\nhttp://sourceforge.net/p/bibutils/home/Bibutils for more details\n\n");
 }
 
-void
+static void
 process_args( int *argc, char *argv[], param *p )
 {
 	int i, j, subtract;

@@ -20,7 +20,7 @@
 #define CHARSET_UTF8_DEFAULT (1)
 #define CHARSET_BOM_DEFAULT  (1)
 
-extern char * charset_get_xmlname( int n );
+extern const char * charset_get_xmlname( int n );
 extern int charset_find( const char *name );
 extern void charset_list_all( FILE *fp );
 extern unsigned int charset_lookupchar( int charsetin, char c );

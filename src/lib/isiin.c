@@ -21,9 +21,8 @@
 #include "reftypes.h"
 #include "bibformats.h"
 #include "generic.h"
+#include "isitypes.h"
 
-extern variants isi_all[];
-extern int isi_nall;
 
 static int isiin_readf( FILE *fp, char *buf, int bufsize, int *bufpos, str *line, str *reference, int *fcharset );
 static int isiin_typef( fields *isiin, const char *filename, int nref, param *p );
@@ -203,7 +202,6 @@ add_tag_value( fields *isiin, const str *tag, const str *value, int *tag_added )
 		if ( status!=FIELDS_OK ) return BIBL_ERR_MEMERR;
 		*tag_added = 1;
 	}
-
 	else {
 		*tag_added = 0;
 	}
@@ -240,11 +238,10 @@ merge_tag_value( fields *isiin, str *tag, str *value, int *tag_added )
 				if ( str_memerr( oldvalue ) ) return BIBL_ERR_MEMERR;
 			}
 		}
-
 		else {
-                        status = fields_add( isiin, str_cstr( tag ), str_cstr( value ), LEVEL_MAIN );
-                        if ( status!=FIELDS_OK ) return BIBL_ERR_MEMERR;
-                        *tag_added = 1;
+            status = fields_add( isiin, str_cstr( tag ), str_cstr( value ), LEVEL_MAIN );
+            if ( status!=FIELDS_OK ) return BIBL_ERR_MEMERR;
+            *tag_added = 1;
 		}
 	}
 
@@ -349,7 +346,7 @@ isiin_addauthors( fields *isiin, fields *info, int reftype, variants *all, int n
 }
 
 static int
-isiin_keyword( fields *bibin, int n, const str *intag, str *invalue, int level, param *pm, const char *outtag, fields *bibout )
+isiin_keyword( fields *bibin, int n, const str *intag, const str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
 	const char *p = str_cstr( invalue );
 	int fstatus, status = BIBL_OK;

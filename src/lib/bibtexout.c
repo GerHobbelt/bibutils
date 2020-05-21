@@ -91,7 +91,7 @@ enum {
 static int
 bibtexout_type( fields *in, const char *progname, const char *filename, unsigned long refnum )
 {
-	match_type genre_matches[] = {
+	const match_type genre_matches[] = {
 		{ "periodical",             TYPE_ARTICLE,       LEVEL_ANY  },
 		{ "academic journal",       TYPE_ARTICLE,       LEVEL_ANY  },
 		{ "magazine",               TYPE_ARTICLE,       LEVEL_ANY  },
@@ -119,13 +119,13 @@ bibtexout_type( fields *in, const char *progname, const char *filename, unsigned
 	};
 	int ngenre_matches = sizeof( genre_matches ) / sizeof( genre_matches[0] );
 
-	match_type resource_matches[] = {
+	const match_type resource_matches[] = {
 		{ "moving image",           TYPE_ELECTRONIC,    LEVEL_ANY  },
 		{ "software, multimedia",   TYPE_ELECTRONIC,    LEVEL_ANY  },
 	};
 	int nresource_matches = sizeof( resource_matches ) /sizeof( resource_matches[0] );
 
-	match_type issuance_matches[] = {
+	const match_type issuance_matches[] = {
 		{ "monographic",            TYPE_BOOK,          LEVEL_MAIN },
 		{ "monographic",            TYPE_INBOOK,        LEVEL_ANY  },
 	};

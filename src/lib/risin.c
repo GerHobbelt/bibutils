@@ -24,9 +24,8 @@
 #include "reftypes.h"
 #include "bibformats.h"
 #include "generic.h"
+#include "ristypes.h"
 
-extern variants ris_all[];
-extern int ris_nall;
 
 /*****************************************************
  PUBLIC: void risin_initparams()
@@ -344,7 +343,7 @@ is_uri_file_scheme( const char *p )
 }
 
 static int
-risin_linkedfile( fields *bibin, int n, const str *intag, str *invalue, int level, param *pm, const char *outtag, fields *bibout )
+risin_linkedfile( fields *bibin, int n, const str *intag, const str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
 	int fstatus, m;
 	const char *p;
@@ -375,7 +374,7 @@ risin_linkedfile( fields *bibin, int n, const str *intag, str *invalue, int leve
 
 /* scopus puts DOI in the DO or DI tag, but it needs cleaning */
 static int
-risin_doi( fields *bibin, int n, const str *intag, str *invalue, int level, param *pm, const char *outtag, fields *bibout )
+risin_doi( fields *bibin, int n, const str *intag, const str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
 	int fstatus, doi;
 	doi = is_doi( str_cstr( invalue ) );
@@ -387,7 +386,7 @@ risin_doi( fields *bibin, int n, const str *intag, str *invalue, int level, para
 }
 
 static int
-risin_date( fields *bibin, int n, const str *intag, str *invalue, int level, param *pm, const char *outtag, fields *bibout )
+risin_date( fields *bibin, int n, const str *intag, const str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
 	const char *p = str_cstr( invalue );
 	int part, status;
@@ -438,7 +437,7 @@ risin_date( fields *bibin, int n, const str *intag, str *invalue, int level, par
 }
 
 static int
-risin_person( fields *bibin, int n, const str *intag, str *invalue, int level, param *pm, const char *outtag, fields *bibout )
+risin_person( fields *bibin, int n, const str *intag, const str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
 	int i, begin, end, ok, status = BIBL_OK;
 	slist tokens;
