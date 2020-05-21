@@ -269,13 +269,18 @@ test_randomize( void )
 	check_entry( &a, 0, 0 );
 	check_entry( &a, 99, 99 );
 
+	for (i = 0; i <= 99; ++i) {
+		m = intlist_find(&a, i);
+		check(m == i, "intlist_init_range() should have produced a series of 0..99");
+	}
+
 	intlist_randomize( &a );
 
 	/* ...can't check order, but can check that every value exists */
 	check_len( &a, 100 );
-	for ( i=0; i<99; ++i ) {
+	for ( i=0; i<=99; ++i ) {
 		m = intlist_find( &a, i );
-		check( (m>=0&&m<99), "intlist_randomize() shouldn't remove values" );
+		check( (m>=0&&m<=99), "intlist_randomize() shouldn't remove values" );
 	}
 
 	intlist_free( &a );
