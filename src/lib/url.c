@@ -62,32 +62,32 @@ xxx_to_url( fields *f, int n, const char *http_prefix, const char *urltag, str *
 		str_empty( xxx_url );
 }
 void
-doi_to_url( fields *f, int n, char *urltag, str *url )
+doi_to_url( fields *f, int n, const char *urltag, str *url )
 {
 	xxx_to_url( f, n, "https://doi.org", urltag, url, '/' );
 }
 void
-jstor_to_url( fields *f, int n, char *urltag, str *url )
+jstor_to_url( fields *f, int n, const char *urltag, str *url )
 {
 	xxx_to_url( f, n, "http://www.jstor.org/stable", urltag, url, '/' );
 }
 void
-pmid_to_url( fields *f, int n, char *urltag, str *url )
+pmid_to_url( fields *f, int n, const char *urltag, str *url )
 {
 	xxx_to_url( f, n, "http://www.ncbi.nlm.nih.gov/pubmed", urltag, url, '/' );
 }
 void
-pmc_to_url( fields *f, int n, char *urltag, str *url )
+pmc_to_url( fields *f, int n, const char *urltag, str *url )
 {
 	xxx_to_url( f, n, "http://www.ncbi.nlm.nih.gov/pmc/articles", urltag, url, '/' );
 }
 void
-arxiv_to_url( fields *f, int n, char *urltag, str *url )
+arxiv_to_url( fields *f, int n, const char *urltag, str *url )
 {
 	xxx_to_url( f, n, "http://arxiv.org/abs", urltag, url, '/' );
 }
 void
-mrnumber_to_url( fields *f, int n, char *urltag, str *url )
+mrnumber_to_url( fields *f, int n, const char *urltag, str *url )
 {
 	xxx_to_url( f, n, "http://www.ams.org/mathscinet-getitem?mr=", urltag, url, '\0' );
 }
@@ -250,7 +250,7 @@ urls_split_and_add( const char *value_in, fields *out, int lvl_out )
  *
  */
 static int
-urls_merge_and_add_type( fields *out, char *tag_out, int lvl_out, const char *prefix, vplist *values )
+urls_merge_and_add_type( fields *out, const char *tag_out, int lvl_out, const char *prefix, vplist *values )
 {
 	int fstatus, status = BIBL_OK;
 	vplist_index i;
@@ -260,13 +260,12 @@ urls_merge_and_add_type( fields *out, char *tag_out, int lvl_out, const char *pr
 
 	for ( i=0; i<values->n; ++i ) {
 		str_strcpyc( &url, prefix );
-		str_strcatc( &url, ( char * ) vplist_get( values, i ) );
+		str_strcatc( &url, ( const char * ) vplist_get( values, i ) );
 		fstatus = fields_add( out, tag_out, str_cstr( &url ), lvl_out );
 		if ( fstatus!=FIELDS_OK ) {
 			status = BIBL_ERR_MEMERR;
 			goto out;
 		}
-
 	}
 out:
 	str_free( &url );
@@ -283,7 +282,7 @@ out:
  * like bibtex ought to do special things with DOI, ARXIV, MRNUMBER, and the like.
  */
 int
-urls_merge_and_add( fields *in, int lvl_in, fields *out, char *tag_out, int lvl_out, slist *types )
+urls_merge_and_add( fields *in, int lvl_in, fields *out, const char *tag_out, int lvl_out, slist *types )
 {
 	int i, j, status = BIBL_OK;
 	const char* tag, * prefix;

@@ -159,7 +159,7 @@ write_type( FILE *fp, int type )
 }
 
 static void
-verbose_type_identified( char *element_type, param *p, int type )
+verbose_type_identified( const char *element_type, param *p, int type )
 {
 	if ( p->progname ) fprintf( stderr, "%s: ", p->progname );
 	fprintf( stderr, "Type from %s element: ", element_type );
@@ -168,7 +168,7 @@ verbose_type_identified( char *element_type, param *p, int type )
 }
 
 static void
-verbose_type_assignment( char *tag, char *value, param *p, int type )
+verbose_type_assignment( const char *tag, const char *value, param *p, int type )
 {
 	if ( p->progname ) fprintf( stderr, "%s: ", p->progname );
 	fprintf( stderr, "Type from tag '%s' value '%s': ", tag, value );
@@ -177,7 +177,7 @@ verbose_type_assignment( char *tag, char *value, param *p, int type )
 }
 
 typedef struct match_type {
-	char *name;
+	const char *name;
 	int type;
 } match_type;
 
@@ -187,7 +187,7 @@ typedef struct match_type {
 static int
 get_type_genre( fields *f, param *p )
 {
-	match_type match_genres[] = {
+	const match_type match_genres[] = {
 		{ "academic journal",          TYPE_ARTICLE },
 		{ "article",                   TYPE_ARTICLE },
 		{ "journal article",           TYPE_ARTICLE },
@@ -215,15 +215,16 @@ get_type_genre( fields *f, param *p )
 		{ "map",                       TYPE_MAP },
 	};
 	int nmatch_genres = sizeof( match_genres ) / sizeof( match_genres[0] );
-	char *tag, *value;
+	const char* tag;
+	const char* value;
 	int type, i, j;
 
 	type = TYPE_UNKNOWN;
 
 	for ( i=0; i<fields_num( f ); ++i ) {
-		tag = ( char * ) fields_tag( f, i, FIELDS_CHRP );
+		tag = ( const char * ) fields_tag( f, i, FIELDS_CHRP );
 		if ( strcmp( tag, "GENRE:MARC" ) && strcmp( tag, "GENRE:BIBUTILS" ) && strcmp( tag, "GENRE:UNKNOWN") ) continue;
-		value = ( char * ) fields_value( f, i, FIELDS_CHRP );
+		value = ( const char * ) fields_value( f, i, FIELDS_CHRP );
 		for ( j=0; j<nmatch_genres; ++j )
 			if ( !strcasecmp( match_genres[j].name, value ) )
 				type = match_genres[j].type;
@@ -242,7 +243,6 @@ get_type_genre( fields *f, param *p )
 				else type=TYPE_INBOOK;
 			}
 		}
-
 	}
 
 	if ( p->verbose ) verbose_type_identified( "genre", p, type );
@@ -256,14 +256,14 @@ get_type_genre( fields *f, param *p )
 static int
 get_type_resource( fields *f, param *p )
 {
-	match_type match_res[] = {
+	const match_type match_res[] = {
 		{ "software, multimedia",      TYPE_PROGRAM },
 		{ "cartographic",              TYPE_MAP     },
 	};
 	int nmatch_res = sizeof( match_res ) / sizeof( match_res[0] );
 	vplist_index i;
 	int type, j;
-	char *value;
+	const char *value;
 	vplist a;
 
 	type = TYPE_UNKNOWN;
@@ -272,7 +272,7 @@ get_type_resource( fields *f, param *p )
 	fields_findv_each( f, LEVEL_ANY, FIELDS_CHRP, &a, "RESOURCE" );
 
 	for ( i=0; i<a.n; ++i ) {
-		value = ( char * ) vplist_get( &a, i );
+		value = ( const char * ) vplist_get( &a, i );
 		for ( j=0; j<nmatch_res; ++j ) {
 			if ( !strcasecmp( value, match_res[j].name ) )
 				type = match_res[j].type;
@@ -341,7 +341,7 @@ get_type( fields *f, param *p )
 static void
 append_type( int type, param *p, fields *out, int *status )
 {
-	char *typenames[ NUM_TYPES ] = {
+	const char *typenames[ NUM_TYPES ] = {
 		[ TYPE_STD                ] = "STD",
 		[ TYPE_ABSTRACT           ] = "ABST",
 		[ TYPE_ARTICLE            ] = "JOUR",
@@ -382,7 +382,7 @@ append_type( int type, param *p, fields *out, int *status )
 }
 
 static void
-append_people( fields *f, char *tag, char *ristag, int level, fields *out, int *status )
+append_people( fields *f, const char *tag, const char *ristag, int level, fields *out, int *status )
 {
 	vplist_index i;
 	str oneperson;
@@ -393,7 +393,7 @@ append_people( fields *f, char *tag, char *ristag, int level, fields *out, int *
 	vplist_init( &people );
 	fields_findv_each( f, level, FIELDS_CHRP, &people, tag );
 	for ( i=0; i<people.n; ++i ) {
-		name_build_withcomma( &oneperson, ( char * ) vplist_get( &people, i ) );
+		name_build_withcomma( &oneperson, ( const char * ) vplist_get( &people, i ) );
 		if ( str_memerr( &oneperson ) ) { *status = BIBL_ERR_MEMERR; goto out; }
 		fstatus = fields_add_can_dup( out, ristag, str_cstr( &oneperson ), LEVEL_MAIN );
 		if ( fstatus!=FIELDS_OK ) { *status = BIBL_ERR_MEMERR; goto out; }
@@ -406,7 +406,7 @@ out:
 static void
 append_date( fields *in, fields *out, int *status )
 {
-	char *year, *month, *day;
+	const char *year, *month, *day;
 	str date;
 	int fstatus;
 
@@ -438,10 +438,10 @@ append_date( fields *in, fields *out, int *status )
 }
 
 static void
-append_titlecore( fields *in, char *ristag, int level, char *maintag, char *subtag, fields *out, int *status )
+append_titlecore( fields *in, const char *ristag, int level, const char *maintag, const char *subtag, fields *out, int *status )
 {
-	str *mainttl = fields_findv( in, level, FIELDS_STRP, maintag );
-	str *subttl  = fields_findv( in, level, FIELDS_STRP, subtag );
+	const str *mainttl = fields_findv( in, level, FIELDS_STRP, maintag );
+	const str *subttl  = fields_findv( in, level, FIELDS_STRP, subtag );
 	str fullttl;
 	int fstatus;
 
@@ -481,7 +481,7 @@ append_alltitles( fields *in, int type, fields *out, int *status )
 static void
 append_pages( fields *in, fields *out, int *status )
 {
-	char *sn, *en, *ar;
+	const char *sn, *en, *ar;
 	int fstatus;
 
 	sn = fields_findv( in, LEVEL_ANY, FIELDS_CHRP, "PAGES:START" );
@@ -560,9 +560,9 @@ append_thesishint( int type, fields *out, int *status )
 }
 
 static int
-is_uri_scheme( char *p )
+is_uri_scheme(const char *p )
 {
-	char *scheme[] = { "http:", "https:", "file:", "ftp:", "git:", "gopher:" };
+	const char *scheme[] = { "http:", "https:", "file:", "ftp:", "git:", "gopher:" };
 	int i, len, nschemes = sizeof( scheme ) / sizeof( scheme[0] );
 	for ( i=0; i<nschemes; ++i ) {
 		len = strlen( scheme[i] );
@@ -573,19 +573,19 @@ is_uri_scheme( char *p )
 
 
 static void
-append_file( fields *in, char *tag, char *ristag, int level, fields *out, int *status )
+append_file( fields *in, const char *tag, const char *ristag, int level, fields *out, int *status )
 {
 	vplist_index i;
 	str filename;
 	int fstatus;
 	vplist a;
-	char *fl;
+	const char *fl;
 
 	str_init( &filename );
 	vplist_init( &a );
 	fields_findv_each( in, level, FIELDS_CHRP, &a, tag );
 	for ( i=0; i<a.n; ++i ) {
-		fl = ( char * ) vplist_get( &a, i );
+		fl = ( const char * ) vplist_get( &a, i );
 		str_empty( &filename );
 		if ( !is_uri_scheme( fl ) ) str_strcatc( &filename, "file:" );
 		str_strcatc( &filename, fl );
@@ -599,9 +599,9 @@ out:
 }
 
 static void
-append_easy( fields *in, char *tag, char *ristag, int level, fields *out, int *status )
+append_easy( fields *in, const char *tag, const char *ristag, int level, fields *out, int *status )
 {
-	char *value;
+	const char *value;
 	int fstatus;
 
 	value = fields_findv( in, level, FIELDS_CHRP, tag );
@@ -612,7 +612,7 @@ append_easy( fields *in, char *tag, char *ristag, int level, fields *out, int *s
 }
 
 static void
-append_easyall( fields *in, char *tag, char *ristag, int level, fields *out, int *status )
+append_easyall( fields *in, const char *tag, const char *ristag, int level, fields *out, int *status )
 {
 	vplist_index i;
 	int fstatus;
@@ -621,7 +621,7 @@ append_easyall( fields *in, char *tag, char *ristag, int level, fields *out, int
 	vplist_init( &a );
 	fields_findv_each( in, level, FIELDS_CHRP, &a, tag );
 	for ( i=0; i<a.n; ++i ) {
-		fstatus = fields_add( out, ristag, (char *) vplist_get( &a, i ), LEVEL_MAIN );
+		fstatus = fields_add( out, ristag, (const char *) vplist_get( &a, i ), LEVEL_MAIN );
 		if ( fstatus!=FIELDS_OK ) *status = BIBL_ERR_MEMERR;
 	}
 	vplist_free( &a );

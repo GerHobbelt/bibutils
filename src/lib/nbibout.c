@@ -114,10 +114,10 @@ append_type( fields *in, fields *out, int *status )
 }
 
 static void
-append_titlecore( fields *in, char *nbibtag, int level, char *maintag, char *subtag, fields *out, int *status )
+append_titlecore( fields *in, const char *nbibtag, int level, const char *maintag, const char *subtag, fields *out, int *status )
 {
-	str *mainttl = fields_findv( in, level, FIELDS_STRP, maintag );
-	str *subttl  = fields_findv( in, level, FIELDS_STRP, subtag );
+	const str *mainttl = fields_findv( in, level, FIELDS_STRP, maintag );
+	const str *subttl  = fields_findv( in, level, FIELDS_STRP, subtag );
 	str fullttl;
 	int fstatus;
 
@@ -144,16 +144,16 @@ append_title( fields *in, char *nbibtag, int level, fields *out, int *status )
 }
 
 static void
-append_abbrtitle( fields *in, char *nbibtag, int level, fields *out, int *status )
+append_abbrtitle( fields *in, const char *nbibtag, int level, fields *out, int *status )
 {
 	append_titlecore( in, nbibtag, level, "SHORTTITLE", "SHORTSUBTITLE", out, status );
 }
 
 static void
-process_person( str *person, char *name, int full )
+process_person( str *person, const char *name, int full )
 {
 	str family, given, suffix;
-	char *p = name;
+	const char *p = name;
 
 	str_empty( person );
 
@@ -199,7 +199,7 @@ process_person( str *person, char *name, int full )
 }
 
 static void
-append_people( fields *f, char *tag, char *nbibtag_full, char *nbibtag_abbr, int level, fields *out, int *status )
+append_people( fields *f, const char *tag, const char *nbibtag_full, const char *nbibtag_abbr, int level, fields *out, int *status )
 {
 	vplist_index i;
 	vplist people;
@@ -212,12 +212,12 @@ append_people( fields *f, char *tag, char *nbibtag_full, char *nbibtag_abbr, int
 	fields_findv_each( f, level, FIELDS_CHRP, &people, tag );
 	for ( i=0; i<people.n; ++i ) {
 
-		process_person( &person, (char *)vplist_get( &people, i ), 1 );
+		process_person( &person, (const char *)vplist_get( &people, i ), 1 );
 		if ( str_memerr( &person ) ) { *status = BIBL_ERR_MEMERR; goto out; }
 		fstatus = fields_add_can_dup( out, nbibtag_full, str_cstr( &person ), LEVEL_MAIN );
 		if ( fstatus!=FIELDS_OK ) { *status = BIBL_ERR_MEMERR; goto out; }
 
-		process_person( &person, (char *)vplist_get( &people, i ), 0 );
+		process_person( &person, (const char *)vplist_get( &people, i ), 0 );
 		if ( str_memerr( &person ) ) { *status = BIBL_ERR_MEMERR; goto out; }
 		fstatus = fields_add_can_dup( out, nbibtag_abbr, str_cstr( &person ), LEVEL_MAIN );
 		if ( fstatus!=FIELDS_OK ) { *status = BIBL_ERR_MEMERR; goto out; }
@@ -230,9 +230,9 @@ out:
 }
 
 static void
-append_easy( fields *in, char *tag, char *nbibtag, int level, fields *out, int *status )
+append_easy( fields *in, const char *tag, const char *nbibtag, int level, fields *out, int *status )
 {
-	char *value;
+	const char *value;
 	int fstatus;
 
 	value = fields_findv( in, level, FIELDS_CHRP, tag );
@@ -243,7 +243,7 @@ append_easy( fields *in, char *tag, char *nbibtag, int level, fields *out, int *
 }
 
 static void
-append_easyall( fields *in, char *tag, char *nbibtag, int level, fields *out, int *status )
+append_easyall( fields *in, const char *tag, const char *nbibtag, int level, fields *out, int *status )
 {
 	vplist_index i;
 	int fstatus;
@@ -252,14 +252,14 @@ append_easyall( fields *in, char *tag, char *nbibtag, int level, fields *out, in
 	vplist_init( &a );
 	fields_findv_each( in, level, FIELDS_CHRP, &a, tag );
 	for ( i=0; i<a.n; ++i ) {
-		fstatus = fields_add( out, nbibtag, (char *) vplist_get( &a, i ), LEVEL_MAIN );
+		fstatus = fields_add( out, nbibtag, (const char *) vplist_get( &a, i ), LEVEL_MAIN );
 		if ( fstatus!=FIELDS_OK ) *status = BIBL_ERR_MEMERR;
 	}
 	vplist_free( &a );
 }
 
 static void
-append_pages( fields *in, char *nbibtag, int level, fields *out, int *status )
+append_pages( fields *in, const char *nbibtag, int level, fields *out, int *status )
 {
 	const str *start, *stop, *articlenumber;
 	int fstatus;
@@ -308,9 +308,9 @@ append_pages( fields *in, char *nbibtag, int level, fields *out, int *status )
 
 /* location identifier */
 static void
-append_lid( fields *in, char *nbibtag, int level, fields *out, int *status )
+append_lid( fields *in, const char *nbibtag, int level, fields *out, int *status )
 {
-	str *doi, *pii, *isi;
+	const str *doi, *pii, *isi;
 	int fstatus;
 	str lid;
 
@@ -340,15 +340,13 @@ append_lid( fields *in, char *nbibtag, int level, fields *out, int *status )
 		if ( fstatus!=FIELDS_OK ) *status = BIBL_ERR_MEMERR;
 	}
 
-
-
 	str_free( &lid );
 }
 
 static void
-append_date( fields *in, char *nbibtag, int level, fields *out, int *status )
+append_date( fields *in, const char *nbibtag, int level, fields *out, int *status )
 {
-	str *day, *month, *year;
+	const str *day, *month, *year;
 	int fstatus;
 	str date;
 
@@ -380,7 +378,7 @@ append_date( fields *in, char *nbibtag, int level, fields *out, int *status )
 }
 
 static void
-append_lang( fields *in, char *nbibtag, int level, fields *out, int *status )
+append_lang( fields *in, const char *nbibtag, int level, fields *out, int *status )
 {
 	int fstatus;
 	const str *lang;
@@ -396,11 +394,11 @@ append_lang( fields *in, char *nbibtag, int level, fields *out, int *status )
 }
 
 static void
-append_keywords( fields *in, char *nbibtag, int level, fields *out, int *status )
+append_keywords( fields *in, const char *nbibtag, int level, fields *out, int *status )
 {
 	vplist keywords;
 	int fstatus;
-	char *kw;
+	const char *kw;
 	int i;
 
 	vplist_init( &keywords );
@@ -411,7 +409,6 @@ append_keywords( fields *in, char *nbibtag, int level, fields *out, int *status 
 		fstatus = fields_add( out, nbibtag, kw, LEVEL_MAIN );
 		if ( fstatus!=FIELDS_OK ) *status = BIBL_ERR_MEMERR;
 	}
-	
 }
 
 static int

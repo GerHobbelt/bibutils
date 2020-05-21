@@ -338,7 +338,7 @@ bibl_verbose( bibl *bin, const char *msg1, const char *msg2 )
  * value = "Masters thesis"
  */
 static int
-extract_tag_value( str *tag, str *value, char *p )
+extract_tag_value( str *tag, str *value, const char *p )
 {
 	str_empty( tag );
 	while ( p && *p && *p!='|' ) {
@@ -366,11 +366,11 @@ extract_tag_value( str *tag, str *value, char *p )
  * been adding during reference processing.
  */
 static int
-process_defaultadd( fields *f, int reftype, param *r )
+process_defaultadd( fields *f, int reftype, const param *r )
 {
 	int i, n, process, level, status, ret = BIBL_OK;
 	str tag, value;
-	char *p;
+	const char *p;
 
 	strs_init( &tag, &value, NULL );
 
@@ -411,11 +411,11 @@ out:
  * DEFAULT processing).
  */
 static int
-process_alwaysadd( fields *f, int reftype, param *r )
+process_alwaysadd( fields *f, int reftype, const param *r )
 {
 	int i, process, level, status, ret = BIBL_OK;
 	str tag, value;
-	char *p;
+	const char *p;
 
 	strs_init( &tag, &value, NULL );
 

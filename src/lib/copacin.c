@@ -221,9 +221,10 @@ out:
  * editors seem to be stuck in as authors with the tag "[Editor]" in it
  */
 static int
-copacin_person( fields *bibin, int n, const str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
+copacin_person( fields *bibin, int n, const str *intag, str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
-	char *usetag = outtag, editor[]="EDITOR";
+	const char* usetag = outtag;
+	const char editor[] = "EDITOR";
 	int comma = 0, i, ok, status;
 	str usename, *s;
 	slist tokens;
@@ -285,7 +286,7 @@ copacin_report_notag( param *p, const char *tag )
 static int
 copacin_convertf( fields *bibin, fields *bibout, int reftype, param *p )
 {
-	static int (*convertfns[NUM_REFTYPES])(fields *, int, const str *, str *, int, param *, char *, fields *) = {
+	static generic_convert_fn convertfns[NUM_REFTYPES] = {
 #ifdef HAVE_DESIGNATED_INITIALIZER_GNU_EXTENSION
 		[ 0 ... NUM_REFTYPES-1 ] = generic_null,
 #endif

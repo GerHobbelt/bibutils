@@ -416,8 +416,8 @@ static int
 append_title( fields *in, char *full, char *sub, char *endtag,
 		int level, fields *out, int *status )
 {
-	str *mainttl = fields_findv( in, level, FIELDS_STRP, full );
-	str *subttl  = fields_findv( in, level, FIELDS_STRP, sub );
+	const str *mainttl = fields_findv( in, level, FIELDS_STRP, full );
+	const str *subttl  = fields_findv( in, level, FIELDS_STRP, sub );
 	str fullttl;
 	int fstatus;
 
@@ -463,10 +463,10 @@ append_people( fields *in, char *tag, char *entag, int level, fields *out, int *
 static void
 append_pages( fields *in, fields *out, int *status )
 {
-	str *sn, *en;
+	const str *sn, *en;
 	int fstatus;
 	str pages;
-	char *ar;
+	const char *ar;
 
 	sn = fields_findv( in, LEVEL_ANY, FIELDS_STRP, "PAGES:START" );
 	en = fields_findv( in, LEVEL_ANY, FIELDS_STRP, "PAGES:STOP" );
@@ -509,7 +509,7 @@ static void
 append_year( fields *in, fields *out, int *status )
 {
 	int fstatus;
-	char *year;
+	const char *year;
 
 	year = fields_findv_firstof( in, LEVEL_ANY, FIELDS_CHRP, "DATE:YEAR", "PARTDATE:YEAR", NULL );
 	if ( year ) {
@@ -521,10 +521,10 @@ append_year( fields *in, fields *out, int *status )
 static void
 append_monthday( fields *in, fields *out, int *status )
 {
-	char *months[12] = { "January", "February", "March", "April",
+	const char *months[12] = { "January", "February", "March", "April",
 		"May", "June", "July", "August", "September", "October",
 		"November", "December" };
-	char *month, *day;
+	const char *month, *day;
 	int m, fstatus;
 	str monday;
 
@@ -550,10 +550,10 @@ append_genrehint( int type, fields *out, vplist *a, int *status )
 {
 	vplist_index i;
 	int fstatus;
-	char *g;
+	const char *g;
 
 	for ( i=0; i<a->n; ++i ) {
-		g = ( char * ) vplist_get( a, i );
+		g = ( const char * ) vplist_get( a, i );
 		if ( !strcmp( g, "journal article" ) && type==TYPE_ARTICLE ) continue;
 		if ( !strcmp( g, "academic journal" ) && type==TYPE_ARTICLE ) continue;
 		if ( !strcmp( g, "collection" ) && type==TYPE_INBOOK ) continue;
@@ -631,7 +631,7 @@ append_easyall( fields *in, char *tag, char *entag, int level, fields *out, int 
 	vplist_init( &a );
 	fields_findv_each( in, level, FIELDS_CHRP, &a, tag );
 	for ( i=0; i<a.n; ++i ) {
-		fstatus = fields_add( out, entag, (char *) vplist_get( &a, i ), LEVEL_MAIN );
+		fstatus = fields_add( out, entag, (const char *) vplist_get( &a, i ), LEVEL_MAIN );
 		if ( fstatus!=FIELDS_OK ) *status = BIBL_ERR_MEMERR;
 	}
 	vplist_free( &a );
@@ -640,7 +640,7 @@ append_easyall( fields *in, char *tag, char *entag, int level, fields *out, int 
 static void
 append_easy( fields *in, char *tag, char *entag, int level, fields *out, int *status )
 {
-	char *value;
+	const char *value;
 	int fstatus;
 
 	value = fields_findv( in, level, FIELDS_CHRP, tag );

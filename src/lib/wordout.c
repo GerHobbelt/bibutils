@@ -603,7 +603,7 @@ output_comments( fields *info, FILE *outptr, int level )
 	if ( abs || notes.n ) fprintf( outptr, "<b:Comments>" );
 	if ( abs ) fprintf( outptr, "%s", abs );
 	for ( i=0; i<notes.n; ++i )
-		fprintf( outptr, "%s", (char*)vplist_get( &notes, i ) );
+		fprintf( outptr, "%s", (const char*)vplist_get( &notes, i ) );
 	if ( abs || notes.n ) fprintf( outptr, "</b:Comments>\n" );
 
 	vplist_free( &notes );

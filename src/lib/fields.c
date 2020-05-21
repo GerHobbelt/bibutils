@@ -501,7 +501,7 @@ fields_level( fields *f, int n )
 	return _fields_level( f, n );
 }
 
-void *
+const void *
 fields_findv( fields *f, int level, int mode, const char *tag )
 {
 	int i, found = FIELDS_NOTFOUND;
@@ -516,7 +516,7 @@ fields_findv( fields *f, int level, int mode, const char *tag )
 			break;
 		} else {
 			if ( mode & FIELDS_NOLENOK_FLAG ) {
-				return (void *) fields_null_value;
+				return (const void *) fields_null_value;
 			} else if ( mode & FIELDS_SETUSE_FLAG ) {
 				f->used[i] = 1; /* Suppress "noise" of unused */
 			}
@@ -527,14 +527,15 @@ fields_findv( fields *f, int level, int mode, const char *tag )
 	else return fields_value( f, found, mode );
 }
 
-void *
+const void *
 fields_findv_firstof( fields *f, int level, int mode, ... )
 {
-	char *tag, *value;
+	const char* tag;
+	const char* value;
 	va_list argp;
 
 	va_start( argp, mode );
-	while ( ( tag = ( char * ) va_arg( argp, char * ) ) ) {
+	while ( ( tag = ( const char * ) va_arg( argp, const char * ) ) ) {
 		value = fields_findv( f, level, mode, tag );
 		if ( value ) {
 			va_end( argp );

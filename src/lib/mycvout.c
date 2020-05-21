@@ -6,6 +6,8 @@
  * Source code released under the GPL version 2
  *
  */
+#if 0
+
 #if defined(WIN32) || defined(WIN64)
 #include "../win32/config.h"
 #endif
@@ -73,7 +75,7 @@ static void
 output_citekey( FILE *fp, fields *info, unsigned long refnum, int format_opts )
 {
 	int n = fields_find( info, "REFNUM", -1 );
-	char *p;
+	const char *p;
 	if ( n!=-1 ) {
 		p = info->value[n].data;
 		while ( p && *p && *p!='|' ) {
@@ -93,9 +95,9 @@ output_citekey( FILE *fp, fields *info, unsigned long refnum, int format_opts )
 }
 
 static int
-bibtexout_type( fields *info, char *filename, int refnum, param *p )
+bibtexout_type( fields *info, const char *filename, int refnum, param *p )
 {
-	char *genre;
+	const char *genre;
 	int type = TYPE_UNKNOWN, i, maxlevel, n, level;
 
 	/* determine bibliography type */
@@ -167,10 +169,10 @@ output_type( FILE *fp, int type, int format_opts )
 {
 	typedef struct {
 		int bib_type;
-		char *type_name;
+		const char *type_name;
 	} typenames;
 
-	typenames types[] = {
+	const typenames types[] = {
 		{ TYPE_ARTICLE, "Article" },
 		{ TYPE_INBOOK, "Inbook" },
 		{ TYPE_PROCEEDINGS, "Proceedings" },
@@ -186,7 +188,7 @@ output_type( FILE *fp, int type, int format_opts )
 		{ TYPE_ELECTRONIC, "Electronic" },
 		{ TYPE_MISC, "Misc" } };
 	int i, len, ntypes = sizeof( types ) / sizeof( types[0] );
-	char *s = NULL;
+	const char *s = NULL;
 	for ( i=0; i<ntypes; ++i ) {
 		if ( types[i].bib_type == type ) {
 			s = types[i].type_name;
@@ -205,7 +207,7 @@ output_type( FILE *fp, int type, int format_opts )
 }
 
 static void
-output_element( FILE *fp, char *tag, char *data, int format_opts )
+output_element( FILE *fp, const char *tag, const char *data, int format_opts )
 {
 	int i, len, nquotes = 0;
 	char ch;
@@ -245,14 +247,14 @@ output_element( FILE *fp, char *tag, char *data, int format_opts )
 }
 
 static void
-output_and_use( FILE *fp, fields *info, int n, char *outtag, int format_opts )
+output_and_use( FILE *fp, fields *info, int n, const char *outtag, int format_opts )
 {
 	output_element( fp, outtag, info->value[n].data, format_opts );
 	fields_set_used( info, n );
 }
 
 static void
-output_simple( FILE *fp, fields *info, char *intag, char *outtag, 
+output_simple( FILE *fp, fields *info, const char *intag, const char *outtag,
 		int format_opts )
 {
 	int n = fields_find( info, intag, -1 );
@@ -262,7 +264,7 @@ output_simple( FILE *fp, fields *info, char *intag, char *outtag,
 }
 
 static void
-output_simpleall( FILE *fp, fields *info, char *intag, char *outtag,
+output_simpleall( FILE *fp, fields *info, const char *intag, const char *outtag,
 		int format_opts )
 {
 	int i;
@@ -295,7 +297,7 @@ output_fileattach( FILE *fp, fields *info, int format_opts )
 }
 
 static void
-add_person( str *s, char *p )
+add_person( str *s, const char *p )
 {
 	int nseps = 0, nch;
 	while ( *p ) {
@@ -313,8 +315,8 @@ add_person( str *s, char *p )
 }
 
 static void
-output_people( FILE *fp, fields *info, unsigned long refnum, char *tag, 
-		char *ctag, char *atag, char *bibtag, int level, 
+output_people( FILE *fp, fields *info, unsigned long refnum, const char *tag,
+	const char *ctag, const char *atag, const char *bibtag, int level,
 		int format_opts )
 {
 	str allpeople;
@@ -354,7 +356,7 @@ output_people( FILE *fp, fields *info, unsigned long refnum, char *tag,
 }
 
 static void
-output_title( FILE *fp, fields *info, unsigned long refnum, char *bibtag, int level, int format_opts )
+output_title( FILE *fp, fields *info, unsigned long refnum, const char *bibtag, int level, int format_opts )
 {
 	str title;
 	int n1 = -1, n2 = -1;
@@ -386,7 +388,7 @@ output_title( FILE *fp, fields *info, unsigned long refnum, char *bibtag, int le
 static void
 output_date( FILE *fp, fields *info, unsigned long refnum, int format_opts )
 {
-	char *months[12] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+	const char *months[12] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun",
 		"Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 	int n, month;
 	n = fields_find( info, "DATE:YEAR", -1 );
@@ -620,3 +622,4 @@ bibtexout_writeheader( FILE *outptr, param *p )
 	if ( p->utf8bom ) utf8_writebom( outptr );
 }
 
+#endif

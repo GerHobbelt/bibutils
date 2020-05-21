@@ -82,7 +82,6 @@ extern "C" {
 typedef unsigned char uchar;
 
 typedef struct param {
-
 	int readformat;
 	int writeformat;
 
@@ -111,23 +110,20 @@ typedef struct param {
 
 	char *progname;
 
-
-        int  (*readf)(FILE*,char*,int,int*,str*,str*,int*);
-        int  (*processf)(fields*,const char*,const char*,long,struct param*);
-        int  (*cleanf)(bibl*,struct param*);
-        int  (*typef) (fields*,const char*,int,struct param*);
-        int  (*convertf)(fields*,fields*,int,struct param*);
-        void (*headerf)(FILE*,struct param*);
-        void (*footerf)(FILE*);
-	int  (*assemblef)(fields*,fields*,struct param*,unsigned long);
-        int  (*writef)(fields*,FILE*,struct param*,unsigned long);
-        variants *all;
-        int  nall;
-
-
+	int  (*readf)(FILE* fp, char* buf, int bufsize, int* bufpos, str* line, str* reference, int* fcharset);
+	int  (*processf)(fields* bibin, const char* data, const char* filename, long nref, struct param* pm);
+	int  (*cleanf)(bibl* bin, struct param* pm);
+	int  (*typef)(fields* bibin, const char* filename, int nrefs, struct param* pm);
+	int  (*convertf)(fields* bibin, fields* info, int reftype, struct param* pm);
+	void (*headerf)(FILE* outptr, struct param* pm);
+	void (*footerf)(FILE* outptr);
+	int  (*assemblef)(fields* in, fields* out, struct param* pm, unsigned long refnum);
+	int  (*writef)(fields* out, FILE* fp, struct param* pm, unsigned long refnum);
+	variants *all;
+	int  nall;
 } param;
 
-int  bibl_initparams( param *p, int readmode, int writemode, char *progname );
+int  bibl_initparams( param *p, int readmode, int writemode, const char *progname );
 void bibl_freeparams( param *p );
 int  bibl_readasis( param *p, const char *filename );
 int  bibl_addtoasis( param *p, const char *entry );

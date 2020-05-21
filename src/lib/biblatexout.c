@@ -278,7 +278,8 @@ append_simpleall( fields *in, char *intag, char *outtag, fields *out, int *statu
 static void
 append_keywords( fields *in, fields *out, int *status )
 {
-	str keywords, *word;
+	str keywords;
+	const str* word;
 	vplist_index i;
 	int fstatus;
 	vplist a;
@@ -289,7 +290,6 @@ append_keywords( fields *in, fields *out, int *status )
 	fields_findv_each( in, LEVEL_ANY, FIELDS_STRP, &a, "KEYWORD" );
 
 	if ( a.n ) {
-
 		for ( i=0; i<a.n; ++i ) {
 			word = vplist_get( &a, i );
 			if ( i>0 ) str_strcatc( &keywords, "; " );
@@ -303,8 +303,6 @@ append_keywords( fields *in, fields *out, int *status )
 			*status = BIBL_ERR_MEMERR;
 			goto out;
 		}
-
-
 	}
 
 out:

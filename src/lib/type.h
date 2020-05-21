@@ -25,6 +25,6 @@ typedef struct match_type {
         int level;
 } match_type;
 
-int type_from_mods_hints( fields *in, int mode, match_type matches[], int nmatches, int type_unknown );
+int type_from_mods_hints( fields *in, int mode, const match_type matches[], int nmatches, int type_unknown );
 
 #endif

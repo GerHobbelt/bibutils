@@ -349,7 +349,7 @@ isiin_addauthors( fields *isiin, fields *info, int reftype, variants *all, int n
 }
 
 static int
-isiin_keyword( fields *bibin, int n, const str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
+isiin_keyword( fields *bibin, int n, const str *intag, str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
 	const char *p = str_cstr( invalue );
 	int fstatus, status = BIBL_OK;
@@ -381,7 +381,7 @@ isiin_report_notag( param *p, const char *tag )
 static int
 isiin_convertf( fields *bibin, fields *bibout, int reftype, param *p )
 {
-	static int (*convertfns[NUM_REFTYPES])(fields *, int, const str *, str *, int, param *, char *, fields *) = {
+	static generic_convert_fn convertfns[NUM_REFTYPES] = {
 #ifdef HAVE_DESIGNATED_INITIALIZER_GNU_EXTENSION
 		[ 0 ... NUM_REFTYPES-1 ] = generic_null,
 #endif

@@ -49,7 +49,7 @@ _check_len( vplist *a, int expected, const char *fn, int line )
 int
 _check_entry( vplist *a, int n, const void *expected, const char *fn, int line )
 {
-	void *v;
+	const void *v;
 	v = vplist_get( a, n );
 	if ( v==NULL && expected==NULL ) return 1;
 	if ( v!=NULL && expected==NULL ) {
@@ -77,7 +77,7 @@ _check_entry( vplist *a, int n, const void *expected, const char *fn, int line )
 
 /* vplist 'a' will hold strings "0", "1", "2" .... */
 static int
-build_vplist_a( vplist *a, char *s[], int lens )
+build_vplist_a( vplist *a, const char *s[], int lens )
 {
 	vplist_index i, j;
 	char buf[256];
@@ -103,7 +103,7 @@ build_vplist_a( vplist *a, char *s[], int lens )
 
 /* vplist 'b' will hold strings "a", "b", "c" .... */
 static int
-build_vplist_b( vplist *b, char *t[], int lent )
+build_vplist_b( vplist *b, const char *t[], int lent )
 {
 	vplist_index i, j;
 	char buf[256];
@@ -167,7 +167,7 @@ int
 test_add( void )
 {
 	vplist_index i;
-	char *s[LENS];
+	const char *s[LENS];
 	int status;
 	vplist a;
 
@@ -218,11 +218,11 @@ test_fill( void )
 	vplist_empty( &a );
 	check_isempty( &a );
 
-	status = vplist_fill( &a, n, (void*)&a );
+	status = vplist_fill( &a, n, &a );
 	check_len( &a, n );
 
 	for ( i=0; i<n; ++i ) {
-		if ( vplist_get( &a, i ) != (void*)&a ) {
+		if ( vplist_get( &a, i ) != (const void*)&a ) {
 			fprintf( stderr, "Failed: %s() line %d: vplist_get() returned %p, expected %p\n",
 				__FUNCTION__, __LINE__, vplist_get( &a, i ), &a );
 	
@@ -245,7 +245,8 @@ test_fill( void )
 int
 test_copy( void )
 {
-	char *s[LENS], *t[LENT];
+	const char* s[LENS];
+	const char* t[LENT];
 	vplist_index i, j;
 	vplist a, b;
 	int status;
@@ -297,7 +298,8 @@ test_copy( void )
 int
 test_append( void )
 {
-	char *s[LENS], *t[LENT];
+	const char* s[LENS];
+	const char* t[LENT];
 	vplist_index i;
 	vplist a, b;
 	int status;
@@ -357,7 +359,8 @@ test_append( void )
 int
 test_insert_list( void )
 {
-	char *s[LENS], *t[LENT];
+	const char* s[LENS];
+	const char* t[LENT];
 	vplist_index i;
 	vplist a, b;
 	int status;
@@ -413,10 +416,10 @@ int
 test_get( void )
 {
 	vplist_index i;
-	char *s[LENS];
+	const char *s[LENS];
 	int status;
 	vplist a;
-	void *v;
+	const void *v;
 
 	/* vplist 'a' will hold strings "0", "1", "2" .... */
 	vplist_init( &a );
@@ -428,8 +431,8 @@ test_get( void )
 		v = vplist_get( &a, i );
 		if ( v != s[i] ) {
 			fprintf( stderr, "Failed: %s() line %d: vplist_get() returned %p '%s', expected %p '%s'\n",
-				__FUNCTION__, __LINE__, vplist_get( &a, i ), (char*)vplist_get( &a, i ),
-				s[i], (char*)s[i] );
+				__FUNCTION__, __LINE__, vplist_get( &a, i ), vplist_get( &a, i ),
+				s[i], s[i] );
 			return 1;
 		}
 	}
@@ -449,7 +452,9 @@ test_get( void )
 int
 test_set( void )
 {
-	char *s[LENS], *t[LENS], buf[256];
+	const char* s[LENS];
+	const char* t[LENS];
+	char buf[256];
 	vplist_index i, j;
 	int status;
 	vplist a;
@@ -494,7 +499,7 @@ int
 test_swap( void )
 {
 	vplist_index i;
-	char *s[LENS];
+	const char *s[LENS];
 	int status;
 	vplist a;
 
@@ -535,7 +540,9 @@ test_swap( void )
 int
 test_find( void )
 {
-	char *s[LENS], *t[LENT], buf[256];
+	const char* s[LENS];
+	const char* t[LENT];
+	char buf[256];
 	vplist_index i, n;
 	int status;
 	vplist a;
@@ -588,7 +595,7 @@ int
 test_remove( void )
 {
 	vplist_index i;
-	char *s[LENS];
+	const char *s[LENS];
 	int status;
 	vplist a;
 
@@ -641,7 +648,7 @@ test_removevp( void )
 {
 	int status, ret, failed = 0;
 	vplist_index i;
-	char *s[LENS];
+	const char *s[LENS];
 	vplist a;
 
 	/* vplist 'a' will hold strings "0", "1", "2" .... */
@@ -726,7 +733,7 @@ test_remove_range( void )
 {
 	int status, failed = 0;
 	vplist_index i;
-	char *s[LENS];
+	const char *s[LENS];
 	vplist a;
 
 	/* vplist 'a' will hold strings "0", "1", "2" .... */

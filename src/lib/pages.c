@@ -54,7 +54,7 @@ extract_range( str *input, str *begin, str *end )
 }
 
 int
-pages_add( fields *bibout, char *outtag, str *invalue, int level )
+pages_add( fields *bibout, const char *outtag, str *invalue, int level )
 {
 	int fstatus, status = 1;
 	str start, stop;

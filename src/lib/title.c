@@ -82,7 +82,7 @@ title_process( fields *info, const char *tag, const char *value, int level, unsi
  *	Full title = "What Makes a Good Team Player? Personality and Team Effectiveness"
  */
 void
-title_combine( str *fullttl, str *mainttl, str *subttl )
+title_combine( str *fullttl, const str *mainttl, const str *subttl )
 {
 	str_empty( fullttl );
 

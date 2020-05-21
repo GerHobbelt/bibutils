@@ -155,9 +155,10 @@ get_type( fields *in )
 }
 
 static int
-append_title( fields *in, char *ttl, char *sub, char *adstag, int level, fields *out, int *status )
+append_title( fields *in, const char *ttl, const char *sub, const char *adstag, int level, fields *out, int *status )
 {
-	str fulltitle, *title, *subtitle, *vol, *iss, *sn, *en, *ar;
+	str fulltitle;
+	const str* title, * subtitle, * vol, * iss, * sn, * en, * ar;
 	int fstatus, output = 0;
 
 	str_init( &fulltitle );
@@ -246,7 +247,7 @@ append_people( fields *in, const char *tag1, const char *tag2, const char *tag3,
 	if ( a.n ) {
 		for ( i=0; i<a.n; ++i ) {
 			if ( i!=0 ) str_strcatc( &allpeople, "; " );
-			name_build_withcomma( &oneperson, (char *) vplist_get( &a, i) );
+			name_build_withcomma( &oneperson, (const char *) vplist_get( &a, i) );
 			str_strcat( &allpeople, &oneperson );
 		}
 		fstatus = fields_add( out, adstag, str_cstr( &allpeople ), LEVEL_MAIN );
@@ -261,7 +262,7 @@ append_people( fields *in, const char *tag1, const char *tag2, const char *tag3,
 static void
 append_pages( fields *in, fields *out, int *status )
 {
-	str *sn, *en, *ar;
+	const str *sn, *en, *ar;
 	int fstatus;
 
 	sn = fields_findv( in, LEVEL_ANY, FIELDS_STRP, "PAGES:START" );
@@ -296,7 +297,7 @@ append_pages( fields *in, fields *out, int *status )
 static int
 mont2mont( const char *m )
 {
-	static char *monNames[]= { "jan", "feb", "mar", "apr", "may", 
+	static const char *monNames[]= { "jan", "feb", "mar", "apr", "may",
 			"jun", "jul", "aug", "sep", "oct", "nov", "dec" };
 	int i;
 	if ( isdigit( (unsigned char)m[0] ) ) return atoi( m );
@@ -311,7 +312,7 @@ mont2mont( const char *m )
 static int
 get_month( fields *in, int level )
 {
-	str *month;
+	const str *month;
 
 	month = fields_findv_firstof( in, level, FIELDS_STRP, "DATE:MONTH", "PARTDATE:MONTH", NULL );
 	if ( str_has_value( month ) ) return mont2mont( str_cstr( month ) );
@@ -319,11 +320,11 @@ get_month( fields *in, int level )
 }
 
 static void
-append_date( fields *in, char *adstag, int level, fields *out, int *status )
+append_date( fields *in, const char *adstag, int level, fields *out, int *status )
 {
 	int month, fstatus;
 	char outstr[1000];
-	str *year;
+	const str *year;
 
 	year = fields_findv_firstof( in, level, FIELDS_STRP, "DATE:YEAR", "PARTDATE:YEAR", NULL );
 	if ( str_has_value( year ) ) {
@@ -334,7 +335,7 @@ append_date( fields *in, char *adstag, int level, fields *out, int *status )
 	}
 }
 
-#include "adsout_journals.c"
+#include "adsout_journals.h"
 
 static void
 output_4digit_value( char *pos, size_t dstlen, long long n )
@@ -475,7 +476,7 @@ get_journalabbr( fields *in )
 }
 
 static void
-append_Rtag( fields *in, char *adstag, int type, fields *out, int *status )
+append_Rtag( fields *in, const char *adstag, int type, fields *out, int *status )
 {
 	char outstr[20], ch;
 	int n, i, fstatus;
@@ -523,7 +524,7 @@ append_Rtag( fields *in, char *adstag, int type, fields *out, int *status )
 }
 
 static void
-append_easyall( fields *in, char *tag, char *adstag, int level, fields *out, char *prefix, int *status )
+append_easyall( fields *in, const char *tag, const char *adstag, int level, fields *out, const char *prefix, int *status )
 {
 	vplist_index i;
 	int fstatus;
@@ -537,7 +538,7 @@ append_easyall( fields *in, char *tag, char *adstag, int level, fields *out, cha
 	fields_findv_each( in, level, FIELDS_CHRP, &a, tag );
 
 	for ( i=0; i<a.n; ++i ) {
-		val = ( char * ) vplist_get( &a, i );
+		val = ( const char * ) vplist_get( &a, i );
 		if ( prefix ) {
 			str_strcpyc( &output, prefix );
 			str_strcatc( &output, val );
@@ -555,9 +556,9 @@ out:
 }
 
 static void
-append_easy( fields *in, char *tag, char *adstag, int level, fields *out, int *status )
+append_easy( fields *in, const char *tag, const char *adstag, int level, fields *out, int *status )
 {
-	char *value;
+	const char *value;
 	int fstatus;
 
 	value = fields_findv( in, level, FIELDS_CHRP, tag );
@@ -568,7 +569,7 @@ append_easy( fields *in, char *tag, char *adstag, int level, fields *out, int *s
 }
 
 static void
-append_keys( fields *in, char *tag, char *adstag, int level, fields *out, int *status )
+append_keys( fields *in, const char *tag, const char *adstag, int level, fields *out, int *status )
 {
 	vplist_index i;
 	str allkeys;
@@ -583,7 +584,7 @@ append_keys( fields *in, char *tag, char *adstag, int level, fields *out, int *s
 	if ( a.n ) {
 		for ( i=0; i<a.n; ++i ) {
 			if ( i>0 ) str_strcatc( &allkeys, ", " );
-			str_strcatc( &allkeys, (char *) vplist_get( &a, i ) );
+			str_strcatc( &allkeys, (const char *) vplist_get( &a, i ) );
 		}
 		fstatus = fields_add( out, adstag, str_cstr( &allkeys ), LEVEL_MAIN );
 		if ( fstatus!=FIELDS_OK ) *status = BIBL_ERR_MEMERR;

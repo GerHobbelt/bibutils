@@ -384,7 +384,6 @@ intlist_fill_range( intlist *il, int low, int high, int step )
 				il->n += 1;
 			}
 		}
-
 	}
 
 	return status;

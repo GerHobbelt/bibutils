@@ -344,7 +344,7 @@ is_uri_file_scheme( const char *p )
 }
 
 static int
-risin_linkedfile( fields *bibin, int n, const str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
+risin_linkedfile( fields *bibin, int n, const str *intag, str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
 	int fstatus, m;
 	const char *p;
@@ -375,7 +375,7 @@ risin_linkedfile( fields *bibin, int n, const str *intag, str *invalue, int leve
 
 /* scopus puts DOI in the DO or DI tag, but it needs cleaning */
 static int
-risin_doi( fields *bibin, int n, const str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
+risin_doi( fields *bibin, int n, const str *intag, str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
 	int fstatus, doi;
 	doi = is_doi( str_cstr( invalue ) );
@@ -387,7 +387,7 @@ risin_doi( fields *bibin, int n, const str *intag, str *invalue, int level, para
 }
 
 static int
-risin_date( fields *bibin, int n, const str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
+risin_date( fields *bibin, int n, const str *intag, str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
 	const char *p = str_cstr( invalue );
 	int part, status;
@@ -438,7 +438,7 @@ risin_date( fields *bibin, int n, const str *intag, str *invalue, int level, par
 }
 
 static int
-risin_person( fields *bibin, int n, const str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
+risin_person( fields *bibin, int n, const str *intag, str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
 	int i, begin, end, ok, status = BIBL_OK;
 	slist tokens;
@@ -521,7 +521,7 @@ risin_report_notag( param *p, const char *tag )
 static int
 risin_convertf( fields *bibin, fields *bibout, int reftype, param *p )
 {
-	static int (*convertfns[NUM_REFTYPES])(fields *, int, const str *, str *, int, param *, char *, fields *) = {
+	static generic_convert_fn convertfns[NUM_REFTYPES] = {
 #ifdef HAVE_DESIGNATED_INITIALIZER_GNU_EXTENSION
 		[ 0 ... NUM_REFTYPES-1 ] = generic_null,
 #endif

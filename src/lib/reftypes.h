@@ -49,8 +49,8 @@
 #define NUM_REFTYPES    (26)
 
 typedef struct {
-	char *oldstr;
-	char *newstr;
+	const char *oldstr;
+	const char *newstr;
 	int  processingtype;
 	int  level;
 } lookups;

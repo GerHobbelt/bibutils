@@ -394,7 +394,7 @@ endin_cleanf( bibl *bin, param *p )
  * otherwise return 0
  */
 static int
-month_convert( char *in, char *out, size_t outsize )
+month_convert( const char *in, char *out, size_t outsize )
 {
 	const char *month1[12]={
 		"January",   "February",
@@ -430,7 +430,7 @@ month_convert( char *in, char *out, size_t outsize )
 }
 
 static int
-endin_date( fields *bibin, int n, const str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
+endin_date( fields *bibin, int n, const str *intag, str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
 	const char *tags[3][2] = {
 		{ "DATE:YEAR",  "PARTDATE:YEAR" },
@@ -503,7 +503,7 @@ endin_date( fields *bibin, int n, const str *intag, str *invalue, int level, par
 }
 
 static int
-endin_type( fields *bibin, int n, const str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
+endin_type( fields *bibin, int n, const str *intag, str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
 	const lookups types[] = {
 		{ "GENERIC",                "ARTICLE" },
@@ -562,7 +562,7 @@ endin_notag( param *p, const char *tag, const char *data )
 int
 endin_convertf( fields *bibin, fields *bibout, int reftype, param *p )
 {
-	static int (*convertfns[NUM_REFTYPES])(fields *, int, const str *, str *, int, param *, char *, fields *) = {
+	static generic_convert_fn convertfns[NUM_REFTYPES] = {
 #ifdef HAVE_DESIGNATED_INITIALIZER_GNU_EXTENSION
 		[ 0 ... NUM_REFTYPES-1 ] = generic_null,
 #endif

@@ -101,7 +101,7 @@ vplist_ensure_space( vplist *vpl, vplist_index n, unsigned char mode )
 }
 
 int
-vplist_copy( vplist *to, vplist *from )
+vplist_copy( vplist *to, const vplist *from )
 {
 	vplist_index i;
 	int status;
@@ -157,7 +157,7 @@ vplist_add( vplist *vpl, const void *v )
 }
 
 int
-vplist_insert_list( vplist *vpl, vplist_index pos, vplist *add )
+vplist_insert_list( vplist *vpl, vplist_index pos, const vplist *add )
 {
 	vplist_index i;
 	int status;
@@ -185,7 +185,7 @@ vplist_insert_list( vplist *vpl, vplist_index pos, vplist *add )
 }
 
 int
-vplist_append( vplist *vpl, vplist *add )
+vplist_append( vplist *vpl, const vplist *add )
 {
 	vplist_index i;
 	int status;
@@ -209,10 +209,10 @@ static void
 vplist_freemembers( vplist *vpl, vplist_ptrfree vpf )
 {
 	vplist_index i;
-	void *v;
+	const void **vref;
 	for ( i=0; i<vpl->n; ++i ) {
-		v = vplist_get( vpl, i );
-		if ( v ) (*vpf)( v );
+		vref = vplist_getref( vpl, i );
+		if ( vref ) (*vpf)( vref );
 	}
 }
 
@@ -266,12 +266,20 @@ vplist_validindex( vplist *vpl, vplist_index n )
 	return 1;
 }
 
-void *
+const void *
 vplist_get( vplist *vpl, vplist_index n )
 {
 	assert( vpl );
 	if ( !vplist_validindex( vpl, n ) ) return NULL;
 	return vpl->data[ n ];
+}
+
+void **
+vplist_getref(vplist* vpl, vplist_index n)
+{
+	assert(vpl);
+	if (!vplist_validindex(vpl, n)) return NULL;
+	return &vpl->data[n];
 }
 
 void
@@ -283,7 +291,7 @@ vplist_set( vplist *vpl, vplist_index n, void *v )
 }
 
 int
-vplist_find( vplist *vpl, void *v )
+vplist_find( vplist *vpl, const void *v )
 {
 	vplist_index i;
 	assert( vpl );
@@ -314,7 +322,7 @@ vplist_removefn( vplist *vpl, vplist_index n, vplist_ptrfree vpf )
 	assert( vpl );
 	assert( vplist_validindex( vpl, n ) );
 
-	if ( vpf ) (*vpf)( vplist_get( vpl, n ) );
+	if ( vpf ) (*vpf)( vplist_getref( vpl, n ) );
 
 	for ( i=n+1; i<vpl->n; ++i )
 		vpl->data[ i-1 ] = vpl->data[ i ];
@@ -330,7 +338,7 @@ vplist_remove( vplist *vpl, vplist_index n )
 }
 
 int
-vplist_removevpfn( vplist *vpl, void *v, vplist_ptrfree vpf )
+vplist_removevpfn( vplist *vpl, const void *v, vplist_ptrfree vpf )
 {
 	vplist_index n;
 	int count = 0;
@@ -349,7 +357,7 @@ vplist_removevpfn( vplist *vpl, void *v, vplist_ptrfree vpf )
 }
 
 int
-vplist_removevp( vplist *vpl, void *v )
+vplist_removevp( vplist *vpl, const void *v )
 {
 	return vplist_removevpfn( vpl, v, NULL );
 }
@@ -365,7 +373,7 @@ vplist_remove_rangefn( vplist *vpl, vplist_index start, vplist_index endplusone,
 	n = endplusone - start;
 	if ( vpf ) {
 		for ( i=start; i<endplusone; ++i )
-			(*vpf)( vplist_get( vpl, i ) );
+			(*vpf)( vplist_getref( vpl, i ) );
 	}
 	for ( i=endplusone; i<vpl->n; ++i ) {
 		vpl->data[i-n] = vpl->data[i];

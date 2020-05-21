@@ -15,7 +15,7 @@
 #include "bibformats.h"
 
 int
-bibl_initparams( param *p, int readmode, int writemode, char *progname )
+bibl_initparams( param *p, int readmode, int writemode, const char *progname )
 {
 	int status;
 

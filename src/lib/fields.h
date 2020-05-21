@@ -94,8 +94,8 @@ int   fields_level( fields *f, int n );
  
 int   fields_find( fields *f, const char *searchtag, int level );
 
-void *fields_findv( fields *f, int level, int mode, const char *tag );
-void *fields_findv_firstof( fields *f, int level, int mode, ... );
+const void *fields_findv( fields *f, int level, int mode, const char *tag );
+const void *fields_findv_firstof( fields *f, int level, int mode, ... );
 
 int   fields_findv_each( fields *f, int level, int mode, vplist *a, const char *tag );
 int   fields_findv_eachof( fields *f, int level, int mode, vplist *a, ... );
