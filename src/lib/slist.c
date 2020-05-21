@@ -26,6 +26,11 @@
 #define SLIST_EXACT_SIZE  (0)
 #define SLIST_DOUBLE_SIZE (1)
 
+
+#define SLIST_CHR (0)
+#define SLIST_STR (1)
+
+
 /*
  * returns 1 if n is valid string in slist
  */
@@ -142,12 +147,6 @@ slist_delete( slist *a )
 }
 
 void
-slist_deletev( void *v )
-{
-	slist_delete( (slist*) v );
-}
-
-void
 slist_swap( slist *a, slist_index n1, slist_index n2 )
 {
 	assert( a );
@@ -156,11 +155,12 @@ slist_swap( slist *a, slist_index n1, slist_index n2 )
 		str_swapstrings( &(a->strs[n1]), &(a->strs[n2]) );
 }
 
+// qsort callback:
 static int
 slist_revcomp( const void *v1, const void *v2 )
 {
-	str *s1 = ( str *) v1;
-	str *s2 = ( str *) v2;
+	const str *s1 = ( const str *) v1;
+	const str *s2 = ( const str *) v2;
 	int n;
 
 	if ( !s1->len && !s2->len ) return 0;
@@ -173,11 +173,12 @@ slist_revcomp( const void *v1, const void *v2 )
 	else return 1;
 }
 
+// qsort callback:
 static int
 slist_comp( const void *v1, const void *v2 )
 {
-	str *s1 = ( str *) v1;
-	str *s2 = ( str *) v2;
+	const str *s1 = ( const str *) v1;
+	const str *s2 = ( const str *) v2;
 	if ( !s1->len && !s2->len ) return 0;
 	else if ( !s1->len ) return -1;
 	else if ( !s2->len ) return 1;
@@ -330,7 +331,7 @@ slist_ensure_space( slist *a, slist_index n, int mode )
 	return status;
 }
 
-int
+static int
 slist_addvp( slist *a, int mode, const void *vp )
 {
 	str *s = NULL;
@@ -359,21 +360,23 @@ slist_addvp( slist *a, int mode, const void *vp )
 int
 slist_addc( slist *a, const char *s )
 {
-	return slist_addvp( a, SLIST_CHR, (const void*)s );
+	return slist_addvp( a, SLIST_CHR, s );
 }
 int
 slist_add( slist *a, const str *s )
 {
-	return slist_addvp( a, SLIST_STR, (const void*)s );
+	return slist_addvp( a, SLIST_STR, s );
 }
 
-int
+#if 0
+static int
 slist_addvp_ret( slist *a, int mode, const void *vp, int retok, int reterr )
 {
 	int status = slist_addvp( a, mode, vp );
 	if ( status==SLIST_OK ) return retok;
 	else return reterr;
 }
+#endif
 int
 slist_addc_ret( slist *a, const char *value, int retok, int reterr )
 {
@@ -389,7 +392,7 @@ slist_add_ret( slist *a, const str *value, int retok, int reterr )
 	else return reterr;
 }
 
-int
+static int
 slist_addvp_unique( slist *a, int mode, const void *vp )
 {
 	int n;
@@ -397,7 +400,7 @@ slist_addvp_unique( slist *a, int mode, const void *vp )
 	if ( mode==SLIST_CHR )
 		n = slist_findc( a, (const char*) vp );
 	else
-		n = slist_find( a, (str*) vp );
+		n = slist_find( a, (const str*) vp );
 
 	if ( slist_wasfound( a, n ) )
 		return SLIST_OK;
@@ -407,21 +410,23 @@ slist_addvp_unique( slist *a, int mode, const void *vp )
 int
 slist_addc_unique( slist *a, const char *s )
 {
-	return slist_addvp_unique( a, SLIST_CHR, (const void*)s );
+	return slist_addvp_unique( a, SLIST_CHR, s );
 }
 int
 slist_add_unique( slist *a, const str *s )
 {
-	return slist_addvp_unique( a, SLIST_STR, (const void*)s );
+	return slist_addvp_unique( a, SLIST_STR, s );
 }
 
-int
+#if 0
+static int
 slist_addvp_unique_ret( slist *a, int mode, const void *vp, int retok, int reterr )
 {
 	int status = slist_addvp_unique( a, mode, vp );
 	if ( status==SLIST_OK ) return retok;
 	else return reterr;
 }
+#endif
 int
 slist_addc_unique_ret( slist *a, const char *s, int retok, int reterr )
 {
@@ -437,7 +442,8 @@ slist_add_unique_ret( slist *a, const str *s, int retok, int reterr )
 	else return reterr;
 }
 
-int
+#if 0
+static int
 slist_addvp_all( slist *a, int mode, ... )
 {
 	int status = SLIST_OK;
@@ -462,6 +468,7 @@ out:
 	va_end( ap );
 	return status;
 }
+#endif
 
 int
 slist_add_all( slist *a, ... )

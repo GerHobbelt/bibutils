@@ -165,6 +165,7 @@ test_addc( void )
 	return 0;
 }
 
+#if 0
 int
 test_addvp( void )
 {
@@ -197,6 +198,7 @@ test_addvp( void )
 	slist_free( &a );
 	return 0;
 }
+#endif
 
 int
 test_add_all( void )
@@ -262,6 +264,7 @@ test_addc_all( void )
 }
 #undef COUNT
 
+#if 0
 #define COUNT (10)
 int
 test_addvp_all( void )
@@ -301,6 +304,7 @@ test_addvp_all( void )
 	return 0;
 }
 #undef COUNT
+#endif
 
 /*
  * str * slist_add_unique( slist *a, str *value );
@@ -373,6 +377,7 @@ test_addc_unique( void )
 	return 0;
 }
 
+#if 0
 /*
  * str * slist_addvp_unique( slist *a, unsigned char mode, const void *vp );
  */
@@ -419,6 +424,7 @@ test_addvp_unique( void )
 
 	return 0;
 }
+#endif
 
 int
 test_addsorted( void )
@@ -1809,15 +1815,15 @@ main( int argc, char *argv[] )
 
 	failed += test_add();
 	failed += test_addc();
-	failed += test_addvp();
+	//failed += test_addvp();
 
 	failed += test_add_all();
 	failed += test_addc_all();
-	failed += test_addvp_all();
+	//failed += test_addvp_all();
 
 	failed += test_add_unique();
 	failed += test_addc_unique();
-	failed += test_addvp_unique();
+	//failed += test_addvp_unique();
 
 	failed += test_addsorted();
 
