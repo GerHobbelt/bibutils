@@ -3,11 +3,10 @@
 
 #undef HAVE_UNISTD_H
 #define HAVE_PROCESS_H		1
+#undef HAVE_DIRENT_H
 
 
 #undef HAVE_DESIGNATED_INITIALIZER_GNU_EXTENSION
-
-#define countof(array)					( sizeof(array) / sizeof(array[0]) )
 
 #define SET_ARRAY_DEFAULT_VALUE(array, default_value)			\
 	{															\
@@ -25,9 +24,40 @@
 #pragma warning(disable:4996)
 #endif
 
+// disable superfluous warnings:
 
-#define CURR_VERSION	"6.10"
-#define CURR_DATE		"2020-03-23"
+#if defined(_MSC_VER)
+
+// warning C4090: '=': different 'const' qualifiers
+// warning C4090: 'function': different 'const' qualifiers
+// warning C4090: 'initializing': different 'const' qualifiers
+//#pragma warning(disable:4090)
+
+// warning C4464: relative include path contains '..'
+#pragma warning(disable:4464)
+
+// warning C4710: 'int fprintf(FILE *const ,const char *const ,...)': function not inlined
+// warning C4710: 'int printf(const char *const ,...)': function not inlined
+// warning C4710: 'int sprintf_s(char *const ,const size_t,const char *const ,...)': function not inlined
+#pragma warning(disable:4710)
+
+// warning C4820: '<unnamed-tag>': '3' bytes padding added after data member 'type'
+// warning C4820: '_wdirent': '2' bytes padding added after data member 'd_name'
+// warning C4820: '_wdirent': '2' bytes padding added after data member 'd_reclen'
+// warning C4820: 'dirent': '2' bytes padding added after data member 'd_reclen'
+// warning C4820: 'dirent': '3' bytes padding added after data member 'd_name'
+// warning C4820: 'param': '1' bytes padding added after data member 'singlerefperfile'
+// warning C4820: 'param': '3' bytes padding added after data member 'nosplittitle'
+// warning C4820: 'param': '3' bytes padding added after data member 'xmlout'
+#pragma warning(disable:4820)
+
+// warning C5045: Compiler will insert Spectre mitigation for memory load if /Qspectre switch specified
+#pragma warning(disable:5045)
+
+#endif
+
+
+
 
 #include <string.h>
 

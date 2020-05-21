@@ -84,15 +84,21 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\lib\bibdefs.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\lib\bibformats.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\lib\bibl.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\lib\bibtypes.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\lib\bibutils.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\lib\bltypes.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\lib\bu_auth.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\lib\charsets.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\lib\copactypes.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\lib\endin.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\lib\endtypes.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\lib\entities.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\lib\fields.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\lib\gb18030.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\lib\gb18030_enumeration.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\lib\generic.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\lib\intlist.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\lib\isitypes.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\lib\iso639_1.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\lib\iso639_2.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\lib\iso639_3.h" />
@@ -102,9 +108,12 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\lib\marc_auth.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\lib\modstypes.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\lib\name.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\lib\nbibtypes.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\lib\notes.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\lib\pages.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\lib\reftypes.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\lib\reftypes_internals.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)..\lib\ristypes.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\lib\serialno.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\lib\slist.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\lib\str.h" />
@@ -118,5 +127,6 @@
     <ClInclude Include="$(MSBuildThisFileDirectory)..\lib\vplist.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\lib\xml.h" />
     <ClInclude Include="$(MSBuildThisFileDirectory)..\lib\xml_encoding.h" />
+    <ClInclude Include="$(MSBuildThisFileDirectory)config.h" />
   </ItemGroup>
 </Project>
