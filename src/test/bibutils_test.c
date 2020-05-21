@@ -40,6 +40,12 @@ static int process_input_file(const char* filepath, const char* filepath_subtree
         param p;
         bibtexin_initparams(&p, progname);
         modsout_initparams(&p, progname);
+        const char* argv[] = {
+            progname,
+            filepath,
+            NULL
+        };
+        int argc = countof(argv) - 1;
         tomods_processargs(&argc, argv, &p, NULL, NULL);
         bibprog(argc, argv, &p);
         bibl_freeparams(&p);
@@ -49,6 +55,12 @@ static int process_input_file(const char* filepath, const char* filepath_subtree
         param p;
         biblatexin_initparams(&p, progname);
         modsout_initparams(&p, progname);
+        const char* argv[] = {
+            progname,
+            filepath,
+            NULL
+        };
+        int argc = countof(argv) - 1;
         tomods_processargs(&argc, argv, &p, NULL, NULL);
         bibprog(argc, argv, &p);
         bibl_freeparams(&p);
