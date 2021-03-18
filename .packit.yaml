@@ -1,0 +1,16 @@
+jobs:
+- job: copr_build
+  metadata:
+    targets:
+    - centos-stream-8-x86_64
+  trigger: pull_request
+- job: tests
+  metadata:
+    targets:
+    - centos-stream-8-x86_64
+  trigger: pull_request
+sources:
+- path: bibutils_6.5_src.tgz
+  url: https://git.centos.org/sources/bibutils/c8/d9a5b6bb93033f7cf8101430262ad694de6f8abd
+specfile_path: SPECS/bibutils.spec
+upstream_ref: c8-source-git
