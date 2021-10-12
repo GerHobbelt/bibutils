@@ -1,7 +1,7 @@
 /*
  * copacin.c
  *
- * Copyright (c) Chris Putnam 2004-2020
+ * Copyright (c) Chris Putnam 2004-2021
  *
  * Program and source code released under the GPL version 2
  *
@@ -222,15 +222,13 @@ copacin_person( fields *bibin, int n, const str *intag, const str *invalue, int 
 {
 	const char* usetag = outtag;
 	const char editor[] = "EDITOR";
-	int comma = 0, i, ok, status;
+	int comma = 0, i, status;
 	str usename, *s;
 	slist tokens;
 
 	if ( slist_find( &(pm->asis),  invalue ) !=-1  ||
 	     slist_find( &(pm->corps), invalue ) !=-1 ) {
-		ok = name_add( bibout, outtag, str_cstr( invalue ), level, &(pm->asis), &(pm->corps) );
-		if ( ok ) return BIBL_OK;
-		else return BIBL_ERR_MEMERR;
+		return add_name( bibout, outtag, str_cstr( invalue ), level, &(pm->asis), &(pm->corps) );
 	}
 
 	slist_init( &tokens );
@@ -264,12 +262,11 @@ copacin_person( fields *bibin, int n, const str *intag, const str *invalue, int 
 
 	slist_free( &tokens );
 
-	ok = name_add( bibout, usetag, str_cstr( &usename ), level, &(pm->asis), &(pm->corps) );
+	status = add_name( bibout, usetag, str_cstr( &usename ), level, &(pm->asis), &(pm->corps) );
 
 	str_free( &usename );
 
-	if ( ok ) return BIBL_OK;
-	else return BIBL_ERR_MEMERR;
+	return status;
 }
 
 static void

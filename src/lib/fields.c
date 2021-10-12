@@ -1,7 +1,7 @@
 /*
  * fields.c
  *
- * Copyright (c) Chris Putnam 2003-2020
+ * Copyright (c) Chris Putnam 2003-2021
  *
  * Source code released under the GPL version 2
  *
@@ -21,13 +21,46 @@
  * of the fields functions, so they are faster. However, they should
  * only be used in internal code that knows that the index is valid.
  */
-#define _fields_tag(f,i)            &((f)->tag[(i)])
-#define _fields_tag_char(f,i)       str_cstr( &((f)->tag[(i)]) )
-#define _fields_tag_notempty(f,i)   str_has_value( &((f)->tag[(i)]) )
-#define _fields_value(f,i)          &((f)->value[(i)])
-#define _fields_value_char(f,i)     str_cstr( &((f)->value[(i)]) )
-#define _fields_value_notempty(f,i) str_has_value( &((f)->value[(i)]) )
-#define _fields_level(f,i)          (f)->level[(i)]
+
+#define _fields_tag(f,i)            &((f)->entries[(i)]->tag)
+#define _fields_tag_char(f,i)       str_cstr( &((f)->entries[(i)]->tag) )
+#define _fields_tag_notempty(f,i)   str_has_value( &((f)->entries[(i)]->tag) )
+
+#define _fields_value(f,i)          &((f)->entries[(i)]->value)
+#define _fields_value_char(f,i)     str_cstr( &((f)->entries[(i)]->value) )
+#define _fields_value_notempty(f,i) str_has_value( &((f)->entries[(i)]->value) )
+
+#define _fields_level(f,i)          (f)->entries[(i)]->level
+#define _fields_used(f,i)           (f)->entries[(i)]->used
+
+
+static fields_entry *
+fields_entry_new( void )
+{
+	fields_entry *e;
+
+	e = ( fields_entry * ) malloc( sizeof( fields_entry ) );
+	if ( e ) {
+		str_init( &(e->tag) );
+		str_init( &(e->value) );
+		str_init( &(e->language) );
+		e->level = 0;
+		e->used  = 0;
+	}
+
+	return e;
+}
+
+
+static void
+fields_entry_delete( fields_entry *e )
+{
+	str_free( &(e->tag) );
+	str_free( &(e->value) );
+	str_free( &(e->language) );
+	free( e );
+}
+
 
 fields*
 fields_new( void )
@@ -40,9 +73,8 @@ fields_new( void )
 void
 fields_init( fields *f )
 {
-	f->used  = f->level = NULL;
-	f->tag   = f->value = NULL;
-	f->max   = f->n     = 0;
+	f->entries = NULL;
+	f->max = f->n = 0;
 }
 
 void
@@ -50,14 +82,10 @@ fields_free( fields *f )
 {
 	int i;
 
-	for ( i=0; i<f->max; ++i ) {
-		str_free( _fields_tag( f, i ) );
-		str_free( _fields_value( f, i ) );
-	}
-	if ( f->tag )   free( f->tag );
-	if ( f->value ) free( f->value );
-	if ( f->used )  free( f->used );
-	if ( f->level ) free( f->level );
+	for ( i=0; i<f->n; ++i )
+		fields_entry_delete( f->entries[i] );
+
+	if ( f->entries ) free( f->entries );
 
 	fields_init( f );
 }
@@ -73,44 +101,24 @@ int
 fields_remove( fields *f, int n )
 {
 	int i;
-	if ( n<0 || n>= f->n ) return FIELDS_ERR_MEMERR;
-	for ( i=n+1; i<f->n; ++i ) {
-		str_strcpy( _fields_tag  ( f, i-1 ), _fields_tag  ( f, i ) );
-		str_strcpy( _fields_value( f, i-1 ), _fields_value( f, i ) );
-		f->used[i-1]  = f->used[i];
-		f->level[i-1] = f->level[i];
-	}
-	f->n -= 1;
-	return FIELDS_OK;
-}
 
-static void
-initialize_new_tag_data_pairs( fields *f, int start, int end )
-{
-	int i;
-	for ( i=start; i<end; ++i ) {
-		str_init( _fields_tag( f, i ) );
-		str_init( _fields_value( f, i ) );
-	}
+	if ( n < 0 || n >= f->n ) return FIELDS_ERR_NOTFOUND;
+
+	fields_entry_delete( f->entries[n] );
+
+	for ( i=n+1; i<f->n; ++i )
+		f->entries[ i-1 ] = f->entries[ i ];
+
+	f->n -= 1;
+
+	return FIELDS_OK;
 }
 
 static int
 fields_alloc( fields *f, int alloc )
 {
-	f->tag   = (str *) malloc( sizeof(str) * alloc );
-	f->value = (str *) malloc( sizeof(str) * alloc );
-	f->used  = (int *) calloc( alloc, sizeof(int) );
-	f->level = (int *) calloc( alloc, sizeof(int) );
-	if ( !f->tag || !f->value || !f->used || !f->level ){
-		if ( f->tag )   free( f->tag );
-		if ( f->value ) free( f->value );
-		if ( f->used )  free( f->used );
-		if ( f->level ) free( f->level );
-		fields_init( f );
-		return FIELDS_ERR_MEMERR;
-	}
-
-	initialize_new_tag_data_pairs( f, 0, alloc );
+	f->entries = ( fields_entry ** ) calloc( alloc, sizeof( fields_entry * ) );
+	if ( !f->entries ) return FIELDS_ERR_MEMERR;
 
 	f->max = alloc;
 	f->n   = 0;
@@ -121,33 +129,17 @@ fields_alloc( fields *f, int alloc )
 static int
 fields_realloc( fields *f )
 {
-	int *newused, *newlevel;
-	str *newtags, *newvalue;
+	fields_entry **more;
 	int alloc;
 
 	alloc = f->max * 2;
 	if ( alloc < f->max ) return FIELDS_ERR_MEMERR; /* integer overflow */
 
-	newtags  = (str*) realloc( f->tag,   sizeof(str) * alloc );
-	newvalue = (str*) realloc( f->value, sizeof(str) * alloc );
-	newused  = (int*) realloc( f->used,  sizeof(int) * alloc );
-	newlevel = (int*) realloc( f->level, sizeof(int) * alloc );
+	more = ( fields_entry ** ) realloc( f->entries, sizeof( fields_entry * ) * alloc );
+	if ( !more ) return FIELDS_ERR_MEMERR;
 
-	/*
-	 * ensure struct fields is consistent by reassigning pointers for any successful
-	 * reallocation prior to failing on memory error
-	 */
-	if ( newtags )  f->tag   = newtags;
-	if ( newvalue ) f->value = newvalue;
-	if ( newused )  f->used  = newused;
-	if ( newlevel ) f->level = newlevel;
-
-	if ( !newtags || !newvalue || !newused || !newlevel )
-		return FIELDS_ERR_MEMERR;
-
-	initialize_new_tag_data_pairs( f, f->n, alloc );
-
-	f->max = alloc;
+	f->entries = more;
+	f->max     = alloc;
 
 	return FIELDS_OK;
 }
@@ -177,9 +169,10 @@ is_duplicate_entry( fields *f, const char *tag, const char *value, int level )
 }
 
 int
-_fields_add( fields *f, const char *tag, const char *value, int level, int mode )
+_fields_add( fields *f, const char *tag, const char *value, const char *lang, int level, int mode )
 {
-	int n, status;
+	fields_entry *e;
+	int status;
 
 	/* Don't add incomplete entry */
 	if ( !tag || !value ) return FIELDS_OK;
@@ -191,22 +184,27 @@ _fields_add( fields *f, const char *tag, const char *value, int level, int mode 
 	status = ensure_space( f );
 	if ( status!=FIELDS_OK ) return status;
 
-	n = f->n;
-	f->used[ n ]  = 0;
-	f->level[ n ] = level;
-	str_strcpyc( _fields_tag( f, n ),   tag   );
-	str_strcpyc( _fields_value( f, n ), value );
+	e = fields_entry_new();
+	if ( !e ) return FIELDS_ERR_MEMERR;
 
-	if ( str_memerr( &(f->tag[n]) ) || str_memerr( &(f->value[n] ) ) )
+	e->level = level;
+	str_strcpyc( &(e->tag), tag );
+	str_strcpyc( &(e->value), value );
+	if ( lang ) str_strcpyc( &(e->language), lang );
+
+	if ( str_memerr( &(e->tag) ) || str_memerr( &(e->value) ) ) {
+		fields_entry_delete( e );
 		return FIELDS_ERR_MEMERR;
+	}
 
+	f->entries[ f->n ] = e;
 	f->n++;
 
 	return FIELDS_OK;
 }
 
 int
-_fields_add_suffix( fields *f, const char *tag, const char *suffix, const char *value, int level, int mode )
+_fields_add_suffix( fields *f, const char *tag, const char *suffix, const char *value, const char *lang, int level, int mode )
 {
 	str newtag;
 	int ret;
@@ -217,7 +215,7 @@ _fields_add_suffix( fields *f, const char *tag, const char *suffix, const char *
 	if ( str_memerr( &newtag ) )
 		ret = FIELDS_ERR_MEMERR;
 	else
-		ret = _fields_add( f, str_cstr( &newtag ), value, level, mode );
+		ret = _fields_add( f, str_cstr( &newtag ), value, lang, level, mode );
 
 	str_free( &newtag );
 
@@ -333,7 +331,7 @@ fields_find( fields *f, const char *tag, int level )
 		else {
 			/* if there is no data for the tag, don't "find" it */
 			/* and set "used" so noise is suppressed */
-			f->used[i] = 1;
+			_fields_used( f, i ) = 1;
 		}
 	}
 
@@ -362,14 +360,14 @@ fields_clear_used( fields *f )
 	int i;
 
 	for ( i=0; i<f->n; ++i )
-		f->used[i] = 0;
+		_fields_used( f, i ) = 0;
 }
 
 void
 fields_set_used( fields *f, int n )
 {
 	if ( n >= 0 && n < f->n )
-		f->used[n] = 1;
+		_fields_used( f, n ) = 1;
 }
 
 /* fields_replace_or_add()
@@ -397,7 +395,7 @@ const char *fields_null_value = "\0";
 int
 fields_used( fields *f, int n )
 {
-	if ( n >= 0 && n < f->n ) return f->used[n];
+	if ( n >= 0 && n < f->n ) return _fields_used( f, n );
 	else return 0;
 }
 
@@ -509,20 +507,24 @@ fields_findv( fields *f, int level, int mode, const char *tag )
 		if ( !fields_match_level( f, i, level ) ) continue;
 		if ( !fields_match_casetag( f, i, tag ) ) continue;
 
-		if ( _fields_value_notempty( f, i ) ) {
-			found = i;
+		found = i;
+
+		if ( ( mode & FIELDS_NOLENOK_FLAG ) || _fields_value_notempty( f, i ) ) {
 			break;
-		} else {
-			if ( mode & FIELDS_NOLENOK_FLAG ) {
-				return (const void *) fields_null_value;
-			} else if ( mode & FIELDS_SETUSE_FLAG ) {
-				f->used[i] = 1; /* Suppress "noise" of unused */
-			}
 		}
+
 	}
 
 	if ( found==FIELDS_NOTFOUND ) return NULL;
-	else return fields_value( f, found, mode );
+
+	if ( _fields_value_notempty( f, found ) ) return fields_value( f, found, mode );
+	else {
+		_fields_used(f,found) = 1; /* Suppress "noise" of unused */
+		if ( ( mode & FIELDS_NOLENOK_FLAG ) == 0  ) return NULL;
+		if ( ( mode & FIELDS_STRP_FLAG )  ) return ( void * ) _fields_value( f, found );
+		else if ( ( mode & FIELDS_POSP_FLAG ) ) return ( void * )( (intptr_t) found );
+		else return ( void * ) fields_null_value;
+	}
 }
 
 const void *
@@ -578,7 +580,7 @@ fields_findv_each( fields *f, int level, int mode, vplist *a, const char *tag )
 				status = fields_findv_each_add( f, mode, i, a );
 				if ( status!=FIELDS_OK ) return status;
 			} else {
-				f->used[i] = 1; /* Suppress "noise" of unused */
+				_fields_used(f,i) = 1; /* Suppress "noise" of unused */
 			}
 		}
 
@@ -637,8 +639,9 @@ fields_findv_eachof( fields *f, int level, int mode, vplist *a, ... )
 			status = fields_findv_each_add( f, mode, i, a );
 			if ( status!=FIELDS_OK ) goto out;
 		} else {
-			f->used[i] = 1; /* Suppress "noise" of unused */
+			_fields_used(f,i) = 1; /* Suppress "noise" of unused */
 		}
+
 	}
 
 out:

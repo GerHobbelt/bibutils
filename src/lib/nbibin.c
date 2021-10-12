@@ -1,7 +1,7 @@
 /*
  * nbibin.c
  *
- * Copyright (c) Chris Putnam 2016-2020
+ * Copyright (c) Chris Putnam 2016-2021
  *
  * Source code released under the GPL version 2
  *
@@ -15,6 +15,7 @@
 #include "str.h"
 #include "str_conv.h"
 #include "fields.h"
+#include "month.h"
 #include "name.h"
 #include "title.h"
 #include "url.h"
@@ -297,83 +298,66 @@ nbib_typef( fields *nbib, const char *filename, int nref, param *p )
  PUBLIC: int nbib_convertf()
 *****************************************************/
 
-/* PB  - 2016 May 7 */
-
 static int
-nbibin_date( fields *bibin, int n, const str *intag, const str *invalue, int level, param *pm, const char *outtag, fields *bibout )
+nbibin_date( fields *bibin, int n, str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
 {
-	int fstatus, status = BIBL_OK;
-	str s;
-	const char *p;
+	int fstatus, sstatus, status = BIBL_OK;
+	const char *use;
+	slist tokens;
+	str *s;
 
-	p = str_cstr( invalue );
-	if ( !p ) return status;
+	if ( str_is_empty( invalue ) ) return BIBL_OK;
 
-	str_init( &s );
+	slist_init( &tokens );
+
+	sstatus = slist_tokenize( &tokens, invalue, " \t", 1 );
+	if ( sstatus!=SLIST_OK ) { status = BIBL_ERR_MEMERR; goto out; }
+
+	if ( tokens.n == 0 ) goto out;
 
 	/* ...handle year */
-		while ( *p && !is_ws( *p ) ) {
-			str_addchar( &s, *p );
-			p++;
-		}
-
-		if ( str_memerr( &s ) ) {
-			status = BIBL_ERR_MEMERR;
-			goto out;
-		}
-
-		if ( str_has_value( &s ) ) {
-			fstatus = fields_add( bibout, "DATE:YEAR", str_cstr( &s ), LEVEL_MAIN );
+	if ( tokens.n > 0 ) {
+		s = slist_str( &tokens, 0 );
+		if ( str_has_value( s ) ) {
+			fstatus = fields_add( bibout, "DATE:YEAR", str_cstr( s ), LEVEL_MAIN );
 			if ( fstatus!=FIELDS_OK ) {
 				status = BIBL_ERR_MEMERR;
 				goto out;
 			}
 		}
+	}
 
 	/* ...handle month */
-		str_empty( &s );
-		while ( is_ws( *p ) ) p++;
-		while ( *p && !is_ws( *p ) ) {
-			str_addchar( &s, *p );
-			p++;
-		}
-
-		if ( str_memerr( &s ) ) {
+	if ( tokens.n > 1 ) {
+		s = slist_str( &tokens, 1 );
+		(void) month_to_number( str_cstr( s ), &use );
+		fstatus = fields_add( bibout, "DATE:MONTH", use, LEVEL_MAIN );
+		if ( fstatus!=FIELDS_OK ) {
 			status = BIBL_ERR_MEMERR;
 			goto out;
 		}
-
-		if ( str_has_value( &s ) ) {
-			fstatus = fields_add( bibout, "DATE:MONTH", str_cstr( &s ), LEVEL_MAIN );
-			if ( fstatus!=FIELDS_OK ) {
-				status = BIBL_ERR_MEMERR;
-				goto out;
-			}
-		}
+	}
 
 	/* ...handle day */
-		str_empty( &s );
-		while ( is_ws( *p ) ) p++;
-		while ( *p && !is_ws( *p ) ) {
-			str_addchar( &s, *p );
-			p++;
-		}
-
-		if ( str_memerr( &s ) ) {
-			status = BIBL_ERR_MEMERR;
-			goto out;
-		}
-
-		if ( str_has_value( &s ) ) {
-			fstatus = fields_add( bibout, "DATE:DAY", str_cstr( &s ), LEVEL_MAIN );
+	if ( tokens.n > 2 ) {
+		s = slist_str( &tokens, 2 );
+		if ( str_has_value( s ) ) {
+			/* convert days "1"-"9" to "01" - "09" */
+			if ( str_strlen( s ) == 1 ) {
+				if ( '0' <= *(str_cstr(s)) && *(str_cstr(s)) <= '9' ) {
+					str_prepend( s, "0" );
+				}
+			}
+			fstatus = fields_add( bibout, "DATE:DAY", str_cstr( s ), LEVEL_MAIN );
 			if ( fstatus!=FIELDS_OK ) {
 				status = BIBL_ERR_MEMERR;
 				goto out;
 			}
 		}
+	}
 
 out:
-	str_free( &s );
+	slist_free( &tokens );
 
 	return status;
 }
@@ -414,61 +398,8 @@ out:
 	return status;
 }
 
-static int
-nbibin_pages( fields *bibin, int n, const str *intag, const str *invalue, int level, param *pm, const char *outtag, fields *bibout )
-{
-	int fstatus, status = BIBL_OK;
-	str sp, tmp, ep;
-	const char *p;
-
-	p = str_cstr( invalue );
-	if ( !p ) return BIBL_OK;
-
-	strs_init( &sp, &tmp, &ep, NULL );
-
-	while ( *p && *p!='-' ) {
-		str_addchar( &sp, *p );
-		p++;
-	}
-
-	if ( str_memerr( &sp ) ) {
-		status = BIBL_ERR_MEMERR;
-		goto out;
-	}
-
-	while ( *p=='-' ) p++;
-
-	while ( *p ) {
-		str_addchar( &tmp, *p );
-		p++;
-	}
-
-	if ( sp.len ) {
-		fstatus = fields_add( bibout, "PAGES:START", str_cstr( &sp ), LEVEL_MAIN );
-		if ( fstatus!=FIELDS_OK ) {
-			status = BIBL_ERR_MEMERR;
-			goto out;
-		}
-	}
-
-	if ( tmp.len ) {
-		for ( unsigned long i=0; i<sp.len - tmp.len; ++i )
-			str_addchar( &ep, sp.data[i] );
-		str_strcat( &ep, &tmp );
-
-		fstatus = fields_add( bibout, "PAGES:STOP", str_cstr( &ep ), LEVEL_MAIN );
-		if ( fstatus!=FIELDS_OK ) {
-			status = BIBL_ERR_MEMERR;
-			goto out;
-		}
-	}
-out:
-	strs_free( &sp, &tmp, &ep, NULL );
-	return status;
-}
-
 static void
-nbib_report_notag( param *p, const char *tag )
+nbib_report_notag( param *p, char *tag )
 {
 	if ( p->verbose && strcmp( tag, "TY" ) ) {
 		if ( p->progname ) fprintf( stderr, "%s: ", p->progname );
@@ -488,7 +419,7 @@ nbib_convertf( fields *bibin, fields *bibout, int reftype, param *p )
 		[ PERSON       ] = generic_person,
 		[ SKIP         ] = generic_skip,
 		[ DATE         ] = nbibin_date,
-		[ PAGES        ] = nbibin_pages,
+		[ PAGES        ] = generic_pages,
 		[ DOI          ] = nbibin_doi,
     };
 

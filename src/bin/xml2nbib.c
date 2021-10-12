@@ -1,7 +1,7 @@
 /*
  * xml2nbib.c
  *
- * Copyright (c) Chris Putnam 2018-2020
+ * Copyright (c) Chris Putnam 2018-2021
  *
  * Program and source code released under the GPL version 2
  *

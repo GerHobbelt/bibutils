@@ -1,7 +1,7 @@
 /*
  * doi_test.c
  *
- * Copyright (c) 2016-2018
+ * Copyright (c) 2016-2021
  *
  * Source code released under the GPL version 2
  *

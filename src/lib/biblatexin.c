@@ -1,8 +1,8 @@
 /*
  * biblatexin.c
  *
- * Copyright (c) Chris Putnam 2008-2020
- * Copyright (c) Johannes Wilm 2010-2020
+ * Copyright (c) Chris Putnam 2008-2021
+ * Copyright (c) Johannes Wilm 2010-2021
  *
  * Program and source code released under the GPL version 2
  *
@@ -15,15 +15,16 @@
 #include "is_ws.h"
 #include "strsearch.h"
 #include "str.h"
-#include "utf8.h"
 #include "str_conv.h"
-#include "fields.h"
-#include "latex_parse.h"
 #include "slist.h"
+#include "bibformats.h"
+#include "utf8.h"
+#include "fields.h"
+#include "generic.h"
+#include "latex_parse.h"
+#include "month.h"
 #include "name.h"
 #include "reftypes.h"
-#include "bibformats.h"
-#include "generic.h"
 #include "bltypes.h"
 
 
@@ -845,7 +846,7 @@ out:
 static int
 biblatex_names( fields *info, const char *tag, const str *data, int level, slist *asis, slist *corps )
 {
-	int begin, end, ok, n, etal, i, match, status = BIBL_OK;
+	int begin, end, n, etal, i, match, status = BIBL_OK;
 	slist tokens;
 	str parsed, *s;
 
@@ -879,11 +880,11 @@ biblatex_names( fields *info, const char *tag, const str *data, int level, slist
 			end++;
 
 		if ( end - begin == 1 ) {
-			ok = name_addsingleelement( info, tag, slist_cstr( &tokens, begin ), level, 0 );
-			if ( !ok ) { status = BIBL_ERR_MEMERR; goto out; }
+			status = add_name_singleelement( info, tag, slist_cstr( &tokens, begin ), level, 0 );
+			if ( status!=BIBL_OK ) goto out;
 		} else {
-			ok = name_addmultielement( info, tag, &tokens, begin, end, level );
-			if ( !ok ) { status = BIBL_ERR_MEMERR; goto out; }
+			status = add_name_multielement( info, tag, &tokens, begin, end, level );
+			if ( status!=BIBL_OK ) goto out;
 		}
 
 		begin = end + 1;
@@ -894,8 +895,7 @@ biblatex_names( fields *info, const char *tag, const str *data, int level, slist
 	}
 
 	if ( etal ) {
-		ok = name_addsingleelement( info, tag, "et al.", level, 0 );
-		if ( !ok ) status = BIBL_ERR_MEMERR;
+		status = add_name_singleelement( info, tag, "et al.", level, 0 );
 	}
 
 out:
@@ -1004,10 +1004,77 @@ biblatexin_bteprint( fields *bibin, int n, const str *intag, const str *invalue,
 	return BIBL_OK;
 }
 
+/* The date field should in ISO 8601 format */
+static int
+biblatexin_date_iso8601( fields *bibin, int m, str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
+{
+	char *parttags[] = { "PARTDATE:YEAR", "PARTDATE:MONTH", "PARTDATE:DAY" };
+	char *tags[] = { "DATE:YEAR", "DATE:MONTH", "DATE:DAY" };
+	int fstatus, partdate = 0, status = BIBL_OK;
+	slist_index i, j, max;
+	slist range, tokens;
+	str *date;
+	char *usetag;
+
+	slist_init( &range );
+	slist_init( &tokens );
+
+	if ( !strncmp( outtag, "PART", 4 ) ) partdate = 1;
+
+	fstatus = slist_tokenize( &range, invalue, "/", 1 );
+	if ( fstatus!=SLIST_OK ) { status = BIBL_ERR_MEMERR; goto out; }
+
+	for ( i=0; i<range.n; ++i ) {
+
+		date = slist_str( &range, i );
+		if ( str_is_empty( date ) ) continue;
+		if ( !strcmp( str_cstr( date ), ".." ) ) continue;
+
+		fstatus = slist_tokenize( &tokens, date, "-", 1 );
+		if ( fstatus!=SLIST_OK ) { status = BIBL_ERR_MEMERR; goto out; }
+
+		max = ( tokens.n > 3 ) ? 3 : tokens.n;
+		for ( j=0; j<max; ++j ) {
+			usetag = ( partdate==0 ) ? tags[j] : parttags[j];
+			fstatus = fields_add( bibout, usetag, slist_cstr( &tokens, j ), level );
+			if ( fstatus!=FIELDS_OK ) status = BIBL_ERR_MEMERR;
+		}
+	}
+
+out:
+	slist_free( &range );
+	slist_init( &tokens );
+	return status;
+}
+
+static int
+biblatexin_date( fields *bibin, int m, str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
+{
+	int fstatus, status = BIBL_OK;
+	const char *out = NULL;
+
+	if ( !strcasecmp( outtag, "PARTDATE" ) || !strcasecmp( outtag, "DATE" ) ) {
+		return biblatexin_date_iso8601( bibin, m, intag, invalue, level, pm, outtag, bibout );
+	}
+
+	else if ( !strcasecmp( outtag, "PARTDATE:MONTH" ) || !strcasecmp( outtag, "DATE:MONTH" ) ) {
+		(void) month_to_number( str_cstr( invalue ), &out );
+		fstatus = fields_add( bibout, outtag, out, level );
+		if ( fstatus!=FIELDS_OK ) status = BIBL_ERR_MEMERR;
+	}
+
+	else {
+		fstatus = fields_add( bibout, outtag, str_cstr( invalue ), level );
+		if ( fstatus!=FIELDS_OK ) status = BIBL_ERR_MEMERR;
+	}
+
+	return status;
+}
+
 static int
 biblatexin_btgenre( fields *bibin, int n, const str *intag, const str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
-	if ( fields_add( bibout, "GENRE:BIBUTILS", str_cstr( invalue ), level ) == FIELDS_OK ) return BIBL_OK;
+	if ( fields_add( bibout, "GENRE:UNKNOWN", str_cstr( invalue ), level ) == FIELDS_OK ) return BIBL_OK;
 	else return BIBL_ERR_MEMERR;
 }
 
@@ -1109,11 +1176,12 @@ biblatexin_convertf( fields *bibin, fields *bibout, int reftype, param *p )
 		[ SIMPLE          ] = generic_simple,
 		[ PAGES           ] = generic_pages,
 		[ NOTES           ] = generic_notes,
+		[ DATE            ] = biblatexin_date,
 		[ PERSON          ] = biblatexin_person,
 		[ BLT_EDITOR      ] = biblatexin_blteditor,
 		[ HOWPUBLISHED    ] = biblatexin_howpublished,
 		[ URL             ] = generic_url,
-		[ GENRE           ] = biblatexin_btgenre,
+		[ GENRE           ] = biblatexin_genre,
 		[ BT_EPRINT       ] = biblatexin_bteprint,
 		[ BLT_THESIS_TYPE ] = biblatexin_bltthesistype,
 		[ BLT_SCHOOL      ] = biblatexin_bltschool,

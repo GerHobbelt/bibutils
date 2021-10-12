@@ -1,6 +1,6 @@
 /* generic.c
  *
- * Copyright (c) Chris Putnam 2016-2020
+ * Copyright (c) Chris Putnam 2016-2021
  *
  * Source code released under GPL version 2
  *
@@ -34,29 +34,25 @@ generic_url( fields *bibin, int n, const str *intag, const str *invalue, int lev
 int
 generic_notes( fields *bibin, int n, const str *intag, const str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
-        if ( notes_add( bibout, invalue, level ) ) return BIBL_OK;
-        else return BIBL_ERR_MEMERR;
+        return add_notes( bibout, invalue, level );
 }
 
 int
 generic_pages( fields *bibin, int n, const str *intag, const str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
-        if ( pages_add( bibout, outtag, invalue, level ) ) return BIBL_OK;
-        else return BIBL_ERR_MEMERR;
+        return add_pages( bibout, invalue, level );
 }
 
 int
 generic_person( fields *bibin, int n, const str *intag, const str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
-        if ( name_add( bibout, outtag, str_cstr( invalue ), level, &(pm->asis), &(pm->corps) ) ) return BIBL_OK;
-        else return BIBL_ERR_MEMERR;
+        return add_name( bibout, outtag, str_cstr( invalue ), level, &(pm->asis), &(pm->corps) );
 }
 
 int
 generic_serialno( fields *bibin, int n, const str *intag, const str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
-	if ( addsn( bibout, str_cstr( invalue ), level ) ) return BIBL_OK;
-	return BIBL_ERR_MEMERR;
+	return add_sn( bibout, str_cstr( invalue ), level );
 }
 
 /* SIMPLE = just copy */
@@ -78,8 +74,7 @@ generic_skip( fields *bibin, int n, const str *intag, const str *invalue, int le
 int
 generic_title( fields *bibin, int n, const str *intag, const str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
-        if ( title_process( bibout, outtag, str_cstr( invalue ), level, pm->nosplittitle ) ) return BIBL_OK;
-        else return BIBL_ERR_MEMERR;
+        return add_title( bibout, outtag, str_cstr( invalue ), level, pm->nosplittitle );
 }
 
 int

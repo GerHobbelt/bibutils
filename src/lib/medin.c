@@ -1,7 +1,7 @@
 /*
  * medin.c
  *
- * Copyright (c) Chris Putnam 2004-2020
+ * Copyright (c) Chris Putnam 2004-2021
  *
  * Source code released under the GPL version 2
  *
@@ -13,6 +13,7 @@
 #include "str.h"
 #include "str_conv.h"
 #include "fields.h"
+#include "month.h"
 #include "xml.h"
 #include "xml_encoding.h"
 #include "iso639_2.h"
@@ -262,8 +263,22 @@ medin_language( xml *node, fields *info, int level )
  * </Journal>
  */
 static int
+medin_handle_month( xml *node, fields *info )
+{
+	const char *use;
+	int fstatus;
+
+	(void) month_to_number( xml_value_cstr( node ), &use );
+
+	fstatus = fields_add( info, "PARTDATE:MONTH", use, 1 );
+	if ( fstatus!=FIELDS_OK ) return BIBL_ERR_MEMERR;
+	else return BIBL_OK;
+}
+
+static int
 medin_journal1( xml *node, fields *info )
 {
+	/* These terms can be added simply */
 	xml_convert c[] = {
 		{ "Title",           NULL, NULL, "TITLE",          1 },
 		{ "ISOAbbreviation", NULL, NULL, "SHORTTITLE",     1 },
@@ -271,24 +286,30 @@ medin_journal1( xml *node, fields *info )
 		{ "Volume",          NULL, NULL, "VOLUME",         1 },
 		{ "Issue",           NULL, NULL, "ISSUE",          1 },
 		{ "Year",            NULL, NULL, "PARTDATE:YEAR",  1 },
-		{ "Month",           NULL, NULL, "PARTDATE:MONTH", 1 },
 		{ "Day",             NULL, NULL, "PARTDATE:DAY",   1 },
 	};
-	int nc = sizeof( c ) / sizeof( c[0] ), status, found;
+	int nc = sizeof( c ) / sizeof( c[0] );
+	int status, found;
+
 	if ( xml_has_value( node ) ) {
+
 		status = medin_doconvert( node, info, c, nc, &found );
 		if ( status!=BIBL_OK ) return status;
+
 		if ( !found ) {
-			if ( xml_tag_matches( node, "MedlineDate" ) ) {
+			if ( xml_tag_matches( node, "Month" ) ) {
+				status = medin_handle_month( node, info );
+			}
+			else if ( xml_tag_matches( node, "MedlineDate" ) ) {
 				status = medin_medlinedate( info, xml_value_cstr( node ), 1 );
-				if ( status!=BIBL_OK ) return status;
 			}
-			if ( xml_tag_matches( node, "Language" ) ) {
+			else if ( xml_tag_matches( node, "Language" ) ) {
 				status = medin_language( node, info, LEVEL_HOST );
-				if ( status!=BIBL_OK ) return status;
 			}
+			if ( status!=BIBL_OK ) return status;
 		}
 	}
+
 	if ( node->down ) {
 		status = medin_journal1( node->down, info );
 		if ( status!=BIBL_OK ) return status;
@@ -308,6 +329,7 @@ static int
 medin_pagination( xml *node, fields *info )
 {
 	int fstatus, status;
+	unsigned long i;
 	str sp, ep;
 	const char *p, *pp;
 	if ( xml_tag_matches( node, "MedlinePgn" ) && node->value.len ) {
@@ -448,7 +470,7 @@ medin_authorlist( xml *node, fields *info )
 
 out:
 	str_free( &name );
-	return BIBL_OK;
+	return status;
 }
 
 /* <PublicationTypeList>

@@ -1,7 +1,7 @@
 /*
  * modsin.c
  *
- * Copyright (c) Chris Putnam 2004-2020
+ * Copyright (c) Chris Putnam 2004-2021
  *
  * Source code released under the GPL version 2
  *
@@ -14,6 +14,7 @@
 #include "is_ws.h"
 #include "str.h"
 #include "str_conv.h"
+#include "pages.h"
 #include "xml.h"
 #include "xml_encoding.h"
 #include "fields.h"
@@ -79,59 +80,119 @@ modsin_initparams( param *pm, const char *progname )
 
 static const char modsns[]="mods";
 
-static int
-modsin_detailr( xml *node, str *value )
+/* Extract/expand language attributes from tags like:
+ *
+ * <node type="level" lang="swe">Självständigt arbete på avancerad nivå (masterexamen)</note>
+ *
+ * Returns NULL if attribute is missing
+ */
+static char *
+modsin_get_lang_attribute( xml *node )
 {
-	int status = BIBL_OK;
-	if ( xml_has_value( node ) ) {
-		if ( str_has_value( value ) ) str_addchar( value, ' ' );
-		str_strcat( value, xml_value( node ) );
-		if ( str_memerr( value ) ) return BIBL_ERR_MEMERR;
+	char *lang, *expand;
+	str *langtag;
+
+	langtag = xml_attribute( node, "lang" );
+	if ( !langtag ) return NULL;
+
+	lang = str_cstr( langtag );
+
+	expand = iso639_3_from_code( lang );
+	if ( expand ) return expand;
+
+	expand = iso639_2_from_code( lang );
+	if ( expand ) return expand;
+
+	expand = iso639_1_from_code( lang );
+	if ( expand ) return expand;
+
+	return lang;
+}
+
+static int
+modsin_simple( xml *node, fields *info, const char *tag, const char *lang, int level )
+{
+	int fstatus;
+
+	if ( !xml_has_value( node ) ) return BIBL_OK;
+
+	fstatus = fields_add_lang( info, tag, xml_value_cstr( node ), lang, level );
+	if ( fstatus!=FIELDS_OK ) return BIBL_ERR_MEMERR;
+
+	return BIBL_OK;
+}
+
+/*
+ * <detail></detail>
+ * <detail><number></number></detail>
+ */
+static int
+modsin_detail_value( xml *node, str *value )
+{
+	while ( node ) {
+
+		if ( xml_has_value( node ) ) {
+			if ( str_has_value( value ) ) str_addchar( value, ' ' );
+			str_strcat( value, xml_value( node ) );
+			if ( str_memerr( value ) ) return BIBL_ERR_MEMERR;
+		}
+
+		node = node->next;
+
 	}
-	if ( node->down ) {
-		status = modsin_detailr( node->down, value );
-		if ( status!=BIBL_OK ) return status;
+
+	return BIBL_OK;
+}
+
+static int
+modsin_detail_type( xml *node, str *type )
+{
+	str *attribute;
+
+	attribute = xml_attribute( node, "type" );
+	if ( attribute ) {
+		str_strcpy( type, attribute );
+		str_toupper( type );
+		if ( str_memerr( type ) ) return BIBL_ERR_MEMERR;
 	}
-	if ( node->next )
-		status = modsin_detailr( node->next, value );
-	return status;
+
+	return BIBL_OK;
 }
 
 static int
 modsin_detail( xml *node, fields *info, int level )
 {
-	int fstatus, status = BIBL_OK;
+	int fstatus, status;
 	str type, value;
-	const str* tp;
 
 	if ( !node->down ) return BIBL_OK;
 
 	strs_init( &type, &value, NULL );
 
-	tp = xml_attribute( node, "type" );
-	if ( tp ) {
-		str_strcpy( &type, tp );
-		str_toupper( &type );
-		if ( str_memerr( &type ) ) goto out;
-	}
+	status = modsin_detail_type( node, &type );
+	if ( status!=BIBL_OK ) goto out;
 
-	status = modsin_detailr( node->down, &value );
+	status = modsin_detail_value( node->down, &value );
 	if ( status!=BIBL_OK ) goto out;
 
 	if ( str_has_value( &type ) && !strcasecmp( str_cstr( &type ), "PAGE" ) ) {
-		fstatus = fields_add( info, "PAGES:START", str_cstr( &value ), level );
+		status = add_pages( info, &value, level );
 	} else {
 		fstatus = fields_add( info, str_cstr( &type ), str_cstr( &value ), level );
+		if ( fstatus!=FIELDS_OK ) status = BIBL_ERR_MEMERR;
 	}
-	if ( fstatus!=FIELDS_OK ) status = BIBL_ERR_MEMERR;
 
 out:
 	strs_free( &type, &value, NULL );
 	return status;
 }
 
+/*
+ * <date></date>
+ * <dateIssued></dateIssued>
+ */
 static int
-modsin_date( xml *node, fields *info, int level, int part )
+modsin_date_core( xml *node, fields *info, int level, int part )
 {
 	int fstatus, status = BIBL_OK;
 	const char *tag, *p;
@@ -175,121 +236,174 @@ out:
 }
 
 static int
-modsin_pager( xml *node, str *sp, str *ep, str *tp, str *lp )
+modsin_date( xml *node, fields *info, const char *lang, int level )
 {
-	int status = BIBL_OK;
-	if ( xml_tag_matches_has_value( node, "start" ) ) {
-		str_strcpy( sp, xml_value( node ) );
-		if ( str_memerr( sp ) ) return BIBL_ERR_MEMERR;
-	} else if ( xml_tag_matches_has_value( node, "end" ) ) {
-		str_strcpy( ep, xml_value( node ) );
-		if ( str_memerr( ep ) ) return BIBL_ERR_MEMERR;
-	} else if ( xml_tag_matches_has_value( node, "total" ) ) {
-		str_strcpy( tp, xml_value( node ) );
-		if ( str_memerr( tp ) ) return BIBL_ERR_MEMERR;
-	} else if ( xml_tag_matches_has_value( node, "list" ) ) {
-		str_strcpy( lp, xml_value( node ) );
-		if ( str_memerr( lp ) ) return BIBL_ERR_MEMERR;
+	return modsin_date_core( node, info, level, 0 );
+}
+
+/*
+ * <extent unit="page"><start></start><end></end><total></total></extent>
+ * <extent unit="pages"></extent>
+ */
+static int
+modsin_page_get_values( xml *node, str *start_page, str *end_page, str *total_pages, str *list_pages )
+{
+	str *use = NULL;
+	int status;
+
+	if      ( xml_tag_matches_has_value( node, "start" ) ) use = start_page;
+	else if ( xml_tag_matches_has_value( node, "end" ) )   use = end_page;
+	else if ( xml_tag_matches_has_value( node, "total" ) ) use = total_pages;
+	else if ( xml_tag_matches_has_value( node, "list" ) )  use = list_pages;
+
+	if ( use ) {
+		str_strcpy( use, xml_value( node ) );
+		if ( str_memerr( use ) ) return BIBL_ERR_MEMERR;
 	}
-	if ( node->down ) {
-		status = modsin_pager( node->down, sp, ep, tp, lp );
+
+	if ( node->next ) {
+		status = modsin_page_get_values( node->next, start_page, end_page, total_pages, list_pages );
 		if ( status!=BIBL_OK ) return status;
 	}
-	if ( node->next )
-		status = modsin_pager( node->next, sp, ep, tp, lp );
-	return status;
+
+	return BIBL_OK;
+}
+
+static int
+modsin_page_add_values( fields *info, str *start_page, str *end_page, str *total_pages, str *list_pages, int level )
+{
+	int fstatus;
+
+	/*
+	 * If start_page or end_page specified, add those, not list_pages.
+	 * The list_pages value is typically redundant with start_page/end_page
+	 */
+	if ( str_has_value( start_page ) || str_has_value( end_page ) ) {
+		if ( str_has_value( start_page ) ) {
+			fstatus = fields_add( info, "PAGES:START", str_cstr( start_page ), level );
+			if ( fstatus!=FIELDS_OK ) return BIBL_ERR_MEMERR;
+		}
+		if ( str_has_value( end_page ) ) {
+			fstatus = fields_add( info, "PAGES:STOP", str_cstr( end_page ), level );
+			if ( fstatus!=FIELDS_OK ) return BIBL_ERR_MEMERR;
+		}
+	}
+
+	else if ( str_has_value( list_pages ) ) {
+		fstatus = fields_add( info, "PAGES:START", str_cstr( list_pages ), level );
+		if ( fstatus!=FIELDS_OK ) return BIBL_ERR_MEMERR;
+	}
+
+	/* always add total pages, if available */
+	if ( str_has_value( total_pages ) ) {
+		fstatus = fields_add( info, "PAGES:TOTAL", str_cstr( total_pages ), level );
+		if ( fstatus!=FIELDS_OK ) return BIBL_ERR_MEMERR;
+	}
+
+	return BIBL_OK;
 }
 
 static int
 modsin_page( xml *node, fields *info, int level )
 {
-	int fstatus, status = BIBL_OK;
-	str sp, ep, tp, lp;
-	xml *dnode = node->down;
+	str start_page, end_page, total_pages, list_pages;
+	int status;
 
-	if ( !dnode ) return BIBL_OK;
+	if ( !node->down ) return BIBL_OK;
 
-	strs_init( &sp, &ep, &tp, &lp, NULL );
+	strs_init( &start_page, &end_page, &total_pages, &list_pages, NULL );
 
-	status = modsin_pager( dnode, &sp, &ep, &tp, &lp );
+	status = modsin_page_get_values( node->down, &start_page, &end_page, &total_pages, &list_pages );
 	if ( status!=BIBL_OK ) goto out;
 
-	if ( str_has_value( &sp ) || str_has_value( &ep ) ) {
-		if ( str_has_value( &sp ) ) {
-			fstatus = fields_add( info, "PAGES:START", str_cstr( &sp ), level );
-			if ( fstatus!=FIELDS_OK ) { status = BIBL_ERR_MEMERR; goto out; }
-		}
-		if ( str_has_value( &ep ) ) {
-			fstatus = fields_add( info, "PAGES:STOP", str_cstr( &ep ), level );
-			if ( fstatus!=FIELDS_OK ) { status = BIBL_ERR_MEMERR; goto out; }
-		}
-	} else if ( str_has_value( &lp ) ) {
-		fstatus = fields_add( info, "PAGES:START", str_cstr( &lp ), level );
-		if ( fstatus!=FIELDS_OK ) { status = BIBL_ERR_MEMERR; goto out; }
-	}
-	if ( str_has_value( &tp ) ) {
-		fstatus = fields_add( info, "PAGES:TOTAL", str_cstr( &tp ), level );
-		if ( fstatus!=FIELDS_OK ) { status = BIBL_ERR_MEMERR; goto out; }
-	}
+	status = modsin_page_add_values( info, &start_page, &end_page, &total_pages, &list_pages, level );
+
 out:
-	strs_free( &sp, &ep, &tp, &lp, NULL );
+	strs_free( &start_page, &end_page, &total_pages, &list_pages, NULL );
 	return status;
 }
 
-static int
-modsin_titler( xml *node, str *title, str *subtitle )
+/*
+ * <titleInfo>
+ *     <nonSort></nonSort>
+ *     <title></title>
+ *     <subTitle></subTitle>
+ * </titleInfo>
+ */
+
+static void
+modsin_add_sep_if_necessary( str *s, char sep )
 {
-	int status = BIBL_OK;
-	if ( xml_tag_matches_has_value( node, "title" ) ) {
-		if ( str_has_value( title ) ) str_strcatc( title, " : " );
-		str_strcat( title, xml_value( node ) );
-		if ( str_memerr( title ) ) return BIBL_ERR_MEMERR;
-	} else if ( xml_tag_matches_has_value( node, "subTitle" ) ) {
-		str_strcat( subtitle, xml_value( node ) );
-		if ( str_memerr( subtitle ) ) return BIBL_ERR_MEMERR;
-	}
-	if ( node->down ) {
-		status = modsin_titler( node->down, title, subtitle );
-		if ( status!=BIBL_OK ) return status;
-	}
-	if ( node->next )
-		status = modsin_titler( node->next, title, subtitle );
-	return status;
+	char *p;
+
+	if ( str_is_empty( s ) ) return;
+
+	p = str_cstr( s );
+	if ( p[s->len-1]!=sep ) str_addchar( s, sep );
 }
 
 static int
-modsin_title( xml *node, fields *info, int level )
+modsin_title_core( xml *node, str *title, str *subtitle )
+{
+	while ( node ) {
+
+		if ( xml_tag_matches_has_value( node, "title" ) ) {
+			modsin_add_sep_if_necessary( title, ' ' );
+			str_strcat( title, xml_value( node ) );
+			if ( str_memerr( title ) ) return BIBL_ERR_MEMERR;
+		}
+
+		else if ( xml_tag_matches_has_value( node, "subTitle" ) ) {
+			str_strcat( subtitle, xml_value( node ) );
+			if ( str_memerr( subtitle ) ) return BIBL_ERR_MEMERR;
+		}
+
+		else if ( xml_tag_matches_has_value( node, "nonSort" ) ) {
+			modsin_add_sep_if_necessary( title, ' ' );
+			str_strcat( title, xml_value( node ) );
+			if ( str_memerr( title ) ) return BIBL_ERR_MEMERR;
+		}
+
+		node = node->next;
+
+	}
+
+	return BIBL_OK;
+}
+
+static int
+modsin_title( xml *node, fields *info, const char *lang, int level )
 {
 	char *titletag[2][2] = {
-		{ "TITLE",    "SHORTTITLE" },
+		{ "TITLE",    "SHORTTITLE"    },
 		{ "SUBTITLE", "SHORTSUBTITLE" },
 	};
-	int fstatus, status = BIBL_OK;
+	int status, fstatus = FIELDS_OK;
 	str title, subtitle;
-	xml *dnode;
 	int abbr;
 
-	dnode = node->down;
-	if ( !dnode ) return status;
+	if ( !node->down ) return BIBL_OK;
 
 	strs_init( &title, &subtitle, NULL );
+
 	abbr = xml_tag_has_attribute( node, "titleInfo", "type", "abbreviated" );
 
-	status = modsin_titler( dnode, &title, &subtitle );
+	status = modsin_title_core( node->down, &title, &subtitle );
 	if ( status!=BIBL_OK ) goto out;
 
 	if ( str_has_value( &title ) ) {
 		fstatus = fields_add( info, titletag[0][abbr], str_cstr( &title ), level );
-		if ( fstatus!=FIELDS_OK ) { status = BIBL_ERR_MEMERR; goto out; }
+		if ( fstatus!=FIELDS_OK ) goto out;
 	}
 
 	if ( str_has_value( &subtitle ) ) {
 		fstatus = fields_add( info, titletag[1][abbr], str_cstr( &subtitle ), level );
-		if ( fstatus!=FIELDS_OK ) { status = BIBL_ERR_MEMERR; goto out; }
+		if ( fstatus!=FIELDS_OK ) goto out;
 	}
 
 out:
 	strs_free( &title, &subtitle, NULL );
+	if ( fstatus!=FIELDS_OK ) status = BIBL_ERR_MEMERR;
 	return status;
 }
 
@@ -323,7 +437,7 @@ modsin_marcrole_convert( const str *s, const char *suffix, str *out )
 		}
 		/* ...take first match */
 		for ( i=0; i<tokens.n; ++i ) {
-			p = marc_convert_role( slist_cstr( &tokens, i ) );
+			p = marc_convert_relators( slist_cstr( &tokens, i ) );
 			if ( p ) {
 				str_strcpyc( out, p );
 				goto done;
@@ -427,7 +541,7 @@ modsin_personr( xml *node, str *familyname, str *givenname, str *suffix )
 }
 
 static int
-modsin_person( xml *node, fields *info, int level )
+modsin_person( xml *node, fields *info, const char *lang, int level )
 {
 	str familyname, givenname, name, suffix, roles, role_out;
 	int fstatus, status = BIBL_OK;
@@ -506,244 +620,231 @@ out:
 }
 
 static int
-modsin_placeterm_text( xml *node, fields *info, int level, int school )
+modsin_name( xml *node, fields *info, const char *lang, int level )
 {
-	char address_tag[] = "ADDRESS";
-	char school_tag[]  = "SCHOOL";
-	char *tag;
-	int fstatus;
+	int status = BIBL_OK;
 
-	tag = ( school ) ? school_tag : address_tag;
+	if ( xml_tag_has_attribute( node, "name", "type", "personal" ) )
+		status = modsin_person( node, info, lang, level );
 
-	fstatus = fields_add( info, tag, xml_value_cstr( node ), level );
-	if ( fstatus!=FIELDS_OK ) return BIBL_ERR_MEMERR;
+	else if ( xml_tag_has_attribute( node, "name", "type", "corporate" ) )
+		status = modsin_asis_corp( node, info, level, ":CORP" );
 
-	return BIBL_OK;
+	else if ( xml_tag_matches( node, "name" ) )
+		status = modsin_asis_corp( node, info, level, ":ASIS" );
+
+	return status;
 }
 
+/*
+ * <place>
+ *     <placeTerm></placeTerm>
+ *     <placeTerm type="text"></placeTerm>
+ *     <placeTerm type="code" authority="marccountry"></placeterm>
+ * </place>
+ */
+
 static int
-modsin_placeterm_code( xml *node, fields *info, int level )
+modsin_placeterm_code( xml *node, fields *info, int level, str *auth )
 {
+	char *value = NULL, *tag = "ADDRESS";
 	int fstatus, status = BIBL_OK;
 	str s;
-	const str* auth;
 
 	str_init( &s );
 
-	auth = xml_attribute( node, "authority" );
-	if ( auth && auth->len ) {
+	if ( !str_strcmpc( auth, "marccountry" ) ) {
+		value = marc_convert_country( xml_value_cstr( node ) );
+	}
+
+	if ( !value ) {
 		str_strcpy( &s, auth );
 		str_addchar( &s, '|' );
+		str_strcat( &s, xml_value( node ) );
+		if ( str_memerr( &s ) ) {
+			status = BIBL_ERR_MEMERR;
+			goto out;
+		}
+		value = str_cstr( &s );
+		tag = "ADDRESS:CODED";
 	}
-	str_strcat( &s, xml_value( node ) );
 
-	if ( str_memerr( &s ) ) {
-		status = BIBL_ERR_MEMERR;
-		goto out;
-	}
-
-	fstatus = fields_add( info, "CODEDADDRESS", str_cstr( &s ), level );
+	fstatus = fields_add( info, tag, value, level );
 	if ( fstatus!=FIELDS_OK ) status = BIBL_ERR_MEMERR;
+
 out:
 	str_free( &s );
 	return status;
 }
 
 static int
-modsin_placeterm( xml *node, fields *info, int level, int school )
+modsin_place( xml *node, fields *info, const char *lang, int level )
 {
+	const char *tag[] = { "ADDRESS", "SCHOOL" };
+	int place_is_school = 0, is_school;
 	int status = BIBL_OK;
-	const str *type;
+	str *type, *auth;
 
-	type = xml_attribute( node, "type" );
-	if ( str_has_value( type ) ) {
-		if ( !strcmp( str_cstr( type ), "text" ) )
-			status = modsin_placeterm_text( node, info, level, school );
-		else if ( !strcmp( str_cstr( type ), "code" ) )
-			status = modsin_placeterm_code( node, info, level );
-	}
+	if ( xml_tag_has_attribute( node, "place", "type", "school" ) )
+		place_is_school = 1;
 
-	return status;
-}
+	node = node->down;
 
-static int
-modsin_placer( xml *node, fields *info, int level, int school )
-{
-	int status = BIBL_OK;
+	while ( node ) {
 
-	if ( xml_tag_has_attribute( node, "place", "type", "school" ) ) {
-		school = 1;
-	} else if ( xml_tag_matches( node, "placeTerm" ) ) {
-		status = modsin_placeterm( node, info, level, school );
-	}
+		is_school = place_is_school;
+		if ( !is_school ) {
+			if ( xml_tag_has_attribute( node, "placeTerm", "type", "school" ) )
+				is_school = 1;
+		}
 
-	if ( node->down ) {
-		status = modsin_placer( node->down, info, level, school );
-		if ( status!=BIBL_OK ) return status;
-	}
+		type = xml_attribute( node, "type" );
+		auth = xml_attribute( node, "authority" );
 
-	if ( node->next ) status = modsin_placer( node->next, info, level, school );
+		if ( str_has_value( type ) || str_has_value( auth ) ) {
+			if ( str_has_value( auth ) || !strcmp( str_cstr( type ), "code" ) )
+				status = modsin_placeterm_code( node, info, level, auth );
+			else /* if ( !strcmp( str_cstr( type ), "text" ) ) */
+				status = modsin_simple( node, info, tag[is_school], lang, level );
+		}
+		else {
+			status = modsin_simple( node, info, tag[is_school], lang, level );
+		}
 
-	return status;
-}
-
-static int
-modsin_origininfor( xml *node, fields *info, int level, str *pub, str *add, str *addc, str *ed, str *iss )
-{
-	int status = BIBL_OK;
-
-	if ( xml_tag_matches( node, "dateIssued" ) ) {
-		status = modsin_date( node, info, level, 0 );
-	} else if ( xml_tag_matches( node, "place" ) ) {
-		status = modsin_placer( node, info, level, 0 );
-	} else if ( xml_tag_matches_has_value( node, "publisher" ) ) {
-		str_strcat( pub, xml_value( node ) );
-		if ( str_memerr( pub ) ) return BIBL_ERR_MEMERR;
-	} else if ( xml_tag_matches_has_value( node, "edition" ) ) {
-		str_strcat( ed, xml_value( node ) );
-		if( str_memerr( ed ) ) return BIBL_ERR_MEMERR;
-	} else if ( xml_tag_matches_has_value( node, "issuance" ) ) {
-		str_strcat( iss, xml_value( node ) );
-		if ( str_memerr( iss ) ) return BIBL_ERR_MEMERR;
-	}
-	if ( status!=BIBL_OK ) return status;
-
-	if ( node->down ) {
-		status = modsin_origininfor( node->down, info, level, pub, add, addc, ed, iss );
-		if ( status!=BIBL_OK ) return status;
-	}
-
-	if ( node->next )
-		status = modsin_origininfor( node->next, info, level, pub, add, addc, ed, iss );
-
-	return status;
-}
-
-static int
-modsin_origininfo( xml *node, fields *info, int level )
-{
-	str publisher, address, addcode, edition, issuance;
-	int fstatus, status = BIBL_OK;
-	if ( node->down ) {
-		strs_init( &publisher, &address, &addcode, &edition, &issuance, NULL );
-		status = modsin_origininfor( node->down, info, level, &publisher, 
-				&address, &addcode, &edition, &issuance );
 		if ( status!=BIBL_OK ) goto out;
-		if ( str_has_value( &publisher ) ) {
-			fstatus = fields_add( info, "PUBLISHER", str_cstr( &publisher ), level );
-			if ( fstatus!=FIELDS_OK ) { status=BIBL_ERR_MEMERR; goto out; }
-		}
-		if ( str_has_value( &address ) ) {
-			fstatus = fields_add( info, "ADDRESS", str_cstr( &address ), level );
-			if ( fstatus!=FIELDS_OK ) { status=BIBL_ERR_MEMERR; goto out; }
-		}
-		if ( str_has_value( &addcode ) ) {
-			fstatus = fields_add( info, "CODEDADDRESS", str_cstr( &addcode ), level );
-			if ( fstatus!=FIELDS_OK ) { status=BIBL_ERR_MEMERR; goto out; }
-		}
-		if ( str_has_value( &edition ) ) {
-			fstatus = fields_add( info, "EDITION", str_cstr( &edition ), level );
-			if ( fstatus!=FIELDS_OK ) { status=BIBL_ERR_MEMERR; goto out; }
-		}
-		if ( str_has_value( &issuance ) ) {
-			fstatus = fields_add( info, "ISSUANCE", str_cstr( &issuance ), level );
-			if ( fstatus!=FIELDS_OK ) { status=BIBL_ERR_MEMERR; goto out; }
-		}
+
+		node = node->next;
+
+	}
+
 out:
-		strs_free( &publisher, &address, &addcode, &edition, &issuance, NULL );
-	}
 	return status;
 }
 
+/*
+ * <originInfo>
+ *     <dateIssued></dateIssued>
+ *     <place></place>
+ *     <publisher></publisher>
+ *     <edition></edition>
+ *     <issuance></issuance>
+ * </originInfo>
+ */
 static int
-modsin_subjectr( xml *node, fields *info, int level )
-{
-	int fstatus, status = BIBL_OK;
-	if ( xml_tag_has_attribute( node, "topic", "class", "primary" ) && xml_has_value( node ) ) {
-		fstatus = fields_add( info, "EPRINTCLASS", xml_value_cstr( node ), level );
-		if ( fstatus!=FIELDS_OK ) return BIBL_ERR_MEMERR;
-	}
-	else if ( xml_tag_matches_has_value( node, "topic" ) ) {
-		fstatus = fields_add( info, "KEYWORD", xml_value_cstr( node ), level );
-		if ( fstatus!=FIELDS_OK ) return BIBL_ERR_MEMERR;
-	}
-	else if ( xml_tag_matches_has_value( node, "geographic" ) ) {
-		fstatus = fields_add( info, "KEYWORD", xml_value_cstr( node ), level );
-		if ( fstatus!=FIELDS_OK ) return BIBL_ERR_MEMERR;
-	}
-	if ( node->down ) {
-		status = modsin_subjectr( node->down, info, level );
-		if ( status!=BIBL_OK ) return status;
-	}
-	if ( node->next ) status = modsin_subjectr( node->next, info, level );
-	return status;
-}
-
-static int
-modsin_subject( xml *node, fields *info, int level )
+modsin_origininfo( xml *node, fields *info, const char *lang, int level )
 {
 	int status = BIBL_OK;
-	if ( node->down ) status = modsin_subjectr( node->down, info, level );
+
+	node = node->down;
+
+	while ( node ) {
+
+		if ( xml_tag_matches( node, "dateIssued" ) )
+			status = modsin_date_core( node, info, level, 0 );
+
+		else if ( xml_tag_matches( node, "place" ) )
+			status = modsin_place( node, info, lang, level );
+
+		else if ( xml_tag_matches( node, "publisher" ) )
+			status = modsin_simple( node, info, "PUBLISHER", lang, level );
+
+		else if ( xml_tag_matches( node, "edition" ) )
+			status = modsin_simple( node, info, "EDITION", lang, level );
+
+		else if ( xml_tag_matches( node, "issuance" ) )
+			status = modsin_simple( node, info, "ISSUANCE", lang, level );
+
+		if ( status!=BIBL_OK ) goto out;
+
+		node = node->next;
+
+	}
+
+out:
+
 	return status;
 }
 
+/*
+ * <subject>
+ *     <topic></topic>
+ *     <geographic></geographic>
+ *     <topic class="primary"></topic>
+ * </subject>
+ */
 static int
-modsin_id1( xml *node, fields *info, int level )
+modsin_subject( xml *node, fields *info, const char *lang, int level )
 {
-	int fstatus;
-	const str *ns;
-	ns = xml_attribute( node, "ID" );
-	if ( str_has_value( ns ) ) {
-		fstatus = fields_add( info, "REFNUM", str_cstr( ns ), level );
-		if ( fstatus!=FIELDS_OK ) return BIBL_ERR_MEMERR;
+	int status = BIBL_OK;
+
+	node = node->down;
+
+	while ( node ) {
+
+		if ( xml_tag_has_attribute( node, "topic", "class", "primary" ) )
+			status = modsin_simple( node, info, "EPRINTCLASS", lang, level );
+
+		else if ( xml_tag_matches( node, "topic" ) )
+			status = modsin_simple( node, info, "KEYWORD", lang, level );
+
+		else if ( xml_tag_matches( node, "geographic" ) )
+			status = modsin_simple( node, info, "KEYWORD", lang, level );
+
+		if ( status!=BIBL_OK ) goto out;
+
+		node = node->next;
 	}
-	return BIBL_OK;
+
+out:
+
+	return status;
 }
 
-/* modsin_genre()
+/* <genre></genre>
  *
  * MARC authority terms tagged with "GENRE:MARC"
  * bibutils authority terms tagged with "GENRE:BIBUTILS"
  * unknown terms tagged with "GENRE:UNKNOWN"
  */
 static int
-modsin_genre( xml *node, fields *info, int level )
+modsin_genre( xml *node, fields *info, const char *lang, int level )
 {
 	int fstatus;
-	const char *d;
+	char *value;
 
 	if ( !xml_has_value( node ) ) return BIBL_OK;
 
-	d = xml_value_cstr( node );
+	value = xml_value_cstr( node );
 
 	/* ...handle special genres in KTH DivA */
-	if ( !strcmp( d, "conferenceProceedings" ) || !strcmp( d, "conferencePaper" ) )
-		d = "conference publication";
-	else if ( !strcmp( d, "artisticOutput" ) || !strcmp( d, "other" ) )
-		d = "miscellaneous";
-	else if ( !strcmp( d, "studentThesis" ) )
-		d = "thesis";
-	else if ( !strcmp( d, "monographDoctoralThesis" ) )
-		d = "Ph.D. thesis";
-	else if ( !strcmp( d, "comprehensiveDoctoralThesis" ) )
-		d = "Ph.D. thesis";
-	else if ( !strcmp( d, "monographLicentiateThesis" ) )
-		d = "Licentiate thesis";
-	else if ( !strcmp( d, "comprehensiveLicentiateThesis" ) )
-		d = "Licentiate thesis";
+	if ( !strcmp( value, "conferenceProceedings" ) || !strcmp( value, "conferencePaper" ) )
+		value = "conference publication";
+	else if ( !strcmp( value, "artisticOutput" ) || !strcmp( value, "other" ) )
+		value = "miscellaneous";
+	else if ( !strcmp( value, "studentThesis" ) )
+		value = "thesis";
+	else if ( !strcmp( value, "monographDoctoralThesis" ) )
+		value = "Ph.D. thesis";
+	else if ( !strcmp( value, "comprehensiveDoctoralThesis" ) )
+		value = "Ph.D. thesis";
+	else if ( !strcmp( value, "monographLicentiateThesis" ) )
+		value = "Licentiate thesis";
+	else if ( !strcmp( value, "comprehensiveLicentiateThesis" ) )
+		value = "Licentiate thesis";
 
-	if ( is_marc_genre( d ) )
-		fstatus = fields_add( info, "GENRE:MARC", d, level );
-	else if ( is_bu_genre( d ) )
-		fstatus = fields_add( info, "GENRE:BIBUTILS", d, level );
+	if ( is_marc_genre( value ) )
+		fstatus = fields_add( info, "GENRE:MARC", value, level );
+	else if ( is_bu_genre( value ) )
+		fstatus = fields_add( info, "GENRE:BIBUTILS", value, level );
 	else
-		fstatus = fields_add( info, "GENRE:UNKNOWN", d, level );
+		fstatus = fields_add( info, "GENRE:UNKNOWN", value, level );
 
 	if ( fstatus!=FIELDS_OK ) return BIBL_ERR_MEMERR;
 	else return BIBL_OK;
 }
 
-/* in MODS version 3.5
+/*
+ * in MODS version 3.5
  * <languageTerm type="text">....</languageTerm>
  * <languageTerm type="code" authority="xxx">...</languageTerm>
  * xxx = rfc3066
@@ -753,53 +854,58 @@ modsin_genre( xml *node, fields *info, int level )
  * xxx = rfc5646
  */
 static int
-modsin_languager( xml *node, fields *info, int level )
+modsin_languageterm( xml *node, fields *info, const char *outtag, int level )
 {
-	int fstatus, status = BIBL_OK;
-	const char *d = NULL;
-	if ( xml_tag_matches( node, "languageTerm" ) ) {
-		if ( xml_has_value( node ) ) {
-			if ( xml_has_attribute( node, "type", "code" ) ) {
-				if ( xml_has_attribute( node, "authority", "iso639-1" ) )
-					d = iso639_1_from_code( xml_value_cstr( node ) );
-				else if ( xml_has_attribute( node, "authority", "iso639-2b" ) )
-					d = iso639_2_from_code( xml_value_cstr( node ) );
-				else if ( xml_has_attribute( node, "authority", "iso639-3" ))
-					d = iso639_3_from_code( xml_value_cstr( node ) );
-			}
-			if ( !d ) d = xml_value_cstr( node );
-			fstatus = fields_add( info, "LANGUAGE", d, level );
-			if ( fstatus!=FIELDS_OK ) return BIBL_ERR_MEMERR;
+	char *lang = NULL;
+	str *authority;
+	int fstatus;
+
+	/* if language provided as a code, expand it */
+	if ( xml_has_attribute( node, "type", "code" ) ) {
+		authority = xml_attribute( node, "authority" );
+		if ( authority ) {
+			if ( !str_strcmpc( authority, "iso639-1" ) )
+				lang = iso639_1_from_code( xml_value_cstr( node ) );
+			else if ( !str_strcmpc( authority, "iso639-2b" ) )
+				lang = iso639_2_from_code( xml_value_cstr( node ) );
+			else if ( !str_strcmpc( authority, "iso639-3" ) )
+				lang = iso639_3_from_code( xml_value_cstr( node ) );
 		}
 	}
-	if ( node->next ) status = modsin_languager( node->next, info, level );
-	return status;
+
+	/* if not an identified code, just use the value directly */
+	if ( !lang ) lang = xml_value_cstr( node );
+
+	fstatus = fields_add( info, outtag, lang, level );
+	if ( fstatus!=FIELDS_OK ) return BIBL_ERR_MEMERR;
+
+	return BIBL_OK;
 }
 
+/*
+ * <language><languageTerm></languageTerm></language>
+ */
 static int
-modsin_language( xml *node, fields *info, int level )
+modsin_language( xml *node, fields *info, const char *lang, int level )
 {
-	int fstatus, status = BIBL_OK;
+	int status = BIBL_OK;
+
 	/* Old versions of MODS had <language>English</language> */
 	if ( xml_has_value( node ) ) {
-		fstatus = fields_add( info, "LANGUAGE", xml_value_cstr( node ), level );
-		if ( fstatus!=FIELDS_OK ) return BIBL_ERR_MEMERR;
+		status = modsin_languageterm( node, info, "LANGUAGE", level );
 	}
 
 	/* New versions of MODS have <language><languageTerm>English</languageTerm></language> */
-	if ( node->down ) status = modsin_languager( node->down, info, level );
-	return status;
-}
-
-static int
-modsin_simple( xml *node, fields *info, const char *tag, int level )
-{
-	int fstatus;
-	if ( xml_has_value( node ) ) {
-		fstatus = fields_add( info, tag, xml_value_cstr( node ), level );
-		if ( fstatus!=FIELDS_OK ) return BIBL_ERR_MEMERR;
+	node = node->down;
+	while ( node ) {
+		if ( xml_tag_matches( node, "languageTerm" ) && xml_has_value( node ) ) {
+			status = modsin_languageterm( node, info, "LANGUAGE", level );
+			if ( status!=BIBL_OK ) return status;
+		}
+		node = node->next;
 	}
-	return BIBL_OK;
+
+	return status;
 }
 
 static int
@@ -841,7 +947,7 @@ modsin_locationr( xml *node, fields *info, int level )
 }
 
 static int
-modsin_location( xml *node, fields *info, int level )
+modsin_location( xml *node, fields *info, const char *lang, int level )
 {
 	int status = BIBL_OK;
 	if ( node->down ) status = modsin_locationr( node->down, info, level );
@@ -866,15 +972,19 @@ modsin_descriptionr( xml *node, str *s )
 }
 
 static int
-modsin_description( xml *node, fields *info, int level )
+modsin_description( xml *node, fields *info, const char *lang, int level )
 {
 	int fstatus, status = BIBL_OK;
 	str s;
+
 	str_init( &s );
+
 	if ( node->down ) {
 		status = modsin_descriptionr( node->down, &s );
 		if ( status!=BIBL_OK ) goto out;
-	} else {
+	}
+
+	else {
 		if ( node->value.len > 0 )
 			str_strcpy( &s, &(node->value) );
 		if ( str_memerr( &s ) ) {
@@ -882,6 +992,7 @@ modsin_description( xml *node, fields *info, int level )
 			goto out;
 		}
 	}
+
 	if ( str_has_value( &s ) ) {
 		fstatus = fields_add( info, "DESCRIPTION", str_cstr( &s ), level );
 		if ( fstatus!=FIELDS_OK ) {
@@ -889,41 +1000,55 @@ modsin_description( xml *node, fields *info, int level )
 			goto out;
 		}
 	}
+
 out:
 	str_free( &s );
 	return status;
 }
 
+/*
+ * <part></part>
+ */
 static int
 modsin_partr( xml *node, fields *info, int level )
 {
 	int status = BIBL_OK;
+
 	if ( xml_tag_matches( node, "detail" ) )
 		status = modsin_detail( node, info, level );
+
 	else if ( xml_tag_has_attribute( node, "extent", "unit", "page" ) )
 		status = modsin_page( node, info, level );
+
 	else if ( xml_tag_has_attribute( node, "extent", "unit", "pages" ) )
 		status = modsin_page( node, info, level );
+
 	else if ( xml_tag_matches( node, "date" ) )
-		status = modsin_date( node, info, level, 1 );
+		status = modsin_date_core( node, info, level, 1 );
+
 	if ( status!=BIBL_OK ) return status;
+
 	if ( node->next ) status = modsin_partr( node->next, info, level );
+
 	return status;
 }
 
 static int
-modsin_part( xml *node, fields *info, int level )
+modsin_part( xml *node, fields *info, const char *lang, int level )
 {
 	if ( node->down ) return modsin_partr( node->down, info, level );
 	return BIBL_OK;
 }
 
-/* <classification authority="lcc">Q3 .A65</classification> */
+/*
+ * <classification authority="lcc">Q3 .A65</classification>
+ */
 static int
-modsin_classification( xml *node, fields *info, int level )
+modsin_classification( xml *node, fields *info, const char *lang, int level )
 {
 	int fstatus, status = BIBL_OK;
 	char *tag;
+
 	if ( xml_has_value( node ) ) {
 		if ( xml_tag_has_attribute( node, "classification", "authority", "lcc" ) )
 			tag = "LCC";
@@ -932,18 +1057,26 @@ modsin_classification( xml *node, fields *info, int level )
 		fstatus = fields_add( info, tag, xml_value_cstr( node ), level );
 		if ( fstatus!=FIELDS_OK ) return BIBL_ERR_MEMERR;
 	}
-	if ( node->down ) status = modsin_classification( node->down, info, level );
+
+	if ( node->down ) status = modsin_classification( node->down, info, lang, level );
+
 	return status;
 }
 
+/*
+ * <recordInfo>
+ *     <recordIdentifier></recordIdentifier>
+ *     <languageOfCataloging><languageTerm></languageTerm></languageofCataloging>
+ * </recordInfo>
+ */
 static int
-modsin_recordinfo( xml *node, fields *info, int level )
+modsin_recordinfo( xml *node, fields *info, const char *lang, int level )
 {
-	xml *curr, *down;
-	int fstatus;
+	int fstatus, status;
+	xml *curr;
 
 	/* extract recordIdentifier */
-	curr = node;
+	curr = node->down;
 	while ( curr ) {
 		if ( xml_tag_matches_has_value( curr, "recordIdentifier" ) ) {
 			fstatus = fields_add( info, "REFNUM", xml_value_cstr( curr ), level );
@@ -951,8 +1084,8 @@ modsin_recordinfo( xml *node, fields *info, int level )
 		}
 		else if ( xml_tag_matches( curr, "languageOfCataloging" ) ) {
 			if ( curr->down ) {
-				down = curr->down;
-				fstatus = fields_add( info, "LANGCATALOG", xml_value_cstr( down ), level );
+				status = modsin_languageterm( curr->down, info, "LANGCATALOG", level );
+				if ( status!=BIBL_OK ) return status;
 			}
 		}
 		curr = curr->next;
@@ -961,8 +1094,9 @@ modsin_recordinfo( xml *node, fields *info, int level )
 }
 
 static int
-modsin_identifier( xml *node, fields *info, int level )
+modsin_identifier( xml *node, fields *info, const char *lang, int level )
 {
+#if 0
 	convert ids[] = {
 		{ "citekey",       "REFNUM",      0, 0 },
 		{ "issn",          "ISSN",        0, 0 },
@@ -984,6 +1118,28 @@ modsin_identifier( xml *node, fields *info, int level )
 		{ "jstor",         "JSTOR",       0, 0 },
 		{ "eid",           "EID",         0, 0 },
 	};
+#endif
+	convert ids[] = {
+		{ "citekey",       "REFNUM",      },
+		{ "issn",          "ISSN",        },
+		{ "coden",         "CODEN",       },
+		{ "isbn",          "ISBN",        },
+		{ "doi",           "DOI",         },
+		{ "url",           "URL",         },
+		{ "uri",           "URL",         },
+		{ "pmid",          "PMID",        },
+		{ "pubmed",        "PMID",        },
+		{ "medline",       "MEDLINE",     },
+		{ "pmc",           "PMC",         },
+		{ "arXiv",         "ARXIV",       },
+		{ "MRnumber",      "MRNUMBER",    },
+		{ "pii",           "PII",         },
+		{ "isi",           "ISIREFNUM",   },
+		{ "serial number", "SERIALNUMBER",},
+		{ "accessnum",     "ACCESSNUM",   },
+		{ "jstor",         "JSTOR",       },
+		{ "eid",           "EID",         },
+	};
 	int i, fstatus, n = sizeof( ids ) / sizeof( ids[0] );
 	if ( node->value.len==0 ) return BIBL_OK;
 	for ( i=0; i<n; ++i ) {
@@ -996,73 +1152,91 @@ modsin_identifier( xml *node, fields *info, int level )
 }
 
 static int
+modsin_note( xml *node, fields *info, const char *lang, int level )
+{
+	if ( xml_has_attribute( node, "type", "annotation" ) )
+		return modsin_simple( node, info, "ANNOTATION", lang, level );
+	else
+		return modsin_simple( node, info, "NOTES", lang, level );
+}
+
+static int
+modsin_abstract( xml *node, fields *info, const char *lang, int level )
+{
+	return modsin_simple( node, info, "ABSTRACT", lang, level );
+}
+
+static int
+modsin_resource( xml *node, fields *info, const char *lang, int level )
+{
+	return modsin_simple( node, info, "RESOURCE", lang, level );
+}
+
+static int
+modsin_tablecontents( xml *node, fields *info, const char *lang, int level )
+{
+	return modsin_simple( node, info, "CONTENTS", lang, level );
+}
+
+static int
+modsin_bibtexannote( xml *node, fields *info, const char *lang, int level )
+{
+	return modsin_simple( node, info, "ANNOTE", lang, level );
+}
+
+typedef struct {
+	const char *tag;
+	int ( *fn )( xml *, fields *, const char *, int );
+} mods_vtable_t;
+
+static int
 modsin_mods( xml *node, fields *info, int level )
 {
-	convert simple[] = {
-		{ "note",            "NOTES",    0, 0 },
-		{ "abstract",        "ABSTRACT", 0, 0 },
-		{ "bibtex-annote",   "ANNOTE",   0, 0 },
-		{ "typeOfResource",  "RESOURCE", 0, 0 },
-		{ "tableOfContents", "CONTENTS", 0, 0 },
+	const mods_vtable_t mods_vtable[] = {
+		{ "titleInfo",           modsin_title          },
+		{ "name",                modsin_name           },
+		{ "recordInfo",          modsin_recordinfo     },
+		{ "part",                modsin_part           },
+		{ "identifier",          modsin_identifier     },
+		{ "originInfo",          modsin_origininfo     },
+		{ "language",            modsin_language       },
+		{ "genre",               modsin_genre          },
+		{ "date",                modsin_date           },
+		{ "subject",             modsin_subject        },
+		{ "classification",      modsin_classification },
+		{ "location",            modsin_location       },
+		{ "physicalDescription", modsin_description    },
+		{ "note",                modsin_note           },
+		{ "abstract",            modsin_abstract       },
+		{ "typeOfResource",      modsin_resource       },
+		{ "tableOfContents",     modsin_tablecontents  },
+		{ "bibtex-annote",       modsin_bibtexannote   },
 	};
-	int nsimple = sizeof( simple ) / sizeof( simple[0] );
-	int i, found = 0, status = BIBL_OK;
+	const int nmods_vtable = sizeof( mods_vtable ) / sizeof( mods_vtable[0] );
 
-	if ( xml_tag_has_attribute( node, "note", "type", "annotation" ) ) {
-		status = modsin_simple( node, info, "ANNOTATION", level );
-		if ( status!=BIBL_OK ) return status;
-		found = 1;
+	int i, found=-1, status = BIBL_OK;
+	char *lang;
+
+	lang = modsin_get_lang_attribute( node );
+
+	for ( i=0; i<nmods_vtable && found==-1; ++i ) {
+		if ( !xml_tag_matches( node, mods_vtable[i].tag ) ) continue;
+		found  = i;
+		status = (*mods_vtable[i].fn)( node, info, lang, level );
 	}
 
-	for ( i=0; i<nsimple && found==0; i++ ) {
-		if ( xml_tag_matches( node, simple[i].mods ) ) {
-			status = modsin_simple( node, info, simple[i].internal, level );
-			if ( status!=BIBL_OK ) return status;
-			found = 1;
-		}
-	}
-
-	if ( !found ) {
-		if ( xml_tag_matches( node, "titleInfo" ) )
-			modsin_title( node, info, level );
-		else if ( xml_tag_has_attribute( node, "name", "type", "personal" ) )
-			status = modsin_person( node, info, level );
-		else if ( xml_tag_has_attribute( node, "name", "type", "corporate" ) )
-			status = modsin_asis_corp( node, info, level, ":CORP" );
-		else if ( xml_tag_matches( node, "name" ) )
-			status = modsin_asis_corp( node, info, level, ":ASIS" );
-		else if ( xml_tag_matches( node, "recordInfo" ) && node->down )
-			status = modsin_recordinfo( node->down, info, level );
-		else if  ( xml_tag_matches( node, "part" ) )
-			modsin_part( node, info, level );
-		else if ( xml_tag_matches( node, "identifier" ) )
-			status = modsin_identifier( node, info, level );
-		else if ( xml_tag_matches( node, "originInfo" ) )
-			status = modsin_origininfo( node, info, level );
-		else if ( xml_tag_matches( node, "language" ) )
-			status = modsin_language( node, info, level );
-		else if ( xml_tag_matches( node, "genre" ) )
-			status = modsin_genre( node, info, level );
-		else if ( xml_tag_matches( node, "date" ) )
-			status = modsin_date( node, info, level, 0 );
-		else if ( xml_tag_matches( node, "subject" ) )
-			status = modsin_subject( node, info, level );
-		else if ( xml_tag_matches( node, "classification" ) )
-			status = modsin_classification( node, info, level );
-		else if ( xml_tag_matches( node, "location" ) )
-			status = modsin_location( node, info, level );
-		else if ( xml_tag_matches( node, "physicalDescription" ) )
-			status = modsin_description( node, info, level );
-		else if ( xml_tag_has_attribute( node, "relatedItem", "type", "host" ) ||
-			  xml_tag_has_attribute( node, "relatedItem", "type", "series" ) ) {
+	if ( found==-1 ) {
+		if ( xml_tag_has_attribute( node, "relatedItem", "type", "host" ) ||
+		     xml_tag_has_attribute( node, "relatedItem", "type", "series" ) ) {
 			if ( node->down ) status = modsin_mods( node->down, info, level+1 );
 		}
+
 		else if ( xml_tag_has_attribute( node, "relatedItem", "type", "original" ) ) {
 			if ( node->down ) status = modsin_mods( node->down, info, LEVEL_ORIG );
 		}
-
-		if ( status!=BIBL_OK ) return status;
 	}
+
+	if ( status!=BIBL_OK ) return status;
 
 	if ( node->next ) status = modsin_mods( node->next, info, level );
 
@@ -1070,21 +1244,41 @@ modsin_mods( xml *node, fields *info, int level )
 }
 
 static int
+modsin_refid( xml *node, fields *info, int level )
+{
+	int fstatus;
+	str *ns;
+
+	ns = xml_attribute( node, "ID" );
+	if ( str_has_value( ns ) ) {
+		fstatus = fields_add( info, "REFNUM", str_cstr( ns ), level );
+		if ( fstatus!=FIELDS_OK ) return BIBL_ERR_MEMERR;
+	}
+
+	return BIBL_OK;
+}
+
+static int
 modsin_assembleref( xml *node, fields *info )
 {
 	int status = BIBL_OK;
+
 	if ( xml_tag_matches( node, "mods" ) ) {
-		status = modsin_id1( node, info, 0 );
+		status = modsin_refid( node, info, 0 );
 		if ( status!=BIBL_OK ) return status;
 		if ( node->down ) {
 			status = modsin_mods( node->down, info, 0 );
 			if ( status!=BIBL_OK ) return status;
 		}
-	} else if ( node->down ) {
+	}
+
+	else if ( node->down ) {
 		status = modsin_assembleref( node->down, info );
 		if ( status!=BIBL_OK ) return status;
 	}
+
 	if ( node->next ) status = modsin_assembleref( node->next, info );
+
 	return status;
 }
 

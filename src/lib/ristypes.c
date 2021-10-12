@@ -1,7 +1,7 @@
 /*
  * ristypes.c
  *
- * Copyright (c) Chris Putnam 2003-2020
+ * Copyright (c) Chris Putnam 2003-2021
  *
  * Source code released under the GPL version 2
  *
@@ -837,7 +837,7 @@ static const lookups communication[] = {
 	{ "L4", "FIGATTACH",    LINKEDFILE,  LEVEL_MAIN },   /* Figure Attachment (local, not URL) */
 	{ "LA", "LANGUAGE",     SIMPLE,  LEVEL_MAIN },   /* Language */
 	{ "LB", "LABEL",        SIMPLE,  LEVEL_MAIN },   /* Label */
-	{ "M1", "GENRE:UKNOWN", GENRE,   LEVEL_MAIN },   /* Misc or Number? */
+	{ "M1", "GENRE:UNKNOWN",GENRE,   LEVEL_MAIN },   /* Misc or Number? */
 	{ "M2", "NOTES",        NOTES,   LEVEL_MAIN },   /* Misc or Deprecated? */
 	{ "M3", "NOTES",        NOTES,   LEVEL_MAIN },   /* Misc or Type of Work? */
 	{ "N1", "NOTES",        NOTES,   LEVEL_MAIN },   /* Notes */

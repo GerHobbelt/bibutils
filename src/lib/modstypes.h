@@ -1,7 +1,7 @@
 /*
  * modstypes.h
  *
- * Copyright (c) Chris Putnam 2008-2019
+ * Copyright (c) Chris Putnam 2008-2021
  *
  * Source code released under the GPL version 2
  *
@@ -10,18 +10,25 @@
 #define MODSTYPES_H
 
 #include "cross_platform_porting.h"
+#include "fields.h"
 
 typedef struct convert {
 	const char *mods;     /* old */
 	const char *internal; /* new */
-	int pos;
-	int code;
 } convert;
 
-extern const convert identifier_types[];
-extern int nidentifier_types;
+typedef struct convert2 {
+	char *mods;     /* old */
+	char *internal; /* new */
+	int pos;
+	int code;
+} convert2;
 
-extern const char *mods_find_attrib( const char *internal_name, const convert *data, int ndata );
-extern const char *mods_find_internal( const char *mods_name, const convert *data, int ndata );
+
+char *mods_get_id_from_internal( char *internal_name, convert *data, int ndata );
+char *mods_get_id_from_mods( char *mods_name, convert *data, int ndata );
+
+int convert2_findallfields( fields *f, convert2 *parts, int nparts, int level );
+
 
 #endif

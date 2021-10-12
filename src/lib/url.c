@@ -9,7 +9,7 @@
  * is_doi()
  * Check for DOI buried in another field.
  *
- * Copyright (c) Chris Putnam 2008-2020
+ * Copyright (c) Chris Putnam 2008-2021
  *
  * Source code released under the GPL version 2
  *

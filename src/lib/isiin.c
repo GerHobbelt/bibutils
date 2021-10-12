@@ -1,7 +1,7 @@
 /*
  * isiin.c
  *
- * Copyright (c) Chris Putnam 2004-2020
+ * Copyright (c) Chris Putnam 2004-2021
  *
  * Program and source code released under the GPL version 2
  *
@@ -14,6 +14,7 @@
 #include "is_ws.h"
 #include "str.h"
 #include "str_conv.h"
+#include "month.h"
 #include "name.h"
 #include "fields.h"
 #include "reftypes.h"
@@ -317,7 +318,7 @@ isiin_addauthors( fields *isiin, fields *info, int reftype, const variants *all,
 	const char* authortype;
 	const char* use_af = "AF";
 	const char* use_au = "AU";
-	int level, i, n, has_af=0, has_au=0, nfields, ok;
+	int level, i, n, has_af=0, has_au=0, nfields, status;
 	const str* t;
 	const str* d;
 
@@ -338,10 +339,49 @@ isiin_addauthors( fields *isiin, fields *info, int reftype, const variants *all,
 		n = process_findoldtag( authortype, reftype, all, nall );
 		level = ((all[reftype]).tags[n]).level;
 		newtag = all[reftype].tags[n].newstr;
-		ok = name_add( info, newtag, d->data, level, asis, corps );
-		if ( !ok ) return BIBL_ERR_MEMERR;
+		status = add_name( info, newtag, d->data, level, asis, corps );
+		if ( status!=BIBL_OK ) return status;
 	}
 	return BIBL_OK;
+}
+
+/* PD APR 16 */
+static int
+isiin_date( fields *bibin, int n, str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
+{
+	int fstatus, sstatus, status = BIBL_OK;
+	const char *monthtag = outtag;
+	const char *daytag;
+	const char *use;
+	slist tokens;
+	str *day;
+
+	slist_init( &tokens );
+
+	if ( !strcmp( monthtag, "DATE:MONTH" ) ) daytag = "DATE:DAY";
+	else daytag = "PARTDATE:DAY";
+
+	sstatus = slist_tokenize( &tokens, invalue, " ", 1 );
+	if ( sstatus!=SLIST_OK ) { status = BIBL_ERR_MEMERR; goto out; }
+
+	/* month */
+	if ( tokens.n > 0 ) {
+		(void) month_to_number( slist_cstr( &tokens, 0 ), &use );
+		fstatus = fields_add( bibout, monthtag, use, level );
+		if ( fstatus!=FIELDS_OK ) { status = BIBL_ERR_MEMERR; goto out; }
+	}
+
+	/* day */
+	if ( tokens.n > 1 ) {
+		day = slist_str( &tokens, 1 );
+		if ( str_strlen( day ) == 1 ) str_prepend( day, "0" );
+		fstatus = fields_add( bibout, daytag, str_cstr( day ), level );
+		if ( fstatus!=FIELDS_OK ) { status = BIBL_ERR_MEMERR; goto out; }
+	}
+
+out:
+	slist_free( &tokens );
+	return status;
 }
 
 static int
@@ -385,7 +425,7 @@ isiin_convertf( fields *bibin, fields *bibout, int reftype, param *p )
 		[ TITLE        ] = generic_title,
 		[ PERSON       ] = generic_person,
 		[ SERIALNO     ] = generic_serialno,
-		[ DATE         ] = generic_simple,
+		[ DATE         ] = isiin_date,
 		[ NOTES        ] = generic_notes,
 		[ KEYWORD      ] = isiin_keyword,
 	};

@@ -1,7 +1,7 @@
 /*
  * fields.h
  *
- * Copyright (c) Chris Putnam 2003-2020
+ * Copyright (c) Chris Putnam 2003-2021
  *
  * Source code released under the GPL version 2
  *
@@ -9,10 +9,11 @@
 #ifndef FIELDS_H
 #define FIELDS_H
 
-#define FIELDS_OK         (1)
-#define FIELDS_ERR_MEMERR (0)
+#define FIELDS_OK            (0)
+#define FIELDS_ERR_MEMERR   (-1)
+#define FIELDS_ERR_NOTFOUND (-2)
 
-#define FIELDS_NOTFOUND (-1)
+#define FIELDS_NOTFOUND  (-1)
 
 #define LEVEL_ORIG   (-2)
 #define LEVEL_ANY    (-1)
@@ -25,13 +26,17 @@
 #include "str.h"
 #include "vplist.h"
 
+typedef struct fields_entry {
+	str tag;
+	str value;
+	str language;
+	int level;
+	int used;
+} fields_entry;
+
 typedef struct fields {
-	str       *tag;
-	str       *value;
-	int       *used;
-	int       *level;
-	int       n;
-	int       max;
+	fields_entry **entries;
+	int n, max;
 } fields;
 
 void    fields_init( fields *f );
@@ -45,13 +50,15 @@ int     fields_remove( fields *f, int n );
 #define FIELDS_CAN_DUP (0)
 #define FIELDS_NO_DUPS (1)
 
-#define fields_add( a, b, c, d )                   _fields_add( a, b, c, d, FIELDS_NO_DUPS )
-#define fields_add_can_dup( a, b, c, d )           _fields_add( a, b, c, d, FIELDS_CAN_DUP )
-#define fields_add_suffix( a, b, c, d, e )         _fields_add_suffix( a, b, c, d, e, FIELDS_NO_DUPS )
-#define fields_add_suffix_can_dup( a, b, c, d, e ) _fields_add_suffix( a, b, c, d, e, FIELDS_CAN_DUP )
+#define fields_add( a, b, c, d )                   _fields_add( a, b, c, NULL, d, FIELDS_NO_DUPS )
+#define fields_add_can_dup( a, b, c, d )           _fields_add( a, b, c, NULL, d, FIELDS_CAN_DUP )
+#define fields_add_suffix( a, b, c, d, e )         _fields_add_suffix( a, b, c, d, NULL, e, FIELDS_NO_DUPS )
+#define fields_add_suffix_can_dup( a, b, c, d, e ) _fields_add_suffix( a, b, c, d, NULL, e, FIELDS_CAN_DUP )
 
-int  _fields_add       ( fields *f, const char *tag,                     const char *value, int level, int mode );
-int  _fields_add_suffix( fields *f, const char *tag, const char *suffix, const char *value, int level, int mode );
+#define fields_add_lang( a, b, c, d, e )           _fields_add( a, b, c, d, e, FIELDS_NO_DUPS )
+
+int  _fields_add       ( fields *f, const char *tag,                     const char *value, const char *lang, int level, int mode );
+int  _fields_add_suffix( fields *f, const char *tag, const char *suffix, const char *value, const char *lang, int level, int mode );
 
 int  fields_maxlevel( fields *f );
 void fields_clear_used( fields *f );

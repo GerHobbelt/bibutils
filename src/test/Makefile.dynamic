@@ -8,6 +8,7 @@ LDLIBS   = -lbibutils
 
 PROGS    = doi_test \
            entities_test \
+	   fields_test \
            intlist_test \
            slist_test \
            str_test \
@@ -15,22 +16,25 @@ PROGS    = doi_test \
 
 all: $(PROGS)
 
-entities_test : entities_test.o
-	$(CC) $(LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
-
-utf8_test : utf8_test.o
-	$(CC) $(LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
-
 doi_test : doi_test.o
 	$(CC) $(LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
 
-str_test : str_test.o
+entities_test : entities_test.o
+	$(CC) $(LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
+
+fields_test : fields_test.o
+	$(CC) $(LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
+
+intlist_test : intlist_test.o
 	$(CC) $(LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
 
 slist_test : slist_test.o
 	$(CC) $(LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
 
-intlist_test : intlist_test.o
+str_test : str_test.o
+	$(CC) $(LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
+
+utf8_test : utf8_test.o
 	$(CC) $(LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
 
 test: $(PROGS) FORCE
@@ -38,6 +42,7 @@ test: $(PROGS) FORCE
 	export LD_LIBRARY_PATH ; \
 	./str_test; \
 	./slist_test; \
+	./fields_test; \
 	./intlist_test; \
 	./entities_test; \
 	./utf8_test; \

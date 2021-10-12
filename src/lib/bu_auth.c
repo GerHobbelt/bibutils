@@ -1,63 +1,61 @@
 /*
- * bu_auth.c
+ * bu_auth.c - Identify genre to be labeled with Bibutils authority
  *
- * Copyright (c) Chris Putnam 2017-2020
+ * Copyright (c) Chris Putnam 2017-2021
  *
  * Source code released under the GPL version 2
  */
 #include "cross_platform_porting.h"
+#include <stdlib.h>
 #include <string.h>
 #include "bu_auth.h"
+#include "hash.h"
 
-const char *bu_genre[] = {
-	"academic journal",
-	"airtel",
-	"collection",
-	"communication",
-	"Diploma thesis",
-	"Doctoral thesis",
-	"electronic",
-	"e-mail communication"
-	"Habilitation thesis",
-	"handwritten note",
-	"hearing",
-	"journal article",
-	"Licentiate thesis",
-	"magazine",
-	"magazine article",
-	"manuscript",
-	"Masters thesis",
-	"memo",
-	"miscellaneous",
-	"newspaper article",
-	"pamphlet",
-	"Ph.D. thesis",
-	"press release",
-	"teletype",
-	"television broadcast",
-	"unpublished"
+/*
+ * Bibutils genre hash
+ */
+static const unsigned int bu_genre_hash_size = 50;
+static const char *bu_genre[50] = {
+	[ 0 ... 49 ] = NULL,
+	[  11 ] = "academic journal",
+	[   6 ] = "airtel",
+	[  37 ] = "Airtel",
+	[  21 ] = "book chapter",
+	[  29 ] = "collection",
+	[   9 ] = "communication",
+	[  34 ] = "Diploma thesis",
+	[   8 ] = "Doctoral thesis",
+	[   7 ] = "electronic",
+	[   0 ] = "e-mail communication",
+	[  48 ] = "Habilitation thesis",
+	[  22 ] = "handwritten note",
+	[  10 ] = "hearing",
+	[  14 ] = "journal article",
+	[  17 ] = "Licentiate thesis",
+	[   3 ] = "magazine",
+	[  31 ] = "magazine article",
+	[  28 ] = "manuscript",
+	[  35 ] = "Masters thesis",
+	[  18 ] = "memo",
+	[  36 ] = "miscellaneous",
+	[  42 ] = "newspaper article",
+	[  19 ] = "pamphlet",
+	[   4 ] = "Ph.D. thesis",
+	[  13 ] = "press release",
+	[  16 ] = "teletype",
+	[  26 ] = "television broadcast",
+	[  45 ] = "unpublished",
+	[  12 ] = "web page",
 };
-int nbu_genre = sizeof( bu_genre ) / sizeof( const char *);
-
-static int
-position_in_list( const char *list[], int nlist, const char *query )
-{
-	int i;
-	for ( i=0; i<nlist; ++i ) {
-		if ( !strcasecmp( query, list[i] ) ) return i;
-	}
-	return -1;
-}
-
-int
-bu_findgenre( const char *query )
-{
-	return position_in_list( bu_genre, nbu_genre, query );
-}
 
 int
 is_bu_genre( const char *query )
 {
-	if ( bu_findgenre( query ) != -1 ) return 1;
-	return 0;
+	unsigned int n;
+
+	n = calculate_hash_char( query, bu_genre_hash_size );
+	if ( bu_genre[n]==NULL ) return 0;
+	if ( !strcmp( query, bu_genre[n] ) ) return 1;
+	else if ( bu_genre[n+1] && !strcmp( query, bu_genre[n+1] ) ) return 1;
+	else return 0;
 }

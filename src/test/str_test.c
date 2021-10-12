@@ -1,7 +1,9 @@
 /*
  * str_test.c
  *
- * test str functions
+ * Copyright (c) 2014-2021
+ *
+ * Source code released under the GPL version 2
  */
 
 /* Need to add tests for...

@@ -1,7 +1,7 @@
 /*
  * risin.c
  *
- * Copyright (c) Chris Putnam 2003-2020
+ * Copyright (c) Chris Putnam 2003-2021
  *
  * Source code released under the GPL version 2
  *
@@ -438,7 +438,7 @@ risin_date( fields *bibin, int n, const str *intag, const str *invalue, int leve
 static int
 risin_person( fields *bibin, int n, const str *intag, const str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
-	int i, begin, end, ok, status = BIBL_OK;
+	int i, begin, end, status = BIBL_OK;
 	slist tokens;
 	str name;
 
@@ -462,8 +462,8 @@ risin_person( fields *bibin, int n, const str *intag, const str *invalue, int le
 			str_strcat( &name, slist_str( &tokens, i ) );
 		}
 
-		ok = name_add( bibout, outtag, str_cstr( &name ), level, &(pm->asis), &(pm->corps) );
-		if ( !ok ) { status = BIBL_ERR_MEMERR; goto out; }
+		status = add_name( bibout, outtag, str_cstr( &name ), level, &(pm->asis), &(pm->corps) );
+		if ( status!=BIBL_OK ) goto out;
 
 		begin = end + 1;
 

@@ -1,6 +1,6 @@
 /* strsearch.c
  *
- * Copyright (c) Chris Putnam 1995-2020
+ * Copyright (c) Chris Putnam 1995-2021
  *
  * Source code released under the GPL version 2
  *
@@ -37,6 +37,6 @@ const char *strsearch (const char *haystack, const char *needle)
 		}
 		if ( ! (*(needle+pos)) ) returnptr = haystack;
 	}
+
 	return returnptr;
 }
-

@@ -1,7 +1,7 @@
 /*
  * pages.h
  *
- * Copyright (c) Chris Putnam 2016-2019
+ * Copyright (c) Chris Putnam 2016-2021
  *
  * Program and source code released under the GPL version 2
  */
@@ -10,7 +10,7 @@
 
 #include "bibl.h"
 
-int pages_add( fields *bibout, const char *outtag, const str *invalue, int level );
+int add_pages( fields *bibout, const str *value, int level );
 
 #endif
 

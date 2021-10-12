@@ -1,7 +1,7 @@
 /*
  * pages.c
  *
- * Copyright (c) Chris Putnam 2016-2020
+ * Copyright (c) Chris Putnam 2016-2021
  *
  * Program and source code released under GPL verison 2
  */
@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "bibdefs.h"
 #include "is_ws.h"
 #include "utf8.h"
 #include "pages.h"
@@ -51,33 +52,74 @@ extract_range( const str *input, str *begin, str *end )
 		str_addchar( end, *p++ );
 }
 
-int
-pages_add( fields *bibout, const char *outtag, const str *invalue, int level )
+/* Expand ranges like 100-15 to 100 115 */
+
+static int
+str_iswholenumber( str *s )
 {
-	int fstatus, status = 1;
+	const char *p = str_cstr( s );
+	while ( '0' <= *p && *p <= '9' ) p++;
+	return ( *p=='\0' );
+}
+
+static void
+complete_range( str *start, str *stop )
+{
+	unsigned long i, n;
+	const char *p;
+	str newstop;
+
+	if ( str_strlen( start ) == 0 || str_strlen( stop ) == 0 ) return;
+	if ( !str_iswholenumber( start ) || !str_iswholenumber( stop ) ) return;
+	if ( str_strlen( start ) <= str_strlen( stop ) ) return;
+
+	/* copy first part of "start" and combine with all of "stop" */
+	n = str_strlen( start ) - str_strlen( stop );
+
+	str_init( &newstop );
+
+	p = str_cstr( start );
+	for ( i=0; i<n; ++i ) {
+		str_addchar( &newstop, *p );
+		p++;
+	}
+
+	str_strcat( &newstop, stop );
+
+	str_strcpy( stop, &newstop );
+
+	str_free( &newstop );
+}
+
+int
+add_pages( fields *bibout, str *value, int level )
+{
+	int fstatus, status = BIBL_OK;
 	str start, stop;
 
 	str_init( &start );
 	str_init( &stop );
 
-	extract_range( invalue, &start, &stop );
+	extract_range( value, &start, &stop );
+
+	complete_range( &start, &stop );
 
 	if ( str_memerr( &start ) || str_memerr( &stop ) ) {
-		status = 0;
+		status = BIBL_ERR_MEMERR;
 		goto out;
 	}
 
 	if ( start.len>0 ) {
 		fstatus = fields_add( bibout, "PAGES:START", str_cstr( &start ), level );
 		if ( fstatus!=FIELDS_OK ) {
-			status = 0;
+			status = BIBL_ERR_MEMERR;
 			goto out;
 		}
 	}
 
 	if ( stop.len>0 ) {
 		fstatus = fields_add( bibout, "PAGES:STOP", str_cstr( &stop ), level );
-		if ( fstatus!=FIELDS_OK ) status = 0;
+		if ( fstatus!=FIELDS_OK ) status = BIBL_ERR_MEMERR;
 	}
 
 out:

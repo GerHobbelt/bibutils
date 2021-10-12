@@ -1,7 +1,7 @@
 /*
  * isitypes.c
  *
- * Copyright (c) Chris Putnam 2004-2020
+ * Copyright (c) Chris Putnam 2004-2021
  *
  * Program and source code released under the GPL version 2
  *
@@ -24,12 +24,12 @@ static const lookups article[] = {
 	{ "JI",     "SHORTTITLE",            TITLE,    LEVEL_HOST }, /* abbr journal name */
 	{ "J9",     "SHORTTITLE",            TITLE,    LEVEL_HOST }, /* 29char journal name */
 	{ "PU",     "PUBLISHER",             SIMPLE,   LEVEL_HOST },
-	{ "PI",     "ADDRESS",               SIMPLE,   LEVEL_HOST }, /* publisher city */
+	{ "PI",     "ADDRESS:PUBLISHER",     SIMPLE,   LEVEL_HOST }, /* publisher city */
 	{ "C1",     "ADDRESS",               SIMPLE,   LEVEL_MAIN }, /* author address */
 	{ "PA",     "ADDRESS:PUBLISHER",     SIMPLE,   LEVEL_HOST }, /* publisher address */
 	{ "RP",     "REPRINTADDRESS",        SIMPLE,   LEVEL_MAIN },
 	{ "PY",     "PARTDATE:YEAR",         SIMPLE,   LEVEL_MAIN },
-	{ "PD",     "PARTDATE:MONTH",        SIMPLE,   LEVEL_MAIN },
+	{ "PD",     "PARTDATE:MONTH",        DATE,     LEVEL_MAIN },
 	{ "VL",     "VOLUME",                SIMPLE,   LEVEL_MAIN },
 	{ "AR",     "ARTICLENUMBER",         SIMPLE,   LEVEL_MAIN }, /* AR=article number that Phys. Rev. B uses instead of page numbers */
 	{ "BP",     "PAGES:START",           SIMPLE,   LEVEL_MAIN },
@@ -66,12 +66,12 @@ static const lookups book[] = {
 	{ "JI",     "SHORTTITLE",            TITLE,    LEVEL_HOST }, /* abbr journal name */
 	{ "J9",     "SHORTTITLE",            TITLE,    LEVEL_HOST }, /* 29char journal name */
 	{ "PU",     "PUBLISHER",             SIMPLE,   LEVEL_MAIN },
-	{ "PI",     "ADDRESS",               SIMPLE,   LEVEL_MAIN }, /* publisher city */
+	{ "PI",     "ADDRESS:PUBLISHER",     SIMPLE,   LEVEL_MAIN }, /* publisher city */
 	{ "C1",     "ADDRESS",               SIMPLE,   LEVEL_MAIN }, /* author address */
 	{ "PA",     "ADDRESS:PUBLISHER",     SIMPLE,   LEVEL_MAIN }, /* publisher address */
 	{ "RP",     "REPRINTADDRESS",        SIMPLE,   LEVEL_MAIN },
 	{ "PY",     "DATE:YEAR",             SIMPLE,   LEVEL_MAIN },
-	{ "PD",     "DATE:MONTH",            SIMPLE,   LEVEL_MAIN },
+	{ "PD",     "DATE:MONTH",            DATE,     LEVEL_MAIN },
 	{ "VL",     "VOLUME",                SIMPLE,   LEVEL_MAIN },
 	{ "BP",     "PAGES:START",           SIMPLE,   LEVEL_MAIN },
 	{ "EP",     "PAGES:STOP",            SIMPLE,   LEVEL_MAIN },
@@ -106,12 +106,12 @@ static const lookups inbook[] = {
 	{ "JI",     "SHORTTITLE",            TITLE,    LEVEL_HOST }, /* abbr journal name */
 	{ "J9",     "SHORTTITLE",            TITLE,    LEVEL_HOST }, /* 29char journal name */
 	{ "PU",     "PUBLISHER",             SIMPLE,   LEVEL_HOST },
-	{ "PI",     "ADDRESS",               SIMPLE,   LEVEL_HOST }, /* publisher city */
+	{ "PI",     "ADDRESS:PUBLISHER",     SIMPLE,   LEVEL_HOST }, /* publisher city */
 	{ "C1",     "ADDRESS",               SIMPLE,   LEVEL_MAIN }, /* author address */
 	{ "PA",     "ADDRESS:PUBLISHER",     SIMPLE,   LEVEL_HOST }, /* publisher address */
 	{ "RP",     "REPRINTADDRESS",        SIMPLE,   LEVEL_MAIN },
 	{ "PY",     "PARTDATE:YEAR",         SIMPLE,   LEVEL_MAIN },
-	{ "PD",     "PARTDATE:MONTH",        SIMPLE,   LEVEL_MAIN },
+	{ "PD",     "PARTDATE:MONTH",        DATE,     LEVEL_MAIN },
 	{ "VL",     "VOLUME",                SIMPLE,   LEVEL_MAIN },
 	{ "BP",     "PAGES:START",           SIMPLE,   LEVEL_MAIN },
 	{ "EP",     "PAGES:STOP",            SIMPLE,   LEVEL_MAIN },
@@ -148,12 +148,12 @@ static const lookups bookinseries[] = {
 	{ "JI",     "SHORTTITLE",            TITLE,    LEVEL_HOST }, /* abbr journal name */
 	{ "J9",     "SHORTTITLE",            TITLE,    LEVEL_HOST }, /* 29char journal name */
 	{ "PU",     "PUBLISHER",             SIMPLE,   LEVEL_HOST },
-	{ "PI",     "ADDRESS",               SIMPLE,   LEVEL_HOST }, /* publisher city */
+	{ "PI",     "ADDRESS:PUBLISHER",     SIMPLE,   LEVEL_HOST }, /* publisher city */
 	{ "C1",     "ADDRESS",               SIMPLE,   LEVEL_MAIN }, /* author address */
 	{ "PA",     "ADDRESS:PUBLISHER",     SIMPLE,   LEVEL_HOST }, /* publisher address */
 	{ "RP",     "REPRINTADDRESS",        SIMPLE,   LEVEL_MAIN },
 	{ "PY",     "PARTDATE:YEAR",         SIMPLE,   LEVEL_MAIN },
-	{ "PD",     "PARTDATE:MONTH",        SIMPLE,   LEVEL_MAIN },
+	{ "PD",     "PARTDATE:MONTH",        DATE,     LEVEL_MAIN },
 	{ "VL",     "VOLUME",                SIMPLE,   LEVEL_MAIN },
 	{ "BP",     "PAGES:START",           SIMPLE,   LEVEL_MAIN },
 	{ "EP",     "PAGES:STOP",            SIMPLE,   LEVEL_MAIN },

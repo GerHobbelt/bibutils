@@ -1,7 +1,7 @@
 /*
  * nbibout.c
  *
- * Copyright (c) Chris Putnam 2018-2020
+ * Copyright (c) Chris Putnam 2018-2021
  *
  * Source code released under the GPL version 2
  *
@@ -15,6 +15,7 @@
 #include "str.h"
 #include "is_ws.h"
 #include "fields.h"
+#include "append_easy.h"
 #include "generic.h"
 #include "iso639_3.h"
 #include "title.h"
@@ -136,9 +137,9 @@ out:
 }
 
 static void
-append_title( fields *in, const char *nbibtag, int level, fields *out, int *status )
+append_title( fields *in, int inlevel, fields *out, char *outtag, int *status )
 {
-	append_titlecore( in, nbibtag, level, "TITLE", "SUBTITLE", out, status );
+	append_titlecore( in, outtag, inlevel, "TITLE", "SUBTITLE", out, status );
 }
 
 static void
@@ -228,50 +229,21 @@ out:
 }
 
 static void
-append_easy( fields *in, const char *tag, const char *nbibtag, int level, fields *out, int *status )
+append_pages( fields *in, int inlevel, fields *out, const char *outtag, int *status )
 {
-	const char *value;
-	int fstatus;
-
-	value = fields_findv( in, level, FIELDS_CHRP, tag );
-	if ( value ) {
-		fstatus = fields_add( out, nbibtag, value, LEVEL_MAIN );
-		if ( fstatus!=FIELDS_OK ) *status = BIBL_ERR_MEMERR;
-	}
-}
-
-static void
-append_easyall( fields *in, const char *tag, const char *nbibtag, int level, fields *out, int *status )
-{
-	vplist_index i;
-	int fstatus;
-	vplist a;
-
-	vplist_init( &a );
-	fields_findv_each( in, level, FIELDS_CHRP, &a, tag );
-	for ( i=0; i<a.n; ++i ) {
-		fstatus = fields_add( out, nbibtag, (const char *) vplist_get( &a, i ), LEVEL_MAIN );
-		if ( fstatus!=FIELDS_OK ) *status = BIBL_ERR_MEMERR;
-	}
-	vplist_free( &a );
-}
-
-static void
-append_pages( fields *in, const char *nbibtag, int level, fields *out, int *status )
-{
-	const str *start, *stop, *articlenumber;
+	str *start, *stop, *articlenumber;
 	int fstatus;
 	str pages;
 	const char *p, *q;
 
 	str_init( &pages );
 
-	start = fields_findv_firstof( in, level, FIELDS_STRP, "PAGES:START", NULL );
+	start = fields_findv_firstof( in, inlevel, FIELDS_STRP, "PAGES:START", NULL );
 	if ( start ) {
 		str_strcpy( &pages, start );
 	}
 
-	stop  = fields_findv_firstof( in, level, FIELDS_STRP, "PAGES:STOP", NULL );
+	stop  = fields_findv_firstof( in, inlevel, FIELDS_STRP, "PAGES:STOP", NULL );
 	if ( stop ) {
 		/* nbib from pubmed doesn't do "PG - 101-109", but rather "PG - 101-9" */
 		if ( start ) {
@@ -291,13 +263,13 @@ append_pages( fields *in, const char *nbibtag, int level, fields *out, int *stat
 		}
 	}
 
-	articlenumber  = fields_findv_firstof( in, level, FIELDS_STRP, "ARTICLENUMBER", NULL );
+	articlenumber  = fields_findv_firstof( in, inlevel, FIELDS_STRP, "ARTICLENUMBER", NULL );
 	if ( str_is_empty( &pages ) && articlenumber ) {
 		str_strcpy( &pages, articlenumber );
 	}
 
 	if ( str_has_value( &pages ) ) {
-		fstatus = fields_add( out, nbibtag, str_cstr( &pages ), LEVEL_MAIN );
+		fstatus = fields_add( out, outtag, str_cstr( &pages ), LEVEL_MAIN );
 		if ( fstatus!=FIELDS_OK ) *status = BIBL_ERR_MEMERR;
 	}
 
@@ -306,35 +278,35 @@ append_pages( fields *in, const char *nbibtag, int level, fields *out, int *stat
 
 /* location identifier */
 static void
-append_lid( fields *in, const char *nbibtag, int level, fields *out, int *status )
+append_lid( fields *in, int inlevel, fields *out, const char *outtag, int *status )
 {
-	const str *doi, *pii, *isi;
+	str *doi, *pii, *isi;
 	int fstatus;
 	str lid;
 
 	str_init( &lid );
 
-	doi = fields_findv( in, level, FIELDS_STRP, "DOI" );
+	doi = fields_findv( in, inlevel, FIELDS_STRP, "DOI" );
 	if ( doi ) {
 		str_strcpy( &lid, doi );
 		str_strcatc( &lid, " [doi]" );
-		fstatus = fields_add( out, nbibtag, str_cstr( &lid ), LEVEL_MAIN );
+		fstatus = fields_add( out, outtag, str_cstr( &lid ), LEVEL_MAIN );
 		if ( fstatus!=FIELDS_OK ) *status = BIBL_ERR_MEMERR;
 	}
 
-	pii = fields_findv( in, level, FIELDS_STRP, "PII" );
+	pii = fields_findv( in, inlevel, FIELDS_STRP, "PII" );
 	if ( pii ) {
 		str_strcpy( &lid, pii );
 		str_strcatc( &lid, " [pii]" );
-		fstatus = fields_add( out, nbibtag, str_cstr( &lid ), LEVEL_MAIN );
+		fstatus = fields_add( out, outtag, str_cstr( &lid ), LEVEL_MAIN );
 		if ( fstatus!=FIELDS_OK ) *status = BIBL_ERR_MEMERR;
 	}
 
-	isi = fields_findv( in, level, FIELDS_STRP, "ISIREFNUM" );
+	isi = fields_findv( in, inlevel, FIELDS_STRP, "ISIREFNUM" );
 	if ( isi ) {
 		str_strcpy( &lid, isi );
 		str_strcatc( &lid, " [isi]" );
-		fstatus = fields_add( out, nbibtag, str_cstr( &lid ), LEVEL_MAIN );
+		fstatus = fields_add( out, outtag, str_cstr( &lid ), LEVEL_MAIN );
 		if ( fstatus!=FIELDS_OK ) *status = BIBL_ERR_MEMERR;
 	}
 
@@ -342,33 +314,33 @@ append_lid( fields *in, const char *nbibtag, int level, fields *out, int *status
 }
 
 static void
-append_date( fields *in, const char *nbibtag, int level, fields *out, int *status )
+append_date( fields *in, int inlevel, fields *out, const char *outtag, int *status )
 {
-	const str *day, *month, *year;
+	str *day, *month, *year;
 	int fstatus;
 	str date;
 
 	str_init( &date );
 
-	year  = fields_findv_firstof( in, level, FIELDS_STRP, "PARTDATE:YEAR",  "DATE:YEAR",  NULL );
+	year  = fields_findv_firstof( in, inlevel, FIELDS_STRP, "PARTDATE:YEAR",  "DATE:YEAR",  NULL );
 	if ( year ) {
 		str_strcpy( &date, year );
 	}
 
-	month = fields_findv_firstof( in, level, FIELDS_STRP, "PARTDATE:MONTH", "DATE:MONTH", NULL );
+	month = fields_findv_firstof( in, inlevel, FIELDS_STRP, "PARTDATE:MONTH", "DATE:MONTH", NULL );
 	if ( month ) {
 		if ( str_has_value( &date ) ) str_addchar( &date, ' ' );
 		str_strcat( &date, month );
 	}
 
-	day   = fields_findv_firstof( in, level, FIELDS_STRP, "PARTDATE:DAY",   "DATE:DAY",   NULL );
+	day   = fields_findv_firstof( in, inlevel, FIELDS_STRP, "PARTDATE:DAY",   "DATE:DAY",   NULL );
 	if ( day ) {
 		if ( str_has_value( &date ) ) str_addchar( &date, ' ' );
 		str_strcat( &date, day );
 	}
 
 	if ( str_has_value( &date ) ) {
-		fstatus = fields_add( out, nbibtag, str_cstr( &date ), LEVEL_MAIN );
+		fstatus = fields_add( out, outtag, str_cstr( &date ), LEVEL_MAIN );
 		if ( fstatus!=FIELDS_OK ) *status = BIBL_ERR_MEMERR;
 	}
 	
@@ -376,35 +348,17 @@ append_date( fields *in, const char *nbibtag, int level, fields *out, int *statu
 }
 
 static void
-append_lang( fields *in, const char *nbibtag, int level, fields *out, int *status )
+append_lang( fields *in, int inlevel, fields *out, const char *outtag, int *status )
 {
 	int fstatus;
-	const str *lang;
-	const char *code;
+	str *lang;
+	char *code;
 
-	lang = fields_findv( in, level, FIELDS_STRP, "LANGUAGE" );
+	lang = fields_findv( in, inlevel, FIELDS_STRP, "LANGUAGE" );
 	if ( lang ) {
 		code = iso639_3_from_name( str_cstr( lang ) );
 		if ( !code ) code = str_cstr( lang );
-		fstatus = fields_add( out, nbibtag, code, LEVEL_MAIN );
-		if ( fstatus!=FIELDS_OK ) *status = BIBL_ERR_MEMERR;
-	}
-}
-
-static void
-append_keywords( fields *in, const char *nbibtag, int level, fields *out, int *status )
-{
-	vplist keywords;
-	int fstatus;
-	const char *kw;
-	int i;
-
-	vplist_init( &keywords );
-
-	fields_findv_each( in, level, FIELDS_CHRP, &keywords, "KEYWORD" );
-	for ( i=0; i<keywords.n; ++i ) {
-		kw = vplist_get( &keywords, i );
-		fstatus = fields_add( out, nbibtag, kw, LEVEL_MAIN );
+		fstatus = fields_add( out, outtag, code, LEVEL_MAIN );
 		if ( fstatus!=FIELDS_OK ) *status = BIBL_ERR_MEMERR;
 	}
 }
@@ -414,26 +368,27 @@ append_data( fields *in, fields *out )
 {
 	int status = BIBL_OK;
 
-	append_easy ( in, "PMID",   "PMID", LEVEL_ANY,  out, &status );
-	append_easyall( in, "ISSN", "IS",   LEVEL_ANY,  out, &status );
-	append_easy ( in, "VOLUME", "VI",   LEVEL_ANY,  out, &status );
-	append_easy ( in, "ISSUE",  "IP",   LEVEL_ANY,  out, &status );
-	append_easy ( in, "NUMBER", "IP",   LEVEL_ANY,  out, &status );
-	append_date ( in,           "DP",   LEVEL_ANY,  out, &status );
-	append_title( in,           "TI",   LEVEL_MAIN, out, &status );
-	append_pages( in,           "PG",   LEVEL_ANY,  out, &status );
-	append_lid  ( in,           "LID",  LEVEL_MAIN, out, &status );
-	append_easy ( in, "ABSTRACT", "AB", LEVEL_MAIN, out, &status );
-	append_people ( in, "AUTHOR", "FAU",  "AU", LEVEL_MAIN, out, &status );
-	append_easyall( in, "AUTHOR:CORP", "FAU", LEVEL_MAIN, out, &status );
-	append_easyall( in, "AUTHOR:ASIS", "FAU", LEVEL_MAIN, out, &status );
-	append_lang ( in,             "LA", LEVEL_ANY,  out, &status );
-	append_type ( in, out, &status );
-	append_easy(  in, "ADDRESS", "PL", LEVEL_MAIN, out, &status );
-	append_abbrtitle( in, "TA", LEVEL_HOST, out, &status );
-	append_title( in, "JT", LEVEL_HOST, out, &status );
-	append_easy ( in, "PMC",    "PMC",  LEVEL_ANY,  out, &status );
-	append_keywords( in, "OT", LEVEL_ANY, out, &status );
+	append_easy     ( in, "PMID",        LEVEL_ANY,  out, "PMID", &status );
+	append_easyall  ( in, "ISSN",        LEVEL_ANY,  out, "IS",   &status );
+	append_easy     ( in, "VOLUME",      LEVEL_ANY,  out, "VI",   &status );
+	append_easy     ( in, "ISSUE",       LEVEL_ANY,  out, "IP",   &status );
+	append_easy     ( in, "NUMBER",      LEVEL_ANY,  out, "IP",   &status );
+	append_date     ( in,                LEVEL_ANY,  out, "DP",   &status );
+	append_title    ( in,                LEVEL_MAIN, out, "TI",   &status );
+	append_pages    ( in,                LEVEL_ANY,  out, "PG",   &status );
+	append_lid      ( in,                LEVEL_MAIN, out, "LID",  &status );
+	append_easy     ( in, "ABSTRACT",    LEVEL_MAIN, out, "AB",   &status );
+	append_people   ( in, "AUTHOR",      "FAU",  "AU", LEVEL_MAIN, out, &status );
+	append_easyall  ( in, "AUTHOR:CORP", LEVEL_MAIN, out, "FAU",  &status );
+	append_easyall  ( in, "AUTHOR:ASIS", LEVEL_MAIN, out, "FAU",  &status );
+	append_lang     ( in,                LEVEL_ANY,  out, "LA",   &status );
+	append_type     ( in, out, &status );
+	append_easycombo( in, "ADDRESS",     LEVEL_MAIN, out, "PL",   "; ", &status );
+	append_abbrtitle( in,                "TA",   LEVEL_HOST, out, &status );
+	append_title    ( in,                LEVEL_HOST, out, "JT",   &status );
+	append_easy     ( in, "PMC",         LEVEL_ANY,  out, "PMC",  &status );
+	append_easyall  ( in, "KEYWORD",     LEVEL_ANY,  out, "OT",   &status );
+
 	return status;
 }
 
