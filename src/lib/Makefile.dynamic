@@ -24,10 +24,12 @@ CONTAIN_OBJS  = fields.o \
 
 BIBL_OBJS     = bibl.o \
                 bu_auth.o \
+		hash.o \
                 iso639_1.o \
                 iso639_2.o \
                 iso639_3.o \
                 marc_auth.o \
+		month.o \
                 name.o \
                 notes.o \
                 pages.o \
@@ -37,8 +39,9 @@ BIBL_OBJS     = bibl.o \
 		type.o \
                 url.o
 
-INPUT_OBJS    = bibtexin.o bibtextypes.o \
-		biblatexin.o bltypes.o \
+INPUT_OBJS    = append_easy.o \
+		bibtexin.o bibtextypes.o \
+		biblatexin.o blxtypes.o \
 		copacin.o copactypes.o \
 		endin.o endtypes.o \
 		endxmlin.o \
