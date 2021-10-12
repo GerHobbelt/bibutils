@@ -5,11 +5,11 @@
 CFLAGS      = -I ../lib $(CFLAGSIN)
 LDFLAGS     = $(LDFLAGSIN)
 
-TOMODS      = args.o bibprog.o tomods.o ../lib/modsout.o
+TOMODS      = args.o bibprog.o tomods.o ../lib/modsout.o ../lib/modstypes.o
 
 BIBDIFFIN   = bibdiff.o
 BIBTEXIN    = bib2xml.o      ../lib/bibtexin.o   ../lib/bibtextypes.o             ../lib/generic.o
-BIBLATEXIN  = biblatex2xml.o ../lib/biblatexin.o ../lib/bltypes.o                 ../lib/generic.o
+BIBLATEXIN  = biblatex2xml.o ../lib/biblatexin.o ../lib/blxtypes.o                ../lib/generic.o
 COPACIN     = copac2xml.o    ../lib/copacin.o    ../lib/copactypes.o              ../lib/generic.o
 EBIIN       = ebi2xml.o      ../lib/ebiin.o
 ENDIN       = end2xml.o      ../lib/endin.o      ../lib/endtypes.o                ../lib/generic.o

@@ -1,6 +1,10 @@
 
 BIBUTILS
 
+7.1
+9/26/21
++ Fix bug in build for 7.0. Reported by Vascom.
+
 7.0
 9/24/21
 + Build infrastructure to handle language tags in MODS xml. This is a breaking
