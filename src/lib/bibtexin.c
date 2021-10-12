@@ -1,7 +1,7 @@
 /*
  * bibtexin.c
  *
- * Copyright (c) Chris Putnam 2003-2020
+ * Copyright (c) Chris Putnam 2003-2021
  *
  * Program and source code released under the GPL version 2
  *
@@ -17,6 +17,7 @@
 #include "str_conv.h"
 #include "fields.h"
 #include "slist.h"
+#include "month.h"
 #include "name.h"
 #include "title.h"
 #include "url.h"
@@ -108,7 +109,7 @@ bibtexin_readf( FILE *fp, char *buf, int bufsize, int *bufpos, str *line, str *r
 	*fcharset = CHARSET_UNKNOWN;
 	while ( haveref!=2 && readmore( fp, buf, bufsize, bufpos, line ) ) {
 		if ( line->len == 0 ) continue; /* blank line */
-		p = &(line->data[0]);
+		p = str_cstr( line );
 		/* Recognize UTF8 BOM */
 		if ( line->len > 2 && 
 				(unsigned char)(p[0])==0xEF &&
@@ -766,7 +767,7 @@ bibtex_person_tokenize( fields *bibin, int m, param *pm, slist *tokens )
 static int
 bibtex_person_add_names( fields *bibin, int m, slist *tokens )
 {
-	int begin, end, ok, n, etal;
+	int begin, end, n, etal, status;
 
 	etal = name_findetal( tokens );
 
@@ -781,11 +782,11 @@ bibtex_person_add_names( fields *bibin, int m, slist *tokens )
 
 
 		if ( end - begin == 1 ) {
-			ok = name_addsingleelement( bibin, fields_tag( bibin,m,FIELDS_CHRP), slist_cstr( tokens, begin ), LEVEL_MAIN, NAME_ASIS );
-			if ( !ok ) return BIBL_ERR_MEMERR;
+			status = add_name_singleelement( bibin, fields_tag( bibin,m,FIELDS_CHRP), slist_cstr( tokens, begin ), LEVEL_MAIN, NAME_ASIS );
+			if ( status!=BIBL_OK ) return status;
 		} else {
-			ok = name_addmultielement( bibin, fields_tag(bibin,m,FIELDS_CHRP), tokens, begin, end, LEVEL_MAIN );
-			if ( !ok ) return BIBL_ERR_MEMERR;
+			status = add_name_multielement( bibin, fields_tag(bibin,m,FIELDS_CHRP), tokens, begin, end, LEVEL_MAIN );
+			if ( status!=BIBL_OK ) return status;
 		}
 
 		begin = end + 1;
@@ -797,8 +798,8 @@ bibtex_person_add_names( fields *bibin, int m, slist *tokens )
 	}
 
 	if ( etal ) {
-		ok = name_addsingleelement( bibin, fields_tag(bibin,m,FIELDS_CHRP), "et al.", LEVEL_MAIN, NAME_ASIS );
-		if ( !ok ) return BIBL_ERR_MEMERR;
+		status = add_name_singleelement( bibin, fields_tag(bibin,m,FIELDS_CHRP), "et al.", LEVEL_MAIN, NAME_ASIS );
+		if ( status!=BIBL_OK ) return status;
 	}
 
 	return BIBL_OK;
@@ -1018,7 +1019,7 @@ bibtexin_btsente( fields *bibin, int n, str *intag, str *invalue, int level, par
 	str link;
 
 	str_init( &link );
-	str_cpytodelim( &link, skip_ws( invalue->data ), ",", 0 );
+	str_cpytodelim( &link, skip_ws( str_cstr( invalue ) ), ",", 0 );
 	str_trimendingws( &link );
 	if ( str_memerr( &link ) ) status = BIBL_ERR_MEMERR;
 
@@ -1266,6 +1267,26 @@ out:
 	return status;
 }
 
+static int
+bibtexin_date( fields *bibin, int m, str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
+{
+	int fstatus, status = BIBL_OK;
+	const char *out = NULL;
+
+	if ( !strcasecmp( outtag, "PARTDATE:MONTH" ) || !strcasecmp( outtag, "DATE:MONTH" ) ) {
+		(void) month_to_number( str_cstr( invalue ), &out );
+		fstatus = fields_add( bibout, outtag, out, level );
+		if ( fstatus!=FIELDS_OK ) status = BIBL_ERR_MEMERR;
+	}
+
+	else {
+		fstatus = fields_add( bibout, outtag, str_cstr( invalue ), level );
+		if ( fstatus!=FIELDS_OK ) status = BIBL_ERR_MEMERR;
+	}
+
+	return status;
+}
+
 /**** bibtexin_title() ****/
 
 /* bibtexin_titleinbook_isbooktitle()
@@ -1278,7 +1299,7 @@ out:
  *    title="xxx"
  * }
  *
- * the booktitle is "xxx".
+ * the title of the book is "xxx".
  *
  * However, @inbook is frequently abused (and treated like
  * @incollection) so that title and booktitle are present
@@ -1299,29 +1320,26 @@ bibtexin_titleinbook_isbooktitle( fields *bibin, char *intag )
 {
 	int n;
 
-	/* ...look only at 'title="xxx"' elements */
-	if ( strcasecmp( intag, "TITLE" ) ) return 0;
+	/* ...skip any non "TITLE" tag, such as "BOOKTITLE" */
+	if ( strcasecmp( intag, "TITLE" ) != 0 ) return 0;
 
-	/* ...look only at '@inbook' references */
+	/* ...only examine '@inbook' references */
 	n = fields_find( bibin, "INTERNAL_TYPE", LEVEL_ANY );
 	if ( n==FIELDS_NOTFOUND ) return 0;
-	if ( strcasecmp( fields_value( bibin, n, FIELDS_CHRP ), "INBOOK" ) ) return 0;
+	if ( strcasecmp( fields_value( bibin, n, FIELDS_CHRP ), "INBOOK" ) != 0 ) return 0;
 
-	/* ...look to see if 'booktitle="yyy"' exists */
+	/* ...skip this if 'booktitle="yyy"' element already exists */
 	n = fields_find( bibin, "BOOKTITLE", LEVEL_ANY );
-	if ( n==FIELDS_NOTFOUND ) return 0;
-	else return 1;
+	if ( n!=FIELDS_NOTFOUND ) return 0;
+
+	return 1;
 }
 
 static int
 bibtexin_title( fields *bibin, int n, str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
 {
-	int ok;
-
-	if ( bibtexin_titleinbook_isbooktitle( bibin, intag->data ) ) level=LEVEL_MAIN;
-	ok = title_process( bibout, "TITLE", invalue->data, level, pm->nosplittitle );
-	if ( ok ) return BIBL_OK;
-	else return BIBL_ERR_MEMERR;
+	if ( bibtexin_titleinbook_isbooktitle( bibin, str_cstr( intag ) ) ) level=LEVEL_HOST;
+	return add_title( bibout, "TITLE", str_cstr( invalue ), level, pm->nosplittitle );
 }
 
 static void
@@ -1340,6 +1358,7 @@ bibtexin_convertf( fields *bibin, fields *bibout, int reftype, param *p )
 		[ 0 ... NUM_REFTYPES-1 ] = generic_null,
 		[ SIMPLE       ] = generic_simple,
 		[ TITLE        ] = bibtexin_title,
+		[ DATE         ] = bibtexin_date,
 		[ PERSON       ] = generic_simple,
 		[ PAGES        ] = generic_pages,
 		[ KEYWORD      ] = bibtexin_keyword,

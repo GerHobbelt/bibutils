@@ -3,7 +3,7 @@
  *
  * mangle names w/ and w/o commas
  *
- * Copyright (c) Chris Putnam 2004-2020
+ * Copyright (c) Chris Putnam 2004-2021
  *
  * Source code released under the GPL version 2
  *
@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
+#include "bibdefs.h"
 #include "utf8.h"
 #include "unicode.h"
 #include "is_ws.h"
@@ -361,48 +362,58 @@ name_construct_multi( str *outname, slist *tokens, int begin, int end )
 	return 1;
 }
 
+/* add_name_multielement()
+ *
+ * Treat names as multiple tokens to be manipulated before adding
+ */
 int
-name_addmultielement( fields *info, const char *tag, slist *tokens, int begin, int end, int level )
+add_name_multielement( fields *info, const char *tag, slist *tokens, int begin, int end, int level )
 {
-	int status, ok = 1;
+	int fstatus, status;
 	str name;
 
 	str_init( &name );
 
 	name_construct_multi( &name, tokens, begin, end );
 
-	status = fields_add_can_dup( info, tag, str_cstr( &name ), level );
-	if ( status!=FIELDS_OK ) ok = 0;
+	fstatus = fields_add_can_dup( info, tag, str_cstr( &name ), level );
+	if ( fstatus!=FIELDS_OK ) status = BIBL_ERR_MEMERR;
+	else status = BIBL_OK;
 
 	str_free( &name );
 
-	return ok;
+	return status;
 }
 
 
-/* name_addsingleelement()
+/* add_name_singleelement()
  *
- * Treat names that are single tokens, e.g. {Random Corporation, Inc.} in bibtex
- * as a name that should not be mangled (e.g. AUTHOR:ASIS or AUTHOR:CORP, if corp
- * is set).
+ * Treat names that are single tokens, e.g. {Random Corporation, Inc.} in bibtex as a
+ * name that should not be mangled.
+ *
+ * Add with :ASIS or :CORP postfixes (e.g. AUTHOR:ASIS or AUTHOR:CORP), if asiscorp is set.
  */
 int
-name_addsingleelement( fields *info, const char *tag, const char *name, int level, int asiscorp )
+add_name_singleelement( fields *info, const char *tag, const char *name, int level, int asiscorp )
 {
-	int status, ok = 1;
+	int fstatus, status;
 	str outtag;
 
-	str_init( &outtag );
-
-	str_strcpyc( &outtag, tag );
+	str_initstrc( &outtag, tag );
 	if ( asiscorp == NAME_ASIS ) str_strcatc( &outtag, ":ASIS" );
 	else if ( asiscorp == NAME_CORP ) str_strcatc( &outtag, ":CORP" );
+	if ( str_memerr( &outtag ) ) {
+		status = BIBL_ERR_MEMERR;
+		goto out;
+	}
 
-	status = fields_add_can_dup( info, outtag.data, name, level );
-	if ( status!=FIELDS_OK ) ok = 0;
+	fstatus = fields_add_can_dup( info, outtag.data, name, level );
+	if ( fstatus!=FIELDS_OK ) status = BIBL_ERR_MEMERR;
+	else status = BIBL_OK;
 
+out:
 	str_free( &outtag );
-	return ok;
+	return status;
 }
 
 /*
@@ -482,7 +493,7 @@ name_copy( str *name, const char *p )
 }
 
 /*
- * name_add( info, newtag, data, level )
+ * add_name( info, newtag, data, level )
  *
  * take name(s) in data, multiple names should be separated by
  * '|' characters and divide into individual name, e.g.
@@ -497,13 +508,13 @@ name_copy( str *name, const char *p )
  * "Author, H. F."
  */
 int
-name_add( fields *info, const char *tag, const char *q, int level, slist *asis, slist *corps )
+add_name( fields *info, const char *tag, const char *q, int level, slist *asis, slist *corps )
 {
-	int ok, status, nametype, ret = 1;
+	int status, nametype, ret = BIBL_OK;
 	str inname, outname;
 	slist tokens;
 
-	if ( !q ) return 0;
+	if ( !q ) return BIBL_OK;
 
 	slist_init( &tokens );
 	strs_init( &inname, &outname, NULL );
@@ -513,18 +524,18 @@ name_add( fields *info, const char *tag, const char *q, int level, slist *asis, 
 		q = name_copy( &inname, q );
 
 		nametype = name_parse( &outname, &inname, asis, corps );
-		if ( !nametype ) { ret = 0; goto out; }
+		if ( !nametype ) { ret = BIBL_ERR_MEMERR; goto out; }
 
 		if ( nametype==1 ) {
 			status = fields_add_can_dup( info, tag, outname.data, level );
-			ok = ( status==FIELDS_OK ) ? 1 : 0;
+			if ( status!=FIELDS_OK ) { ret=BIBL_ERR_MEMERR; goto out; }
 		}
 		else if ( nametype==2 )
-			ok = name_addsingleelement( info, tag, outname.data, level, NAME_ASIS );
+			ret = add_name_singleelement( info, tag, outname.data, level, NAME_ASIS );
 		else
-			ok = name_addsingleelement( info, tag, outname.data, level, NAME_CORP );
+			ret = add_name_singleelement( info, tag, outname.data, level, NAME_CORP );
 
-		if ( !ok ) { ret = 0; goto out; }
+		if ( ret!=BIBL_OK ) goto out;
 
 	}
 

@@ -6,6 +6,9 @@
  * Source code released under the GPL version 2
  *
  */
+#if 0
+
+#include "cross_platform_porting.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -16,8 +19,13 @@
 #include "xml.h"
 #include "fields.h"
 #include "bibl.h"
-#include "doi.h"
+//#include "doi.h"
 #include "bibutils.h"
+
+void
+bibtexout_writeheader(FILE* outptr, param* p);
+void
+bibtexout_write(fields* info, FILE* fp, param* p, unsigned long refnum);
 
 void
 bibtexout_initparams( param *pm, const char *progname )
@@ -31,7 +39,7 @@ bibtexout_initparams( param *pm, const char *progname )
 	pm->utf8bom          = 0;
 	pm->xmlout           = BIBL_XMLOUT_FALSE;
 	pm->nosplittitle     = 0;
-	p->verbose          = 0;
+	pm->verbose          = 0;
 	pm->addcount         = 0;
 	pm->singlerefperfile = 0;
 
@@ -39,8 +47,8 @@ bibtexout_initparams( param *pm, const char *progname )
 	pm->footerf = NULL;
 	pm->writef  = bibtexout_write;
 
-	if ( !p->progname && progname )
-		p->progname = strdup( progname );
+	if ( !pm->progname && progname )
+		pm->progname = strdup( progname );
 }
 
 enum {
@@ -65,9 +73,9 @@ static void
 output_citekey( FILE *fp, fields *info, unsigned long refnum, int format_opts )
 {
 	int n = fields_find( info, "REFNUM", -1 );
-	char *p;
+	const char *p;
 	if ( n!=-1 ) {
-		p = info->data[n].data;
+		p = info->value[n].data;
 		while ( p && *p && *p!='|' ) {
 			if ( format_opts & BIBL_FORMAT_BIBOUT_STRICTKEY ) {
 				if ( isdigit((unsigned char)*p) || (*p>='A' && *p<='Z') ||
@@ -85,16 +93,16 @@ output_citekey( FILE *fp, fields *info, unsigned long refnum, int format_opts )
 }
 
 static int
-bibtexout_type( fields *info, char *filename, int refnum, param *p )
+bibtexout_type( fields *info, const char *filename, int refnum, param *p )
 {
-	char *genre;
+	const char *genre;
 	int type = TYPE_UNKNOWN, i, maxlevel, n, level;
 
 	/* determine bibliography type */
 	for ( i=0; i<info->n; ++i ) {
 		if ( strcasecmp( info->tag[i].data, "GENRE:MARC" ) &&
 		     strcasecmp( info->tag[i].data, "GENRE:BIBUTILS" ) ) continue;
-		genre = info->data[i].data;
+		genre = info->value[i].data;
 		level = info->level[i];
 		if ( !strcasecmp( genre, "periodical" ) ||
 		     !strcasecmp( genre, "academic journal" ) ||
@@ -129,7 +137,7 @@ bibtexout_type( fields *info, char *filename, int refnum, param *p )
 	if ( type==TYPE_UNKNOWN ) {
 		for ( i=0; i<info->n; ++i ) {
 			if ( strcasecmp( info->tag[i].data, "ISSUANCE" ) ) continue;
-			if ( !strcasecmp( info->data[i].data, "monographic" ) ) {
+			if ( !strcasecmp( info->value[i].data, "monographic" ) ) {
 				if ( info->level[i]==0 ) type = TYPE_BOOK;
 				else if ( info->level[i]==1 ) type=TYPE_INBOOK;
 			}
@@ -146,7 +154,7 @@ bibtexout_type( fields *info, char *filename, int refnum, param *p )
 				"in reference %d ", refnum+1 );
 			n = fields_find( info, "REFNUM", -1 );
 			if ( n!=-1 ) 
-				fprintf( stderr, " %s", info->data[n].data);
+				fprintf( stderr, " %s", info->value[n].data);
 			fprintf( stderr, " (defaulting to @Misc)\n" );
 			type = TYPE_MISC;
 		}
@@ -159,10 +167,10 @@ output_type( FILE *fp, int type, int format_opts )
 {
 	typedef struct {
 		int bib_type;
-		char *type_name;
+		const char *type_name;
 	} typenames;
 
-	typenames types[] = {
+	const typenames types[] = {
 		{ TYPE_ARTICLE, "Article" },
 		{ TYPE_INBOOK, "Inbook" },
 		{ TYPE_PROCEEDINGS, "Proceedings" },
@@ -178,7 +186,7 @@ output_type( FILE *fp, int type, int format_opts )
 		{ TYPE_ELECTRONIC, "Electronic" },
 		{ TYPE_MISC, "Misc" } };
 	int i, len, ntypes = sizeof( types ) / sizeof( types[0] );
-	char *s = NULL;
+	const char *s = NULL;
 	for ( i=0; i<ntypes; ++i ) {
 		if ( types[i].bib_type == type ) {
 			s = types[i].type_name;
@@ -197,7 +205,7 @@ output_type( FILE *fp, int type, int format_opts )
 }
 
 static void
-output_element( FILE *fp, char *tag, char *data, int format_opts )
+output_element( FILE *fp, const char *tag, const char *data, int format_opts )
 {
 	int i, len, nquotes = 0;
 	char ch;
@@ -237,14 +245,14 @@ output_element( FILE *fp, char *tag, char *data, int format_opts )
 }
 
 static void
-output_and_use( FILE *fp, fields *info, int n, char *outtag, int format_opts )
+output_and_use( FILE *fp, fields *info, int n, const char *outtag, int format_opts )
 {
-	output_element( fp, outtag, info->data[n].data, format_opts );
+	output_element( fp, outtag, info->value[n].data, format_opts );
 	fields_set_used( info, n );
 }
 
 static void
-output_simple( FILE *fp, fields *info, char *intag, char *outtag, 
+output_simple( FILE *fp, fields *info, const char *intag, const char *outtag,
 		int format_opts )
 {
 	int n = fields_find( info, intag, -1 );
@@ -254,7 +262,7 @@ output_simple( FILE *fp, fields *info, char *intag, char *outtag,
 }
 
 static void
-output_simpleall( FILE *fp, fields *info, char *intag, char *outtag,
+output_simpleall( FILE *fp, fields *info, const char *intag, const char *outtag,
 		int format_opts )
 {
 	int i;
@@ -273,10 +281,10 @@ output_fileattach( FILE *fp, fields *info, int format_opts )
 	for ( i=0; i<info->n; ++i ) {
 		if ( strcasecmp( info->tag[i].data, "FILEATTACH" ) ) continue;
 		str_strcpy( &data, ":" );
-		str_strcatc( &data, &(info->data[i]) );
-		if ( strsearch( info->data[i].data, ".pdf" ) )
+		str_strcatc( &data, &(info->value[i]) );
+		if ( strsearch( info->value[i].data, ".pdf" ) )
 			str_strcatc( &data, ":PDF" );
-		else if ( strsearch( info->data[i].data, ".html" ) )
+		else if ( strsearch( info->value[i].data, ".html" ) )
 			str_strcatc( &data, ":HTML" );
 		else str_strcatc( &data, ":TYPE" );
 		output_element( fp, "file", data.data, format_opts );
@@ -287,7 +295,7 @@ output_fileattach( FILE *fp, fields *info, int format_opts )
 }
 
 static void
-add_person( str *s, char *p )
+add_person( str *s, const char *p )
 {
 	int nseps = 0, nch;
 	while ( *p ) {
@@ -305,8 +313,8 @@ add_person( str *s, char *p )
 }
 
 static void
-output_people( FILE *fp, fields *info, unsigned long refnum, char *tag, 
-		char *ctag, char *atag, char *bibtag, int level, 
+output_people( FILE *fp, fields *info, unsigned long refnum, const char *tag,
+	const char *ctag, const char *atag, const char *bibtag, int level,
 		int format_opts )
 {
 	str allpeople;
@@ -328,13 +336,13 @@ output_people( FILE *fp, fields *info, unsigned long refnum, char *tag,
 			}
 			if ( corp ) {
 				str_addchar( &allpeople, '{' );
-				str_strcatc( &allpeople, info->data[i].data );
+				str_strcatc( &allpeople, info->value[i].data );
 				str_addchar( &allpeople, '}' );
 			} else if ( asis ) {
 				str_addchar( &allpeople, '{' );
-				str_strcatc( &allpeople, info->data[i].data );
+				str_strcatc( &allpeople, info->value[i].data );
 				str_addchar( &allpeople, '}' );
-			} else add_person( &allpeople, info->data[i].data ); 
+			} else add_person( &allpeople, info->value[i].data ); 
 			fields_set_used( info, i );
 			npeople++;
 		}
@@ -346,7 +354,7 @@ output_people( FILE *fp, fields *info, unsigned long refnum, char *tag,
 }
 
 static void
-output_title( FILE *fp, fields *info, unsigned long refnum, char *bibtag, int level, int format_opts )
+output_title( FILE *fp, fields *info, unsigned long refnum, const char *bibtag, int level, int format_opts )
 {
 	str title;
 	int n1 = -1, n2 = -1;
@@ -361,13 +369,13 @@ output_title( FILE *fp, fields *info, unsigned long refnum, char *bibtag, int le
 	}
 	if ( n1!=-1 ) {
 		str_init( &title );
-		str_strcpy( &title, &(info->data[n1]) );
+		str_strcpy( &title, &(info->value[n1]) );
 		fields_set_used( info, n1 );
 		if ( n2!=-1 ) {
-			if ( info->data[n1].data[info->data[n1].len]!='?' )
+			if ( info->value[n1].data[info->value[n1].len]!='?' )
 				str_strcatc( &title, ": " );
 			else str_addchar( &title, ' ' );
-			str_strcatc( &title, info->data[n2].data );
+			str_strcatc( &title, info->value[n2].data );
 			fields_set_used( info, n2 );
 		}
 		output_element( fp, bibtag, title.data, format_opts );
@@ -378,29 +386,29 @@ output_title( FILE *fp, fields *info, unsigned long refnum, char *bibtag, int le
 static void
 output_date( FILE *fp, fields *info, unsigned long refnum, int format_opts )
 {
-	char *months[12] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+	const char *months[12] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun",
 		"Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 	int n, month;
 	n = fields_find( info, "DATE:YEAR", -1 );
 	if ( n==-1 ) n = fields_find( info, "PARTDATE:YEAR", -1 );
 	if ( n!=-1 ) {
-		output_element( fp, "year", info->data[n].data, format_opts );
+		output_element( fp, "year", info->value[n].data, format_opts );
 		fields_set_used( info, n );
 	}
 	n = fields_find( info, "DATE:MONTH", -1 );
 	if ( n==-1 ) n = fields_find( info, "PARTDATE:MONTH", -1 );
 	if ( n!=-1 ) {
-		month = atoi( info->data[n].data );
+		month = atoi( info->value[n].data );
 		if ( month>0 && month<13 )
 			output_element( fp, "month", months[month-1], format_opts );
 		else
-			output_element( fp, "month", info->data[n].data, format_opts );
+			output_element( fp, "month", info->value[n].data, format_opts );
 		fields_set_used( info, n );
 	}
 	n = fields_find( info, "DATE:DAY", -1 );
 	if ( n==-1 ) n = fields_find( info, "PARTDATE:DAY", -1 );
 	if ( n!=-1 ) {
-		output_element( fp, "day", info->data[n].data, format_opts );
+		output_element( fp, "day", info->value[n].data, format_opts );
 		fields_set_used( info, n );
 	}
 }
@@ -415,7 +423,7 @@ output_articlenumber( FILE *fp, fields *info, unsigned long refnum,
 	if ( ar!=-1 ) {
 		str pages;
 		str_init( &pages );
-		str_strcatc( &pages, info->data[ar].data );
+		str_strcatc( &pages, info->value[ar].data );
 		output_element( fp, "pages", pages.data, format_opts );
 		fields_set_used( info, ar );
 		str_free( &pages );
@@ -477,7 +485,7 @@ output_pages( FILE *fp, fields *info, unsigned long refnum, int format_opts )
 	}
 	str_init( &pages );
 	if ( sn!=-1 ) {
-		str_strcat( &pages, info->data[sn].data );
+		str_strcat( &pages, info->value[sn].data );
 		fields_set_used( info, sn );
 	}
 	if ( sn!=-1 && en!=-1 ) {
@@ -487,7 +495,7 @@ output_pages( FILE *fp, fields *info, unsigned long refnum, int format_opts )
 			str_strcat( &pages, "--" );
 	}
 	if ( en!=-1 ) {
-		str_strcat( &pages, info->data[en].data );
+		str_strcat( &pages, info->value[en].data );
 		fields_set_used( info, en );
 	}
 	output_element( fp, "pages", pages.data, format_opts );
@@ -514,22 +522,22 @@ output_issue_number( FILE *fp, fields *info, int format_opts )
 	if ( nissue!=-1 && nnumber!=-1 ) {
 		output_and_use( fp, info, nissue,  "issue",  format_opts );
 		output_and_use( fp, info, nnumber, "number", format_opts );
-/*		output_element( fp, "issue", info->data[nissue].data, 
+/*		output_element( fp, "issue", info->value[nissue].data, 
 				format_opts );
 		fields_set_used( info, nissue );
-		output_element( fp, "number", info->data[nnumber].data, 
+		output_element( fp, "number", info->value[nnumber].data, 
 				format_opts );
 		fields_set_used( info, nnumber );*/
 	} else if ( nissue!=-1 ) {
 		output_and_use( fp, info, nissue, "number", format_opts );
 /*
-		output_element( fp, "number", info->data[nissue].data, 
+		output_element( fp, "number", info->value[nissue].data, 
 				format_opts );
 		fields_set_used( info, nissue );*/
 	} else if ( nnumber!=-1 ) {
 		output_and_use( fp, info, nnumber, "number", format_opts );
 /*
-		output_element( fp, "number", info->data[nnumber].data, 
+		output_element( fp, "number", info->value[nnumber].data, 
 				format_opts );
 		fields_set_used( info, nnumber );
 */
@@ -612,3 +620,4 @@ bibtexout_writeheader( FILE *outptr, param *p )
 	if ( p->utf8bom ) utf8_writebom( outptr );
 }
 
+#endif

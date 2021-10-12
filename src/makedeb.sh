@@ -23,7 +23,7 @@ POSTFIX=$2
 if [ "$2" = "_i386" ] ; then
 	ARCH="i386"
 elif [ "$2" = "_amd64" ] ; then
-	ARCH="i386"
+	ARCH="amd64"
 elif [ "$2" = "_osx" ] ; then
 	ARCH="darwin-powerpc"
 else

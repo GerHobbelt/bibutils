@@ -1,7 +1,7 @@
 /*
  * bibtexout.c
  *
- * Copyright (c) Chris Putnam 2003-2020
+ * Copyright (c) Chris Putnam 2003-2021
  *
  * Program and source code released under the GPL version 2
  *
@@ -14,8 +14,10 @@
 #include "strsearch.h"
 #include "utf8.h"
 #include "xml.h"
+#include "append_easy.h"
 #include "fields.h"
 #include "generic.h"
+#include "month.h"
 #include "name.h"
 #include "title.h"
 #include "type.h"
@@ -154,7 +156,8 @@ bibtexout_type( fields *in, const char *progname, const char *filename, unsigned
 static void
 append_type( int type, fields *out, int *status )
 {
-	char *typenames[ NUM_TYPES ] = {
+	const char *typenames[ NUM_TYPES ] = {
+		[ TYPE_UNKNOWN       ] = "Misc",
 		[ TYPE_ARTICLE       ] = "Article",
 		[ TYPE_INBOOK        ] = "Inbook",
 		[ TYPE_PROCEEDINGS   ] = "Proceedings",
@@ -172,12 +175,10 @@ append_type( int type, fields *out, int *status )
 		[ TYPE_MISC          ] = "Misc",
 	};
 	int fstatus;
-	char *s;
 
 	if ( type < 0 || type >= NUM_TYPES ) type = TYPE_MISC;
-	s = typenames[ type ];
 
-	fstatus = fields_add( out, "TYPE", s, LEVEL_MAIN );
+	fstatus = fields_add( out, "TYPE", typenames[ type ], LEVEL_MAIN );
 	if ( fstatus!=FIELDS_OK ) *status = BIBL_ERR_MEMERR;
 }
 
@@ -216,73 +217,6 @@ append_citekey( fields *in, fields *out, int format_opts, int *status )
 		if ( fstatus!=FIELDS_OK ) *status = BIBL_ERR_MEMERR;
 		str_free( &s );
 	}
-}
-
-static void
-append_simple( fields *in, char *intag, char *outtag, fields *out, int *status )
-{
-	int n, fstatus;
-
-	n = fields_find( in, intag, LEVEL_ANY );
-	if ( n!=FIELDS_NOTFOUND ) {
-		fields_set_used( in, n );
-		fstatus = fields_add( out, outtag, fields_value( in, n, FIELDS_CHRP ), LEVEL_MAIN );
-		if ( fstatus!=FIELDS_OK ) *status = BIBL_ERR_MEMERR;
-	}
-}
-
-static void
-append_simpleall( fields *in, char *intag, char *outtag, fields *out, int *status )
-{
-	int i, fstatus;
-
-	for ( i=0; i<in->n; ++i ) {
-		if ( fields_match_tag( in, i, intag ) ) {
-			fields_set_used( in, i );
-			fstatus = fields_add( out, outtag, fields_value( in, i, FIELDS_CHRP ), LEVEL_MAIN );
-			if ( fstatus!=FIELDS_OK ) {
-				*status = BIBL_ERR_MEMERR;
-				return;
-			}
-		}
-	}
-}
-
-static void
-append_keywords( fields *in, fields *out, int *status )
-{
-	str keywords, *word;
-	vplist_index i;
-	int fstatus;
-	vplist a;
-
-	str_init( &keywords );
-	vplist_init( &a );
-
-	fields_findv_each( in, LEVEL_ANY, FIELDS_STRP, &a, "KEYWORD" );
-
-	if ( a.n ) {
-
-		for ( i=0; i<a.n; ++i ) {
-			word = vplist_get( &a, i );
-			if ( i>0 ) str_strcatc( &keywords, "; " );
-			str_strcat( &keywords, word );
-		}
-
-		if ( str_memerr( &keywords ) ) { *status = BIBL_ERR_MEMERR; goto out; }
-
-		fstatus = fields_add( out, "keywords", str_cstr( &keywords ), LEVEL_MAIN );
-		if ( fstatus!=FIELDS_OK ) {
-			*status = BIBL_ERR_MEMERR;
-			goto out;
-		}
-
-
-	}
-
-out:
-	str_free( &keywords );
-	vplist_free( &a );
 }
 
 static void
@@ -338,10 +272,10 @@ append_people( fields *in, char *tag, char *ctag, char *atag,
 	/* primary citation authors */
 	npeople = 0;
 	for ( i=0; i<in->n; ++i ) {
-		if ( level!=LEVEL_ANY && in->level[i]!=level ) continue;
-		person = ( strcasecmp( in->tag[i].data, tag ) == 0 );
-		corp   = ( strcasecmp( in->tag[i].data, ctag ) == 0 );
-		asis   = ( strcasecmp( in->tag[i].data, atag ) == 0 );
+		if ( level!=LEVEL_ANY && fields_level( in, i )!=level ) continue;
+		person = ( strcasecmp( fields_tag( in, i, FIELDS_CHRP ), tag  ) == 0 );
+		corp   = ( strcasecmp( fields_tag( in, i, FIELDS_CHRP ), ctag ) == 0 );
+		asis   = ( strcasecmp( fields_tag( in, i, FIELDS_CHRP ), atag ) == 0 );
 		if ( person || corp || asis ) {
 			if ( npeople>0 ) {
 				if ( format_opts & BIBL_FORMAT_BIBOUT_WHITESPACE )
@@ -496,9 +430,8 @@ find_date( fields *in, char *date_element )
 static void
 append_date( fields *in, fields *out, int *status )
 {
-	char *months[12] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", 
-		"Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
-	int n, month, fstatus;
+	const char *month, *use;
+	int n, fstatus;
 
 	n = find_date( in, "YEAR" );
 	if ( n!=FIELDS_NOTFOUND ) {
@@ -513,11 +446,9 @@ append_date( fields *in, fields *out, int *status )
 	n = find_date( in, "MONTH" );
 	if ( n!=-1 ) {
 		fields_set_used( in, n );
-		month = atoi( fields_value( in, n, FIELDS_CHRP ) );
-		if ( month>0 && month<13 )
-			fstatus = fields_add( out, "month", months[month-1], LEVEL_MAIN );
-		else
-			fstatus = fields_add( out, "month", fields_value( in, n, FIELDS_CHRP ), LEVEL_MAIN );
+		month = fields_value( in, n, FIELDS_CHRP );
+		(void) number_to_abbr_month( month, &use );
+		fstatus = fields_add( out, "month", use, LEVEL_MAIN );
 		if ( fstatus!=FIELDS_OK ) {
 			*status = BIBL_ERR_MEMERR;
 			return;
@@ -749,32 +680,32 @@ bibtexout_assemble( fields *in, fields *out, param *pm, unsigned long refnum )
 	append_people      ( in, "TRANSLATOR", "TRANSLATOR:CORP", "TRANSLATOR:ASIS", "translator", LEVEL_ANY, out, pm->format_opts, pm->latexout, &status );
 	append_titles      ( in, type, out, pm->format_opts, &status );
 	append_date        ( in, out, &status );
-	append_simple      ( in, "EDITION",            "edition",   out, &status );
-	append_simple      ( in, "PUBLISHER",          "publisher", out, &status );
-	append_simple      ( in, "ADDRESS",            "address",   out, &status );
-	append_simple      ( in, "VOLUME",             "volume",    out, &status );
+	append_easy        ( in, "EDITION",            LEVEL_ANY, out, "edition",   &status );
+	append_easy        ( in, "PUBLISHER",          LEVEL_ANY, out, "publisher", &status );
+	append_easycombo   ( in, "ADDRESS",            LEVEL_ANY, out, "address",   "; ", &status );
+	append_easy        ( in, "VOLUME",             LEVEL_ANY, out, "volume",    &status );
 	append_issue_number( in, out, &status );
 	append_pages       ( in, out, pm->format_opts, &status );
-	append_keywords    ( in, out, &status );
-	append_simple      ( in, "CONTENTS",           "contents",  out, &status );
-	append_simple      ( in, "ABSTRACT",           "abstract",  out, &status );
-	append_simple      ( in, "LOCATION",           "location",  out, &status );
-	append_simple      ( in, "DEGREEGRANTOR",      "school",    out, &status );
-	append_simple      ( in, "DEGREEGRANTOR:ASIS", "school",    out, &status );
-	append_simple      ( in, "DEGREEGRANTOR:CORP", "school",    out, &status );
-	append_simpleall   ( in, "NOTES",              "note",      out, &status );
-	append_simpleall   ( in, "ANNOTE",             "annote",    out, &status );
-	append_simple      ( in, "ISBN",               "isbn",      out, &status );
-	append_simple      ( in, "ISSN",               "issn",      out, &status );
-	append_simple      ( in, "MRNUMBER",           "mrnumber",  out, &status );
-	append_simple      ( in, "CODEN",              "coden",     out, &status );
-	append_simple      ( in, "DOI",                "doi",       out, &status );
+	append_easycombo   ( in, "KEYWORD",            LEVEL_ANY, out, "keywords",  "; ", &status );
+	append_easy        ( in, "CONTENTS",           LEVEL_ANY, out, "contents",    &status );
+	append_easy        ( in, "ABSTRACT",           LEVEL_ANY, out, "abstract",    &status );
+	append_easy        ( in, "LOCATION",           LEVEL_ANY, out, "location",    &status );
+	append_easy        ( in, "DEGREEGRANTOR",      LEVEL_ANY, out, "school",      &status );
+	append_easy        ( in, "DEGREEGRANTOR:ASIS", LEVEL_ANY, out, "school",      &status );
+	append_easy        ( in, "DEGREEGRANTOR:CORP", LEVEL_ANY, out, "school",      &status );
+	append_easyall     ( in, "NOTES",              LEVEL_ANY, out, "note",        &status );
+	append_easyall     ( in, "ANNOTE",             LEVEL_ANY, out, "annote",      &status );
+	append_easy        ( in, "ISBN",               LEVEL_ANY, out, "isbn",        &status );
+	append_easy        ( in, "ISSN",               LEVEL_ANY, out, "issn",        &status );
+	append_easy        ( in, "MRNUMBER",           LEVEL_ANY, out, "mrnumber",    &status );
+	append_easy        ( in, "CODEN",              LEVEL_ANY, out, "coden",       &status );
+	append_easy        ( in, "DOI",                LEVEL_ANY, out, "doi",         &status );
 	append_urls        ( in, out, &status );
 	append_fileattach  ( in, out, &status );
 	append_arxiv       ( in, out, &status );
-	append_simple      ( in, "EPRINTCLASS",        "primaryClass", out, &status );
+	append_easy        ( in, "EPRINTCLASS",        LEVEL_ANY, out, "primaryClass", &status );
 	append_isi         ( in, out, &status );
-	append_simple      ( in, "LANGUAGE",           "language",  out, &status );
+	append_easy        ( in, "LANGUAGE",           LEVEL_ANY, out, "language",     &status );
 	append_howpublished( in, out, &status );
 
 	return status;
