@@ -1,7 +1,9 @@
 /*
  * slist_test.c
  *
- * test slist functions
+ * Copyright (c) 2014-2021
+ *
+ * Source code released under the GPL version 2
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,10 +24,10 @@ char version[] = "0.3";
 
 #define check_len( a, b ) if ( !_check_len( a, b, __FUNCTION__, __LINE__ ) ) return 1;
 int
-_check_len( slist *a, int expected, const char *fn, int line )
+_check_len( slist *a, slist_index expected, const char *fn, int line )
 {
 	if ( a->n == expected ) return 1;
-	fprintf( stderr, "Failed: %s() line %d: Expected slist length of %d, found %d\n", fn, line, expected, a->n );
+	fprintf( stderr, "Failed: %s() line %d: Expected slist length of %lu, found %lu\n", fn, line, expected, a->n );
 	return 0;
 }
 
@@ -54,23 +56,11 @@ _check_entry( slist *a, int n, const char *expected, const char *fn, int line )
 
 #define check_add_result( a, b ) if ( !_check_add_result( a, b, __FUNCTION__, __LINE__ ) ) return 1;
 int
-_check_add_result( str *obtained, str *expected, const char *fn, int line )
+_check_add_result( int obtained, int expected, const char *fn, int line )
 {
-	if ( obtained==NULL && expected!=NULL ) {
-		fprintf( stderr, "Failed to add string: %s() line %d: Expected '%s'\n",
-			fn, line, expected->data );
-		return 0;
-	}
-	return 1;
-}
-
-#define check_addc_result( a, b ) if ( !_check_addc_result( a, b, __FUNCTION__, __LINE__ ) ) return 1;
-int
-_check_addc_result( str *obtained, char *expected, const char *fn, int line )
-{
-	if ( obtained==NULL && expected!=NULL ) {
-		fprintf( stderr, "Failed to add string: %s() line %d: Expected '%s'\n",
-			fn, line, expected );
+	if ( obtained!=expected ) {
+		fprintf( stderr, "Failed to add string: %s() line %d: got %d, expected %d\n",
+			fn, line, obtained, expected );
 		return 0;
 	}
 	return 1;
@@ -96,21 +86,23 @@ test_init( void )
 int
 test_add( void )
 {
-	str s, *t;
+	int status;
 	slist a;
+	str s;
+
 	str_init( &s );
 	slist_init( &a );
 
 	str_strcpyc( &s, "1" );
-	t = slist_add( &a, &s );
-	check_add_result( t, &s );
+	status = slist_add( &a, &s );
+	check_add_result( status, SLIST_OK );
 	check_len( &a, 1 );
 	check_entry( &a, 0, "1" );
 	check_entry( &a, 1, NULL );
 
 	str_strcpyc( &s, "2" );
-	t = slist_add( &a, &s );
-	check_add_result( t, &s );
+	status = slist_add( &a, &s );
+	check_add_result( status, SLIST_OK );
 	check_len( &a, 2 );
 	check_entry( &a, 0, "1" );
 	check_entry( &a, 1, "2" );
@@ -124,18 +116,19 @@ test_add( void )
 int
 test_addc( void )
 {
-	str *t;
+	int status;
 	slist a;
+
 	slist_init( &a );
 
-	t = slist_addc( &a, "1" );
-	check_addc_result( t, "1" );
+	status = slist_addc( &a, "1" );
+	check_add_result( status, SLIST_OK );
 	check_len( &a, 1 );
 	check_entry( &a, 0, "1" );
 	check_entry( &a, 1, NULL );
 
-	t = slist_addc( &a, "2" );
-	check_addc_result( t, "2" );
+	status = slist_addc( &a, "2" );
+	check_add_result( status, SLIST_OK );
 	check_len( &a, 2 );
 	check_entry( &a, 0, "1" );
 	check_entry( &a, 1, "2" );
@@ -148,20 +141,22 @@ test_addc( void )
 int
 test_addvp( void )
 {
-	str s, *t;
+	int status;
 	slist a;
+	str s;
+
 	str_init( &s );
 	slist_init( &a );
 
-	t= slist_addvp( &a, SLIST_CHR, "1" );
-	check_addc_result( t, "1" );
+	status = slist_addvp( &a, SLIST_CHR, "1" );
+	check_add_result( status, SLIST_OK );
 	check_len( &a, 1 );
 	check_entry( &a, 0, "1" );
 	check_entry( &a, 1, NULL );
 
 	str_strcpyc( &s, "2" );
-	t = slist_addvp( &a, SLIST_STR, &s );
-	check_add_result( t, &s );
+	status = slist_addvp( &a, SLIST_STR, &s );
+	check_add_result( status, SLIST_OK );
 	check_len( &a, 2 );
 	check_entry( &a, 0, "1" );
 	check_entry( &a, 1, "2" );
@@ -601,21 +596,23 @@ out:
 int
 test_empty( void )
 {
-	str s, *t;
+	int status;
 	slist a;
+	str s;
+
 	str_init( &s );
 	slist_init( &a );
 
 	str_strcpyc( &s, "1" );
-	t = slist_add( &a, &s );
-	check_add_result( t, &s );
+	status = slist_add( &a, &s );
+	check_add_result( status, SLIST_OK );
 	check_len( &a, 1 );
 	check_entry( &a, 0, "1" );
 	check_entry( &a, 1, NULL );
 
 	str_strcpyc( &s, "2" );
-	t = slist_add( &a, &s );
-	check_add_result( t, &s );
+	status = slist_add( &a, &s );
+	check_add_result( status, SLIST_OK );
 	check_len( &a, 2 );
 	check_entry( &a, 0, "1" );
 	check_entry( &a, 1, "2" );
@@ -636,10 +633,9 @@ test_empty( void )
 int
 test_new( void )
 {
+	int i, status;
 	char buf[1000];
 	slist *a;
-	str *tmp;
-	int i;
 
 	a = slist_new();
 	if ( !a ) {
@@ -651,8 +647,8 @@ test_new( void )
 
 	for ( i=0; i<100; ++i ) {
 		sprintf( buf, "Test%d", i );
-		tmp = slist_addc( a, buf );
-		if ( !tmp ) {
+		status = slist_addc( a, buf );
+		if ( status!=SLIST_OK ) {
 			fprintf( stderr, "Memory error at %s() line %d\n", __FUNCTION__, __LINE__ );
 			goto out;
 		}
@@ -678,15 +674,14 @@ test_dup( void )
 {
 	char buf[1000];
 	slist a, *dupa;
-	str *tmp;
-	int i;
+	int i, status;
 
 	slist_init( &a );
 
 	for ( i=0; i<100; ++i ) {
 		sprintf( buf, "Test%d", i );
-		tmp = slist_addc( &a, buf );
-		if ( !tmp ) {
+		status = slist_addc( &a, buf );
+		if ( status!=SLIST_OK ) {
 			fprintf( stderr, "Memory error 1 at %s() line %d\n", __FUNCTION__, __LINE__ );
 			goto out;
 		}
@@ -721,14 +716,13 @@ test_copy( void )
 	int i, status, ret = 0;
 	char buf[1000];
 	slist a, copya;
-	str *tmp;
 
 	/* Build and test list to be copied */
 	slist_init( &a );
 	for ( i=0; i<100; ++i ) {
 		sprintf( buf, "ToBeCopied%d", i );
-		tmp = slist_addc( &a, buf );
-		if ( !tmp ) {
+		status = slist_addc( &a, buf );
+		if ( status!=SLIST_OK ) {
 			fprintf( stderr, "Memory error at %s() line %d\n", __FUNCTION__, __LINE__ );
 			goto out;
 		}
@@ -745,7 +739,11 @@ test_copy( void )
 	slist_init( &copya );
 	for ( i=0; i<10; ++i ) {
 		sprintf( buf, "ToBeOverwritten%d", i );
-		slist_addc( &copya, buf );
+		status = slist_addc( &copya, buf );
+		if ( status!=SLIST_OK ) {
+			fprintf( stderr, "Memory error at %s() line %d\n", __FUNCTION__, __LINE__ );
+			goto out;
+		}
 	}
 	check_len( &copya, 10 );
 	for ( i=0; i<10; ++i ) {
@@ -1625,16 +1623,13 @@ test_dump( void )
 	}
 
 	slist_init( &a );
+	slist_init( &b );
 
 	status = slist_addc_all( &a, "dull", "boorish", "churlish", "amateurish", NULL );
 	check( (status==SLIST_OK), "slist_addc_all() should return SLIST_OK" );
 
 	slist_dump( &a, fp, 1 );
 	fclose( fp );
-
-	slist_free( &a );
-
-	slist_init( &b );
 
 	status = slist_fill( &b, filename, 1 );
 	check( (status==SLIST_OK), "slist_fill() should return SLIST_OK" );
@@ -1649,7 +1644,7 @@ test_dump( void )
 	if ( status!=0 )
 		fprintf( stderr, "%s: Error unlink failed for %s\n", progname, filename );
 
-	slist_free( &b );
+	slist_free( &a );
 
 	return 0;
 }
@@ -1725,25 +1720,25 @@ int
 test_get_maxlen( void )
 {
 	unsigned long n;
+	int status;
 	slist a;
-	str *t;
 
 	slist_init( &a );
 
-	t = slist_addc( &a, "churlish" );
-	check( (t!=NULL), "slist_addc() should not return NULL" );
+	status = slist_addc( &a, "churlish" );
+	check_add_result( status, SLIST_OK );
 
 	n = slist_get_maxlen( &a );
 	check( (n==strlen("churlish")), "slist_get_maxlen() should return length of 'churlish'" );
 
-	t = slist_addc( &a, "boorish" );
-	check( (t!=NULL), "slist_addc() should not return NULL" );
+	status = slist_addc( &a, "boorish" );
+	check_add_result( status, SLIST_OK );
 
 	n = slist_get_maxlen( &a );
 	check( (n==strlen("churlish")), "slist_get_maxlen() should return length of 'churlish'" );
 
-	t = slist_addc( &a, "amateurish" );
-	check( (t!=NULL), "slist_addc() should not return NULL" );
+	status = slist_addc( &a, "amateurish" );
+	check_add_result( status, SLIST_OK );
 
 	n = slist_get_maxlen( &a );
 	check( (n==strlen("amateurish")), "slist_get_maxlen() should return length of 'amateurish'" );

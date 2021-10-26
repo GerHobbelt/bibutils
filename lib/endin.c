@@ -1,7 +1,7 @@
 /*
  * endin.c
  *
- * Copyright (c) Chris Putnam 2003-2020
+ * Copyright (c) Chris Putnam 2003-2021
  *
  * Program and source code released under the GPL version 2
  *
@@ -13,11 +13,12 @@
 #include "is_ws.h"
 #include "str.h"
 #include "str_conv.h"
-#include "fields.h"
-#include "url.h"
-#include "reftypes.h"
 #include "bibformats.h"
+#include "fields.h"
 #include "generic.h"
+#include "month.h"
+#include "reftypes.h"
+#include "url.h"
 
 extern variants end_all[];
 extern int end_nall;
@@ -387,47 +388,6 @@ endin_cleanf( bibl *bin, param *p )
  PUBLIC: int endin_convertf(), returns BIBL_OK or BIBL_ERR_MEMERR
 *****************************************************/
 
-/* month_convert()
- * convert month name to number in format MM, e.g. "January" -> "01"
- * if converted, return 1
- * otherwise return 0
- */
-static int
-month_convert( char *in, char *out )
-{
-	char *month1[12]={
-		"January",   "February",
-		"March",     "April",
-		"May",       "June",
-		"July",      "August",
-		"September", "October",
-		"November",  "December"
-	};
-	char *month2[12]={
-		"Jan", "Feb",
-		"Mar", "Apr",
-		"May", "Jun",
-		"Jul", "Aug",
-		"Sep", "Oct",
-		"Nov", "Dec"
-	};
-	int i, found = -1;
-
-	for ( i=0; i<12 && found==-1; ++i ) {
-		if ( !strcasecmp( in, month1[i] ) ) found = i;
-		if ( !strcasecmp( in, month2[i] ) ) found = i;
-	}
-
-	if ( found==-1 ) return 0;
-
-	if ( found > 8 )
-		sprintf( out, "%d", found+1 );
-	else
-		sprintf( out, "0%d", found+1 );
-
-	return 1;
-}
-
 static int
 endin_date( fields *bibin, int n, str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
 {
@@ -437,8 +397,8 @@ endin_date( fields *bibin, int n, str *intag, str *invalue, int level, param *pm
 		{ "DATE:DAY",   "PARTDATE:DAY" }
 	};
 	const char *p = invalue->data;
-	char month[10], *m;
 	int part, status;
+	const char *use;
 	str date;
 
 	str_init( &date );
@@ -465,9 +425,8 @@ endin_date( fields *bibin, int n, str *intag, str *invalue, int level, param *pm
 		p = str_cpytodelim( &date, skip_ws( p ), " ,\n", 0 );
 		if ( str_memerr( &date ) ) return BIBL_ERR_MEMERR;
 		if ( str_has_value( &date ) ) {
-			if ( month_convert( date.data, month ) ) m = month;
-			else m = str_cstr( &date );
-			status = fields_add( bibout, tags[1][part], m, level );
+			(void) month_to_number( str_cstr( &date ), &use );
+			status = fields_add( bibout, tags[1][part], use, level );
 			if ( status!=FIELDS_OK ) return BIBL_ERR_MEMERR;
 		}
 
@@ -504,31 +463,31 @@ static int
 endin_type( fields *bibin, int n, str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
 {
 	lookups types[] = {
-		{ "GENERIC",                "ARTICLE" },
-		{ "BOOK",                   "BOOK" },
-		{ "MANUSCRIPT",             "MANUSCRIPT" },
-		{ "CONFERENCE PROCEEDINGS", "INPROCEEDINGS"},
-		{ "REPORT",                 "REPORT" },
-		{ "COMPUTER PROGRAM",       "BOOK" },
-		{ "AUDIOVISUAL MATERIAL",   "AUDIOVISUAL" },
-		{ "ARTWORK",                "BOOK" },
-		{ "PATENT",                 "BOOK" },
-		{ "BILL",                   "BILL" },
-		{ "CASE",                   "CASE" },
-		{ "JOURNAL ARTICLE",        "ARTICLE" },
-		{ "MAGAZINE ARTICLE",       "ARTICLE" },
-		{ "BOOK SECTION",           "INBOOK" },
-		{ "EDITED BOOK",            "BOOK" },
-		{ "NEWSPAPER ARTICLE",      "NEWSARTICLE" },
-		{ "THESIS",                 "PHDTHESIS" },
-		{ "PERSONAL COMMUNICATION", "COMMUNICATION" },
-		{ "ELECTRONIC SOURCE",      "TEXT" },
-		{ "FILM OR BROADCAST",      "AUDIOVISUAL" },
-		{ "MAP",                    "MAP" },
-		{ "HEARING",                "HEARING" },
-		{ "STATUTE",                "STATUTE" },
-		{ "CHART OR TABLE",         "CHART" },
-		{ "WEB PAGE",               "WEBPAGE" },
+		{ "GENERIC",                "ARTICLE",       0, 0 },
+		{ "BOOK",                   "BOOK",          0, 0 },
+		{ "MANUSCRIPT",             "MANUSCRIPT",    0, 0 },
+		{ "CONFERENCE PROCEEDINGS", "INPROCEEDINGS", 0, 0 },
+		{ "REPORT",                 "REPORT",        0, 0 },
+		{ "COMPUTER PROGRAM",       "BOOK",          0, 0 },
+		{ "AUDIOVISUAL MATERIAL",   "AUDIOVISUAL",   0, 0 },
+		{ "ARTWORK",                "BOOK",          0, 0 },
+		{ "PATENT",                 "BOOK",          0, 0 },
+		{ "BILL",                   "BILL",          0, 0 },
+		{ "CASE",                   "CASE",          0, 0 },
+		{ "JOURNAL ARTICLE",        "ARTICLE",       0, 0 },
+		{ "MAGAZINE ARTICLE",       "ARTICLE",       0, 0 },
+		{ "BOOK SECTION",           "INBOOK",        0, 0 },
+		{ "EDITED BOOK",            "BOOK",          0, 0 },
+		{ "NEWSPAPER ARTICLE",      "NEWSARTICLE",   0, 0 },
+		{ "THESIS",                 "PHDTHESIS",     0, 0 },
+		{ "PERSONAL COMMUNICATION", "COMMUNICATION", 0, 0 },
+		{ "ELECTRONIC SOURCE",      "TEXT",          0, 0 },
+		{ "FILM OR BROADCAST",      "AUDIOVISUAL",   0, 0 },
+		{ "MAP",                    "MAP",           0, 0 },
+		{ "HEARING",                "HEARING",       0, 0 },
+		{ "STATUTE",                "STATUTE",       0, 0 },
+		{ "CHART OR TABLE",         "CHART",         0, 0 },
+		{ "WEB PAGE",               "WEBPAGE",       0, 0 },
 	};
 	int  ntypes = sizeof( types ) / sizeof( lookups );
 	int  i, status, found=0;
@@ -596,7 +555,7 @@ endin_convertf( fields *bibin, fields *bibout, int reftype, param *p )
 		 * and just copy and paste to output
 		 */
 		if ( str_has_value( intag ) && intag->data[0]!='%' ) {
-			fstatus = fields_add( bibout, str_cstr( intag ), str_cstr( invalue ), bibin->level[i] );
+			fstatus = fields_add( bibout, str_cstr( intag ), str_cstr( invalue ), fields_level( bibin, i ) );
 			if ( fstatus!=FIELDS_OK ) return BIBL_ERR_MEMERR;
 			continue;
 		}

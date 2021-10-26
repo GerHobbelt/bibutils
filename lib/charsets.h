@@ -1,7 +1,7 @@
 /*
  * charsets.h
  *
- * Copyright (c) Chris Putnam 2003-2019
+ * Copyright (c) Chris Putnam 2003-2021
  *
  * Source code released under the GPL version 2
  *
@@ -16,10 +16,10 @@
 #define CHARSET_UTF8_DEFAULT (1)
 #define CHARSET_BOM_DEFAULT  (1)
 
-extern char * charset_get_xmlname( int n );
-extern int charset_find( char *name );
-extern void charset_list_all( FILE *fp );
-extern unsigned int charset_lookupchar( int charsetin, char c );
-extern unsigned int charset_lookupuni( int charsetout, unsigned int unicode );
+char * charset_get_xmlname( int n );
+int    charset_find( char *name );
+void   charset_list_all( FILE *fp );
+unsigned int charset_lookupchar( int charsetin, char c );
+unsigned int charset_lookupuni( int charsetout, unsigned int unicode );
 
 #endif

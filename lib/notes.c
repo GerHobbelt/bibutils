@@ -1,12 +1,13 @@
 /*
  * notes.c
  *
- * Copyright (c) Chris Putnam 2016-2020
+ * Copyright (c) Chris Putnam 2016-2021
  *
  * Program and source code released under the GPL version 2
  *
  */
 #include <string.h>
+#include "bibl.h"
 #include "url.h"
 #include "notes.h"
 
@@ -25,8 +26,8 @@ typedef struct url_t {
 	int offset;
 } url_t;
 
-static void
-notes_added_url( fields *bibout, str *invalue, int level, int *ok )
+static int
+added_url( fields *bibout, str *invalue, int level )
 {
 	url_t prefixes[] = {
 		{ "arXiv:",                                    "ARXIV",     6 },
@@ -61,20 +62,22 @@ notes_added_url( fields *bibout, str *invalue, int level, int *ok )
 
 	fstatus = fields_add( bibout, tag, p, level );
 
-	if ( fstatus==FIELDS_OK ) *ok = 1;
-	else *ok = 0;
+	if ( fstatus==FIELDS_OK ) return BIBL_OK;
+	else return BIBL_ERR_MEMERR;
 }
 
 static int
-notes_added_doi( fields *bibout, str *invalue, int level, int *ok )
+added_doi( fields *bibout, str *invalue, int level, int *status )
 {
 	int doi, fstatus;
+
+	*status = BIBL_OK;
 
 	doi = is_doi( str_cstr( invalue ) );
 
 	if ( doi != -1 ) {
 		fstatus = fields_add( bibout, "DOI", &(invalue->data[doi]), level );
-		if ( fstatus != FIELDS_OK ) *ok = 0;
+		if ( fstatus != FIELDS_OK ) *status = BIBL_ERR_MEMERR;
 		return 1;
 	}
 
@@ -82,21 +85,19 @@ notes_added_doi( fields *bibout, str *invalue, int level, int *ok )
 }
 
 int
-notes_add( fields *bibout, str *invalue, int level )
+add_notes( fields *bibout, str *invalue, int level )
 {
-	int fstatus, done = 0, ok = 1;
+	int fstatus, done, status;
 
 	if ( !is_embedded_link( str_cstr( invalue ) ) ) {
 		fstatus = fields_add( bibout, "NOTES", str_cstr( invalue ), level );
-		if ( fstatus != FIELDS_OK ) ok = 0;
+		if ( fstatus != FIELDS_OK ) return BIBL_ERR_MEMERR;
+		else return BIBL_OK;
 	}
 
 	else {
-
-		done = notes_added_doi( bibout, invalue, level, &ok );
-		if ( !done ) notes_added_url( bibout, invalue, level, &ok );
-
+		done = added_doi( bibout, invalue, level, &status );
+		if ( !done ) status = added_url( bibout, invalue, level );
+		return status;
 	}
-
-	return ok;
 }

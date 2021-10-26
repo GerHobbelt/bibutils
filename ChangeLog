@@ -1,6 +1,27 @@
 
 BIBUTILS
 
+7.1
+9/26/21
++ Fix bug in build for 7.0. Reported by Vascom.
+
+7.0
+9/24/21
++ Build infrastructure to handle language tags in MODS xml. This is a breaking
+binary change, so bump the major version number.
++ Properly handle the 'date' field in xml2biblatex to output (when possible)
+ISO 8601 dates. Propagate better handling of month code to all input
+converters so that months are internally stored as number strings, e.g. '01'
+instead of 'January' or 'Jan'. Reported by sgarfield.
++ Handle shortjournal/shortbooktitle/shortseries in biblatex input.
++ Handle 'nonSort' title tag in MODS. Reported by matt.
++ Cleanups to MODS output.
++ Handle marc country codes properly.
++ Convert code to use common page handling. Fixes nbib2xml error reported by
+Nina Birych.
++ Add additional input types to nbib2xml. Reported by Nina Birych.
++ Fix makedeb.sh error reported by Alf Eaton.
+
 6.10
 3/23/20
 + Fix build errors in version 6.9
