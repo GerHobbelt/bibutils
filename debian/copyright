@@ -3,22 +3,23 @@ Upstream-Name: bibutils
 Source: https://sourceforge.net/projects/bibutils/
 
 Files: *
-Copyright: 1995-2020 Christopher Putnam <cdputnam@ucsd.edu>
-License: GPL-2+
-
-Files: lib/adsout.c
-Copyright: 2007-2020 Richard Mathar 
-           2007-2020 Chris Putnam
+Copyright: 1995-2021 Christopher Putnam <cdputnam@ucsd.edu>
 License: GPL-2
 
-Files: lib/biblatexin.c lib/bltypes.c
-Copyright: 2010-2020 Johannes Wilm
-           2008-2020 Chris Putnam
+Files: lib/adsout.c
+Copyright: 2007-2021 Richard Mathar 
+           2007-2021 Chris Putnam
+License: GPL-2
+
+Files: lib/biblatexin.c
+       lib/blxtypes.c
+Copyright: 2010-2021 Johannes Wilm
+           2008-2021 Chris Putnam
 License: GPL-2
 
 Files: lib/adsout_journals.c
 Copyright: NASA Astrophysics Data System Project
-License: GPL-2+
+License: GPL-2
 Comment: These emails discuss the license.
     From: Alberto Accomazzi <aaccomazzi@cfa.harvard.edu>
     Organization: Smithsonian Astrophysical Observatory
@@ -101,46 +102,10 @@ Comment: The man page is licensed under version 2 of the GNU General Public Lice
 Files: debian/*
 Copyright: 2007-2015 David Bremner <bremner@unb.ca>
            2020-2021 Pierre Gruet <pgt@debian.org>
-License: GPL-2+
+License: GPL-2
 Comment: The Debian packaging is licensed under the same terms as the upstream source.
 
-License: GPL-2+
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-    .
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-    .
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-    02110-1301, USA.
-    .
-    On Debian systems, the full text of the GNU General Public
-    License version 2 can be found in the file
-    `/usr/share/common-licenses/GPL-2'.
-
-
 License: GPL-2
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-    .
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-    .
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
-    02110-1301, USA.
-    .
-    On Debian systems, the full text of the GNU General Public
-    License version 2 can be found in the file
-    `/usr/share/common-licenses/GPL-2'.
+ On Debian systems, the full text of the GNU General Public
+ License version 2 can be found in the file
+ `/usr/share/common-licenses/GPL-2'.
