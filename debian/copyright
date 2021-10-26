@@ -100,7 +100,7 @@ Comment: The man page is licensed under version 2 of the GNU General Public Lice
  
 Files: debian/*
 Copyright: 2007-2015 David Bremner <bremner@unb.ca>
-           2020 Pierre Gruet <pgtdebian@free.fr>
+           2020-2021 Pierre Gruet <pgt@debian.org>
 License: GPL-2+
 Comment: The Debian packaging is licensed under the same terms as the upstream source.
 

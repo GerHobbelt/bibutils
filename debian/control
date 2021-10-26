@@ -2,7 +2,7 @@ Source: bibutils
 Section: text
 Priority: optional
 Maintainer: Debian Science Maintainers <debian-science-maintainers@lists.alioth.debian.org>
-Uploaders: David Bremner <bremner@debian.org>, Pierre Gruet <pgtdebian@free.fr>
+Uploaders: David Bremner <bremner@debian.org>, Pierre Gruet <pgt@debian.org>
 Build-Depends: debhelper-compat (= 10), dh-exec (>=0.3), xsltproc, docbook-xsl, docbook-xml
 Standards-Version: 4.5.0
 Homepage: https://sourceforge.net/projects/bibutils/
