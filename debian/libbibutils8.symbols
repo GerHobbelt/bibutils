@@ -1,10 +1,20 @@
-libbibutils.so.7 libbibutils7 #MINVER#
+libbibutils.so.8 libbibutils8 #MINVER#
 * Build-Depends-Package: libbibutils-dev
  _fields_add@Base 6.10
  _fields_add_suffix@Base 6.10
- addsn@Base 6.10
+ add_name@Base 7.1
+ add_name_multielement@Base 7.1
+ add_name_singleelement@Base 7.1
+ add_notes@Base 7.1
+ add_pages@Base 7.1
+ add_sn@Base 7.1
+ add_title@Base 7.1
  adsout_initparams@Base 6.10
  allcharconvert@Base 4.12
+ append_easy@Base 7.1
+ append_easyall@Base 7.1
+ append_easyallpre@Base 7.1
+ append_easycombo@Base 7.1
  arxiv_to_url@Base 4.12
  bibl_addref@Base 4.12
  bibl_addtoasis@Base 6.10
@@ -28,14 +38,14 @@ libbibutils.so.7 libbibutils7 #MINVER#
  bibtex_nall@Base 4.12
  bibtexin_initparams@Base 6.10
  bibtexout_initparams@Base 6.10
- bu_findgenre@Base 6.10
- bu_genre@Base 6.10
  build_latex_graph@Base 6.10
+ calculate_hash_char@Base 7.1
  charset_find@Base 5.0
  charset_get_xmlname@Base 5.0
  charset_list_all@Base 5.0
  charset_lookupchar@Base 5.0
  charset_lookupuni@Base 5.0
+ convert2_findallfields@Base 7.1
  copac_all@Base 4.12
  copac_nall@Base 4.12
  copacin_initparams@Base 6.10
@@ -96,7 +106,6 @@ libbibutils.so.7 libbibutils7 #MINVER#
  generic_writeheader@Base 6.10
  get_reftype@Base 6.10
  html_entities@Base 4.12
- identifier_types@Base 4.12
  intlist_add@Base 5.0
  intlist_add_unique@Base 5.0
  intlist_append@Base 5.0
@@ -147,19 +156,16 @@ libbibutils.so.7 libbibutils7 #MINVER#
  latex2char@Base 4.12
  latex_parse@Base 6.10
  latex_tokenize@Base 6.10
- marc_convert_role@Base 6.10
- marc_find_genre@Base 6.10
- marc_find_resource@Base 6.10
+ marc_convert_country@Base 7.1
+ marc_convert_relators@Base 7.1
  medin_initparams@Base 6.10
- mods_find_attrib@Base 4.12
- mods_find_internal@Base 4.12
+ mods_get_id_from_internal@Base 7.1
+ mods_get_id_from_mods@Base 7.1
  modsin_initparams@Base 6.10
  modsout_initparams@Base 6.10
+ month_to_number@Base 7.1
  mrnumber_to_url@Base 6.0
  nallcharconvert@Base 4.12
- name_add@Base 6.10
- name_addmultielement@Base 6.10
- name_addsingleelement@Base 6.10
  name_build_withcomma@Base 6.10
  name_findetal@Base 6.10
  name_parse@Base 5.0
@@ -167,12 +173,10 @@ libbibutils.so.7 libbibutils7 #MINVER#
  nbib_nall@Base 6.0
  nbibin_initparams@Base 6.10
  nbibout_initparams@Base 6.10
- nbu_genre@Base 6.10
  ngb18030_enums@Base 4.12
  ngenres@Base 4.12
- nidentifier_types@Base 4.12
- notes_add@Base 6.0
- pages_add@Base 6.0
+ number_to_abbr_month@Base 7.1
+ number_to_full_month@Base 7.1
  pmc_to_url@Base 6.0
  pmid_to_url@Base 4.12
  process_findoldtag@Base 6.10
@@ -306,7 +310,6 @@ libbibutils.so.7 libbibutils7 #MINVER#
  strs_init@Base 6.0
  strsearch@Base 4.12
  title_combine@Base 6.0
- title_process@Base 6.10
  translate_oldtag@Base 6.10
  type_from_mods_hints@Base 6.10
  uni2latex@Base 4.12
@@ -347,6 +350,7 @@ libbibutils.so.7 libbibutils7 #MINVER#
  wordin_initparams@Base 6.10
  wordout_initparams@Base 6.10
  xml_attribute@Base 6.10
+ xml_attribute_cstr@Base 7.1
  xml_draw@Base 4.12
  xml_find_end@Base 6.10
  xml_find_start@Base 6.10

@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Debian Science Maintainers <debian-science-maintainers@lists.alioth.debian.org>
 Uploaders: Pierre Gruet <pgt@debian.org>
 Build-Depends: debhelper-compat (= 10), dh-exec (>=0.3), xsltproc, docbook-xsl, docbook-xml
-Standards-Version: 4.5.0
+Standards-Version: 4.6.0
 Homepage: https://sourceforge.net/projects/bibutils/
 Vcs-Git: https://salsa.debian.org/science-team/bibutils.git
 Vcs-Browser: https://salsa.debian.org/science-team/bibutils
@@ -12,7 +12,7 @@ Rules-Requires-Root: no
 
 Package: bibutils
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, libbibutils7
+Depends: ${shlibs:Depends}, ${misc:Depends}, libbibutils8
 Description: interconvert various bibliographic data formats
  Convert between the following bibliographic data formats: BibTeX,
  COPAC, EndNote refer, EndNote XML, Pubmed XML, ISI web of science, US
@@ -27,7 +27,7 @@ Description: interconvert various bibliographic data formats
 Package: libbibutils-dev
 Section: libdevel
 Architecture: any
-Depends: libbibutils7 (= ${binary:Version}), ${misc:Depends}
+Depends: libbibutils8 (= ${binary:Version}), ${misc:Depends}
 Description: bibliography file converter, development kit
  Convert between the following bibliographic data formats: BibTeX,
  COPAC, EndNote refer, EndNote XML, Pubmed XML, ISI web of science, US
@@ -35,7 +35,7 @@ Description: bibliography file converter, development kit
  .
  This package contains the static library and headers for use by developers.
 
-Package: libbibutils7
+Package: libbibutils8
 Section: libs
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
