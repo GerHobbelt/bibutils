@@ -1,8 +1,8 @@
 /*
  * adsout.c
  *
- * Copyright (c) Richard Mathar 2007-2020
- * Copyright (c) Chris Putnam 2007-2020
+ * Copyright (c) Richard Mathar 2007-2021
+ * Copyright (c) Chris Putnam 2007-2021
  *
  * Program and source code released under the GPL version 2
  *
@@ -14,8 +14,8 @@
 #include <ctype.h>
 #include "utf8.h"
 #include "str.h"
-#include "strsearch.h"
 #include "fields.h"
+#include "append_easy.h"
 #include "generic.h"
 #include "name.h"
 #include "title.h"
@@ -520,77 +520,6 @@ append_Rtag( fields *in, char *adstag, int type, fields *out, int *status )
 }
 
 static void
-append_easyall( fields *in, char *tag, char *adstag, int level, fields *out, char *prefix, int *status )
-{
-	vplist_index i;
-	int fstatus;
-	str output;
-	char *val;
-	vplist a;
-
-	vplist_init( &a );
-	if ( prefix ) str_init( &output );
-
-	fields_findv_each( in, level, FIELDS_CHRP, &a, tag );
-
-	for ( i=0; i<a.n; ++i ) {
-		val = ( char * ) vplist_get( &a, i );
-		if ( prefix ) {
-			str_strcpyc( &output, prefix );
-			str_strcatc( &output, val );
-			val = str_cstr( &output );
-		}
-		fstatus = fields_add( out, adstag, val, LEVEL_MAIN );
-		if ( fstatus!=FIELDS_OK ) {
-			*status = BIBL_ERR_MEMERR;
-			goto out;
-		}
-	}
-out:
-	if ( prefix ) str_free( &output );
-	vplist_free( &a );
-}
-
-static void
-append_easy( fields *in, char *tag, char *adstag, int level, fields *out, int *status )
-{
-	char *value;
-	int fstatus;
-
-	value = fields_findv( in, level, FIELDS_CHRP, tag );
-	if ( value && value[0]!='\0' ) {
-		fstatus = fields_add( out, adstag, value, LEVEL_MAIN );
-		if ( fstatus!=FIELDS_OK ) *status = BIBL_ERR_MEMERR;
-	}
-}
-
-static void
-append_keys( fields *in, char *tag, char *adstag, int level, fields *out, int *status )
-{
-	vplist_index i;
-	str allkeys;
-	int fstatus;
-	vplist a;
-
-	str_init( &allkeys );
-	vplist_init( &a );
-
-	fields_findv_each( in, level, FIELDS_CHRP, &a, tag );
-
-	if ( a.n ) {
-		for ( i=0; i<a.n; ++i ) {
-			if ( i>0 ) str_strcatc( &allkeys, ", " );
-			str_strcatc( &allkeys, (char *) vplist_get( &a, i ) );
-		}
-		fstatus = fields_add( out, adstag, str_cstr( &allkeys ), LEVEL_MAIN );
-		if ( fstatus!=FIELDS_OK ) *status = BIBL_ERR_MEMERR;
-	}
-
-	str_free( &allkeys );
-	vplist_free( &a );
-}
-
-static void
 append_urls( fields *in, fields *out, int *status )
 {
 	int lstatus;
@@ -634,23 +563,23 @@ adsout_assemble( fields *in, fields *out, param *pm, unsigned long refnum )
 	fields_clear_used( in );
 	type = get_type( in );
 
-	append_Rtag   ( in, "%R", type, out, &status );
-	append_people ( in, "AUTHOR", "AUTHOR:ASIS", "AUTHOR:CORP", "%A", LEVEL_MAIN, out, &status );
-	append_people ( in, "EDITOR", "EDITOR:ASIS", "EDITOR:CORP", "%E", LEVEL_ANY,  out, &status );
-	append_easy   ( in, "TITLE",	"%T", LEVEL_ANY, out, &status );
-	append_titles ( in, type, out, &status );
-	append_date   ( in,               "%D", LEVEL_ANY, out, &status );
-	append_easy   ( in, "VOLUME",     "%V", LEVEL_ANY, out, &status );
-	append_easy   ( in, "ISSUE",      "%N", LEVEL_ANY, out, &status );
-	append_easy   ( in, "NUMBER",     "%N", LEVEL_ANY, out, &status );
-	append_easy   ( in, "LANGUAGE",   "%M", LEVEL_ANY, out, &status );
-	append_easyall( in, "NOTES",      "%X", LEVEL_ANY, out, NULL, &status );
-	append_easy   ( in, "ABSTRACT",   "%B", LEVEL_ANY, out, &status );
-	append_keys   ( in, "KEYWORD",    "%K", LEVEL_ANY, out, &status );
-	append_urls   ( in, out, &status );
-	append_pages  ( in, out, &status );
-	append_easyall( in, "DOI",        "%Y", LEVEL_ANY, out, "DOI:", &status );
-	append_trailer( out, &status );
+	append_Rtag      ( in, "%R", type, out, &status );
+	append_people    ( in, "AUTHOR", "AUTHOR:ASIS", "AUTHOR:CORP", "%A", LEVEL_MAIN, out, &status );
+	append_people    ( in, "EDITOR", "EDITOR:ASIS", "EDITOR:CORP", "%E", LEVEL_ANY,  out, &status );
+	append_easy      ( in, "TITLE",	LEVEL_ANY, out, "%T", &status );
+	append_titles    ( in, type, out, &status );
+	append_date      ( in,               "%D", LEVEL_ANY, out, &status );
+	append_easy      ( in, "VOLUME",     LEVEL_ANY, out, "%V", &status );
+	append_easy      ( in, "ISSUE",      LEVEL_ANY, out, "%N", &status );
+	append_easy      ( in, "NUMBER",     LEVEL_ANY, out, "%N", &status );
+	append_easy      ( in, "LANGUAGE",   LEVEL_ANY, out, "%M", &status );
+	append_easyall   ( in, "NOTES",      LEVEL_ANY, out, "%X", &status );
+	append_easy      ( in, "ABSTRACT",   LEVEL_ANY, out, "%B", &status );
+	append_easycombo ( in, "KEYWORD",    LEVEL_ANY, out, "%K", ", ", &status );
+	append_urls      ( in, out, &status );
+	append_pages     ( in, out, &status );
+	append_easyallpre( in, "DOI",        LEVEL_ANY, out, "%Y", "DOI:", &status );
+	append_trailer   ( out, &status );
 
 	return status;
 }

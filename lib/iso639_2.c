@@ -587,7 +587,7 @@ static iso639_2_t iso639_2[] = {
 static int niso639_2= sizeof( iso639_2 ) / sizeof( iso639_2[0] );
 
 char *
-iso639_2_from_code( char *code )
+iso639_2_from_code( const char *code )
 {
 	int i;
 	for ( i=0; i<niso639_2; ++i ) {
@@ -601,7 +601,7 @@ iso639_2_from_code( char *code )
 }
 
 char *
-iso639_2_from_language( char *lang )
+iso639_2_from_language( const char *lang )
 {
 	int i, n;
 	for ( i=0; i<niso639_2; ++i ) {

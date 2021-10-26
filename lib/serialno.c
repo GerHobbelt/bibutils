@@ -1,16 +1,17 @@
 /*
  * serialno.c
  *
- * Copyright (c) Chris Putnam 2005-2020
+ * Copyright (c) Chris Putnam 2005-2021
  *
  * Source code released under the GPL version 2
  *
  */
 #include <string.h>
+#include "bibdefs.h"
 #include "serialno.h"
 
 int
-addsn( fields *info, char *buf, int level )
+add_sn( fields *info, char *buf, int level )
 {
 	int ndigits, issn=0, isbn=0, isbn10=0, isbn13=0, status;
 	char *p = buf, *tag;
@@ -50,6 +51,6 @@ addsn( fields *info, char *buf, int level )
 
 	status = fields_add( info, tag, buf, level );
 
-	if ( status==FIELDS_OK ) return 1;
-	else return 0;
+	if ( status==FIELDS_OK ) return BIBL_OK;
+	else return BIBL_ERR_MEMERR;
 }

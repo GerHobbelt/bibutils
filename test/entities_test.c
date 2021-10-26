@@ -1,7 +1,7 @@
 /*
  * entities_test.c
  *
- * Copyright (c) 2012-2018
+ * Copyright (c) 2012-2021
  *
  * Source code released under the GPL version 2
  */

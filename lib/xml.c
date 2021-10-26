@@ -1,7 +1,7 @@
 /*
  * xml.c
  *
- * Copyright (c) Chris Putnam 2004-2020
+ * Copyright (c) Chris Putnam 2004-2021
  *
  * Source code released under the GPL version 2
  *
@@ -385,6 +385,16 @@ xml_attribute( xml *node, const char *attribute )
 	n = slist_findc( &(node->attributes), attribute );
 	if ( slist_wasnotfound( &(node->attributes), n ) ) return NULL;
 	else return slist_str( &(node->attribute_values), n );
+}
+
+char *
+xml_attribute_cstr( xml *node, const char *attribute )
+{
+	slist_index n;
+
+	n = slist_findc( &(node->attributes), attribute );
+	if ( slist_wasnotfound( &(node->attributes), n ) ) return NULL;
+	else return slist_cstr( &(node->attribute_values), n );
 }
 
 int

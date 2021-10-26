@@ -1,7 +1,7 @@
 /*
  * ebiin.c
  *
- * Copyright (c) Chris Putnam 2004-2020
+ * Copyright (c) Chris Putnam 2004-2021
  *
  * Program and source code released under the GPL version 2
  *
@@ -71,12 +71,11 @@ ebiin_readf( FILE *fp, char *buf, int bufsize, int *bufpos, str *line, str *refe
 	str tmp;
 	str_init( &tmp );
 	while ( !haveref && str_fget( fp, buf, bufsize, bufpos, line ) ) {
-		if ( line->data ) {
+		if ( str_has_value( line ) ) {
 			m = xml_getencoding( line );
 			if ( m!=CHARSET_UNKNOWN ) file_charset = m;
-		}
-		if ( str_has_value( line ) )
 			startptr = xml_find_start( str_cstr( line ), "Publication" );
+		}
 		if ( startptr || inref ) {
 			if ( inref ) str_strcat( &tmp, line );
 			else {
@@ -425,7 +424,7 @@ ebiin_author( xml *node, str *name )
 		}
 	}
 
-	else if ( xml_tag_matches( node, "Initials" ) && !strchr( name->data, '|' ) ) {
+	else if ( xml_tag_matches( node, "Initials" ) && !strchr( str_cstr( name ), '|' ) ) {
 		p = xml_value_cstr( node );
 		while ( p && *p ) {
 			if ( name->len ) str_addchar( name, '|' );
@@ -677,12 +676,12 @@ ebiin_fixtype( xml *node, fields *info )
 	char *resource = NULL, *issuance = NULL, *genre1 = NULL, *genre2 = NULL;
 	int reslvl, isslvl, gen1lvl, gen2lvl;
 	int status;
-	str *type;
+	char *type;
 
-	type = xml_attribute( node, "Type" );
-	if ( !type || type->len==0 ) return BIBL_OK;
+	type = xml_attribute_cstr( node, "Type" );
+	if ( !type ) return BIBL_OK;
 
-	if ( !strcmp( type->data, "JournalArticle" ) ) {
+	if ( !strcmp( type, "JournalArticle" ) ) {
 		resource = "text";
 		issuance = "continuing";
 		genre1   = "periodical";
@@ -691,14 +690,14 @@ ebiin_fixtype( xml *node, fields *info )
 		isslvl   = LEVEL_HOST;
 		gen1lvl  = LEVEL_HOST;
 		gen2lvl  = LEVEL_HOST;
-	} else if ( !strcmp( type->data, "Book" ) ) {
+	} else if ( !strcmp( type, "Book" ) ) {
 		resource = "text";
 		issuance = "monographic";
 		genre1   = "book";
 		reslvl   = LEVEL_MAIN;
 		isslvl   = LEVEL_MAIN;
 		gen1lvl  = LEVEL_MAIN;
-	} else if ( !strcmp( type->data, "BookArticle" ) ) {
+	} else if ( !strcmp( type, "BookArticle" ) ) {
 		resource = "text";
 		issuance = "monographic";
 		genre1   = "book";

@@ -1,7 +1,7 @@
 /*
  * str_conv.h
  *
- * Copyright (c) Chris Putnam 1999-2019
+ * Copyright (c) Chris Putnam 1999-2021
  *
  * Source code released under the GPL version 2
  *
@@ -15,7 +15,7 @@
 
 #include "str.h"
 
-extern int str_convert( str *s,
+int str_convert( str *s,
 		int charsetin, int latexin, int utf8in, int xmlin, 
 		int charsetout, int latexout, int utf8out, int xmlout );
 
