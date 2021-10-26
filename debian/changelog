@@ -1,3 +1,18 @@
+bibutils (7.1-1) experimental; urgency=medium
+
+  * New upstream version 7.1
+  * Adding solved CVE issues in former changelog entry
+  * Removing David Bremner from Uploaders
+  * Refreshing patches
+  * Refreshing d/copyright
+  * Bumping the soname to libbibutils.so.8
+  * Using https URI in d/watch
+  * Removing now useless d/dirs file
+  * Depending on debhelper-compat 13
+  * Aligning dependencies on several lines in d/control
+
+ -- Pierre Gruet <pgt@debian.org>  Tue, 26 Oct 2021 14:01:45 +0200
+
 bibutils (6.10-2) unstable; urgency=medium
 
   [ Andrius Merkys ]
