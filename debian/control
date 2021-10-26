@@ -3,7 +3,7 @@ Section: text
 Priority: optional
 Maintainer: Debian Science Maintainers <debian-science-maintainers@lists.alioth.debian.org>
 Uploaders: Pierre Gruet <pgt@debian.org>
-Build-Depends: debhelper-compat (= 10), dh-exec (>=0.3), xsltproc, docbook-xsl, docbook-xml
+Build-Depends: debhelper-compat (= 13), dh-exec (>=0.3), xsltproc, docbook-xsl, docbook-xml
 Standards-Version: 4.6.0
 Homepage: https://sourceforge.net/projects/bibutils/
 Vcs-Git: https://salsa.debian.org/science-team/bibutils.git
