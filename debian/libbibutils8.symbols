@@ -1,7 +1,7 @@
 libbibutils.so.8 libbibutils8 #MINVER#
 * Build-Depends-Package: libbibutils-dev
- _fields_add@Base 6.10
- _fields_add_suffix@Base 6.10
+ _fields_add@Base 7.1
+ _fields_add_suffix@Base 7.1
  add_name@Base 7.1
  add_name_multielement@Base 7.1
  add_name_singleelement@Base 7.1

@@ -1,3 +1,10 @@
+bibutils (7.1-2) UNRELEASED; urgency=medium
+
+  * Modifying two omitted minimal versions in symbols
+  WARNING: do not upload, currently waiting in NEW
+
+ -- Pierre Gruet <pgt@debian.org>  Thu, 28 Oct 2021 09:32:21 +0200
+
 bibutils (7.1-1) experimental; urgency=medium
 
   * New upstream version 7.1
