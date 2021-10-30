@@ -35,6 +35,7 @@ Section: libdevel
 Architecture: any
 Depends: libbibutils8 (= ${binary:Version}),
          ${misc:Depends}
+Multi-Arch: same
 Description: bibliography file converter, development kit
  Convert between the following bibliographic data formats: BibTeX,
  COPAC, EndNote refer, EndNote XML, Pubmed XML, ISI web of science, US
@@ -47,6 +48,7 @@ Section: libs
 Architecture: any
 Depends: ${shlibs:Depends},
          ${misc:Depends}
+Multi-Arch: same
 Description: bibliography file converter, shared library
  Convert between the following bibliographic data formats: BibTeX,
  COPAC, EndNote refer, EndNote XML, Pubmed XML, ISI web of science, US
