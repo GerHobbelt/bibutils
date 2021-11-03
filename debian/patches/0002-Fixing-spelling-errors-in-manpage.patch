@@ -1,6 +1,7 @@
 From: Pierre Gruet <pgt@debian.org>
 Date: Sat, 28 Mar 2020 13:34:04 +0100
 Subject: Fixing spelling errors in manpage
+Forwarded: https://sourceforge.net/p/bibutils/discussion/general/thread/8e2910e776/
 
 ---
  bibutils.dbk | 12 ++++++------

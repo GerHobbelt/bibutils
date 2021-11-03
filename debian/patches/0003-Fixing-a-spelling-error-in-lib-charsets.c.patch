@@ -1,6 +1,7 @@
 From: Pierre Gruet <pgt@debian.org>
 Date: Sun, 29 Mar 2020 10:47:03 +0200
 Subject: Fixing a spelling error in lib/charsets.c
+Forwarded: https://sourceforge.net/p/bibutils/discussion/general/thread/8e2910e776/
 
 ---
  lib/charsets.c | 2 +-
