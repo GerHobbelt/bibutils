@@ -1,4 +1,4 @@
-bibutils (7.2-1) UNRELEASED; urgency=medium
+bibutils (7.2-1) unstable; urgency=medium
 
   * New upstream version 7.2
   * Deleting patches, which have all been upstreamed
@@ -6,7 +6,7 @@ bibutils (7.2-1) UNRELEASED; urgency=medium
   * Update renamed lintian tag names in lintian overrides.
   * Updating the symbols file
 
- -- Pierre Gruet <pgt@debian.org>  Mon, 29 Nov 2021 21:32:14 +0100
+ -- Pierre Gruet <pgt@debian.org>  Mon, 29 Nov 2021 21:46:59 +0100
 
 bibutils (7.1-3) unstable; urgency=medium
 
