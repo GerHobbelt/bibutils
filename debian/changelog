@@ -4,6 +4,7 @@ bibutils (7.2-1) UNRELEASED; urgency=medium
   * Deleting patches, which have all been upstreamed
   * Fixing unnecessary versioned dependency on dh-exec
   * Update renamed lintian tag names in lintian overrides.
+  * Updating the symbols file
 
  -- Pierre Gruet <pgt@debian.org>  Mon, 29 Nov 2021 21:32:14 +0100
 
