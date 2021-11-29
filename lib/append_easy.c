@@ -17,6 +17,7 @@
 #include <stdlib.h>
 #include "append_easy.h"
 #include "bibdefs.h"
+#include "utf8.h"
 #include "vplist.h"
 
 
@@ -147,4 +148,33 @@ append_easycombo( fields *in, const char *intag, int inlevel, fields *out, const
 out:
 	str_free( &value );
 	vplist_free( &a );
+}
+
+/* output page value while converting em-dash and en-dash to a simple dash */
+int
+append_easypage( fields *out, const char *outtag, const char *value, int level )
+{
+	int fstatus, status = BIBL_OK;
+	const char *p;
+	str use;
+
+	str_init( &use );
+
+	p = value;
+	while ( *p ) {
+		/* -30 is the first character of a UTF8 em-dash and en-dash */
+		if ( *p==-30 && ( utf8_is_emdash( p ) || utf8_is_endash( p ) ) ) {
+			str_addchar( &use, '-' );
+			p+=3;
+		} else {
+			str_addchar( &use, *p );
+			p+=1;
+		}
+	}
+
+	fstatus = fields_add( out, outtag, str_cstr( &use ), level );
+	if ( fstatus!=FIELDS_OK ) status = BIBL_ERR_MEMERR;
+
+	str_free( &use );
+	return status;
 }

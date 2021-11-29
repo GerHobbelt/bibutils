@@ -17,6 +17,7 @@
 #include "fields.h"
 #include "append_easy.h"
 #include "generic.h"
+#include "month.h"
 #include "name.h"
 #include "title.h"
 #include "type.h"
@@ -258,77 +259,53 @@ append_people( fields *in, char *tag1, char *tag2, char *tag3, char *adstag, int
 static void
 append_pages( fields *in, fields *out, int *status )
 {
-	str *sn, *en, *ar;
-	int fstatus;
+	char *sn, *en, *ar;
 
-	sn = fields_findv( in, LEVEL_ANY, FIELDS_STRP, "PAGES:START" );
-	en = fields_findv( in, LEVEL_ANY, FIELDS_STRP, "PAGES:STOP" );
-	ar = fields_findv( in, LEVEL_ANY, FIELDS_STRP, "ARTICLENUMBER" );
+	sn = fields_findv( in, LEVEL_ANY, FIELDS_CHRP, "PAGES:START" );
+	en = fields_findv( in, LEVEL_ANY, FIELDS_CHRP, "PAGES:STOP" );
+	ar = fields_findv( in, LEVEL_ANY, FIELDS_CHRP, "ARTICLENUMBER" );
 
-	if ( str_has_value( sn ) ) {
-		fstatus = fields_add( out, "%P", str_cstr( sn ), LEVEL_MAIN );
-		if ( fstatus!=FIELDS_OK ) {
-			*status = BIBL_ERR_MEMERR;
-			return;
-		}
+	if ( sn ) {
+		*status = append_easypage( out, "%P", sn, LEVEL_MAIN );
 	}
 
-	else if ( str_has_value( ar ) ) {
-		fstatus = fields_add( out, "%P", str_cstr( ar ), LEVEL_MAIN );
-		if ( fstatus!=FIELDS_OK ) {
-			*status = BIBL_ERR_MEMERR;
-			return;
-		}
+	else if ( ar ) {
+		*status = append_easypage( out, "%P", ar, LEVEL_MAIN );
 	}
 
-	if ( str_has_value( en ) ) {
-		fstatus = fields_add( out, "%L", str_cstr( en ), LEVEL_MAIN );
-		if ( fstatus!=FIELDS_OK ) {
-			*status = BIBL_ERR_MEMERR;
-			return;
-		}
+	if ( en ) {
+		*status = append_easypage( out, "%L", en, LEVEL_MAIN );
 	}
-}
-
-static int
-mont2mont( const char *m )
-{
-	static char *monNames[]= { "jan", "feb", "mar", "apr", "may", 
-			"jun", "jul", "aug", "sep", "oct", "nov", "dec" };
-	int i;
-	if ( isdigit( (unsigned char)m[0] ) ) return atoi( m );
-        else {
-		for ( i=0; i<12; i++ ) {
-			if ( !strncasecmp( m, monNames[i], 3 ) ) return i+1;
-		}
-	}
-        return 0;
-}
-
-static int
-get_month( fields *in, int level )
-{
-	str *month;
-
-	month = fields_findv_firstof( in, level, FIELDS_STRP, "DATE:MONTH", "PARTDATE:MONTH", NULL );
-	if ( str_has_value( month ) ) return mont2mont( str_cstr( month ) );
-	else return 0;
 }
 
 static void
 append_date( fields *in, char *adstag, int level, fields *out, int *status )
 {
-	int month, fstatus;
-	char outstr[1000];
-	str *year;
+	str *year, *month, date;
+	int fstatus;
 
-	year = fields_findv_firstof( in, level, FIELDS_STRP, "DATE:YEAR", "PARTDATE:YEAR", NULL );
+	str_init( &date );
+
+	year  = fields_findv_firstof( in, level, FIELDS_STRP, "DATE:YEAR",  "PARTDATE:YEAR",  NULL );
+	month = fields_findv_firstof( in, level, FIELDS_STRP, "DATE:MONTH", "PARTDATE:MONTH", NULL );
+
 	if ( str_has_value( year ) ) {
-		month = get_month( in, level );
-		sprintf( outstr, "%02d/%s", month, str_cstr( year ) );
-		fstatus = fields_add( out, adstag, outstr, LEVEL_MAIN );
+
+		if ( str_has_value( month ) && month_is_number( str_cstr( month ) )) {
+			str_strcpy( &date, month );
+			str_addchar( &date, '/' );
+		}
+		else {
+			str_strcpyc( &date, "00/" );
+		}
+		str_strcat( &date, year );
+
+		fstatus = fields_add( out, adstag, str_cstr( &date ), LEVEL_MAIN );
 		if ( fstatus!=FIELDS_OK ) *status = BIBL_ERR_MEMERR;
+
 	}
+
+	str_free( &date );
 }
 
 #include "adsout_journals.c"
