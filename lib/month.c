@@ -47,7 +47,7 @@ static int nabbr_months = sizeof( abbr_months ) / sizeof( abbr_months[0] );
 
 /* month_to_number()
  * convert month name to number in format MM, e.g. "January" -> "01"
- * if converted, return 1
+ * if output is the format "01"->"12", return 1
  * otherwise return 0
  */
 
@@ -71,6 +71,11 @@ month_to_number( const char *in, const char **out )
 	}
 
 	*out = in;
+
+	/* check to see if it's already in the format "01"->"12" */
+	for ( i=0; i<nfull_months; ++i ) {
+		if ( !strcmp( in, full_months[i].number ) ) return 1;
+	}
 
 	return 0;
 }
@@ -106,5 +111,14 @@ number_to_abbr_month( const char *in, const char **out )
 
 	*out = in;
 
+	return 0;
+}
+
+int
+month_is_number( const char *in )
+{
+	int i;
+	for ( i=0; i<nfull_months; ++i )
+		if ( !strcmp( in, full_months[i].number ) ) return 1;
 	return 0;
 }

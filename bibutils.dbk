@@ -18,7 +18,7 @@
   <!ENTITY debian      "<productname>Debian</productname>">
   <!ENTITY gnu         "<acronym>GNU</acronym>">
   <!ENTITY gpl         "&gnu; <acronym>GPL</acronym>">
-  <!ENTITY version	"7.1">
+  <!ENTITY version	"7.2">
 
   ]>
 <refentry>
@@ -690,7 +690,7 @@ enhancers",
     </refsect1>
     <refsect1>
       <title>License</title>
-      <para>All versions of bibutils are relased under the GNU Public
+      <para>All versions of bibutils are released under the GNU General Public
 	License (GPL). In a nutshell, feel free to download, run, and
 	modify these programs as required. If you re-release these, you
 	need to release the modified version of the source. (And I'd

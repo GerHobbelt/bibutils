@@ -9,6 +9,7 @@
 #define MONTH_H
 
 int month_to_number( const char *in, const char **out );
+int month_is_number( const char *in );
 int number_to_full_month( const char *in, const char **out );
 int number_to_abbr_month( const char *in, const char **out );
 
