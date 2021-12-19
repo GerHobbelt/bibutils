@@ -219,6 +219,18 @@ out:
 	str_free( &person );
 }
 
+/* convert any em-dash or en-dash to a simple dash */
+static void
+append_page( fields *in, const char *intag, int levelin, fields* out, const char *outtag, int *status )
+{
+	char *value;
+
+	value = fields_findv( in, levelin, FIELDS_CHRP, intag );
+	if ( value ) {
+		*status = append_easypage( out, outtag, value, LEVEL_MAIN );
+	}
+}
+
 static void
 append_date( fields *in, fields *out, int *status )
 {
@@ -264,10 +276,10 @@ isiout_assemble( fields *in, fields *out, param *pm, unsigned long refnum )
 
 	append_date     ( in, out, &status );
 
-	append_easy     ( in, "PAGES:START",       LEVEL_ANY, out, "BP", &status );
-	append_easy     ( in, "PAGES:STOP",        LEVEL_ANY, out, "EP", &status );
-	append_easy     ( in, "ARTICLENUMBER",     LEVEL_ANY, out, "AR", &status );
-	append_easy     ( in, "PAGES:TOTAL",       LEVEL_ANY, out, "PG", &status );
+	append_page     ( in, "PAGES:START",       LEVEL_ANY, out, "BP", &status );
+	append_page     ( in, "PAGES:STOP",        LEVEL_ANY, out, "EP", &status );
+	append_page     ( in, "ARTICLENUMBER",     LEVEL_ANY, out, "AR", &status );
+	append_page     ( in, "PAGES:TOTAL",       LEVEL_ANY, out, "PG", &status );
 
 	append_easy     ( in, "VOLUME",            LEVEL_ANY, out, "VL", &status );
 	append_easy     ( in, "ISSUE",             LEVEL_ANY, out, "IS", &status );

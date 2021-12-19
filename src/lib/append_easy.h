@@ -22,5 +22,7 @@ void append_easy      ( fields *in, const char *intag, int inlevel, fields *out,
 void append_easyall   ( fields *in, const char *intag, int inlevel, fields *out, const char *outtag, int *status );
 void append_easyallpre( fields *in, const char *intag, int inlevel, fields *out, const char *outtag, const char *prefix, int *status );
 void append_easycombo ( fields *in, const char *intag, int inlevel, fields *out, const char *outtag, const char *sep,    int *status );
+int  append_easypage  ( fields *out, const char *outtag, const char *value, int level );
+
 
 #endif
