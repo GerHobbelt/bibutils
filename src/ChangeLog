@@ -1,6 +1,13 @@
 
 BIBUTILS
 
+7.2
+11/11/21
++ Merge month parsing in adsout.
++ Fix title parsing in endx2xml. Reported by Fahad.
++ Fix page parsing. Repored by Nina Birych.
++ Fix misspellings.
+
 7.1
 9/26/21
 + Fix bug in build for 7.0. Reported by Vascom.

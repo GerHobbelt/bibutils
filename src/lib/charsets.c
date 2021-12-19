@@ -34245,7 +34245,7 @@ static const allcharconvert_t allcharconvert[] = {
 	CHARSETARRAY( cp857 )
 },
 { "cp860",
-	"MS-DOS Code Page 860 Portugese",
+	"MS-DOS Code Page 860 Portuguese",
 	{ "CP860", "IBM860", "860", "", "", "", "", },
 	CHARSETARRAY( cp860 )
 },

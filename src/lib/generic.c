@@ -40,7 +40,8 @@ generic_notes( fields *bibin, int n, const str *intag, const str *invalue, int l
 int
 generic_pages( fields *bibin, int n, const str *intag, const str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
-        return add_pages( bibout, invalue, level );
+	if ( is_doi( str_cstr( invalue ) )!=-1 ) return generic_url( bibin, n, intag, invalue, level, pm, outtag, bibout );
+	else return add_pages( bibout, invalue, level );
 }
 
 int

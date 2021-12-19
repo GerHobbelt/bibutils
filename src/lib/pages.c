@@ -48,8 +48,10 @@ extract_range( const str *input, str *begin, str *end )
 
 	p = skip_ws( p );
 
-	while ( *p && !strchr( terminators, *p ) )
+	while ( *p )
 		str_addchar( end, *p++ );
+
+	str_trimendingws( end );
 }
 
 /* Expand ranges like 100-15 to 100 115 */

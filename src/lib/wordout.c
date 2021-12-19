@@ -174,14 +174,28 @@ output_itemv( FILE *outptr, const char *tag, const char *item, int level )
  *
  */
 static void
+output_nodash( FILE *outptr, const char *p )
+{
+	while ( *p ) {
+		/* -30 is the first character of a UTF8 em-dash and en-dash */
+		if ( *p==-30 && ( utf8_is_emdash( p ) || utf8_is_endash( p ) ) ) {
+			fprintf( outptr, "-" );
+			p+=3;
+		} else {
+			fprintf( outptr, "%c", *p );
+			p+=1;
+		}
+	}
+}
+static void
 output_range( FILE *outptr, const char *tag, const char *start, const char *end, int level )
 {
-	if ( start && end ) {
-		output_level( outptr, level );
-		fprintf( outptr, "<%s>%s-%s</%s>\n", tag, start, end, tag );
-	}
-	else if ( start ) output_itemv( outptr, tag, start, level );
-	else if ( end )   output_itemv( outptr, tag, end,   level );
+	if ( !start && !end ) return;
+	fprintf( outptr, "<%s>", tag );
+	if ( start ) output_nodash( outptr, start );
+	if ( start && end ) fprintf( outptr, "-" );
+	if ( end ) output_nodash( outptr, end );
+	fprintf( outptr, "</%s>\n", tag );
 }
 
 static void
