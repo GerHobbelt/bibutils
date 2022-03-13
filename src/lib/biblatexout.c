@@ -468,7 +468,7 @@ find_date( fields *in, const char *date_element )
 static int
 str_is_wholenumber( str *s )
 {
-	char *p;
+	const char *p;
 
 	p = str_cstr( s );
 	if ( !p ) return 1;

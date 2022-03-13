@@ -283,7 +283,9 @@ append_pages( fields *in, fields *out, int *status )
 static void
 append_date( fields *in, const char *adstag, int level, fields *out, int *status )
 {
-	str *year, *month, date;
+	str date;
+	const str* year;
+	const str* month;
 	int fstatus;
 
 	str_init( &date );

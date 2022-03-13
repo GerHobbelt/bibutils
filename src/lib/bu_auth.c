@@ -16,7 +16,9 @@
  */
 static const unsigned int bu_genre_hash_size = 50;
 static const char *bu_genre[50] = {
+#ifdef HAVE_DESIGNATED_INITIALIZER_GNU_EXTENSION
 	[ 0 ... 49 ] = NULL,
+#endif
 	[  11 ] = "academic journal",
 	[   6 ] = "airtel",
 	[  37 ] = "Airtel",

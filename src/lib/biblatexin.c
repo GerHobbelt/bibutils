@@ -1013,7 +1013,7 @@ biblatexin_date_iso8601( fields *bibin, int m, str *intag, str *invalue, int lev
 	int fstatus, partdate = 0, status = BIBL_OK;
 	slist_index i, j, max;
 	slist range, tokens;
-	str *date;
+	const str *date;
 	char *usetag;
 
 	slist_init( &range );
