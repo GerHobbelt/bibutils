@@ -68,7 +68,7 @@ static const lookups article[] = {
 	{ " ",      "GENRE:BIBUTILS|academic journal", ALWAYS, LEVEL_HOST }
 };
 
-static lookups book[] = {
+static const lookups book[] = {
 	{ "PMID",   "PMID",               SIMPLE, LEVEL_MAIN },
 	{ "OWN",    "",                   SKIP,   LEVEL_MAIN },
 	{ "STAT",   "",                   SKIP,   LEVEL_MAIN },
@@ -116,10 +116,9 @@ static lookups book[] = {
 };
 
 #define ORIG(a) ( &(a[0]) )
-#define SIZE(a) ( sizeof( a ) / sizeof( lookups ) )
-#define REFTYPE(a,b) { a, ORIG(b), SIZE(b) }
+#define REFTYPE(a,b) { a, ORIG(b), countof(b) }
 
-variants nbib_all[] = {
+const variants nbib_all[] = {
 	REFTYPE( "Journal article", article ),
 	REFTYPE( "News",            article ),
 	REFTYPE( "Editorial",       article ),
@@ -127,5 +126,5 @@ variants nbib_all[] = {
 	REFTYPE( "Book",            book    ), /* this is not an "official" nbib type; books aren't in PubMed */
 };
 
-int nbib_nall = sizeof( nbib_all ) / sizeof( variants );
+int nbib_nall = countof( nbib_all );
 

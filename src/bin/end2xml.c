@@ -14,14 +14,19 @@
 #include "tomods.h"
 #include "bibprog.h"
 
-const char help1[] = "Converts an Endnote reference file (refer format) "
+#include "monolithic_examples.h"
+
+static const char help1[] = "Converts an Endnote reference file (refer format) "
 		"into MODS XML\n\n";
-const char help2[] = "endnote_file";
+static const char help2[] = "endnote_file";
 
-const char progname[] = "end2xml";
+static const char progname[] = "end2xml";
 
-int 
-main( int argc, char *argv[] )
+#if defined(BUILD_MONOLITHIC)
+#define main     bibutils_end2xml_main
+#endif
+
+int main(int argc, const char** argv)
 {
 	param p;
 	endin_initparams( &p, progname );

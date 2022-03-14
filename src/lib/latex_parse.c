@@ -372,7 +372,6 @@ latex_tokenize( slist *tokens, const str *s )
 	}
 
 	for ( i=0; i<tokens->n; ++i ) {
-#pragma warning(suppress:4090)		// const -> non-const
 		t = slist_str( tokens, i );
 		str_trimstartingws( t );
 		str_trimendingws( t );

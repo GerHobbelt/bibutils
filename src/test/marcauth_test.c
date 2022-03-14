@@ -10,14 +10,20 @@
 #include <stdlib.h>
 #include "marc_auth.h"
 
-char progname[] = "marcauth_test";
+#include "monolithic_examples.h"
+
+static const char progname[] = "marcauth_test";
+
+#if defined(BUILD_MONOLITHIC)
+#define main     bibutils_marcauth_test_main
+#endif
 
 typedef struct test_t {
 	char *s;
 	int expected;
 } test_t;
 
-int
+static int
 test_is_marcgenre( void )
 {
 	test_t tests[] = {
@@ -133,8 +139,7 @@ test_is_marcgenre( void )
 	return failed;
 }
 
-int
-main( int argc, char *argv[] )
+int main(int argc, const char** argv)
 {
 	int failed = 0;
 	failed += test_is_marcgenre();

@@ -248,7 +248,6 @@ copacin_person( fields *bibin, int n, const str *intag, const str *invalue, int 
 	}
 
 	if ( comma==0 && tokens.n ) {
-#pragma warning(suppress:4090)		// const -> non-const
 		s = slist_str( &tokens, 0 );
 		str_addchar( s, ',' );
 	}

@@ -24,8 +24,15 @@ int  str_fgetline    ( str *s, FILE *fp );
 #include "bibutils_tests.h"
 #endif
 
+#include "monolithic_examples.h"
+
 
 static const char progname[] = "str_test";
+
+#if defined(BUILD_MONOLITHIC)
+#define main     bibutils_str_test_main
+#endif
+
 static const char version[] = "0.3";
 
 static int

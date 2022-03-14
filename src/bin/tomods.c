@@ -158,4 +158,3 @@ tomods_processargs( int *argc, const char *argv[], param *p,
 		}
 	}
 }
-

@@ -14,7 +14,13 @@
 #include "args.h"
 #include "bibprog.h"
 
+#include "monolithic_examples.h"
+
 static const char progname[] = "xml2ris";
+
+#if defined(BUILD_MONOLITHIC)
+#define main     bibutils_xml2ris_main
+#endif
 
 static void
 help( const char *name )
@@ -77,8 +83,7 @@ process_args( int *argc, char *argv[], param *p )
 	}
 }
 
-int 
-main(int argc, char *argv[])
+int main(int argc, const char** argv)
 {
 	param p;
 	modsin_initparams( &p, progname );

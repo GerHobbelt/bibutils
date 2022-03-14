@@ -68,7 +68,7 @@ bibtexin_initparams( param *pm, const char *progname )
 
 	if ( !progname ) pm->progname = NULL;
 	else {
-		pm->progname = _strdup( progname );
+		pm->progname = strdup( progname );
 		if ( pm->progname==NULL ) return BIBL_ERR_MEMERR;
 	}
 
@@ -383,10 +383,9 @@ static int
 replace_strings( slist *tokens )
 {
 	int i, n;
-	str *s;
+	const str *s;
 
 	for ( i=0; i<tokens->n; ++i ) {
-#pragma warning(suppress:4090)		// const -> non-const
 		s = slist_str( tokens, i );
 
 		/* ...skip if token is protected by quotation marks or braces */
@@ -413,7 +412,6 @@ string_concatenate( slist *tokens, loc *currloc )
 
 	i = 0;
 	while ( i < tokens->n ) {
-#pragma warning(suppress:4090)		// const -> non-const
 		s = slist_str( tokens, i );
 
 		if ( str_strcmpc( s, "#" ) ) {
@@ -429,9 +427,7 @@ string_concatenate( slist *tokens, loc *currloc )
 			continue;
 		}
 
-#pragma warning(suppress:4090)		// const -> non-const
 		s = slist_str( tokens, i-1 );
-#pragma warning(suppress:4090)		// const -> non-const
 		t = slist_str( tokens, i+1 );
 
 		esc_s = token_is_escaped( s );
@@ -476,7 +472,6 @@ merge_tokens_into_data( str *data, slist *tokens, int stripquotes )
 	str *s;
 
 	for ( i=0; i<tokens->n; i++ ) {
-#pragma warning(suppress:4090)		// const -> non-const
 		s     = slist_str( tokens, i );
 		esc_s = token_is_escaped( s );
 
@@ -739,11 +734,10 @@ bibtex_person_tokenize( fields *bibin, int m, param *pm, slist *tokens )
 	int i, ok, status;
 	str *s;
 
-	status = latex_tokenize( tokens, (const str *)fields_value( bibin, m, FIELDS_STRP ) );
+	status = latex_tokenize( tokens, fields_value( bibin, m, FIELDS_STRP ) );
 	if ( status!=BIBL_OK ) return status;
 
 	for ( i=0; i<tokens->n; ++i ) {
-#pragma warning(suppress:4090)		// const -> non-const
 		s = slist_str( tokens, i );
 
 		status = bibtex_cleanvalue( s );
@@ -840,10 +834,9 @@ bibtexin_cleanref( fields *bibin, param *pm )
 	n = fields_num( bibin );
 
 	for ( i=0; i<n; ++i ) {
-		tag = (const str *)fields_tag( bibin, i, FIELDS_STRP_NOUSE );
+		tag = fields_tag( bibin, i, FIELDS_STRP_NOUSE );
 		if ( is_url_tag( tag ) ) continue; /* protect url from parsing */
 
-#pragma warning(suppress:4090)		// const -> non-const
 		value = fields_value( bibin, i, FIELDS_STRP_NOUSE );
 		if ( str_is_empty( value ) ) continue;
 
@@ -877,8 +870,8 @@ bibtexin_nocrossref( bibl *bin, long i, int n, param *p )
 {
 	int n1 = fields_find( bin->ref[i], "REFNUM", LEVEL_ANY );
 	if ( p->progname ) fprintf( stderr, "%s: ", p->progname );
-	fprintf( stderr, "Cannot find cross-reference '%s'", (const char*) fields_value( bin->ref[i], n, FIELDS_CHRP_NOUSE ) );
-	if ( n1!=FIELDS_NOTFOUND ) fprintf( stderr, " for reference '%s'\n", (const char*) fields_value( bin->ref[i], n1, FIELDS_CHRP_NOUSE ) );
+	fprintf( stderr, "Cannot find cross-reference '%s'", fields_value( bin->ref[i], n, FIELDS_CHRP_NOUSE ) );
+	if ( n1!=FIELDS_NOTFOUND ) fprintf( stderr, " for reference '%s'\n", fields_value( bin->ref[i], n1, FIELDS_CHRP_NOUSE ) );
 	fprintf( stderr, "\n" );
 }
 
@@ -889,12 +882,12 @@ bibtexin_crossref_oneref( fields *bibref, fields *bibcross )
 	const char *type, *newtag, *newvalue;
 
 	ntype = fields_find( bibref, "INTERNAL_TYPE", LEVEL_ANY );
-	type = ( const char * ) fields_value( bibref, ntype, FIELDS_CHRP_NOUSE );
+	type = fields_value( bibref, ntype, FIELDS_CHRP_NOUSE );
 
 	n = fields_num( bibcross );
 
 	for ( i=0; i<n; ++i ) {
-		newtag = ( const char * ) fields_tag( bibcross, i, FIELDS_CHRP_NOUSE );
+		newtag = fields_tag( bibcross, i, FIELDS_CHRP_NOUSE );
 		if ( !strcasecmp( newtag, "INTERNAL_TYPE" ) ) continue;
 		if ( !strcasecmp( newtag, "REFNUM" ) ) continue;
 		if ( !strcasecmp( newtag, "TITLE" ) ) {
@@ -903,7 +896,7 @@ bibtexin_crossref_oneref( fields *bibref, fields *bibcross )
 				newtag = "booktitle";
 		}
 
-		newvalue = ( const char * ) fields_value( bibcross, i, FIELDS_CHRP_NOUSE );
+		newvalue = fields_value( bibcross, i, FIELDS_CHRP_NOUSE );
 
 		newlevel = fields_level( bibcross, i ) + 1;
 
@@ -925,7 +918,7 @@ bibtexin_crossref( bibl *bin, param *p )
 		n = fields_find( bibref, "CROSSREF", LEVEL_ANY );
 		if ( n==FIELDS_NOTFOUND ) continue;
 		fields_set_used( bibref, n );
-		ncross = bibl_findref( bin, (const char*) fields_value( bibref, n, FIELDS_CHRP_NOUSE ) );
+		ncross = bibl_findref( bin, fields_value( bibref, n, FIELDS_CHRP_NOUSE ) );
 		if ( ncross==-1 ) {
 			bibtexin_nocrossref( bin, i, n, p );
 			continue;
@@ -965,8 +958,8 @@ bibtexin_typef( fields *bibin, const char *filename, int nrefs, param *p )
 
 	ntypename = fields_find( bibin, "INTERNAL_TYPE", LEVEL_MAIN );
 	nrefname  = fields_find( bibin, "REFNUM",        LEVEL_MAIN );
-	if ( nrefname!=FIELDS_NOTFOUND )  refname  = (const char *)fields_value( bibin, nrefname,  FIELDS_CHRP_NOUSE );
-	if ( ntypename!=FIELDS_NOTFOUND ) typename = (const char *)fields_value( bibin, ntypename, FIELDS_CHRP_NOUSE );
+	if ( nrefname!=FIELDS_NOTFOUND )  refname  = fields_value( bibin, nrefname,  FIELDS_CHRP_NOUSE );
+	if ( ntypename!=FIELDS_NOTFOUND ) typename = fields_value( bibin, ntypename, FIELDS_CHRP_NOUSE );
 
 	return get_reftype( typename, nrefs, p->progname, p->all, p->nall, refname, &is_default, REFTYPE_CHATTY );
 }
@@ -1387,7 +1380,7 @@ bibtexin_convertf( fields *bibin, fields *bibout, int reftype, param *p )
 		if ( fields_no_tag( bibin, i ) )  continue;
 		if ( fields_no_value( bibin, i ) ) continue;
 
-		intag   = (const str *)fields_tag( bibin, i, FIELDS_STRP );
+		intag   = fields_tag( bibin, i, FIELDS_STRP );
 		invalue = fields_value( bibin, i, FIELDS_STRP );
 
 		if ( !translate_oldtag( str_cstr( intag ), reftype, p->all, p->nall, &process, &level, &outtag ) ) {

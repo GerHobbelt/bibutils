@@ -68,7 +68,7 @@ biblatexin_initparams( param *pm, const char *progname )
 
 	if ( !progname ) pm->progname = NULL;
 	else {
-		pm->progname = _strdup( progname );
+		pm->progname = strdup( progname );
 		if ( !pm->progname ) return BIBL_ERR_MEMERR;
 	}
 
@@ -272,7 +272,6 @@ replace_strings( slist *tokens, fields *bibin, long nref, param *pm )
 	str *s;
 	i = 0;
 	while ( i < tokens->n ) {
-#pragma warning(suppress:4090)		// const -> non-const
 		s = slist_str( tokens, i );
 		if ( !strcmp( s->data, "#" ) ) {
 		} else if ( s->data[0]!='\"' && s->data[0]!='{' ) {
@@ -305,7 +304,6 @@ string_concatenate( slist *tokens, fields *bibin, long nref, param *pm )
 	str* t;
 	i = 0;
 	while ( i < tokens->n ) {
-#pragma warning(suppress:4090)		// const -> non-const
 		s = slist_str( tokens, i );
 		if ( !strcmp( str_cstr( s ), "#" ) ) {
 			if ( i==0 || i==tokens->n-1 ) {
@@ -315,12 +313,10 @@ string_concatenate( slist *tokens, fields *bibin, long nref, param *pm )
 				if ( status!=SLIST_OK ) return BIBL_ERR_MEMERR;
 				continue;
 			}
-#pragma warning(suppress:4090)		// const -> non-const
 			s = slist_str( tokens, i-1 );
 			if ( s->data[0]!='\"' && s->data[s->len-1]!='\"' )
 				fprintf( stderr, "%s: Warning: String concentation should "
 					"be used in context of quotations marks in reference %ld\n", pm->progname, nref );
-#pragma warning(suppress:4090)		// const -> non-const
 			t = slist_str( tokens, i+1 );
 			if ( t->data[0]!='\"' && t->data[t->len-1]!='\"' )
 				fprintf( stderr, "%s: Warning: String concentation should "
@@ -371,7 +367,6 @@ process_biblatexline( const char *p, str *tag, str *data, uchar stripquotes, lon
 	}
 
 	for ( i=0; i<tokens.n; i++ ) {
-#pragma warning(suppress:4090)		// const -> non-const
 		s = slist_str( &tokens, i );
 		if ( ( stripquotes && s->data[0]=='\"' && s->data[s->len-1]=='\"' ) ||
 		     ( s->data[0]=='{' && s->data[s->len-1]=='}' ) ) {
@@ -606,8 +601,7 @@ biblatexin_cleanref( fields *bibin, param *p )
 	str* d;
 	n = fields_num( bibin );
 	for ( i=0; i<n; ++i ) {
-		t = (const str *)fields_tag( bibin, i, FIELDS_STRP_NOUSE );
-#pragma warning(suppress:4090)		// const -> non-const
+		t = fields_tag( bibin, i, FIELDS_STRP_NOUSE );
 		d = fields_value( bibin, i, FIELDS_STRP_NOUSE );
 		status = biblatexin_cleanvalue( t, d, bibin, p );
 		if ( status!=BIBL_OK ) return status;
@@ -651,8 +645,8 @@ biblatexin_typef( fields *bibin, const char *filename, int nrefs, param *p )
 
 	ntypename = fields_find( bibin, "INTERNAL_TYPE", LEVEL_MAIN );
 	nrefname  = fields_find( bibin, "REFNUM",        LEVEL_MAIN );
-	if ( nrefname!=FIELDS_NOTFOUND )  refname  = (const char *)fields_value( bibin, nrefname,  FIELDS_CHRP_NOUSE );
-    if ( ntypename!=FIELDS_NOTFOUND ) typename1 = (const char *)fields_value( bibin, ntypename, FIELDS_CHRP_NOUSE );
+	if ( nrefname!=FIELDS_NOTFOUND )  refname  = fields_value( bibin, nrefname,  FIELDS_CHRP_NOUSE );
+    if ( ntypename!=FIELDS_NOTFOUND ) typename1 = fields_value( bibin, ntypename, FIELDS_CHRP_NOUSE );
 
 	return get_reftype( typename1, nrefs, p->progname, p->all, p->nall, refname, &is_default, REFTYPE_CHATTY );
 }
@@ -690,8 +684,8 @@ get_title_elements( fields *bibin, int currlevel, int reftype, const variants *a
 		if ( fields_used( bibin, i ) ) continue;
 
 		/* ...skip empty elements */
-		t = (const str *)fields_tag  ( bibin, i, FIELDS_STRP_NOUSE );
-		d = (const str *)fields_value( bibin, i, FIELDS_STRP_NOUSE );
+		t = fields_tag  ( bibin, i, FIELDS_STRP_NOUSE );
+		d = fields_value( bibin, i, FIELDS_STRP_NOUSE );
 		if ( d->len == 0 ) continue;
 
 		if ( !translate_oldtag( t->data, reftype, all, nall, &process, &level, &newtag ) )
@@ -968,8 +962,8 @@ biblatexin_bteprint( fields *bibin, int n, const str *intag, const str *invalue,
 	neprint = fields_find( bibin, "eprint",     LEVEL_ANY );
 	netype  = fields_find( bibin, "eprinttype", LEVEL_ANY );
 
-	if ( neprint!=FIELDS_NOTFOUND ) eprint = (const char *)fields_value( bibin, neprint, FIELDS_CHRP );
-	if ( netype!=FIELDS_NOTFOUND )  etype =  (const char *)fields_value( bibin, netype,  FIELDS_CHRP );
+	if ( neprint!=FIELDS_NOTFOUND ) eprint = fields_value( bibin, neprint, FIELDS_CHRP );
+	if ( netype!=FIELDS_NOTFOUND )  etype =  fields_value( bibin, netype,  FIELDS_CHRP );
 
 	if ( eprint && etype ) {
 		if ( !strncasecmp( etype, "arxiv", 5 ) ) {
@@ -1072,7 +1066,7 @@ biblatexin_date( fields *bibin, int m, str *intag, str *invalue, int level, para
 }
 
 static int
-biblatexin_btgenre( fields *bibin, int n, const str *intag, const str *invalue, int level, param *pm, const char *outtag, fields *bibout )
+biblatexin_genre( fields *bibin, int n, const str *intag, const str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
 	if ( fields_add( bibout, "GENRE:UNKNOWN", str_cstr( invalue ), level ) == FIELDS_OK ) return BIBL_OK;
 	else return BIBL_ERR_MEMERR;
@@ -1140,7 +1134,7 @@ biblatexin_blteditor( fields *bibin, int m, const str *intag, const str *invalue
 		if ( !strcasecmp( intag->data, editor_fields[i] ) ) n = i;
 	ntype = fields_find( bibin, editor_types[n], LEVEL_ANY );
 	if ( ntype!=FIELDS_NOTFOUND ) {
-		type = (const char *)fields_value( bibin, ntype, FIELDS_CHRP_NOUSE );
+		type = fields_value( bibin, ntype, FIELDS_CHRP_NOUSE );
 		if ( !strcasecmp( type, "collaborator" ) )  usetag = "COLLABORATOR";
 		else if ( !strcasecmp( type, "compiler" ) ) usetag = "COMPILER";
 		else if ( !strcasecmp( type, "redactor" ) ) usetag = "REDACTOR";
@@ -1206,7 +1200,7 @@ biblatexin_convertf( fields *bibin, fields *bibout, int reftype, param *p )
         if ( fields_used( bibin, i ) ) continue;
 
 		/* skip ones with no data or no tags (e.g. don't match ALWAYS/DEFAULT entries) */
-		intag   = (const str *)fields_tag  ( bibin, i, FIELDS_STRP_NOUSE );
+		intag   = fields_tag  ( bibin, i, FIELDS_STRP_NOUSE );
 		invalue = fields_value( bibin, i, FIELDS_STRP_NOUSE );
 		if ( str_is_empty( intag ) || str_is_empty( invalue ) ) continue;
 

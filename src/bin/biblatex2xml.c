@@ -14,13 +14,18 @@
 #include "tomods.h"
 #include "bibprog.h"
 
-const char help1[] = "Converts a biblatex (not to be confused with bibtex) reference file into MODS XML\n\n";
-const char help2[] = "bibtex_file";
+#include "monolithic_examples.h"
 
-const char progname[] = "biblatex2xml";
+static const char help1[] = "Converts a biblatex (not to be confused with bibtex) reference file into MODS XML\n\n";
+static const char help2[] = "bibtex_file";
 
-int
-main( int argc, char *argv[] )
+static const char progname[] = "biblatex2xml";
+
+#if defined(BUILD_MONOLITHIC)
+#define main     bibutils_biblatex2xml_main
+#endif
+
+int main(int argc, const char** argv)
 {
 	param p;
 	biblatexin_initparams( &p, progname );

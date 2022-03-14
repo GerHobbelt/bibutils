@@ -13,8 +13,15 @@
 #include "bibutils_tests.h"
 #endif
 
+#include "monolithic_examples.h"
+
 
 static const char progname[] = "entities_test";
+
+#if defined(BUILD_MONOLITHIC)
+#define main     bibutils_entities_test_main
+#endif
+
 static const char version[] = "0.1";
 
 static int

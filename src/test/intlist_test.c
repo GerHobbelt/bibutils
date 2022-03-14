@@ -14,11 +14,19 @@
 #include "bibutils_tests.h"
 #endif
 
+#include "monolithic_examples.h"
+
 
 static const char progname[] = "intlist_test";
+
+#if defined(BUILD_MONOLITHIC)
+#define main     bibutils_intlist_test_main
+#endif
+
 static const char version[] = "0.1";
 
 #define check( a, b ) if ( !(a) ) return _check( #a, b, __FUNCTION__, __LINE__ );
+
 static int
 _check(const char *a_str, const char *expected, const char* fn, int line)
 {
@@ -27,6 +35,7 @@ _check(const char *a_str, const char *expected, const char* fn, int line)
 }
 
 #define check_len( a, b ) if ( !_check_len( a, b, __FUNCTION__, __LINE__ ) ) return 1;
+
 static int
 _check_len( intlist *a, int expected, const char *fn, int line )
 {
@@ -36,6 +45,7 @@ _check_len( intlist *a, int expected, const char *fn, int line )
 }
 
 #define check_entry( a, b, c ) if ( !_check_entry( a, b, c, __FUNCTION__, __LINE__ ) ) return 1;
+
 static int
 _check_entry( intlist *a, int n, int expected, const char *fn, int line )
 {
@@ -68,6 +78,7 @@ test_init( void )
  * void      intlist_init_fill( intlist *il, int n, int value );
  */
 #define COUNT (150)
+
 static int
 test_init_fill( void )
 {
@@ -146,6 +157,7 @@ test_new( void )
  * intlist * intlist_new_fill( int n, int value );
  */
 #define COUNT (1000)
+
 static int
 test_new_fill( void )
 {
@@ -320,6 +332,7 @@ test_sort( void )
  * int       intlist_fill( intlist *il, int n, int value );
  */
 #define COUNT (1011)
+
 static int
 test_fill( void )
 {
@@ -350,6 +363,7 @@ test_fill( void )
  * int       intlist_fill_range( intlist *il, int low, int high, int step );
  */
 #define COUNT (971)
+
 static int
 test_fill_range( void )
 {
@@ -380,6 +394,7 @@ test_fill_range( void )
  * int       intlist_find( intlist *il, int searchvalue );
  */
 #define COUNT (315)
+
 static int
 test_find( void )
 {

@@ -17,8 +17,8 @@
 #include "../win32/config.h"
 #endif
 
-#define CURR_VERSION	"6.10"
-#define CURR_DATE		"2020-03-23"
+#define CURR_VERSION	"7.20"
+#define CURR_DATE		"2021-11-12"
 
 #define countof(array)					( sizeof(array) / sizeof(array[0]) )
 

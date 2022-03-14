@@ -41,4 +41,3 @@ bibprog( int argc, const char *argv[], param *p )
 	fprintf( stderr, "Processed %ld references.\n", b.n );
 	bibl_free( &b );
 }
-

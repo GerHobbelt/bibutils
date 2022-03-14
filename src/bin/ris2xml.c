@@ -14,13 +14,18 @@
 #include "tomods.h"
 #include "bibprog.h"
 
-const char help1[] = "Converts a RIS reference file into MODS XML";
-const char help2[] = "ris_file";
+#include "monolithic_examples.h"
 
-const char progname[] = "ris2xml";
+static const char help1[] = "Converts a RIS reference file into MODS XML";
+static const char help2[] = "ris_file";
 
-int 
-main( int argc, char *argv[] )
+static const char progname[] = "ris2xml";
+
+#if defined(BUILD_MONOLITHIC)
+#define main     bibutils_ris2xml_main
+#endif
+
+int main(int argc, const char** argv)
 {
 	param p;
 	risin_initparams( &p, progname );

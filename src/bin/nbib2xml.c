@@ -14,13 +14,18 @@
 #include "tomods.h"
 #include "bibprog.h"
 
-const char help1[] = "Converts a NCBI NBIB reference file into MODS XML\n\n";
-const char help2[] = "nbib_file";
+#include "monolithic_examples.h"
 
-const char progname[] = "nbib2xml";
+static const char help1[] = "Converts a NCBI NBIB reference file into MODS XML\n\n";
+static const char help2[] = "nbib_file";
 
-int
-main( int argc, char *argv[] )
+static const char progname[] = "nbib2xml";
+
+#if defined(BUILD_MONOLITHIC)
+#define main     bibutils_nbib2xml_main
+#endif
+
+int main(int argc, const char** argv)
 {
 	param p;
 	nbibin_initparams( &p, progname );

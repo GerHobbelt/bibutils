@@ -123,7 +123,7 @@ append_type( int type, fields *out, int *status )
 }
 
 static void
-append_titlecore( fields *in, char *isitag, int level, fields *out, char *maintag, char *subtag, int *status )
+append_titlecore( fields *in, const char *isitag, int level, fields *out, char *maintag, char *subtag, int *status )
 {
 	const str *mainttl = fields_findv( in, level, FIELDS_STRP, maintag );
 	const str *subttl  = fields_findv( in, level, FIELDS_STRP, subtag );
@@ -224,7 +224,7 @@ out:
 static void
 append_page( fields *in, const char *intag, int levelin, fields* out, const char *outtag, int *status )
 {
-	char *value;
+	const char *value;
 
 	value = fields_findv( in, levelin, FIELDS_CHRP, intag );
 	if ( value ) {

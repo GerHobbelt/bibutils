@@ -388,7 +388,7 @@ xml_attribute(const xml *node, const char *attribute )
 	else return slist_str( &(node->attribute_values), n );
 }
 
-char *
+const char *
 xml_attribute_cstr( xml *node, const char *attribute )
 {
 	slist_index n;

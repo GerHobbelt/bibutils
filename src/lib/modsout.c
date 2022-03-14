@@ -87,7 +87,7 @@ modsout_initparams( param *pm, const char *progname )
 static void
 output_tag_core( FILE *outptr, int nindents, const char *tag, const char *data, unsigned char mode, va_list *attrs )
 {
-	const char *attr, *val;
+	const char *attr, *val = NULL;
 	int i;
 
 	for ( i=0; i<nindents; ++i ) fprintf( outptr, "    " );
@@ -1272,7 +1272,7 @@ report_unused_tags( FILE *outptr, fields *f, param *p, unsigned long refnum )
 static void
 output_refnum( FILE *outptr, fields *f, int n )
 {
-	char *p = fields_value( f, n, FIELDS_CHRP_NOUSE );
+	const char *p = fields_value( f, n, FIELDS_CHRP_NOUSE );
 	while ( p && *p ) {
 		if ( !is_ws(*p) ) fprintf( outptr, "%c", *p );
 		p++;

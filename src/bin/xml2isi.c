@@ -14,7 +14,13 @@
 #include "args.h"
 #include "bibprog.h"
 
+#include "monolithic_examples.h"
+
 static const char progname[] = "xml2isi";
+
+#if defined(BUILD_MONOLITHIC)
+#define main     bibutils_xml2isi_main
+#endif
 
 static void
 help( const char *name )
@@ -40,7 +46,7 @@ help( const char *name )
 }
 
 static void
-process_args( int *argc, char *argv[], param *p )
+process_args( int *argc, const char *argv[], param *p )
 {
 	int i, j, subtract;
 	i = 1;
@@ -76,8 +82,7 @@ process_args( int *argc, char *argv[], param *p )
 	}
 }
 
-int 
-main(int argc, char *argv[])
+int main(int argc, const char** argv)
 {
 	param p;
 	modsin_initparams( &p, progname );

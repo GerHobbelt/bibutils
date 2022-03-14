@@ -14,13 +14,18 @@
 #include "tomods.h"
 #include "bibprog.h"
 
-const char help1[] =  "Converts a Endnote XML file (v8 or later) into MODS XML\n\n";
-const char help2[] = "endnotexml_file";
+#include "monolithic_examples.h"
 
-const char progname[] = "endx2xml";
+static const char help1[] =  "Converts a Endnote XML file (v8 or later) into MODS XML\n\n";
+static const char help2[] = "endnotexml_file";
 
-int
-main( int argc, char *argv[] )
+static const char progname[] = "endx2xml";
+
+#if defined(BUILD_MONOLITHIC)
+#define main     bibutils_endx2xml_main
+#endif
+
+int main(int argc, const char** argv)
 {
 	param p;
 	endxmlin_initparams( &p, progname );

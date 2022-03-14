@@ -38,6 +38,8 @@
 #include "bibutils_tests.h"
 #endif
 
+#include "monolithic_examples.h"
+
 
 #ifndef F_OK
 #define F_OK 0
@@ -50,6 +52,10 @@
 
 
 static const char progname[] = "bibutils_test";
+
+#if defined(BUILD_MONOLITHIC)
+#define main     bibutils_test_main
+#endif
 
 // Based on http://nion.modprobe.de/blog/archives/357-Recursive-directory-creation.html
 
@@ -283,8 +289,7 @@ static int scan_dirtree(const char* base, const char *subtree_part)
     }
 }
 
-int
-main( int argc, char *argv[] )
+int main(int argc, const char** argv)
 {
 	int failed = 0;
 #ifndef BUNDLE_BIBUTILS_TESTS

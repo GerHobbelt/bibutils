@@ -24,7 +24,7 @@
 void
 append_easy( fields *in, const char *intag, int inlevel, fields *out, const char *outtag, int *status )
 {
-	char *value;
+	const char *value;
 	int fstatus;
 
 	value = fields_findv( in, inlevel, FIELDS_CHRP, intag );

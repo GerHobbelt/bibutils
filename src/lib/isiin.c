@@ -231,7 +231,6 @@ merge_tag_value( fields *isiin, str *tag, str *value, int *tag_added )
 			}
 			/* otherwise append multiline data */
 			else {
-#pragma warning(suppress:4090)		// const -> non-const
 				oldvalue = fields_value( isiin, n-1, FIELDS_STRP_NOUSE );
 				str_addchar( oldvalue, ' ' );
 				str_strcat( oldvalue, value );

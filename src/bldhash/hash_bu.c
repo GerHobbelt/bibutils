@@ -11,7 +11,9 @@
 #include "hash.h"
 #include "uintlist.h"
 
-const char *bu_genre[] = {
+#include "monolithic_examples.h"
+
+static const char *bu_genre[] = {
 	"academic journal",
 	"airtel",
 	"Airtel",
@@ -42,16 +44,16 @@ const char *bu_genre[] = {
 	"unpublished",
 	"web page"
 };
-const int nbu_genre = sizeof( bu_genre ) / sizeof( const char *);
+static const int nbu_genre = sizeof( bu_genre ) / sizeof( const char *);
 
-void
+static void
 memerr( const char *fn )
 {
 	fprintf( stderr, "Memory error in %s()\n", fn );
 	exit( EXIT_FAILURE );
 }
 
-int
+static int
 hashify_test_size( const char *list[], int nlist, unsigned int HASH_SIZE, uintlist *u )
 {
 	unsigned int n;
@@ -91,7 +93,7 @@ hashify_test_size( const char *list[], int nlist, unsigned int HASH_SIZE, uintli
 	return 1;
 }
 
-void
+static void
 hashify_write( FILE *fp, const char *list[], int nlist, const char *type, unsigned int HASH_SIZE, uintlist *u )
 {
 	unsigned n;
@@ -123,7 +125,7 @@ hashify_write( FILE *fp, const char *list[], int nlist, const char *type, unsign
 	fprintf( fp, "}\n" );
 }
 
-unsigned int
+static unsigned int
 hashify_size( const char *list[], int nlist, unsigned int max, uintlist *u )
 {
 	unsigned int HASH_SIZE = (unsigned int ) nlist;
@@ -140,7 +142,7 @@ hashify_size( const char *list[], int nlist, unsigned int max, uintlist *u )
 	else return HASH_SIZE;
 }
 
-void
+static void
 hashify( const char *list[], int nlist, const char *type )
 {
 	unsigned int HASH_SIZE;
@@ -159,7 +161,7 @@ hashify( const char *list[], int nlist, const char *type )
 	uintlist_free( &u );
 }
 
-void
+static void
 write_header( FILE *fp )
 {
 	fprintf( fp, "/*\n" );
@@ -205,9 +207,13 @@ write_header( FILE *fp )
 #endif
 }
 
-int
-main( int argc, char *argv[] )
+#if defined(BUILD_MONOLITHIC)
+#define main     bibutils_hash_bu_main
+#endif
+
+int main(int argc, const char** argv)
 {
 	write_header( stdout );
 	hashify( bu_genre, nbu_genre, "genre" );
+	return EXIT_SUCCESS;
 }

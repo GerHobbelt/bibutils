@@ -1,8 +1,8 @@
 /*
  * bltypes.c
  *
- * Copyright (c) Chris Putnam 2008-2020
- * Copyright (c) Johannes Wilm 2010-2020
+ * Copyright (c) Chris Putnam 2008-2021
+ * Copyright (c) Johannes Wilm 2010-2021
  *
  * Program and source code released under the GPL version 2
  *
@@ -50,20 +50,21 @@ static const lookups article[] = {
 	{ "issuesubtitle",   "SUBTITLE",               TITLE,           LEVEL_SERIES }, /*WRONG*/
 	{ "language",        "LANGUAGE",               SIMPLE,          LEVEL_MAIN   },
 	{ "origlanguage",    "LANGUAGE",               SIMPLE,          LEVEL_ORIG   },
-	{ "origyear",        "DATE:YEAR",              SIMPLE,          LEVEL_ORIG   },
-	{ "origdate",        "DATE",                   SIMPLE,          LEVEL_ORIG   },
+	{ "origyear",        "DATE:YEAR",              DATE,            LEVEL_ORIG   },
+	{ "origdate",        "DATE",                   DATE,            LEVEL_ORIG   },
 	{ "origtitle",       "TITLE",                  SIMPLE,          LEVEL_ORIG   },
 	{ "origlocation",    "ADDRESS",                SIMPLE,          LEVEL_ORIG   },
 	{ "origpublisher",   "PUBLISHER",              SIMPLE,          LEVEL_ORIG   },
 	{ "series",          "PARTTITLE",              SIMPLE,          LEVEL_HOST   },
+	{ "shortseries",     "SHORTTITLE",             SIMPLE,          LEVEL_HOST   },
 	{ "volume",          "VOLUME",                 SIMPLE,          LEVEL_MAIN   },
 	{ "number",          "NUMBER",                 SIMPLE,          LEVEL_MAIN   },
 	{ "eid",             "EID",                    SIMPLE,          LEVEL_MAIN   },
 	{ "issue",           "ISSUE",                  SIMPLE,          LEVEL_MAIN   },
-	{ "date",            "DATE",                   SIMPLE,          LEVEL_MAIN   },   /*WRONG*/
-	{ "day",             "PARTDATE:DAY",           SIMPLE,          LEVEL_MAIN   },
-	{ "month",           "PARTDATE:MONTH",         SIMPLE,          LEVEL_MAIN   },
-	{ "year",            "PARTDATE:YEAR",          SIMPLE,          LEVEL_MAIN   },
+	{ "date",            "DATE",                   DATE,            LEVEL_MAIN   },   /*WRONG*/
+	{ "day",             "PARTDATE:DAY",           DATE,            LEVEL_MAIN   },
+	{ "month",           "PARTDATE:MONTH",         DATE,            LEVEL_MAIN   },
+	{ "year",            "PARTDATE:YEAR",          DATE,            LEVEL_MAIN   },
 	{ "pages",           "PAGES",                  PAGES,           LEVEL_MAIN   },
 	{ "version",         "EDITION",                SIMPLE,          LEVEL_MAIN   },
 	{ "note",            "NOTES",                  NOTES,           LEVEL_MAIN   },
@@ -124,12 +125,12 @@ static const lookups book[] = {
 	{ "mainsubtitle",    "SUBTITLE",               TITLE,           LEVEL_HOST   },
 	{ "maintitleaddon",  "TITLEADDON",             TITLE,           LEVEL_HOST   },
 	{ "language",        "LANGUAGE",               SIMPLE,          LEVEL_MAIN   },
-	{ "year",            "DATE:YEAR",              SIMPLE,          LEVEL_MAIN   },
-	{ "month",           "DATE:MONTH",             SIMPLE,          LEVEL_MAIN   },
-	{ "date",            "DATE",                   SIMPLE,          LEVEL_MAIN   },   /*WRONG*/
+	{ "year",            "DATE:YEAR",              DATE,            LEVEL_MAIN   },
+	{ "month",           "DATE:MONTH",             DATE,            LEVEL_MAIN   },
+	{ "date",            "DATE",                   DATE,            LEVEL_MAIN   },   /*WRONG*/
 	{ "origlanguage",    "LANGUAGE",               SIMPLE,          LEVEL_ORIG   },
-	{ "origyear",        "DATE:YEAR",              SIMPLE,          LEVEL_ORIG   },
-	{ "origdate",        "DATE",                   SIMPLE,          LEVEL_ORIG   },
+	{ "origyear",        "DATE:YEAR",              DATE,            LEVEL_ORIG   },
+	{ "origdate",        "DATE",                   DATE,            LEVEL_ORIG   },
 	{ "origtitle",       "TITLE",                  SIMPLE,          LEVEL_ORIG   },
 	{ "origlocation",    "ADDRESS",                SIMPLE,          LEVEL_ORIG   },
 	{ "origpublisher",   "PUBLISHER",              SIMPLE,          LEVEL_ORIG   },
@@ -138,6 +139,7 @@ static const lookups book[] = {
 	{ "edition",         "EDITION",                SIMPLE,          LEVEL_MAIN   },
 	{ "volumes",         "NUMVOLUMES",             SIMPLE,          LEVEL_HOST   },
 	{ "series",          "TITLE",                  SIMPLE,          LEVEL_HOST   }, /* WRONG */
+	{ "shortseries",     "SHORTTITLE",             SIMPLE,          LEVEL_HOST   }, /* WRONG */
 	{ "number",          "NUMBER",                 SIMPLE,          LEVEL_MAIN   },
 	{ "note",            "NOTES",                  NOTES,           LEVEL_MAIN   },
 	{ "annote",          "ANNOTATION",             SIMPLE,          LEVEL_MAIN   },
@@ -188,9 +190,9 @@ static const lookups booklet[] = {
 	{ "titleaddon",      "TITLEADDON",             TITLE,           LEVEL_MAIN   },
 	{ "shorttitle",      "SHORTTITLE",             SIMPLE,          LEVEL_MAIN   },
 	{ "howpublished",    "",                       HOWPUBLISHED,    LEVEL_MAIN   },
-	{ "year",            "DATE:YEAR",              SIMPLE,          LEVEL_MAIN   },
-	{ "month",           "DATE:MONTH",             SIMPLE,          LEVEL_MAIN   },
-	{ "date",            "DATE",                   SIMPLE,          LEVEL_MAIN   },   /*WRONG*/
+	{ "year",            "DATE:YEAR",              DATE,            LEVEL_MAIN   },
+	{ "month",           "DATE:MONTH",             DATE,            LEVEL_MAIN   },
+	{ "date",            "DATE",                   DATE,            LEVEL_MAIN   },   /*WRONG*/
 	{ "language",        "LANGUAGE",               SIMPLE,          LEVEL_MAIN   },
 	{ "type",            "GENRE:UNKNOWN",          GENRE,           LEVEL_MAIN   },
 	{ "note",            "NOTES",                  NOTES,           LEVEL_MAIN   },
@@ -237,9 +239,9 @@ static const lookups collection[] = {
 	{ "annotator",       "ANNOTATOR",              PERSON,          LEVEL_MAIN   },
 	{ "commentator",     "COMMENTATOR",            PERSON,          LEVEL_MAIN   },
 	{ "translator",      "TRANSLATOR",             PERSON,          LEVEL_MAIN   },
-	{ "year",            "DATE:YEAR",              SIMPLE,          LEVEL_MAIN   },
-	{ "month",           "DATE:MONTH",             SIMPLE,          LEVEL_MAIN   },
-	{ "date",            "DATE",                   SIMPLE,          LEVEL_MAIN   },   /*WRONG*/
+	{ "year",            "DATE:YEAR",              DATE,            LEVEL_MAIN   },
+	{ "month",           "DATE:MONTH",             DATE,            LEVEL_MAIN   },
+	{ "date",            "DATE",                   DATE,            LEVEL_MAIN   },   /*WRONG*/
 	{ "introduction",    "INTROAUTHOR",            PERSON,          LEVEL_MAIN   },
 	{ "foreword",        "INTROAUTHOR",            PERSON,          LEVEL_MAIN   },
 	{ "afterword",       "AFTERAUTHOR",            PERSON,          LEVEL_MAIN   },
@@ -252,8 +254,8 @@ static const lookups collection[] = {
 	{ "maintitleaddon",  "TITLEADDON",             TITLE,           LEVEL_HOST   },
 	{ "language",        "LANGUAGE",               SIMPLE,          LEVEL_MAIN   },
 	{ "origlanguage",    "LANGUAGE",               SIMPLE,          LEVEL_ORIG   },
-	{ "origyear",        "DATE:YEAR",              SIMPLE,          LEVEL_ORIG   },
-	{ "origdate",        "DATE",                   SIMPLE,          LEVEL_ORIG   },
+	{ "origyear",        "DATE:YEAR",              DATE,            LEVEL_ORIG   },
+	{ "origdate",        "DATE",                   DATE,            LEVEL_ORIG   },
 	{ "origtitle",       "TITLE",                  SIMPLE,          LEVEL_ORIG   },
 	{ "origlocation",    "ADDRESS",                SIMPLE,          LEVEL_ORIG   },
 	{ "origpublisher",   "PUBLISHER",              SIMPLE,          LEVEL_ORIG   },
@@ -262,6 +264,7 @@ static const lookups collection[] = {
 	{ "edition",         "EDITION",                SIMPLE,          LEVEL_MAIN   },
 	{ "volumes",         "NUMVOLUMES",             SIMPLE,          LEVEL_HOST   },
 	{ "series",          "TITLE",                  SIMPLE,          LEVEL_HOST   },
+	{ "shortseries",     "SHORTTITLE",             SIMPLE,          LEVEL_HOST   },
 	{ "number",          "NUMBER",                 SIMPLE,          LEVEL_MAIN   },
 	{ "note",            "NOTES",                  NOTES,           LEVEL_MAIN   },
 	{ "annote",          "ANNOTATION",             SIMPLE,          LEVEL_MAIN   },
@@ -311,9 +314,9 @@ static const lookups inbook[] = {
 	{ "annotator",       "ANNOTATOR",              PERSON,          LEVEL_HOST   },
 	{ "commentator",     "COMMENTATOR",            PERSON,          LEVEL_HOST   },
 	{ "translator",      "TRANSLATOR",             PERSON,          LEVEL_HOST   },
-	{ "year",            "DATE:YEAR",              SIMPLE,          LEVEL_MAIN   },
-	{ "month",           "DATE:MONTH",             SIMPLE,          LEVEL_MAIN   },
-	{ "date",            "DATE",                   SIMPLE,          LEVEL_MAIN   },   /*WRONG*/
+	{ "year",            "DATE:YEAR",              DATE,            LEVEL_MAIN   },
+	{ "month",           "DATE:MONTH",             DATE,            LEVEL_MAIN   },
+	{ "date",            "DATE",                   DATE,            LEVEL_MAIN   },   /*WRONG*/
 	{ "introduction",    "INTROAUTHOR",            PERSON,          LEVEL_HOST   },
 	{ "foreword",        "INTROAUTHOR",            PERSON,          LEVEL_HOST   },
 	{ "afterword",       "AFTERAUTHOR",            PERSON,          LEVEL_HOST   },
@@ -324,14 +327,15 @@ static const lookups inbook[] = {
 	{ "booktitle",       "TITLE",                  TITLE,           LEVEL_HOST   },
 	{ "booksubtitle",    "SUBTITLE",               TITLE,           LEVEL_HOST   },
 	{ "booktitleaddon",  "TITLEADDON",             TITLE,           LEVEL_HOST   },
+	{ "shortbooktitle",  "SHORTTITLE",             TITLE,           LEVEL_HOST   },
 	{ "bookauthor",      "AUTHOR",                 PERSON,          LEVEL_HOST   },
 	{ "maintitle",       "TITLE",                  TITLE,           LEVEL_SERIES },
 	{ "mainsubtitle",    "SUBTITLE",               TITLE,           LEVEL_SERIES },
 	{ "maintitleaddon",  "TITLEADDON",             TITLE,           LEVEL_SERIES },
 	{ "language",        "LANGUAGE",               SIMPLE,          LEVEL_MAIN   },
 	{ "origlanguage",    "LANGUAGE",               SIMPLE,          LEVEL_ORIG   },
-	{ "origyear",        "DATE:YEAR",              SIMPLE,          LEVEL_ORIG   },
-	{ "origdate",        "DATE",                   SIMPLE,          LEVEL_ORIG   },
+	{ "origyear",        "DATE:YEAR",              DATE,            LEVEL_ORIG   },
+	{ "origdate",        "DATE",                   DATE,            LEVEL_ORIG   },
 	{ "origtitle",       "TITLE",                  SIMPLE,          LEVEL_ORIG   },
 	{ "origlocation",    "ADDRESS",                SIMPLE,          LEVEL_ORIG   },
 	{ "origpublisher",   "PUBLISHER",              SIMPLE,          LEVEL_ORIG   },
@@ -341,6 +345,7 @@ static const lookups inbook[] = {
 	{ "edition",         "EDITION",                SIMPLE,          LEVEL_MAIN   },
 	{ "volumes",         "NUMVOLUMES",             SIMPLE,          LEVEL_HOST   },
 	{ "series",          "TITLE",                  SIMPLE,          LEVEL_SERIES+1 }, /* WRONG */
+	{ "shortseries",     "SHORTTITLE",             SIMPLE,          LEVEL_SERIES+1 },
 	{ "number",          "NUMBER",                 SIMPLE,          LEVEL_MAIN   },
 	{ "note",            "NOTES",                  NOTES,           LEVEL_MAIN   },
 	{ "annote",          "ANNOTATION",             SIMPLE,          LEVEL_MAIN   },
@@ -373,9 +378,9 @@ static const lookups inbook[] = {
 
 static const lookups incollection[] = {
 	{ "author",          "AUTHOR",                 PERSON,          LEVEL_MAIN   },
-	{ "year",            "DATE:YEAR",              SIMPLE,          LEVEL_MAIN   },
-	{ "month",           "DATE:MONTH",             SIMPLE,          LEVEL_MAIN   },
-	{ "date",            "DATE",                   SIMPLE,          LEVEL_MAIN   },   /*WRONG*/
+	{ "year",            "DATE:YEAR",              DATE,            LEVEL_MAIN   },
+	{ "month",           "DATE:MONTH",             DATE,            LEVEL_MAIN   },
+	{ "date",            "DATE",                   DATE,            LEVEL_MAIN   },   /*WRONG*/
 	{ "title",           "TITLE",                  TITLE,           LEVEL_MAIN   },
 	{ "subtitle",        "SUBTITLE",               TITLE,           LEVEL_MAIN   },
 	{ "titleaddon",      "TITLEADDON",             TITLE,           LEVEL_MAIN   },
@@ -393,6 +398,7 @@ static const lookups incollection[] = {
 	{ "booktitle",       "TITLE",                  TITLE,           LEVEL_HOST   },
 	{ "booksubtitle",    "SUBTITLE",               TITLE,           LEVEL_HOST   },
 	{ "booktitleaddon",  "TITLEADDON",             TITLE,           LEVEL_HOST   },
+	{ "shortbooktitle",  "SHORTTITLE",             TITLE,           LEVEL_HOST   },
 	{ "editor",          "EDITOR",                 BLT_EDITOR,      LEVEL_HOST   },
 	{ "editora",         "EDITOR",                 BLT_EDITOR,      LEVEL_HOST   },
 	{ "editorb",         "EDITOR",                 BLT_EDITOR,      LEVEL_HOST   },
@@ -418,10 +424,11 @@ static const lookups incollection[] = {
 	{ "maintitleaddon",  "TITLEADDON",             TITLE,           LEVEL_SERIES },
 
 	{ "series",          "TITLE",                  SIMPLE,          LEVEL_SERIES+1 }, /* WRONG */
+	{ "shortseries",     "SHORTTITLE",             SIMPLE,          LEVEL_SERIES+1 },
 
 	{ "origlanguage",    "LANGUAGE",               SIMPLE,          LEVEL_ORIG   },
-	{ "origyear",        "DATE:YEAR",              SIMPLE,          LEVEL_ORIG   },
-	{ "origdate",        "DATE",                   SIMPLE,          LEVEL_ORIG   },
+	{ "origyear",        "DATE:YEAR",              DATE,            LEVEL_ORIG   },
+	{ "origdate",        "DATE",                   DATE,            LEVEL_ORIG   },
 	{ "origtitle",       "TITLE",                  SIMPLE,          LEVEL_ORIG   },
 	{ "origlocation",    "ADDRESS",                SIMPLE,          LEVEL_ORIG   },
 	{ "origpublisher",   "PUBLISHER",              SIMPLE,          LEVEL_ORIG   },
@@ -471,9 +478,9 @@ static const lookups inproceedings[] = {
 	{ "commentator",     "COMMENTATOR",            PERSON,          LEVEL_HOST   },
 	{ "translator",      "TRANSLATOR",             PERSON,          LEVEL_HOST   },
 	{ "eventtitle",      "EVENT:CONF",             SIMPLE,          LEVEL_MAIN   },
-	{ "year",            "DATE:YEAR",              SIMPLE,          LEVEL_MAIN   },
-	{ "month",           "DATE:MONTH",             SIMPLE,          LEVEL_MAIN   },
-	{ "date",            "DATE",                   SIMPLE,          LEVEL_MAIN   },   /*WRONG*/
+	{ "year",            "DATE:YEAR",              DATE,            LEVEL_MAIN   },
+	{ "month",           "DATE:MONTH",             DATE,            LEVEL_MAIN   },
+	{ "date",            "DATE",                   DATE,            LEVEL_MAIN   },   /*WRONG*/
 	{ "introduction",    "INTROAUTHOR",            PERSON,          LEVEL_HOST   },
 	{ "foreword",        "INTROAUTHOR",            PERSON,          LEVEL_HOST   },
 	{ "afterword",       "AFTERAUTHOR",            PERSON,          LEVEL_HOST   },
@@ -485,19 +492,21 @@ static const lookups inproceedings[] = {
 	{ "booktitle",       "TITLE",                  TITLE,           LEVEL_HOST   },
 	{ "booksubtitle",    "SUBTITLE",               TITLE,           LEVEL_HOST   },
 	{ "booktitleaddon",  "TITLEADDON",             TITLE,           LEVEL_HOST   },
+	{ "shortbooktitle",  "SHORTTITLE",             TITLE,           LEVEL_HOST   },
 
 	{ "maintitle",       "TITLE",                  TITLE,           LEVEL_SERIES },
 	{ "mainsubtitle",    "SUBTITLE",               TITLE,           LEVEL_SERIES },
 	{ "maintitleaddon",  "TITLEADDON",             TITLE,           LEVEL_SERIES },
 
 	{ "series",          "TITLE",                  SIMPLE,          LEVEL_SERIES+1 },
+	{ "shortseries",     "SHORTTITLE",             SIMPLE,          LEVEL_SERIES+1 },
 
 	{ "venue",           "ADDRESS",                SIMPLE,          LEVEL_MAIN   },
 	{ "organization",    "ORGANIZER:CORP",         SIMPLE,          LEVEL_MAIN   },
 	{ "language",        "LANGUAGE",               SIMPLE,          LEVEL_MAIN   },
 	{ "origlanguage",    "LANGUAGE",               SIMPLE,          LEVEL_ORIG   },
-	{ "origdate",        "DATE",                   SIMPLE,          LEVEL_ORIG   },
-	{ "origyear",        "DATE:YEAR",              SIMPLE,          LEVEL_ORIG   },
+	{ "origdate",        "DATE",                   DATE,            LEVEL_ORIG   },
+	{ "origyear",        "DATE:YEAR",              DATE,            LEVEL_ORIG   },
 	{ "origtitle",       "TITLE",                  SIMPLE,          LEVEL_ORIG   },
 	{ "origlocation",    "ADDRESS",                SIMPLE,          LEVEL_ORIG   },
 	{ "origpublisher",   "PUBLISHER",              SIMPLE,          LEVEL_ORIG   },
@@ -551,9 +560,9 @@ static const lookups manual[] = {
 	{ "annotator",       "ANNOTATOR",              PERSON,          LEVEL_MAIN   },
 	{ "commentator",     "COMMENTATOR",            PERSON,          LEVEL_MAIN   },
 	{ "translator",      "TRANSLATOR",             PERSON,          LEVEL_MAIN   },
-	{ "year",            "DATE:YEAR",              SIMPLE,          LEVEL_MAIN   },
-	{ "month",           "DATE:MONTH",             SIMPLE,          LEVEL_MAIN   },
-	{ "date",            "DATE",                   SIMPLE,          LEVEL_MAIN   }, /*WRONG*/
+	{ "year",            "DATE:YEAR",              DATE,            LEVEL_MAIN   },
+	{ "month",           "DATE:MONTH",             DATE,            LEVEL_MAIN   },
+	{ "date",            "DATE",                   DATE,            LEVEL_MAIN   }, /*WRONG*/
 	{ "introduction",    "INTROAUTHOR",            PERSON,          LEVEL_MAIN   },
 	{ "foreword",        "INTROAUTHOR",            PERSON,          LEVEL_MAIN   },
 	{ "afterword",       "AFTERAUTHOR",            PERSON,          LEVEL_MAIN   },
@@ -566,6 +575,7 @@ static const lookups manual[] = {
 	{ "version",         "EDITION",                SIMPLE,          LEVEL_MAIN   },
 	{ "type",            "GENRE:UNKNOWN",          GENRE,           LEVEL_MAIN   },
 	{ "series",          "TITLE",                  SIMPLE,          LEVEL_HOST   },
+	{ "shortseries",     "SHORTTITLE",             SIMPLE,          LEVEL_HOST   },
 	{ "number",          "NUMBER",                 SIMPLE,          LEVEL_MAIN   },
 	{ "note",            "NOTES",                  NOTES,           LEVEL_MAIN   },
 	{ "annote",          "ANNOTATION",             SIMPLE,          LEVEL_MAIN   },
@@ -613,10 +623,10 @@ static const lookups misc[] = {
 	{ "subtitle",        "SUBTITLE",               TITLE,           LEVEL_MAIN   },
 	{ "titleaddon",      "TITLEADDON",             TITLE,           LEVEL_MAIN   },
 	{ "shorttitle",      "SHORTTITLE",             SIMPLE,          LEVEL_MAIN   },
-	{ "day",             "DATE:DAY",               SIMPLE,          LEVEL_MAIN   },
-	{ "month",           "DATE:MONTH",             SIMPLE,          LEVEL_MAIN   },
-	{ "year",            "DATE:YEAR",              SIMPLE,          LEVEL_MAIN   },
-	{ "date",            "DATE",                   SIMPLE,          LEVEL_MAIN   },   /*WRONG*/
+	{ "day",             "DATE:DAY",               DATE,            LEVEL_MAIN   },
+	{ "month",           "DATE:MONTH",             DATE,            LEVEL_MAIN   },
+	{ "year",            "DATE:YEAR",              DATE,            LEVEL_MAIN   },
+	{ "date",            "DATE",                   DATE,            LEVEL_MAIN   },   /*WRONG*/
 	{ "language",        "LANGUAGE",               SIMPLE,          LEVEL_MAIN   },
 	{ "howpublished",    "",                       HOWPUBLISHED,    LEVEL_MAIN   },
 	{ "version",         "EDITION",                SIMPLE,          LEVEL_MAIN   },
@@ -662,10 +672,10 @@ static const lookups online[] = {
 	{ "subtitle",        "SUBTITLE",               TITLE,           LEVEL_MAIN   },
 	{ "titleaddon",      "TITLEADDON",             TITLE,           LEVEL_MAIN   },
 	{ "shorttitle",      "SHORTTITLE",             SIMPLE,          LEVEL_MAIN   },
-	{ "date",            "DATE",                   SIMPLE,          LEVEL_MAIN   },
-	{ "day",             "DATE:DAY",               SIMPLE,          LEVEL_MAIN   },
-	{ "month",           "DATE:MONTH",             SIMPLE,          LEVEL_MAIN   },
-	{ "year",            "DATE:YEAR",              SIMPLE,          LEVEL_MAIN   },
+	{ "date",            "DATE",                   DATE,            LEVEL_MAIN   },
+	{ "day",             "DATE:DAY",               DATE,            LEVEL_MAIN   },
+	{ "month",           "DATE:MONTH",             DATE,            LEVEL_MAIN   },
+	{ "year",            "DATE:YEAR",              DATE,            LEVEL_MAIN   },
 	{ "language",        "LANGUAGE",               SIMPLE,          LEVEL_MAIN   },
 	{ "version",         "EDITION",                SIMPLE,          LEVEL_MAIN   },
 	{ "type",            "GENRE:UNKNOWN",          GENRE,           LEVEL_MAIN   },
@@ -699,12 +709,12 @@ static const lookups patent[] = {
 	{ "subtitle",        "SUBTITLE",               TITLE,           LEVEL_MAIN   },
 	{ "titleaddon",      "TITLEADDON",             TITLE,           LEVEL_MAIN   },
 	{ "shorttitle",      "SHORTTITLE",             SIMPLE,          LEVEL_MAIN   },
-	{ "date",            "DATE",                   SIMPLE,          LEVEL_MAIN   },
-	{ "day",             "DATE:DAY",               SIMPLE,          LEVEL_MAIN   },
-	{ "month",           "DATE:MONTH",             SIMPLE,          LEVEL_MAIN   },
-	{ "year",            "DATE:YEAR",              SIMPLE,          LEVEL_MAIN   },
+	{ "date",            "DATE",                   DATE,            LEVEL_MAIN   },
+	{ "day",             "DATE:DAY",               DATE,            LEVEL_MAIN   },
+	{ "month",           "DATE:MONTH",             DATE,            LEVEL_MAIN   },
+	{ "year",            "DATE:YEAR",              DATE,            LEVEL_MAIN   },
 	{ "version",         "EDITION",                SIMPLE,          LEVEL_MAIN   },
-	{ "type",            "GENRE:UKNOWN",           GENRE,           LEVEL_MAIN   },
+	{ "type",            "GENRE:UNKNOWN",          GENRE,           LEVEL_MAIN   },
 	{ "note",            "NOTES",                  NOTES,           LEVEL_MAIN   },
 	{ "annote",          "ANNOTATION",             SIMPLE,          LEVEL_MAIN   },
 	{ "annotation",      "ANNOTATION",             SIMPLE,          LEVEL_MAIN   },
@@ -754,13 +764,14 @@ static const lookups periodical[] = {
 	{ "issuesubtitle",   "SUBTITLE",               TITLE,           LEVEL_MAIN   },
 	{ "issuetitleaddon", "TITLEADDON",             TITLE,           LEVEL_MAIN   },
 	{ "series",          "TITLE",                  SIMPLE,          LEVEL_SERIES },
+	{ "shortseries",     "SHORTTITLE",             SIMPLE,          LEVEL_SERIES },
 	{ "volume",          "VOLUME",                 SIMPLE,          LEVEL_MAIN   },
 	{ "number",          "NUMBER",                 SIMPLE,          LEVEL_MAIN   },
 	{ "issue",           "ISSUE",                  SIMPLE,          LEVEL_MAIN   },
-	{ "date",            "DATE",                   SIMPLE,          LEVEL_MAIN   },   /*WRONG*/
-	{ "day",             "PARTDATE:DAY",           SIMPLE,          LEVEL_MAIN   },
-	{ "month",           "PARTDATE:MONTH",         SIMPLE,          LEVEL_MAIN   },
-	{ "year",            "PARTDATE:YEAR",          SIMPLE,          LEVEL_MAIN   },
+	{ "date",            "DATE",                   DATE,            LEVEL_MAIN   },   /*WRONG*/
+	{ "day",             "PARTDATE:DAY",           DATE,            LEVEL_MAIN   },
+	{ "month",           "PARTDATE:MONTH",         DATE,            LEVEL_MAIN   },
+	{ "year",            "PARTDATE:YEAR",          DATE,            LEVEL_MAIN   },
 	{ "pages",           "PAGES",                  PAGES,           LEVEL_MAIN   },
 	{ "note",            "NOTES",                  NOTES,           LEVEL_MAIN   },
 	{ "annote",          "ANNOTATION",             SIMPLE,          LEVEL_MAIN   },
@@ -804,9 +815,9 @@ static const lookups proceedings[] = {
 	{ "commentator",     "COMMENTATOR",            PERSON,          LEVEL_MAIN   },
 	{ "translator",      "TRANSLATOR",             PERSON,          LEVEL_MAIN   },
 	{ "eventtitle",      "EVENT:CONF",             SIMPLE,          LEVEL_MAIN   },
-	{ "year",            "DATE:YEAR",              SIMPLE,          LEVEL_MAIN   },
-	{ "month",           "DATE:MONTH",             SIMPLE,          LEVEL_MAIN   },
-	{ "date",            "DATE",                   SIMPLE,          LEVEL_MAIN   },   /*WRONG*/
+	{ "year",            "DATE:YEAR",              DATE,            LEVEL_MAIN   },
+	{ "month",           "DATE:MONTH",             DATE,            LEVEL_MAIN   },
+	{ "date",            "DATE",                   DATE,            LEVEL_MAIN   },   /*WRONG*/
 	{ "introduction",    "INTROAUTHOR",            PERSON,          LEVEL_MAIN   },
 	{ "foreword",        "INTROAUTHOR",            PERSON,          LEVEL_MAIN   },
 	{ "afterword",       "AFTERAUTHOR",            PERSON,          LEVEL_MAIN   },
@@ -819,8 +830,8 @@ static const lookups proceedings[] = {
 	{ "maintitleaddon",  "TITLEADDON",             TITLE,           LEVEL_HOST   },
 	{ "language",        "LANGUAGE",               SIMPLE,          LEVEL_MAIN   },
 	{ "origlanguage",    "LANGUAGE",               SIMPLE,          LEVEL_ORIG   },
-	{ "origdate",        "DATE",                   SIMPLE,          LEVEL_ORIG   },
-	{ "origyear",        "DATE:YEAR",              SIMPLE,          LEVEL_ORIG   },
+	{ "origdate",        "DATE",                   DATE,            LEVEL_ORIG   },
+	{ "origyear",        "DATE:YEAR",              DATE,            LEVEL_ORIG   },
 	{ "origtitle",       "TITLE",                  SIMPLE,          LEVEL_ORIG   },
 	{ "origlocation",    "ADDRESS",                SIMPLE,          LEVEL_ORIG   },
 	{ "origpublisher",   "PUBLISHER",              SIMPLE,          LEVEL_ORIG   },
@@ -829,6 +840,7 @@ static const lookups proceedings[] = {
 	{ "edition",         "EDITION",                SIMPLE,          LEVEL_MAIN   },
 	{ "volumes",         "NUMVOLUMES",             SIMPLE,          LEVEL_HOST   },
 	{ "series",          "TITLE",                  SIMPLE,          LEVEL_SERIES },
+	{ "shortseries",     "SHORTTITLE",             SIMPLE,          LEVEL_SERIES },
 	{ "number",          "NUMBER",                 SIMPLE,          LEVEL_MAIN   },
 	{ "note",            "NOTES",                  NOTES,           LEVEL_MAIN   },
 	{ "annote",          "ANNOTATION",             SIMPLE,          LEVEL_MAIN   },
@@ -866,11 +878,12 @@ static const lookups report[] = {
 	{ "titleaddon",      "TITLEADDON",             TITLE,           LEVEL_MAIN   },
 	{ "shorttitle",      "SHORTTITLE",             SIMPLE,          LEVEL_MAIN   },
 	{ "series",          "TITLE",                  TITLE,           LEVEL_HOST   },
+	{ "shortseries",     "SHORTTITLE",             SIMPLE,          LEVEL_HOST   },
 	{ "type",            "GENRE:UNKNOWN",          GENRE,           LEVEL_MAIN   },
 	{ "institution",     "SPONSOR:ASIS",           SIMPLE,          LEVEL_MAIN   },
-	{ "year",            "DATE:YEAR",              SIMPLE,          LEVEL_MAIN   },
-	{ "month",           "DATE:MONTH",             SIMPLE,          LEVEL_MAIN   },
-	{ "date",            "DATE",                   SIMPLE,          LEVEL_MAIN   },   /*WRONG*/
+	{ "year",            "DATE:YEAR",              DATE,            LEVEL_MAIN   },
+	{ "month",           "DATE:MONTH",             DATE,            LEVEL_MAIN   },
+	{ "date",            "DATE",                   DATE,            LEVEL_MAIN   },   /*WRONG*/
 	{ "language",        "LANGUAGE",               SIMPLE,          LEVEL_MAIN   },
 	{ "number",          "REPORTNUMBER",           SIMPLE,          LEVEL_MAIN   },
 	{ "note",            "NOTES",                  NOTES,           LEVEL_MAIN   },
@@ -908,10 +921,10 @@ static const lookups unpublished[] = {
 	{ "titleaddon",      "TITLEADDON",             TITLE,           LEVEL_MAIN   },
 	{ "shorttitle",      "SHORTTITLE",             SIMPLE,          LEVEL_MAIN   },
 	{ "howpublished",    "",                       HOWPUBLISHED,    LEVEL_MAIN   },
-	{ "year",            "DATE:YEAR",              SIMPLE,          LEVEL_MAIN   },
-	{ "month",           "DATE:MONTH",             SIMPLE,          LEVEL_MAIN   },
-	{ "day",             "DATE:DAY",               SIMPLE,          LEVEL_MAIN   },
-	{ "date",            "DATE",                   SIMPLE,          LEVEL_MAIN   },
+	{ "year",            "DATE:YEAR",              DATE,            LEVEL_MAIN   },
+	{ "month",           "DATE:MONTH",             DATE,            LEVEL_MAIN   },
+	{ "day",             "DATE:DAY",               DATE,            LEVEL_MAIN   },
+	{ "date",            "DATE",                   DATE,            LEVEL_MAIN   },
 	{ "url",             "",                       URL,             LEVEL_MAIN   },
 	{ "urlday",          "?????????",              SIMPLE,          LEVEL_MAIN   },
 	{ "urlmonth",        "?????????",              SIMPLE,          LEVEL_MAIN   },
@@ -936,10 +949,10 @@ static const lookups thesis[] = {
 	{ "subtitle",        "SUBTITLE",               TITLE,           LEVEL_MAIN   },
 	{ "titleaddon",      "TITLEADDON",             TITLE,           LEVEL_MAIN   },
 	{ "shorttitle",      "SHORTTITLE",             SIMPLE,          LEVEL_MAIN   },
-	{ "year",            "DATE:YEAR",              SIMPLE,          LEVEL_MAIN   },
-	{ "month",           "DATE:MONTH",             SIMPLE,          LEVEL_MAIN   },
-	{ "day",             "DATE:DAY",               SIMPLE,          LEVEL_MAIN   },
-	{ "date",            "DATE",                   SIMPLE,          LEVEL_MAIN   },   /*WRONG*/
+	{ "year",            "DATE:YEAR",              DATE,            LEVEL_MAIN   },
+	{ "month",           "DATE:MONTH",             DATE,            LEVEL_MAIN   },
+	{ "day",             "DATE:DAY",               DATE,            LEVEL_MAIN   },
+	{ "date",            "DATE",                   DATE,            LEVEL_MAIN   },   /*WRONG*/
 	{ "type",            "",                       BLT_THESIS_TYPE, LEVEL_MAIN   },
 	{ "institution",     "DEGREEGRANTOR:ASIS",     SIMPLE,          LEVEL_MAIN   },
 	{ "school",          "DEGREEGRANTOR:ASIS",     BLT_SCHOOL,      LEVEL_MAIN   },
@@ -970,10 +983,10 @@ static const lookups phdthesis[] = {
 	{ "subtitle",        "SUBTITLE",               TITLE,           LEVEL_MAIN   },
 	{ "titleaddon",      "TITLEADDON",             TITLE,           LEVEL_MAIN   },
 	{ "shorttitle",      "SHORTTITLE",             SIMPLE,          LEVEL_MAIN   },
-	{ "year",            "DATE:YEAR",              SIMPLE,          LEVEL_MAIN   },
-	{ "month",           "DATE:MONTH",             SIMPLE,          LEVEL_MAIN   },
-	{ "day",             "DATE:DAY",               SIMPLE,          LEVEL_MAIN   },
-	{ "date",            "DATE",                   SIMPLE,          LEVEL_MAIN   },   /*WRONG*/
+	{ "year",            "DATE:YEAR",              DATE,            LEVEL_MAIN   },
+	{ "month",           "DATE:MONTH",             DATE,            LEVEL_MAIN   },
+	{ "day",             "DATE:DAY",               DATE,            LEVEL_MAIN   },
+	{ "date",            "DATE",                   DATE,            LEVEL_MAIN   },   /*WRONG*/
 	{ "type",            "",                       BLT_THESIS_TYPE, LEVEL_MAIN   },
 	{ "institution",     "DEGREEGRANTOR:ASIS",     SIMPLE,          LEVEL_MAIN   },
 	{ "school",          "DEGREEGRANTOR:ASIS",     BLT_SCHOOL,      LEVEL_MAIN   },
@@ -1005,10 +1018,10 @@ static const lookups mastersthesis[] = {
 	{ "subtitle",        "SUBTITLE",               TITLE,           LEVEL_MAIN   },
 	{ "titleaddon",      "TITLEADDON",             TITLE,           LEVEL_MAIN   },
 	{ "shorttitle",      "SHORTTITLE",             SIMPLE,          LEVEL_MAIN   },
-	{ "year",            "DATE:YEAR",              SIMPLE,          LEVEL_MAIN   },
-	{ "month",           "DATE:MONTH",             SIMPLE,          LEVEL_MAIN   },
-	{ "day",             "DATE:DAY",               SIMPLE,          LEVEL_MAIN   },
-	{ "date",            "DATE",                   SIMPLE,          LEVEL_MAIN   },   /*WRONG*/
+	{ "year",            "DATE:YEAR",              DATE,            LEVEL_MAIN   },
+	{ "month",           "DATE:MONTH",             DATE,            LEVEL_MAIN   },
+	{ "day",             "DATE:DAY",               DATE,            LEVEL_MAIN   },
+	{ "date",            "DATE",                   DATE,            LEVEL_MAIN   },   /*WRONG*/
 	{ "type",            "",                       BLT_THESIS_TYPE, LEVEL_MAIN   },
 	{ "institution",     "DEGREEGRANTOR:ASIS",     SIMPLE,          LEVEL_MAIN   },
 	{ "school",          "DEGREEGRANTOR:ASIS",     BLT_SCHOOL,      LEVEL_MAIN   },
@@ -1033,7 +1046,6 @@ static const lookups mastersthesis[] = {
 	{ "",                "GENRE:MARC|thesis",      ALWAYS,          LEVEL_MAIN   },
 	{ "",                "GENRE:BIBUTILS|Masters thesis",  DEFAULT, LEVEL_MAIN   },
 };
-
 
 const variants biblatex_all[] = {
 	REFTYPE( "article", article ),
@@ -1068,4 +1080,4 @@ const variants biblatex_all[] = {
 	REFTYPE( "unpublished", unpublished ),
 };
 
-int biblatex_nall = sizeof( biblatex_all ) / sizeof( variants );
+int biblatex_nall = countof( biblatex_all );

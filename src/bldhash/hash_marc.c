@@ -13,6 +13,8 @@
 #include "hash.h"
 #include "uintlist.h"
 
+#include "monolithic_examples.h"
+
 static const char *marc_genre[] = {
 	"abstract or summary",
 	"art original",
@@ -808,14 +810,14 @@ static const marc_trans marc_relators[] = {
 
 static const int nmarc_relators = sizeof( marc_relators ) / sizeof( marc_relators[0] );
 
-void
+static void
 memerr( const char *fn )
 {
 	fprintf( stderr, "Memory error in %s()\n", fn );
 	exit( EXIT_FAILURE );
 }
 
-int
+static int
 hashify_marc_test_size( const char *list[], int nlist, unsigned int HASH_SIZE, uintlist *u )
 {
 	unsigned int n;
@@ -845,7 +847,7 @@ hashify_marc_test_size( const char *list[], int nlist, unsigned int HASH_SIZE, u
 	return 1;
 }
 
-void
+static void
 hashify_marc_write( FILE *fp, const char *list[], int nlist, const char *type, unsigned int HASH_SIZE, uintlist *u )
 {
 	unsigned int n;
@@ -889,7 +891,7 @@ hashify_marc_write( FILE *fp, const char *list[], int nlist, const char *type, u
 	fprintf( fp, "}\n" );
 }
 
-unsigned int
+static unsigned int
 hashify_size( const char *list[], int nlist, unsigned int max, uintlist *u )
 {
 	unsigned int HASH_SIZE = (unsigned int ) nlist;
@@ -906,7 +908,7 @@ hashify_size( const char *list[], int nlist, unsigned int max, uintlist *u )
 	else return HASH_SIZE;
 }
 
-void
+static void
 hashify_marc( const char *list[], int nlist, const char *type )
 {
 	unsigned int HASH_SIZE;
@@ -925,7 +927,7 @@ hashify_marc( const char *list[], int nlist, const char *type )
 	uintlist_free( &u );
 }
 
-void
+static void
 hashify_marc_trans_write( FILE *fp, unsigned int HASH_SIZE, const marc_trans *trans, int ntrans, const char *label, const char *comment, uintlist *u )
 {
 	unsigned int n;
@@ -975,7 +977,7 @@ hashify_marc_trans_write( FILE *fp, unsigned int HASH_SIZE, const marc_trans *tr
 	fprintf( fp, "}\n" );
 }
 
-void
+static void
 hashify_marc_trans( const marc_trans *trans, int ntrans, const char *label, const char *comment )
 {
 	unsigned int HASH_SIZE;
@@ -1004,7 +1006,7 @@ hashify_marc_trans( const marc_trans *trans, int ntrans, const char *label, cons
 	free( list );
 }
 
-void
+static void
 write_header( FILE *fp )
 {
 	fprintf( fp, "/*\n" );
@@ -1064,8 +1066,11 @@ write_header( FILE *fp )
 #endif
 }
 
-int
-main( int argc, char *argv[] )
+#if defined(BUILD_MONOLITHIC)
+#define main     bibutils_hash_marc_main
+#endif
+
+int main(int argc, const char** argv)
 {
 	write_header( stdout );
 	fflush( NULL );
@@ -1077,4 +1082,5 @@ main( int argc, char *argv[] )
 	fflush( NULL );
 	hashify_marc_trans( marc_country, nmarc_country, "country", "www.loc.gov/marc/countries/countries_code.html" );
 	fflush( NULL );
+	return EXIT_SUCCESS;
 }

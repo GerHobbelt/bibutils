@@ -14,13 +14,18 @@
 #include "tomods.h"
 #include "bibprog.h"
 
-const char help1[] =  "Converts a Medline XML file into MODS XML\n\n";
-const char help2[] = "medline_file";
+#include "monolithic_examples.h"
 
-const char progname[] = "med2xml";
+static const char help1[] =  "Converts a Medline XML file into MODS XML\n\n";
+static const char help2[] = "medline_file";
 
-int
-main( int argc, char *argv[] )
+static const char progname[] = "med2xml";
+
+#if defined(BUILD_MONOLITHIC)
+#define main     bibutils_med2xml_main
+#endif
+
+int main(int argc, const char** argv)
 {
 	param p;
 	medin_initparams( &p, progname );

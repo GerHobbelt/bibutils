@@ -14,13 +14,18 @@
 #include "tomods.h"
 #include "bibprog.h"
 
-const char help1[] = "Converts a Copac reference file into MODS XML\n\n";
-const char help2[] = "copac_file";
+#include "monolithic_examples.h"
 
-const char progname[] = "copac2xml";
+static const char help1[] = "Converts a Copac reference file into MODS XML\n\n";
+static const char help2[] = "copac_file";
 
-int 
-main( int argc, char *argv[] )
+static const char progname[] = "copac2xml";
+
+#if defined(BUILD_MONOLITHIC)
+#define main     bibutils_copac2xml_main
+#endif
+
+int main(int argc, const char** argv)
 {
 	param p;
 	copacin_initparams( &p, progname );

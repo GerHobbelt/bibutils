@@ -14,13 +14,18 @@
 #include "tomods.h"
 #include "bibprog.h"
 
-const char help1[] =  "Converts a Word2007 Bibliography XML file into MODS XML\n\n";
-const char help2[] = "word2007bib_file";
+#include "monolithic_examples.h"
 
-const char progname[] = "wordbib2xml";
+static const char help1[] =  "Converts a Word2007 Bibliography XML file into MODS XML\n\n";
+static const char help2[] = "word2007bib_file";
 
-int
-main( int argc, char *argv[] )
+static const char progname[] = "wordbib2xml";
+
+#if defined(BUILD_MONOLITHIC)
+#define main     bibutils_wordbib2xml_main
+#endif
+
+int main(int argc, const char** argv)
 {
 	param p;
 	wordin_initparams( &p, progname );

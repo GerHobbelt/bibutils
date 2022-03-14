@@ -11,7 +11,7 @@
 #include <string.h>
 #include "modstypes.h"
 
-char *
+const char *
 mods_get_id_from_internal( char *internal_name, convert *data, int ndata )
 {
 	int i;
@@ -22,7 +22,7 @@ mods_get_id_from_internal( char *internal_name, convert *data, int ndata )
 	return NULL;
 }
 
-char *
+const char *
 mods_get_id_from_mods( const char *mods_name, convert *data, int ndata )
 {
 	int i;

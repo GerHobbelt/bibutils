@@ -21,6 +21,8 @@
 #include "bibutils_tests.h"
 #endif
 
+#include "monolithic_examples.h"
+
 
 /*
  * typedef struct vplist {
@@ -30,6 +32,11 @@
  */
 
 static const char progname[] = "vplist_test";
+
+#if defined(BUILD_MONOLITHIC)
+#define main     bibutils_vplist_test_main
+#endif
+
 static const char version[] = "0.1";
 
 #define report_memerr( a ) { \
@@ -38,6 +45,7 @@ static const char version[] = "0.1";
 }
 
 #define check_len( a, b ) if ( !_check_len( a, b, __FUNCTION__, __LINE__ ) ) return 1;
+
 static int
 _check_len( vplist *a, int expected, const char *fn, int line )
 {
@@ -47,6 +55,7 @@ _check_len( vplist *a, int expected, const char *fn, int line )
 }
 
 #define check_entry( a, b, c ) if ( !_check_entry( a, b, c, __FUNCTION__, __LINE__ ) ) return 1;
+
 static int
 _check_entry( vplist *a, int n, const void *expected, const char *fn, int line )
 {
@@ -164,6 +173,7 @@ test_new( void )
  * returns VPLIST_OK or VPLIST_MEMERR
  */
 #define LENS (5)
+
 static int
 test_add( void )
 {
@@ -243,6 +253,7 @@ test_fill( void )
  */
 #define LENS (5)
 #define LENT (20)
+
 static int
 test_copy( void )
 {
@@ -296,6 +307,7 @@ test_copy( void )
  */
 #define LENS (15)
 #define LENT (3)
+
 static int
 test_append( void )
 {
@@ -357,6 +369,7 @@ test_append( void )
 #define LENS (5)
 #define INSERTPOS (3)
 #define LENT (26)
+
 static int
 test_insert_list( void )
 {
@@ -413,6 +426,7 @@ test_insert_list( void )
  * void * vplist_get( vplist *vpl, vplist_index n );
  */
 #define LENS (5)
+
 static int
 test_get( void )
 {
@@ -450,6 +464,7 @@ test_get( void )
  * void vplist_set( vplist *vpl, vplist_index n, void *v );
  */
 #define LENS (5)
+
 static int
 test_set( void )
 {
@@ -496,6 +511,7 @@ test_set( void )
  * void vplist_swap( vplist *vpl, vplist_index n1, vplist_index n2 );
  */
 #define LENS (5)
+
 static int
 test_swap( void )
 {
@@ -538,6 +554,7 @@ test_swap( void )
  */
 #define LENS (3)
 #define LENT (5)
+
 static int
 test_find( void )
 {
@@ -592,6 +609,7 @@ test_find( void )
  * void vplist_remove( vplist *vpl, vplist_index n );
  */
 #define LENS (5)
+
 static int
 test_remove( void )
 {
@@ -644,6 +662,7 @@ test_remove( void )
  * void vplist_removevp( vplist *vpl, void *v );
  */
 #define LENS (5)
+
 static int
 test_removevp( void )
 {
@@ -729,6 +748,7 @@ test_removevp( void )
  * void vplist_remove_range( vplist *vpl, vplist_index start, vplist_index endplusone );
  */
 #define LENS (5)
+
 static int
 test_remove_range( void )
 {

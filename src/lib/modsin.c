@@ -90,7 +90,7 @@ static char *
 modsin_get_lang_attribute( xml *node )
 {
 	char *lang, *expand;
-	str *langtag;
+	const str *langtag;
 
 	langtag = xml_attribute( node, "lang" );
 	if ( !langtag ) return NULL;

@@ -14,8 +14,14 @@
 #include "bibutils_tests.h"
 #endif
 
+#include "monolithic_examples.h"
+
 
 static const char progname[] = "doi_test";
+
+#if defined(BUILD_MONOLITHIC)
+#define main     bibutils_doi_test_main
+#endif
 
 typedef struct test_t {
 	const char *s;

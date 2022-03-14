@@ -14,10 +14,15 @@
 #include "tomods.h"
 #include "bibprog.h"
 
-const char progname[] = "modsclean";
+#include "monolithic_examples.h"
 
-int
-main( int argc, char *argv[] )
+static const char progname[] = "modsclean";
+
+#if defined(BUILD_MONOLITHIC)
+#define main     bibutils_modsclean_main
+#endif
+
+int main(int argc, const char** argv)
 {
 	param p;
 	modsin_initparams( &p, progname );

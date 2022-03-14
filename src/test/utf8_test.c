@@ -14,8 +14,14 @@
 #include "bibutils_tests.h"
 #endif
 
+#include "monolithic_examples.h"
+
 
 static const char progname[] = "utf8_test";
+
+#if defined(BUILD_MONOLITHIC)
+#define main     bibutils_utf8_test_main
+#endif
 
 static int
 test_utf8( void )

@@ -21,11 +21,19 @@
 #include "bibutils_tests.h"
 #endif
 
+#include "monolithic_examples.h"
+
 
 static const char progname[] = "slist_test";
+
+#if defined(BUILD_MONOLITHIC)
+#define main     bibutils_slist_test_main
+#endif
+
 static const char version[] = "0.3";
 
 #define check( a, b ) if ( !(a) ) return _check( #a, b, __FUNCTION__, (int)__LINE__ );
+
 static int
 _check(const char* a_str, const char* expected, const char* fn, int line)
 {
@@ -34,7 +42,8 @@ _check(const char* a_str, const char* expected, const char* fn, int line)
 }
 
 #define check_len( a, b ) if ( !_check_len( a, b, __FUNCTION__, __LINE__ ) ) return 1;
-int
+
+static int
 _check_len( slist *a, slist_index expected, const char *fn, int line )
 {
 	if ( a->n == expected ) return 1;
@@ -43,6 +52,7 @@ _check_len( slist *a, slist_index expected, const char *fn, int line )
 }
 
 #define check_entry( a, b, c ) if ( !_check_entry( a, b, c, __FUNCTION__, (int)__LINE__ ) ) return 1;
+
 static int
 _check_entry( const slist *a, int n, const char *expected, const char *fn, int line )
 {
@@ -66,7 +76,8 @@ _check_entry( const slist *a, int n, const char *expected, const char *fn, int l
 }
 
 #define check_add_result( a, b ) if ( !_check_add_result( a, b, __FUNCTION__, __LINE__ ) ) return 1;
-int
+
+static int
 _check_add_result( int obtained, int expected, const char *fn, int line )
 {
 	if ( obtained!=expected ) {
@@ -215,6 +226,7 @@ test_add_all( void )
 }
 
 #define COUNT (10)
+
 static int
 test_addc_all( void )
 {
@@ -246,6 +258,7 @@ test_addc_all( void )
 
 #if 0
 #define COUNT (10)
+
 static int
 test_addvp_all( void )
 {

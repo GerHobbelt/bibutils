@@ -13,7 +13,13 @@
 #include "intlist.h"
 #include "args.h"
 
-char progname[] = "bibdiff";
+#include "monolithic_examples.h"
+
+static const char progname[] = "bibdiff";
+
+#if defined(BUILD_MONOLITHIC)
+#define main     bibutils_bibdiff_main
+#endif
 
 /* find_tag_level_matches()
  *
@@ -41,7 +47,7 @@ find_tag_level_matches( fields *f, const char *tag, int level, intlist *matchs )
 	return n;
 }
 
-int
+static int
 compare_references( fields *f1, const char *fname1, fields *f2, const char *fname2, long n )
 {
 	int i, j, cnt, cnt1, cnt2, level, diff = 0;
@@ -110,7 +116,7 @@ compare_references( fields *f1, const char *fname1, fields *f2, const char *fnam
 	return diff;
 }
 
-int
+static int
 compare_bibliographies( bibl *b1, const char *fname1, bibl *b2, const char *fname2 )
 {
 	fields *f1, *f2;
@@ -131,14 +137,14 @@ compare_bibliographies( bibl *b1, const char *fname1, bibl *b2, const char *fnam
 	return 0;
 }
 
-void
+static void
 version( void )
 {
 	args_tellversion( progname );
 	exit( EXIT_FAILURE );
 }
 
-void
+static void
 help( void )
 {
 	args_tellversion( progname );
@@ -158,7 +164,7 @@ help( void )
 	exit( EXIT_FAILURE );
 }
 
-int
+static int
 lookup_format( const char *format )
 {
 	typedef struct flist_t { char *name; int code; } flist_t;
@@ -188,7 +194,7 @@ lookup_format( const char *format )
 	exit( EXIT_FAILURE );
 }
 
-void
+static void
 process_args( int *argc, const char *argv[], int *format1, int *format2 )
 {
 	int i, j, done, subtract;
@@ -231,8 +237,7 @@ process_args( int *argc, const char *argv[], int *format1, int *format2 )
 	}
 }
 
-int
-main( int argc, char *argv[] )
+int main(int argc, const char** argv)
 {
 	int format1 = BIBL_MODSIN;
 	int format2 = BIBL_MODSIN;

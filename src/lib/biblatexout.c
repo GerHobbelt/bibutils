@@ -55,7 +55,7 @@ biblatexout_initparams( param *pm, const char *progname )
 	if ( !pm->progname ) {
 		if ( !progname ) pm->progname = NULL;
 		else {
-			pm->progname = _strdup( progname );
+			pm->progname = strdup( progname );
 			if ( !pm->progname ) return BIBL_ERR_MEMERR;
 		}
 	}
@@ -222,7 +222,7 @@ append_citekey( fields *in, fields *out, int format_opts, int *status )
 
 	else {
 		str_init( &s );
-		p = (const char *)fields_value( in, n, FIELDS_CHRP );
+		p = fields_value( in, n, FIELDS_CHRP );
 		while ( p && *p && *p!='|' ) {
 			if ( format_opts & BIBL_FORMAT_BIBOUT_STRICTKEY ) {
 				if ( isdigit((unsigned char)*p) || (*p>='A' && *p<='Z') ||
@@ -256,10 +256,10 @@ append_fileattach( fields *in, fields *out, int *status )
 
 	for ( i=0; i<in->n; ++i ) {
 
-		tag = (const char *)fields_tag( in, i, FIELDS_CHRP );
+		tag = fields_tag( in, i, FIELDS_CHRP );
 		if ( strcasecmp( tag, "FILEATTACH" ) ) continue;
 
-		value = (const char *)fields_value( in, i, FIELDS_CHRP );
+		value = fields_value( in, i, FIELDS_CHRP );
 		str_strcpyc( &data, ":" );
 		str_strcatc( &data, value );
 		if ( strsearch( value, ".pdf" ) )
@@ -310,14 +310,14 @@ append_people( fields *in, const char *tag, const char *ctag, const char *atag,
 			}
 			if ( corp ) {
 				if ( latex_out ) str_addchar( &allpeople, '{' );
-				str_strcat( &allpeople, (const str *)fields_value( in, i, FIELDS_STRP ) );
+				str_strcat( &allpeople, fields_value( in, i, FIELDS_STRP ) );
 				if ( latex_out ) str_addchar( &allpeople, '}' );
 			} else if ( asis ) {
 				if ( latex_out ) str_addchar( &allpeople, '{' );
-				str_strcat( &allpeople, (const str *)fields_value( in, i, FIELDS_STRP ) );
+				str_strcat( &allpeople, fields_value( in, i, FIELDS_STRP ) );
 				if ( latex_out ) str_addchar( &allpeople, '}' );
 			} else {
-				name_build_withcomma( &oneperson, (const char *)fields_value( in, i, FIELDS_CHRP ) );
+				name_build_withcomma( &oneperson, fields_value( in, i, FIELDS_CHRP ) );
 				str_strcat( &allpeople, &oneperson );
 			}
 			npeople++;
@@ -341,12 +341,12 @@ append_title_chosen( fields *in, const char *bibtag, fields *out, int nmainttl, 
 	str_init( &fulltitle );
 
 	if ( nmainttl!=-1 ) {
-		mainttl = (const str *)fields_value( in, nmainttl, FIELDS_STRP );
+		mainttl = fields_value( in, nmainttl, FIELDS_STRP );
 		fields_set_used( in, nmainttl );
 	}
 
 	if ( nsubttl!=-1 ) {
-		subttl = (const str *)fields_value( in, nsubttl, FIELDS_STRP );
+		subttl = fields_value( in, nsubttl, FIELDS_STRP );
 		fields_set_used( in, nsubttl );
 	}
 
@@ -763,7 +763,7 @@ append_howpublished( fields *in, fields *out, int *status )
 	n = fields_find( in, "GENRE:BIBUTILS", LEVEL_ANY );
 	if ( n==FIELDS_NOTFOUND ) return;
 
-	d = (const char *)fields_value( in, n, FIELDS_CHRP_NOUSE );
+	d = fields_value( in, n, FIELDS_CHRP_NOUSE );
 	if ( !strcmp( d, "Habilitation thesis" ) ) {
 		fstatus = fields_add( out, "howpublised", d, LEVEL_MAIN );
 		if ( fstatus!=FIELDS_OK ) *status = BIBL_ERR_MEMERR;
@@ -846,7 +846,7 @@ biblatexout_write( fields *out, FILE *fp, param *pm, unsigned long refnum )
 	char ch;
 
 	/* ...output type information "@article{" */
-	value = ( const char * ) fields_value( out, 0, FIELDS_CHRP );
+	value = fields_value( out, 0, FIELDS_CHRP );
 	if ( !(format_opts & BIBL_FORMAT_BIBOUT_UPPERCASE) ) fprintf( fp, "@%s{", value );
 	else {
 		len = (value) ? strlen( value ) : 0;
@@ -857,14 +857,14 @@ biblatexout_write( fields *out, FILE *fp, param *pm, unsigned long refnum )
 	}
 
 	/* ...output refnum "Smith2001" */
-	value = ( const char * ) fields_value( out, 1, FIELDS_CHRP );
+	value = fields_value( out, 1, FIELDS_CHRP );
 	fprintf( fp, "%s", value );
 
 	/* ...rest of the references */
 	for ( j=2; j<out->n; ++j ) {
 		nquotes = 0;
-		tag   = ( const char * ) fields_tag( out, j, FIELDS_CHRP );
-		value = ( const char * ) fields_value( out, j, FIELDS_CHRP );
+		tag   = fields_tag( out, j, FIELDS_CHRP );
+		value = fields_value( out, j, FIELDS_CHRP );
 		fprintf( fp, ",\n" );
 		if ( format_opts & BIBL_FORMAT_BIBOUT_WHITESPACE ) fprintf( fp, "  " );
 		if ( !(format_opts & BIBL_FORMAT_BIBOUT_UPPERCASE ) ) fprintf( fp, "%s", tag );

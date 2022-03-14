@@ -231,7 +231,7 @@ out:
 static void
 append_pages( fields *in, int inlevel, fields *out, const char *outtag, int *status )
 {
-	str *start, *stop, *articlenumber;
+	const str *start, *stop, *articlenumber;
 	int fstatus;
 	str pages;
 	const char *p, *q;
