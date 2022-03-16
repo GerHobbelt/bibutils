@@ -17,10 +17,10 @@
 #endif
 
 
-typedef int tool_f();
+typedef int tool_f(int argc, const char** argv);
 
-static int help();
-static int quit();
+static int help(int argc, const char** argv);
+static int quit(int argc, const char** argv);
 
 static struct cmd_info
 {
@@ -165,7 +165,30 @@ static int parse(const char* source)
 
 		if (strncmp(source, el.cmd, cmd_len) == 0 && (sentinel == 0 || isspace(sentinel)))
 		{
-			return el.f();
+			int argc_count;
+			const char** argv_list = (const char**)calloc(strlen(source) / 2 + 2, sizeof(char*)); // worst-case heuristic for the argv[] array size itself
+			char* argv_strbuf = (char*)malloc(strlen(source) + 2);
+			const char* p = source + cmd_len;
+			while (isspace(*p))
+				p++;
+			strcpy(argv_strbuf, p);
+
+			argc_count = 0;
+			argv_list[argc_count++] = el.cmd;  // argv[0] == command
+
+			p = strtok(argv_strbuf, " \t\r\n");
+			while (p != NULL)
+			{
+				argv_list[argc_count++] = p;
+				p = strtok(NULL, " \t\r\n");
+			}
+			argv_list[argc_count] = NULL;
+
+			int rv = el.f(argc_count, argv_list);
+			free(argv_list);
+			free(argv_strbuf);
+			fprintf(stderr, "--> exit code: %d\n", rv);
+			return rv;
 		}
 	}
 	return 0;
@@ -229,7 +252,7 @@ static void trim(char* s)
 	}
 }
 
-static int help()
+static int help(int argc, const char** argv)
 {
 	fprintf(stderr, "Commands:\n");
 	for (int i = 0; i < sizeof(commands) / sizeof(commands[0]); i++)
@@ -243,7 +266,7 @@ static int help()
 }
 
 
-static int quit()
+static int quit(int argc, const char** argv)
 {
 	fprintf(stderr, "Exiting by user demand...\n");
 
@@ -326,3 +349,4 @@ int main(int argc, const char** argv)
 
 	return status;
 }
+
