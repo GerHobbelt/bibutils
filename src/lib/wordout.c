@@ -426,7 +426,7 @@ output_name( FILE *outptr, const char *p )
 #define NAME_CORP (4)
 
 static int
-extract_name_and_info( str *outtag, str *intag )
+extract_name_and_info( str *outtag, const str *intag )
 {
 	int code = NAME;
 	str_strcpy( outtag, intag );

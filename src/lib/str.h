@@ -106,7 +106,7 @@ int  str_is_mixedcase( const str *s );
 int  str_is_lowercase( const str *s );
 int  str_is_uppercase( const str *s );
 
-int  str_memerr( str *s );
+int  str_memerr( const str *s );
 
 unsigned long str_strlen( const str *s );
 

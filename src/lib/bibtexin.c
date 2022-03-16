@@ -368,7 +368,7 @@ out0:
 #define ESCAPED_BRACES (2)
 
 static int
-token_is_escaped( str *s )
+token_is_escaped( const str *s )
 {
 	if ( s->data[0]=='\"' && s->data[s->len-1]=='\"' ) return ESCAPED_QUOTES;
 	if ( s->data[0]=='{'  && s->data[s->len-1]=='}'  ) return ESCAPED_BRACES;
@@ -383,7 +383,7 @@ static int
 replace_strings( slist *tokens )
 {
 	int i, n;
-	const str *s;
+	str *s;
 
 	for ( i=0; i<tokens->n; ++i ) {
 		s = slist_str( tokens, i );
@@ -391,7 +391,7 @@ replace_strings( slist *tokens )
 		/* ...skip if token is protected by quotation marks or braces */
 		if ( token_is_escaped( s ) ) continue;
 
-		/* ...skip if token is string concatentation symbol */
+		/* ...skip if token is string concatenation symbol */
 		if ( !str_strcmpc( s, "#" ) ) continue;
 
 		n = slist_find( &find, s );
@@ -454,7 +454,7 @@ string_concatenate( slist *tokens, loc *currloc )
 		status = slist_remove( tokens, i+1 );
 		if ( status!=SLIST_OK ) return BIBL_ERR_MEMERR;
 
-		/* ...remove concatentation token '#' */
+		/* ...remove concatenation token '#' */
 		status = slist_remove( tokens, i );
 		if ( status!=SLIST_OK ) return BIBL_ERR_MEMERR;
 	}
@@ -870,8 +870,8 @@ bibtexin_nocrossref( bibl *bin, long i, int n, param *p )
 {
 	int n1 = fields_find( bin->ref[i], "REFNUM", LEVEL_ANY );
 	if ( p->progname ) fprintf( stderr, "%s: ", p->progname );
-	fprintf( stderr, "Cannot find cross-reference '%s'", fields_value( bin->ref[i], n, FIELDS_CHRP_NOUSE ) );
-	if ( n1!=FIELDS_NOTFOUND ) fprintf( stderr, " for reference '%s'\n", fields_value( bin->ref[i], n1, FIELDS_CHRP_NOUSE ) );
+	fprintf( stderr, "Cannot find cross-reference '%s'", (const char *)fields_value( bin->ref[i], n, FIELDS_CHRP_NOUSE ) );
+	if ( n1!=FIELDS_NOTFOUND ) fprintf( stderr, " for reference '%s'\n", (const char*)fields_value( bin->ref[i], n1, FIELDS_CHRP_NOUSE ) );
 	fprintf( stderr, "\n" );
 }
 
@@ -1258,7 +1258,7 @@ out:
 }
 
 static int
-bibtexin_date( fields *bibin, int m, str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
+bibtexin_date( fields *bibin, int m, const str *intag, const str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
 	int fstatus, status = BIBL_OK;
 	const char *out = NULL;
@@ -1306,7 +1306,7 @@ bibtexin_date( fields *bibin, int m, str *intag, str *invalue, int level, param 
  *
  */
 static int
-bibtexin_titleinbook_isbooktitle( fields *bibin, char *intag )
+bibtexin_titleinbook_isbooktitle( fields *bibin, const char *intag )
 {
 	int n;
 

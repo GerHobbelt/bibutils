@@ -94,7 +94,7 @@ complete_range( str *start, str *stop )
 }
 
 int
-add_pages( fields *bibout, str *value, int level )
+add_pages( fields *bibout, const str *value, int level )
 {
 	int fstatus, status = BIBL_OK;
 	str start, stop;

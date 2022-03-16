@@ -389,7 +389,7 @@ xml_attribute(const xml *node, const char *attribute )
 }
 
 const char *
-xml_attribute_cstr( xml *node, const char *attribute )
+xml_attribute_cstr( const xml *node, const char *attribute )
 {
 	slist_index n;
 

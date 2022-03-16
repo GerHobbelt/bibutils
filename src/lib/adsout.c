@@ -209,8 +209,8 @@ append_title( fields *in, const char *ttl, const char *sub, const char *adstag, 
 		}
 
 		fstatus = fields_add( out, adstag, str_cstr( &fulltitle ), LEVEL_MAIN );
-		if ( fstatus!=FIELDS_OK ) *status = BIBL_ERR_MEMERR;
-
+		if ( fstatus!=FIELDS_OK )
+			*status = BIBL_ERR_MEMERR;
 	}
 
 out:

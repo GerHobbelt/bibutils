@@ -672,7 +672,7 @@ get_title_elements( fields *bibin, int currlevel, int reftype, const variants *a
 	int nfields, process, level, i;
 	const str* t;
 	const str* d;
-	char *newtag;
+	const char *newtag;
 
 	strs_empty( ttl, subttl, ttladdon, NULL );
 
@@ -1042,7 +1042,7 @@ out:
 }
 
 static int
-biblatexin_date( fields *bibin, int m, str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
+biblatexin_date( fields *bibin, int m, const str *intag, const str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
 	int fstatus, status = BIBL_OK;
 	const char *out = NULL;

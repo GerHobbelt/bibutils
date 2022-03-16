@@ -115,9 +115,6 @@ static const lookups book[] = {
 	{ " ",      "GENRE:MARC|book",         ALWAYS, LEVEL_MAIN },
 };
 
-#define ORIG(a) ( &(a[0]) )
-#define REFTYPE(a,b) { a, ORIG(b), countof(b) }
-
 const variants nbib_all[] = {
 	REFTYPE( "Journal article", article ),
 	REFTYPE( "News",            article ),

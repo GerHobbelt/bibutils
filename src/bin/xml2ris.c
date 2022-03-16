@@ -47,7 +47,7 @@ help( const char *name )
 }
 
 static void
-process_args( int *argc, char *argv[], param *p )
+process_args( int *argc, const char *argv[], param *p )
 {
 	int i, j, subtract;
 	i = 1;

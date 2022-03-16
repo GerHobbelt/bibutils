@@ -1456,7 +1456,7 @@ test_findv_chrp_nouse( void )
 {
 	int n, status;
 	fields f;
-	char *p;
+	const char *p;
 
 	status = make_fields_with_unique_content( &f,
 			"TAG1", "VALUE1", LEVEL_MAIN,
@@ -1522,7 +1522,7 @@ test_findv_strp_use( void )
 {
 	int n, status;
 	fields f;
-	str *p;
+	const str *p;
 
 	status = make_fields_with_unique_content( &f,
 			"TAG1", "VALUE1", LEVEL_MAIN,
@@ -1553,7 +1553,7 @@ test_findv_strp_nouse( void )
 {
 	int n, status;
 	fields f;
-	str *p;
+	const str *p;
 
 	status = make_fields_with_unique_content( &f,
 			"TAG1", "VALUE1", LEVEL_MAIN,
@@ -1582,7 +1582,7 @@ test_findv_strp_nolen( void )
 {
 	int n, status;
 	fields f;
-	str *p;
+	const str *p;
 
 	status = make_fields_with_unique_content( &f,
 			"TAG1", "VALUE1", LEVEL_MAIN,

@@ -346,7 +346,7 @@ isiin_addauthors( fields *isiin, fields *info, int reftype, const variants *all,
 
 /* PD APR 16 */
 static int
-isiin_date( fields *bibin, int n, str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
+isiin_date( fields *bibin, int n, const str *intag, const str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
 	int fstatus, sstatus, status = BIBL_OK;
 	const char *monthtag = outtag;

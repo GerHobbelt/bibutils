@@ -126,9 +126,9 @@ static const char *marc_resource[] = {
 static const int nmarc_resource = sizeof( marc_resource ) / sizeof( const char* );
 
 typedef struct marc_trans {
-	char *internal_name;
-	char *abbreviation;
-	char *comment;
+	const char *internal_name;
+	const char *abbreviation;
+	const char *comment;
 } marc_trans;
 
 static const marc_trans marc_country[] = {
@@ -520,9 +520,9 @@ static const int nmarc_country = sizeof( marc_country ) / sizeof( marc_country[0
 /* www.loc.gov/marc/relators/relacode.html */
 #if 0
 typedef struct marc_trans {
-	char *internal_name;
-	char *abbreviation;
-	char *comment;
+	const char *internal_name;
+	const char *abbreviation;
+	const char *comment;
 } marc_trans;
 #endif
 

@@ -1213,7 +1213,8 @@ no_unused_tags( fields *f )
 static void
 report_unused_tags( FILE *outptr, fields *f, param *p, unsigned long refnum )
 {
-	char *tag, *value, *prefix;
+	char* tag, * value;
+	const char * prefix;
 	int i, n, nwritten, level;
 
 	if ( no_unused_tags( f ) ) return;

@@ -385,7 +385,7 @@ endin_cleanf( bibl *bin, param *p )
 *****************************************************/
 
 static int
-endin_date( fields *bibin, int n, str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
+endin_date( fields *bibin, int n, const str *intag, const str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
 	const char *tags[3][2] = {
 		{ "DATE:YEAR",  "PARTDATE:YEAR" },

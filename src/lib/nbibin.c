@@ -298,7 +298,7 @@ nbib_typef( fields *nbib, const char *filename, int nref, param *p )
 *****************************************************/
 
 static int
-nbibin_date( fields *bibin, int n, str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
+nbibin_date( fields *bibin, int n, const str *intag, const str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
 	int fstatus, sstatus, status = BIBL_OK;
 	const char *use;

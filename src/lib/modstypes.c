@@ -12,7 +12,7 @@
 #include "modstypes.h"
 
 const char *
-mods_get_id_from_internal( char *internal_name, convert *data, int ndata )
+mods_get_id_from_internal( const char *internal_name, convert *data, int ndata )
 {
 	int i;
 	for ( i=0; i<ndata; ++i ) {

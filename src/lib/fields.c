@@ -456,10 +456,12 @@ fields_value( fields *f, int n, int mode )
 	if ( mode & FIELDS_STRP_FLAG ) {
 		return _fields_value( f, n );
 	}
+#if defined(FIELDS_POSP_FLAG)
 	else if ( mode & FIELDS_POSP_FLAG ) {
 		retn = n;               /* avoid compiler warning */
-		return ( const void * ) retn; /* Rather pointless -- the user provided "n" */
+		return ( const void * )((intptr_t)retn); /* Rather pointless -- the user provided "n" */
 	}
+#endif
 	else {
 		if ( str_has_value( _fields_value( f, n ) ) )
 			return _fields_value_char( f, n );
@@ -478,10 +480,12 @@ fields_tag( fields *f, int n, int mode )
 	if ( mode & FIELDS_STRP_FLAG ) {
 		return ( void * ) _fields_tag( f, n );
 	}
+#if defined(FIELDS_POSP_FLAG)
 	else if ( mode & FIELDS_POSP_FLAG ) {
 		retn = n;               /* avoid compiler warning */
-		return ( void * ) retn; /* Rather pointless -- the user provided "n" */
+		return ( const void * )((intptr_t)retn); /* Rather pointless -- the user provided "n" */
 	}
+#endif
 	else {
 		if ( str_has_value( _fields_tag( f, n ) ) )
 			return _fields_tag_char( f, n );
@@ -521,9 +525,11 @@ fields_findv( fields *f, int level, int mode, const char *tag )
 	else {
 		_fields_used(f,found) = 1; /* Suppress "noise" of unused */
 		if ( ( mode & FIELDS_NOLENOK_FLAG ) == 0  ) return NULL;
-		if ( ( mode & FIELDS_STRP_FLAG )  ) return ( void * ) _fields_value( f, found );
-		else if ( ( mode & FIELDS_POSP_FLAG ) ) return ( void * )( (intptr_t) found );
-		else return ( void * ) fields_null_value;
+		if ( ( mode & FIELDS_STRP_FLAG )  ) return ( const void * ) _fields_value( f, found );
+#if defined(FIELDS_POSP_FLAG)
+		else if ( ( mode & FIELDS_POSP_FLAG ) ) return ( const void * )( (intptr_t) found );
+#endif
+		else return ( const void * ) fields_null_value;
 	}
 }
 

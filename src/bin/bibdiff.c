@@ -167,7 +167,7 @@ help( void )
 static int
 lookup_format( const char *format )
 {
-	typedef struct flist_t { char *name; int code; } flist_t;
+	typedef struct flist_t { const char *name; int code; } flist_t;
 	flist_t formats[] = {
 		{ "bibtex",      BIBL_BIBTEXIN },
 		{ "biblatex",    BIBL_BIBLATEXIN },

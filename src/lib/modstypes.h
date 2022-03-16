@@ -25,8 +25,8 @@ typedef struct convert2 {
 } convert2;
 
 
-const char *mods_get_id_from_internal( char *internal_name, convert *data, int ndata );
-const char *mods_get_id_from_mods( char *mods_name, convert *data, int ndata );
+const char *mods_get_id_from_internal( const char *internal_name, convert *data, int ndata );
+const char *mods_get_id_from_mods( const char *mods_name, convert *data, int ndata );
 
 int convert2_findallfields( fields *f, convert2 *parts, int nparts, int level );
 

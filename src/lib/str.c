@@ -181,7 +181,7 @@ strs_init( str *s, ... )
 }
 
 int
-str_memerr( str *s )
+str_memerr( const str *s )
 {
 #ifndef STR_SMALL
 	return s->status == STR_MEMERR;

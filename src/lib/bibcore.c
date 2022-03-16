@@ -506,7 +506,7 @@ bibl_notexify( const char *tag )
 static int
 bibl_fixcharsetdata( fields *ref, param *p )
 {
-	const str *data;
+	str *data;
 	const char *tag;
 	long i, n;
 	int ok;

@@ -146,7 +146,7 @@ bibtexout_type( fields *in, const char *progname, const char *filename, unsigned
 			fprintf( stderr, "Cannot identify TYPE in reference %lu ", refnum+1 );
 			n = fields_find( in, "REFNUM", LEVEL_ANY );
 			if ( n!=FIELDS_NOTFOUND ) 
-				fprintf( stderr, " %s", fields_value( in, n, FIELDS_CHRP ) );
+				fprintf( stderr, " %s", (const char *)fields_value( in, n, FIELDS_CHRP ) );
 			fprintf( stderr, " (defaulting to @Misc)\n" );
 			type = TYPE_MISC;
 		}
