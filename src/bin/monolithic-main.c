@@ -185,7 +185,7 @@ static int parse(const char* source)
 			argv_list[argc_count] = NULL;
 
 			int rv = el.f(argc_count, argv_list);
-			free(argv_list);
+			free((void *)argv_list);
 			free(argv_strbuf);
 			fprintf(stderr, "--> exit code: %d\n", rv);
 			return rv;
