@@ -12,11 +12,6 @@
 #include "monolithic_examples.h"
 
 
-#if defined(BUILD_MONOLITHIC)
-#define main     bibutils_monolithic_main
-#endif
-
-
 typedef int tool_f(int argc, const char** argv);
 
 static int help(int argc, const char** argv);
