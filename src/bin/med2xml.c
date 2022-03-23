@@ -16,7 +16,7 @@
 
 #include "monolithic_examples.h"
 
-static const char help1[] =  "Converts a Medline XML file into MODS XML\n\n";
+static const char help1[] = "Converts a Medline XML file into MODS XML\n\n";
 static const char help2[] = "medline_file";
 
 static const char progname[] = "med2xml";
