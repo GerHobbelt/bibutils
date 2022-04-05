@@ -37,7 +37,7 @@ find_tag_level_matches( fields *f, const char *tag, int level, intlist *matchs )
 
 	for ( i=0; i<f->n; ++i ) {
 		if ( fields_level( f, i ) != level ) continue;
-		ftag = fields_tag( f, i, FIELDS_CHRP_NOLEN );
+		ftag = (const char*)fields_tag( f, i, FIELDS_CHRP_NOLEN );
 		if ( !strcmp( tag, ftag ) ) {
 			intlist_set( matchs, i, 1 );
 			n++;

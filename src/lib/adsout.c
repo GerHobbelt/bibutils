@@ -162,8 +162,8 @@ append_title( fields *in, const char *ttl, const char *sub, const char *adstag, 
 
 	str_init( &fulltitle );
 
-	title     = fields_findv( in, level, FIELDS_STRP, ttl );
-	subtitle  = fields_findv( in, level, FIELDS_STRP, sub );
+	title     = (const str*)fields_findv( in, level, FIELDS_STRP, ttl );
+	subtitle  = (const str*)fields_findv( in, level, FIELDS_STRP, sub );
 
 	if ( str_has_value( title ) ) {
 
@@ -171,21 +171,21 @@ append_title( fields *in, const char *ttl, const char *sub, const char *adstag, 
 
 		title_combine( &fulltitle, title, subtitle );
 
-		vol = fields_findv( in, LEVEL_ANY, FIELDS_STRP, "VOLUME" );
+		vol = (const str*)fields_findv( in, LEVEL_ANY, FIELDS_STRP, "VOLUME" );
 		if ( str_has_value( vol ) ) {
 			str_strcatc( &fulltitle, ", vol. " );
 			str_strcat( &fulltitle, vol );
 		}
 
-		iss = fields_findv_firstof( in, LEVEL_ANY, FIELDS_STRP, "ISSUE", "NUMBER", NULL );
+		iss = (const str*)fields_findv_firstof( in, LEVEL_ANY, FIELDS_STRP, "ISSUE", "NUMBER", NULL );
 		if ( str_has_value( iss ) ) {
 			str_strcatc( &fulltitle, ", no. " );
 			str_strcat( &fulltitle, iss );
 		}
 
-		sn = fields_findv( in, LEVEL_ANY, FIELDS_STRP, "PAGES:START" );
-		en = fields_findv( in, LEVEL_ANY, FIELDS_STRP, "PAGES:STOP" );
-		ar = fields_findv( in, LEVEL_ANY, FIELDS_STRP, "ARTICLENUMBER" );
+		sn = (const str*)fields_findv( in, LEVEL_ANY, FIELDS_STRP, "PAGES:START" );
+		en = (const str*)fields_findv( in, LEVEL_ANY, FIELDS_STRP, "PAGES:STOP" );
+		ar = (const str*)fields_findv( in, LEVEL_ANY, FIELDS_STRP, "ARTICLENUMBER" );
 
 		if ( str_has_value( sn ) ) {
 			if ( str_has_value( en ) ) {

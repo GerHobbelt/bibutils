@@ -35,11 +35,11 @@ typedef void (*vplist_ptrfree)(const void**);
 vplist *     vplist_new( void );
 
 void   vplist_init          ( vplist *vpl );
-int    vplist_add           ( vplist *vpl, const void *v );
-int    vplist_fill          ( vplist *vpl, vplist_index n, const void *v );
+int    vplist_add           ( vplist *vpl, void *v );
+int    vplist_fill          ( vplist *vpl, vplist_index n, void *v );
 int    vplist_copy          ( vplist *to,  const vplist *from );
-int    vplist_append        ( vplist *vpl, const vplist *add );
-int    vplist_insert_list   ( vplist *vpl, vplist_index pos, const vplist *add );
+int    vplist_append        ( vplist *vpl, vplist *add );
+int    vplist_insert_list   ( vplist *vpl, vplist_index pos, vplist *add );
 const void * vplist_get     ( vplist *vpl, vplist_index n );
 void** vplist_getref        ( vplist* vpl, vplist_index n );
 void   vplist_set           ( vplist *vpl, vplist_index n, void *v );

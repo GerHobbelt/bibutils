@@ -42,7 +42,6 @@ extern int bibutils_xml2nbib_main(int argc, const char** argv);
 extern int bibutils_xml2ris_main(int argc, const char** argv);
 extern int bibutils_xml2wordbib_main(int argc, const char** argv);
 
-
 #ifdef __cplusplus
 }
 #endif

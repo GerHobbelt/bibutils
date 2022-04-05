@@ -443,11 +443,9 @@ fields_num( fields *f )
  *
  */
 
-const void *
+void *
 fields_value( fields *f, int n, int mode )
 {
-	intptr_t retn;
-
 	if ( n<0 || n>= f->n ) return NULL;
 
 	if ( mode & FIELDS_SETUSE_FLAG )
@@ -458,23 +456,21 @@ fields_value( fields *f, int n, int mode )
 	}
 #if defined(FIELDS_POSP_FLAG)
 	else if ( mode & FIELDS_POSP_FLAG ) {
-		retn = n;               /* avoid compiler warning */
-		return ( const void * )((intptr_t)retn); /* Rather pointless -- the user provided "n" */
+		intptr_t retn = n;               /* avoid compiler warning */
+		return ( void * )(retn);         /* Rather pointless -- the user provided "n" */
 	}
 #endif
 	else {
 		if ( str_has_value( _fields_value( f, n ) ) )
-			return _fields_value_char( f, n );
+			return (void *)_fields_value_char( f, n );
 		else
-			return fields_null_value;
+			return (void*)fields_null_value;
 	}
 }
 
-const void *
+void *
 fields_tag( fields *f, int n, int mode )
 {
-	intptr_t retn;
-
 	if ( n<0 || n>= f->n ) return NULL;
 
 	if ( mode & FIELDS_STRP_FLAG ) {
@@ -482,15 +478,15 @@ fields_tag( fields *f, int n, int mode )
 	}
 #if defined(FIELDS_POSP_FLAG)
 	else if ( mode & FIELDS_POSP_FLAG ) {
-		retn = n;               /* avoid compiler warning */
-		return ( const void * )((intptr_t)retn); /* Rather pointless -- the user provided "n" */
+		intptr_t retn = n;               /* avoid compiler warning */
+		return ( void * )(retn);         /* Rather pointless -- the user provided "n" */
 	}
 #endif
 	else {
 		if ( str_has_value( _fields_tag( f, n ) ) )
-			return _fields_tag_char( f, n );
+			return (void*)_fields_tag_char( f, n );
 		else
-			return fields_null_value;
+			return (void*)fields_null_value;
 	}
 }
 
@@ -501,7 +497,7 @@ fields_level( fields *f, int n )
 	return _fields_level( f, n );
 }
 
-const void *
+void *
 fields_findv( fields *f, int level, int mode, const char *tag )
 {
 	int i, found = FIELDS_NOTFOUND;
@@ -525,24 +521,24 @@ fields_findv( fields *f, int level, int mode, const char *tag )
 	else {
 		_fields_used(f,found) = 1; /* Suppress "noise" of unused */
 		if ( ( mode & FIELDS_NOLENOK_FLAG ) == 0  ) return NULL;
-		if ( ( mode & FIELDS_STRP_FLAG )  ) return ( const void * ) _fields_value( f, found );
+		if ( ( mode & FIELDS_STRP_FLAG )  ) return ( void * ) _fields_value( f, found );
 #if defined(FIELDS_POSP_FLAG)
-		else if ( ( mode & FIELDS_POSP_FLAG ) ) return ( const void * )( (intptr_t) found );
+		else if ( ( mode & FIELDS_POSP_FLAG ) ) return ( void * )( (intptr_t) found );
 #endif
-		else return ( const void * ) fields_null_value;
+		else return ( void * ) fields_null_value;
 	}
 }
 
-const void *
+void *
 fields_findv_firstof( fields *f, int level, int mode, ... )
 {
 	const char* tag;
-	const char* value;
+	char* value;
 	va_list argp;
 
 	va_start( argp, mode );
 	while ( ( tag = ( const char * ) va_arg( argp, const char * ) ) ) {
-		value = fields_findv( f, level, mode, tag );
+		value = (char*)fields_findv( f, level, mode, tag );
 		if ( value ) {
 			va_end( argp );
 			return value;
@@ -557,7 +553,7 @@ static int
 fields_findv_each_add( fields *f, int mode, int n, vplist *a )
 {
 	int status;
-	const void *v;
+	void *v;
 
 	v = fields_value( f, n, mode );
 	if ( !v ) return FIELDS_OK;
@@ -599,9 +595,9 @@ static int
 fields_build_tags( va_list argp, vplist *tags )
 {
 	int status;
-	const char *tag;
+	char *tag;
 
-	while ( ( tag = ( const char * ) va_arg( argp, const char * ) ) ) {
+	while ( ( tag = ( char * ) va_arg( argp, char * ) ) ) {
 		status = vplist_add( tags, tag );
 		if ( status!=VPLIST_OK ) return FIELDS_ERR_MEMERR;
 	}

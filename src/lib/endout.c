@@ -412,7 +412,7 @@ append_type( int type, fields *out, param *p, int *status )
 }
 
 static int
-append_title( fields *in, char *full, char *sub, int level, fields *out, char *endtag, int *status )
+append_title( fields *in, const char *full, const char *sub, int level, fields *out, const char *endtag, int *status )
 {
 	const str *mainttl = (const str *)fields_findv( in, level, FIELDS_STRP, full );
 	const str *subttl  = (const str *)fields_findv( in, level, FIELDS_STRP, sub );
@@ -437,7 +437,7 @@ out:
 }
 
 static void
-append_people( fields *in, char *tag, char *entag, int level, fields *out, int *status )
+append_people( fields *in, const char *tag, const char *entag, int level, fields *out, int *status )
 {
 	int i, n, flvl, fstatus;
 	str oneperson;

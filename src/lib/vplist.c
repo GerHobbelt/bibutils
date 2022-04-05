@@ -119,7 +119,7 @@ vplist_copy( vplist *to, const vplist *from )
 }
 
 int
-vplist_fill( vplist *vpl, vplist_index n, const void *v )
+vplist_fill( vplist *vpl, vplist_index n, void *v )
 {
 	vplist_index i;
 	int status;
@@ -138,7 +138,7 @@ vplist_fill( vplist *vpl, vplist_index n, const void *v )
 }
 
 int
-vplist_add( vplist *vpl, const void *v )
+vplist_add( vplist *vpl, void *v )
 {
 	int status;
 
@@ -155,7 +155,7 @@ vplist_add( vplist *vpl, const void *v )
 }
 
 int
-vplist_insert_list( vplist *vpl, vplist_index pos, const vplist *add )
+vplist_insert_list( vplist *vpl, vplist_index pos, vplist *add )
 {
 	vplist_index i;
 	int status;
@@ -183,7 +183,7 @@ vplist_insert_list( vplist *vpl, vplist_index pos, const vplist *add )
 }
 
 int
-vplist_append( vplist *vpl, const vplist *add )
+vplist_append( vplist *vpl, vplist *add )
 {
 	vplist_index i;
 	int status;

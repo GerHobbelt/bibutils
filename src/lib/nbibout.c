@@ -352,7 +352,7 @@ append_lang( fields *in, int inlevel, fields *out, const char *outtag, int *stat
 {
 	int fstatus;
 	str *lang;
-	char *code;
+	const char *code;
 
 	lang = fields_findv( in, inlevel, FIELDS_STRP, "LANGUAGE" );
 	if ( lang ) {

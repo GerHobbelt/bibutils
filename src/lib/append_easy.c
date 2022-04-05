@@ -27,7 +27,7 @@ append_easy( fields *in, const char *intag, int inlevel, fields *out, const char
 	const char *value;
 	int fstatus;
 
-	value = fields_findv( in, inlevel, FIELDS_CHRP, intag );
+	value = (const char *)fields_findv( in, inlevel, FIELDS_CHRP, intag );
 	if ( value ) {
 		fstatus = fields_add( out, outtag, value, LEVEL_MAIN );
 		if ( fstatus!=FIELDS_OK ) *status = BIBL_ERR_MEMERR;

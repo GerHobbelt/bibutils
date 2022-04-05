@@ -226,8 +226,8 @@ slist_set( slist *a, slist_index n, str *s )
 /*
  * return pointer to str 'n'
  */
-const str *
-slist_str( const slist *a, slist_index n )
+str *
+slist_str( slist *a, slist_index n )
 {
 	assert( a );
 

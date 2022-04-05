@@ -86,10 +86,10 @@ static const char modsns[]="mods";
  *
  * Returns NULL if attribute is missing
  */
-static char *
+static const char *
 modsin_get_lang_attribute( xml *node )
 {
-	char *lang, *expand;
+	const char *lang, *expand;
 	const str *langtag;
 
 	langtag = xml_attribute( node, "lang" );
@@ -147,7 +147,7 @@ modsin_detail_value( xml *node, str *value )
 static int
 modsin_detail_type( xml *node, str *type )
 {
-	str *attribute;
+	const str *attribute;
 
 	attribute = xml_attribute( node, "type" );
 	if ( attribute ) {
@@ -334,7 +334,7 @@ out:
 static void
 modsin_add_sep_if_necessary( str *s, char sep )
 {
-	char *p;
+	const char *p;
 
 	if ( str_is_empty( s ) ) return;
 
@@ -645,9 +645,9 @@ modsin_name( xml *node, fields *info, const char *lang, int level )
  */
 
 static int
-modsin_placeterm_code( xml *node, fields *info, int level, str *auth )
+modsin_placeterm_code( xml *node, fields *info, int level, const str *auth )
 {
-	char *value = NULL, *tag = "ADDRESS";
+	const char *value = NULL, *tag = "ADDRESS";
 	int fstatus, status = BIBL_OK;
 	str s;
 
@@ -683,7 +683,7 @@ modsin_place( xml *node, fields *info, const char *lang, int level )
 	const char *tag[] = { "ADDRESS", "SCHOOL" };
 	int place_is_school = 0, is_school;
 	int status = BIBL_OK;
-	str *type, *auth;
+	const str *type, *auth;
 
 	if ( xml_tag_has_attribute( node, "place", "type", "school" ) )
 		place_is_school = 1;
@@ -810,7 +810,7 @@ static int
 modsin_genre( xml *node, fields *info, const char *lang, int level )
 {
 	int fstatus;
-	char *value;
+	const char *value;
 
 	if ( !xml_has_value( node ) ) return BIBL_OK;
 
@@ -856,8 +856,8 @@ modsin_genre( xml *node, fields *info, const char *lang, int level )
 static int
 modsin_languageterm( xml *node, fields *info, const char *outtag, int level )
 {
-	char *lang = NULL;
-	str *authority;
+	const char *lang = NULL;
+	const str *authority;
 	int fstatus;
 
 	/* if language provided as a code, expand it */
@@ -1215,7 +1215,7 @@ modsin_mods( xml *node, fields *info, int level )
 	const int nmods_vtable = sizeof( mods_vtable ) / sizeof( mods_vtable[0] );
 
 	int i, found=-1, status = BIBL_OK;
-	char *lang;
+	const char *lang;
 
 	lang = modsin_get_lang_attribute( node );
 
@@ -1247,7 +1247,7 @@ static int
 modsin_refid( xml *node, fields *info, int level )
 {
 	int fstatus;
-	str *ns;
+	const str *ns;
 
 	ns = xml_attribute( node, "ID" );
 	if ( str_has_value( ns ) ) {

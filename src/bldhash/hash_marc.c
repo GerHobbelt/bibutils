@@ -1003,7 +1003,7 @@ hashify_marc_trans( const marc_trans *trans, int ntrans, const char *label, cons
 
 	uintlist_free( &u );
 
-	free( list );
+	free( (void *)list );
 }
 
 static void

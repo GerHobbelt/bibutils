@@ -46,13 +46,6 @@ static const char *bu_genre[] = {
 };
 static const int nbu_genre = sizeof( bu_genre ) / sizeof( const char *);
 
-static void
-memerr( const char *fn )
-{
-	fprintf( stderr, "Memory error in %s()\n", fn );
-	exit( EXIT_FAILURE );
-}
-
 static int
 hashify_test_size( const char *list[], int nlist, unsigned int HASH_SIZE, uintlist *u )
 {

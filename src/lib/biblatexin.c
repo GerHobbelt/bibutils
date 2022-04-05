@@ -998,9 +998,9 @@ biblatexin_bteprint( fields *bibin, int n, const str *intag, const str *invalue,
 	return BIBL_OK;
 }
 
-/* The date field should in ISO 8601 format */
+/* The date field should be in ISO 8601 format */
 static int
-biblatexin_date_iso8601( fields *bibin, int m, str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
+biblatexin_date_iso8601( fields *bibin, int m, const str *intag, const str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
 	char *parttags[] = { "PARTDATE:YEAR", "PARTDATE:MONTH", "PARTDATE:DAY" };
 	char *tags[] = { "DATE:YEAR", "DATE:MONTH", "DATE:DAY" };
@@ -1134,7 +1134,7 @@ biblatexin_blteditor( fields *bibin, int m, const str *intag, const str *invalue
 		if ( !strcasecmp( intag->data, editor_fields[i] ) ) n = i;
 	ntype = fields_find( bibin, editor_types[n], LEVEL_ANY );
 	if ( ntype!=FIELDS_NOTFOUND ) {
-		type = fields_value( bibin, ntype, FIELDS_CHRP_NOUSE );
+		type = (const char *)fields_value( bibin, ntype, FIELDS_CHRP_NOUSE );
 		if ( !strcasecmp( type, "collaborator" ) )  usetag = "COLLABORATOR";
 		else if ( !strcasecmp( type, "compiler" ) ) usetag = "COMPILER";
 		else if ( !strcasecmp( type, "redactor" ) ) usetag = "REDACTOR";

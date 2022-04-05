@@ -73,11 +73,20 @@
 
 #include <string.h>
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 static inline int strcasecmp(const char* s1, const char* s2) {
 	return _stricmp(s1, s2);
 }
 static int strncasecmp(const char* s1, const char* s2, size_t len) {
 	return _strnicmp(s1, s2, len);
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

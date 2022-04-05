@@ -160,7 +160,7 @@ output_vpl( FILE *outptr, int nindents, const char *tag, vplist *values, unsigne
 {
 	vplist_index i;
 	va_list attrs;
-	char *value;
+	const char *value;
 
 	/* need to reinitialize attrs for each loop */
 	for ( i=0; i<values->n; ++i ) {
@@ -990,7 +990,7 @@ output_key( FILE *outptr, fields *f, int level )
 {
 	int indent1, indent2;
 	vplist_index i;
-	char *value;
+	const char *value;
 	vplist keys;
 	int status;
 
