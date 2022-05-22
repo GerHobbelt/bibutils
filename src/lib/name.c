@@ -204,7 +204,7 @@ token_has_no_upper( const slist *tokens, int n )
 {
 	unsigned short m;
 	const str *s;
-	s = slist_str( tokens, n );
+	s = c_slist_str( tokens, n );
 	m = unicode_utf8_classify_str( s );
 	if ( m & UNICODE_UPPER ) return 0;
 	else return 1;

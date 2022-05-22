@@ -84,6 +84,11 @@ int     slist_append_unique_ret( slist *a, slist *toadd, int retok, int reterr )
 int     slist_remove( slist *a, slist_index n );
 
 str * slist_str( slist *a, slist_index n );
+
+static inline const str* c_slist_str(const slist* a, slist_index n) {
+	return slist_str((slist *)a, n);
+}
+
 const char * slist_cstr( const slist *a, slist_index n );
 
 str *   slist_set( slist *a, slist_index n, str *s );

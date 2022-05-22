@@ -385,7 +385,7 @@ xml_attribute(const xml *node, const char *attribute )
 
 	n = slist_findc( &(node->attributes), attribute );
 	if ( slist_wasnotfound( &(node->attributes), n ) ) return NULL;
-	else return slist_str( &(node->attribute_values), n );
+	else return c_slist_str( &(node->attribute_values), n );
 }
 
 const char *

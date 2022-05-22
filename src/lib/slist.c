@@ -627,7 +627,7 @@ slist_find_sorted( const slist *a, const char *searchstr )
 	max = a->n - 1;
 	while ( min <= max ) {
 		mid = ( min + max ) / 2;
-		cs = slist_str( a, mid );
+		cs = c_slist_str( a, mid );
 		comp = slist_comp( (const void*)cs, (const void*) (&s) );
 		if ( comp==0 ) {
 			str_free( &s );
@@ -813,7 +813,7 @@ slist_get_maxlen( const slist *a )
 	assert( a );
 
 	for ( i=0; i<a->n; ++i ) {
-		s = slist_str( a, i );
+		s = c_slist_str( a, i );
 		if ( s->len > max ) max = s->len;
 	}
 
