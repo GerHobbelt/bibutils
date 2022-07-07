@@ -30,8 +30,9 @@ int main(int argc, const char** argv)
 	param p;
 	bibtexin_initparams( &p, progname );
 	modsout_initparams( &p, progname );
-	tomods_processargs( &argc, argv, &p, help1, help2 );
-	bibprog( argc, argv, &p );
+	int rc = tomods_processargs( &argc, argv, &p, help1, help2 );
+	if (rc == BIBL_OK)
+		rc = bibprog( argc, argv, &p );
 	bibl_freeparams( &p );
-	return EXIT_SUCCESS;
+	return (rc == BIBL_OK ? EXIT_SUCCESS : EXIT_FAILURE);
 }

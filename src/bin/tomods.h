@@ -9,7 +9,7 @@
 #ifndef TOMODS_H
 #define TOMODS_H
 
-void tomods_processargs( int *argc, const char *argv[], param *p,
+int tomods_processargs( int *argc, const char *argv[], param *p,
     const char *help1, const char *help2 );
 
 

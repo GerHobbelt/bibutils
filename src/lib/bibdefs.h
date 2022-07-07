@@ -16,4 +16,8 @@
 #define BIBL_ERR_MEMERR   (-2)
 #define BIBL_ERR_CANTOPEN (-3)
 
+#define BIBL_ERR_EXIT_FAILURE (-4)
+#define BIBL_ERR_EXIT_SUCCESS (-5)
+
+
 #endif

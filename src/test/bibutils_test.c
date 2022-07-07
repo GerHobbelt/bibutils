@@ -205,10 +205,14 @@ static int process_input_file(const char* filepath, const char* filepath_subtree
             NULL
         };
         int argc = countof(argv) - 1;
-        tomods_processargs(&argc, argv, &p, NULL, NULL);
-        bibprog2(filepath, dstpath, offset, dstoffset, &p);
+        int rc = tomods_processargs(&argc, argv, &p, NULL, NULL);
+		if (rc < 0)
+			return EXIT_FAILURE;
+        rc = bibprog2(filepath, dstpath, offset, dstoffset, &p);
         bibl_freeparams(&p);
-        return EXIT_SUCCESS;
+		if (rc)
+			return EXIT_FAILURE;
+		return EXIT_SUCCESS;
     }
     else if (strcasecmp(ext, ".biblatex") == 0) {
         param p;
@@ -220,10 +224,14 @@ static int process_input_file(const char* filepath, const char* filepath_subtree
             NULL
         };
         int argc = countof(argv) - 1;
-        tomods_processargs(&argc, argv, &p, NULL, NULL);
-        bibprog2(filepath, dstpath, offset, dstoffset, &p);
+        int rc = tomods_processargs(&argc, argv, &p, NULL, NULL);
+		if (rc < 0)
+			return EXIT_FAILURE;
+		rc = bibprog2(filepath, dstpath, offset, dstoffset, &p);
         bibl_freeparams(&p);
-        return EXIT_SUCCESS;
+		if (rc)
+			return EXIT_FAILURE;
+		return EXIT_SUCCESS;
     }
 
     printf("Don't know how to process '%s' input file: %s", ext + 1, filepath);

@@ -137,14 +137,14 @@ compare_bibliographies( bibl *b1, const char *fname1, bibl *b2, const char *fnam
 	return 0;
 }
 
-static void
+static int
 version( void )
 {
 	args_tellversion( progname );
-	exit( EXIT_FAILURE );
+	return BIBL_ERR_EXIT_FAILURE;
 }
 
-static void
+static int
 help( void )
 {
 	args_tellversion( progname );
@@ -155,13 +155,13 @@ help( void )
 	fprintf( stderr, "-h,  --help               display this help\n" );
 	fprintf( stderr, "-v,  --version            display version\n" );
 	fprintf( stderr, "-f1, --format1 FORMAT     specify input format for ref1_file\n" );
-	fprintf( stderr, "-f2, --format2 FORMAT     specify input format for ref1_file\n" );
+	fprintf( stderr, "-f2, --format2 FORMAT     specify input format for ref2_file\n" );
 	fprintf( stderr, "\n" );
 
 	fprintf( stderr, "Valid format specifiers are 'bibtex', 'biblatex', 'copac', 'ebi', "
 		"'endnote', 'endnote-xml', 'medline', 'mods', 'nbib', 'ris', 'word2007'\n\n" );
 
-	exit( EXIT_FAILURE );
+	return BIBL_ERR_EXIT_FAILURE;
 }
 
 static int
@@ -191,20 +191,20 @@ lookup_format( const char *format )
 	fprintf( stderr, "%s: Valid format specifiers are 'bibtex', 'biblatex', 'copac', 'ebi', "
 		"'endnote', 'endnote-xml', 'medline', 'mods', 'nbib', 'ris', 'word2007'\n", progname );
 	fprintf( stderr, "%s: Exiting.\n", progname );
-	exit( EXIT_FAILURE );
+	return BIBL_ERR_EXIT_FAILURE;
 }
 
-static void
+static int
 process_args( int *argc, const char *argv[], int *format1, int *format2 )
 {
 	int i, j, done, subtract;
 	const char *f1, *f2;
 
 	for ( i=0; i<*argc; ++i )
-		if ( args_match( argv[i], "-h", "--help" ) ) help();
+		if ( args_match( argv[i], "-h", "--help" ) ) return help();
 
 	for ( i=0; i<*argc; ++i )
-		if ( args_match( argv[i], "-v", "--version" ) ) version();
+		if ( args_match( argv[i], "-v", "--version" ) ) return version();
 
 	done = 0;
 	i = 1;
@@ -213,11 +213,15 @@ process_args( int *argc, const char *argv[], int *format1, int *format2 )
 		if ( args_match( argv[i], "-f1", "--format1" ) ) {
 			f1 = args_next( *argc, argv, i, progname, "-f1", "--format1" );
 			*format1 = lookup_format( f1 );
+			if (*format1 < 0)
+				return *format1;
 			subtract = 2;
 		}
 		else if ( args_match( argv[i], "-f2", "--format2" ) ) {
 			f2 = args_next( *argc, argv, i, progname, "-f1", "--format1" );
 			*format2 = lookup_format( f2 );
+			if (*format2 < 0)
+				return *format2;
 			subtract = 2;
 		}
 		else if ( !strcmp( argv[i], "--" ) ) {
@@ -226,7 +230,7 @@ process_args( int *argc, const char *argv[], int *format1, int *format2 )
 		}
 		else if ( !strncmp( argv[i], "-", 1 ) ) {
 			fprintf( stderr, "%s: Unrecognized command-line switch '%s'. Exiting.\n", progname, argv[i] );
-			exit( EXIT_FAILURE );
+			return BIBL_ERR_EXIT_FAILURE;
 		}
 		if ( subtract ) {
 			for ( j=i+subtract; j<*argc; ++j )
@@ -235,6 +239,7 @@ process_args( int *argc, const char *argv[], int *format1, int *format2 )
 		} else i++;
 
 	}
+	return BIBL_OK;
 }
 
 int main(int argc, const char** argv)
@@ -246,9 +251,11 @@ int main(int argc, const char** argv)
 	int status;
 	FILE *fp;
 
-	process_args( &argc, argv, &format1, &format2 );
+	status = process_args( &argc, argv, &format1, &format2 );
+	if (status < 0)
+		return status - BIBL_ERR_EXIT_SUCCESS;
 
-	if ( argc < 2 ) help();
+	if ( argc < 2 ) return help() - BIBL_ERR_EXIT_SUCCESS;
 
 	bibl_initparams( &p1, format1, BIBL_MODSOUT, progname );
 	bibl_initparams( &p2, format2, BIBL_MODSOUT, progname );
@@ -256,7 +263,7 @@ int main(int argc, const char** argv)
 	errno_t err = fopen_s( &fp, argv[1], "r" );
 	if ( err || !fp ) {
 		fprintf( stderr, "%s: Cannot open %s\n", progname, argv[1] );
-		return EXIT_SUCCESS;
+		return EXIT_FAILURE;
 	}
 
 	bibl_init( &b1 );
@@ -270,7 +277,7 @@ int main(int argc, const char** argv)
 	err = fopen_s( &fp, argv[2], "r" );
 	if ( err || !fp ) {
 		fprintf( stderr, "%s: Cannot open %s\n", progname, argv[2] );
-		return EXIT_SUCCESS;
+		return EXIT_FAILURE;
 	}
 
 	bibl_init( &b2 );

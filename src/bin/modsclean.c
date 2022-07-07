@@ -27,8 +27,9 @@ int main(int argc, const char** argv)
 	param p;
 	modsin_initparams( &p, progname );
 	modsout_initparams( &p, progname );
-	tomods_processargs( &argc, argv, &p, "", "" );
-	bibprog( argc, argv, &p );
-	bibl_freeparams( &p );
-	return EXIT_SUCCESS;
+	int rc = tomods_processargs(&argc, argv, &p, "", "");
+	if (rc == BIBL_OK)
+		rc = bibprog(argc, argv, &p);
+	bibl_freeparams(&p);
+	return (rc == BIBL_OK ? EXIT_SUCCESS : EXIT_FAILURE);
 }
