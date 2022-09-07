@@ -3,9 +3,12 @@
 #
 
 CFLAGS     = -I ../lib $(CFLAGSIN)
-PROGS      = entities_test \
-             list_test \
-             newstr_test \
+LDFLAGS    = $(LDFLAGSIN)
+PROGS      = doi_test \
+             entities_test \
+             intlist_test \
+             slist_test \
+             str_test \
              utf8_test
 
 all: $(PROGS)
@@ -16,16 +19,24 @@ entities_test : entities_test.o ../lib/libbibcore.a
 utf8_test : utf8_test.o ../lib/libbibcore.a
 	$(CC) $(LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
 
-newstr_test : newstr_test.o ../lib/libbibcore.a
+doi_test : doi_test.o ../lib/libbibcore.a
 	$(CC) $(LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
 
-list_test : list_test.o ../lib/libbibcore.a
+str_test : str_test.o ../lib/libbibcore.a
+	$(CC) $(LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
+
+slist_test : slist_test.o ../lib/libbibcore.a
+	$(CC) $(LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
+
+intlist_test : intlist_test.o ../lib/libbibcore.a
 	$(CC) $(LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
 
 test: $(PROGS) FORCE
-	./newstr_test
-	./list_test
+	./str_test
+	./slist_test
+	./intlist_test
 	./entities_test
+	./doi_test
 	./utf8_test
 
 clean:
