@@ -329,7 +329,6 @@ static int
 medin_pagination( xml *node, fields *info )
 {
 	int fstatus, status;
-	unsigned long i;
 	str sp, ep;
 	const char *p, *pp;
 	if ( xml_tag_matches( node, "MedlinePgn" ) && node->value.len ) {
