@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Debian Science Maintainers <debian-science-maintainers@lists.alioth.debian.org>
 Uploaders: Pierre Gruet <pgt@debian.org>
 Build-Depends: debhelper-compat (= 13),
-               dh-exec (>=0.3),
+               dh-exec,
                docbook-xml,
                docbook-xsl,
                xsltproc

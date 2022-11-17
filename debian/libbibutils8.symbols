@@ -15,6 +15,7 @@ libbibutils.so.8 libbibutils8 #MINVER#
  append_easyall@Base 7.1
  append_easyallpre@Base 7.1
  append_easycombo@Base 7.1
+ append_easypage@Base 7.2
  arxiv_to_url@Base 4.12
  bibl_addref@Base 4.12
  bibl_addtoasis@Base 6.10
@@ -163,6 +164,7 @@ libbibutils.so.8 libbibutils8 #MINVER#
  mods_get_id_from_mods@Base 7.1
  modsin_initparams@Base 6.10
  modsout_initparams@Base 6.10
+ month_is_number@Base 7.2
  month_to_number@Base 7.1
  mrnumber_to_url@Base 6.0
  nallcharconvert@Base 4.12

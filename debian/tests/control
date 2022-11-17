@@ -1,0 +1,3 @@
+Tests: round-trip-tests
+Depends: bibutils
+Restrictions: allow-stderr
