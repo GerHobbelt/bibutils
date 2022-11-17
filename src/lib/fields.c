@@ -6,6 +6,7 @@
  * Source code released under the GPL version 2
  *
  */
+#include "cross_platform_porting.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -243,7 +244,8 @@ fields *
 fields_dupl( fields *in )
 {
 	int i, level, status;
-	char *tag, *value;
+	const char* tag;
+	const char* value;
 	fields *out;
 
 	out = fields_new_size( in->n );
@@ -388,7 +390,7 @@ fields_replace_or_add( fields *f, const char *tag, const char *value, int level 
 	}
 }
 
-char *fields_null_value = "\0";
+const char *fields_null_value = "\0";
 
 int
 fields_used( fields *f, int n )
@@ -444,47 +446,47 @@ fields_num( fields *f )
 void *
 fields_value( fields *f, int n, int mode )
 {
-	intptr_t retn;
-
 	if ( n<0 || n>= f->n ) return NULL;
 
 	if ( mode & FIELDS_SETUSE_FLAG )
 		fields_set_used( f, n );
 
 	if ( mode & FIELDS_STRP_FLAG ) {
-		return ( void * ) _fields_value( f, n );
+		return _fields_value( f, n );
 	}
+#if defined(FIELDS_POSP_FLAG)
 	else if ( mode & FIELDS_POSP_FLAG ) {
-		retn = n;               /* avoid compiler warning */
-		return ( void * ) retn; /* Rather pointless -- the user provided "n" */
+		intptr_t retn = n;               /* avoid compiler warning */
+		return ( void * )(retn);         /* Rather pointless -- the user provided "n" */
 	}
+#endif
 	else {
 		if ( str_has_value( _fields_value( f, n ) ) )
-			return _fields_value_char( f, n );
+			return (void *)_fields_value_char( f, n );
 		else
-			return fields_null_value;
+			return (void*)fields_null_value;
 	}
 }
 
 void *
 fields_tag( fields *f, int n, int mode )
 {
-	intptr_t retn;
-
 	if ( n<0 || n>= f->n ) return NULL;
 
 	if ( mode & FIELDS_STRP_FLAG ) {
 		return ( void * ) _fields_tag( f, n );
 	}
+#if defined(FIELDS_POSP_FLAG)
 	else if ( mode & FIELDS_POSP_FLAG ) {
-		retn = n;               /* avoid compiler warning */
-		return ( void * ) retn; /* Rather pointless -- the user provided "n" */
+		intptr_t retn = n;               /* avoid compiler warning */
+		return ( void * )(retn);         /* Rather pointless -- the user provided "n" */
 	}
+#endif
 	else {
 		if ( str_has_value( _fields_tag( f, n ) ) )
-			return _fields_tag_char( f, n );
+			return (void*)_fields_tag_char( f, n );
 		else
-			return fields_null_value;
+			return (void*)fields_null_value;
 	}
 }
 
@@ -520,7 +522,9 @@ fields_findv( fields *f, int level, int mode, const char *tag )
 		_fields_used(f,found) = 1; /* Suppress "noise" of unused */
 		if ( ( mode & FIELDS_NOLENOK_FLAG ) == 0  ) return NULL;
 		if ( ( mode & FIELDS_STRP_FLAG )  ) return ( void * ) _fields_value( f, found );
+#if defined(FIELDS_POSP_FLAG)
 		else if ( ( mode & FIELDS_POSP_FLAG ) ) return ( void * )( (intptr_t) found );
+#endif
 		else return ( void * ) fields_null_value;
 	}
 }
@@ -528,12 +532,13 @@ fields_findv( fields *f, int level, int mode, const char *tag )
 void *
 fields_findv_firstof( fields *f, int level, int mode, ... )
 {
-	char *tag, *value;
+	const char* tag;
+	char* value;
 	va_list argp;
 
 	va_start( argp, mode );
-	while ( ( tag = ( char * ) va_arg( argp, char * ) ) ) {
-		value = fields_findv( f, level, mode, tag );
+	while ( ( tag = ( const char * ) va_arg( argp, const char * ) ) ) {
+		value = (char*)fields_findv( f, level, mode, tag );
 		if ( value ) {
 			va_end( argp );
 			return value;

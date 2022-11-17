@@ -13,8 +13,10 @@
 extern "C" {
 #endif /* __cplusplus */
 
+#include "cross_platform_porting.h"
 #include <stdio.h>
 #include "bibdefs.h"
+#include "reftypes.h"
 #include "bibl.h"
 #include "slist.h"
 #include "charsets.h"
@@ -79,7 +81,6 @@ extern "C" {
 typedef unsigned char uchar;
 
 typedef struct param {
-
 	int readformat;
 	int writeformat;
 
@@ -106,31 +107,28 @@ typedef struct param {
 	slist asis;  /* Names that shouldn't be mangled */
 	slist corps; /* Names that shouldn't be mangled-MODS corporation type */
 
-	char *progname;
+	const char *progname;
 
-
-        int  (*readf)(FILE*,char*,int,int*,str*,str*,int*);
-        int  (*processf)(fields*,const char*,const char*,long,struct param*);
-        int  (*cleanf)(bibl*,struct param*);
-        int  (*typef) (fields*,const char*,int,struct param*);
-        int  (*convertf)(fields*,fields*,int,struct param*);
-        void (*headerf)(FILE*,struct param*);
-        void (*footerf)(FILE*);
-	int  (*assemblef)(fields*,fields*,struct param*,unsigned long);
-        int  (*writef)(fields*,FILE*,struct param*,unsigned long);
-        variants *all;
-        int  nall;
-
-
+	int  (*readf)(FILE* fp, char* buf, int bufsize, int* bufpos, str* line, str* reference, int* fcharset);
+	int  (*processf)(fields* bibin, const char* data, const char* filename, long nref, struct param* pm);
+	int  (*cleanf)(bibl* bin, struct param* pm);
+	int  (*typef)(fields* bibin, const char* filename, int nrefs, struct param* pm);
+	int  (*convertf)(fields* bibin, fields* info, int reftype, struct param* pm);
+	void (*headerf)(FILE* outptr, struct param* pm);
+	void (*footerf)(FILE* outptr);
+	int  (*assemblef)(fields* in, fields* out, struct param* pm, unsigned long refnum);
+	int  (*writef)(fields* out, FILE* fp, struct param* pm, unsigned long refnum);
+	const variants *all;
+	int  nall;
 } param;
 
-int  bibl_initparams( param *p, int readmode, int writemode, char *progname );
+int  bibl_initparams( param *p, int readmode, int writemode, const char *progname );
 void bibl_freeparams( param *p );
-int  bibl_readasis( param *p, char *filename );
-int  bibl_addtoasis( param *p, char *entry );
-int  bibl_readcorps( param *p, char *filename );
-int  bibl_addtocorps( param *p, char *entry );
-int  bibl_read( bibl *b, FILE *fp, char *filename, param *p );
+int  bibl_readasis( param *p, const char *filename );
+int  bibl_addtoasis( param *p, const char *entry );
+int  bibl_readcorps( param *p, const char *filename );
+int  bibl_addtocorps( param *p, const char *entry );
+int  bibl_read( bibl *b, FILE *fp, const char *filename, param *p );
 int  bibl_write( bibl *b, FILE *fp, param *p );
 void bibl_reporterr( int err );
 

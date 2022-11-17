@@ -6,6 +6,7 @@
  * Source code released under the GPL version 2
  *
  */
+#include "cross_platform_porting.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -13,7 +14,7 @@
 #include "strsearch.h"
 #include "xml.h"
 
-char *xml_pns = NULL;
+const char *xml_pns = NULL;
 
 void
 xml_init( xml *node )
@@ -80,7 +81,7 @@ xml_is_terminator( const char *p, int *type )
 }
 
 static int
-xml_add_attribute( xml *node, char *attribute, char *attribute_value  )
+xml_add_attribute( xml *node, const char *attribute, const char *attribute_value  )
 {
 	int status;
 
@@ -278,11 +279,11 @@ xml_draw( xml *node, int n )
 	if ( node->next ) xml_draw( node->next, n );
 }
 
-char *
-xml_find_start( char *buffer, char *tag )
+const char *
+xml_find_start( const char *buffer, const char *tag )
 {
 	str starttag;
-	char *p;
+	const char *p;
 
 	str_initstrsc( &starttag, "<", tag, " ", NULL );
 
@@ -297,11 +298,11 @@ xml_find_start( char *buffer, char *tag )
 	return p;
 }
 
-char *
-xml_find_end( char *buffer, char *tag )
+const char *
+xml_find_end( const char *buffer, const char *tag )
 {
 	str endtag;
-	char *p;
+	const char *p;
 
 	if ( xml_pns )
 		str_initstrsc( &endtag, "</", xml_pns, ":", tag, ">", NULL );
@@ -319,14 +320,14 @@ xml_find_end( char *buffer, char *tag )
 }
 
 static int
-xml_tag_matches_simple( xml* node, const char *tag )
+xml_tag_matches_simple( const xml* node, const char *tag )
 {
 	if ( node->tag.len!=strlen( tag ) ) return 0;
 	if ( strcasecmp( str_cstr( &(node->tag) ), tag ) ) return 0;
 	return 1;
 }
 static int
-xml_tag_matches_pns( xml* node, const char *tag )
+xml_tag_matches_pns( const xml* node, const char *tag )
 {
 	int found = 0;
 	str pnstag;
@@ -340,24 +341,24 @@ xml_tag_matches_pns( xml* node, const char *tag )
 	return found;
 }
 int
-xml_tag_matches( xml *node, const char *tag )
+xml_tag_matches( const xml *node, const char *tag )
 {
 	if ( xml_pns ) return xml_tag_matches_pns   ( node, tag );
 	else           return xml_tag_matches_simple( node, tag );
 }
 
 int
-xml_tag_matches_has_value( xml *node, const char *tag )
+xml_tag_matches_has_value( const xml *node, const char *tag )
 {
 	if ( xml_tag_matches( node, tag ) && xml_has_value( node ) ) return 1;
 	return 0;
 }
 
 int
-xml_has_attribute( xml *node, const char *attribute, const char *attribute_value )
+xml_has_attribute( const xml *node, const char *attribute, const char *attribute_value )
 {
 	slist_index i;
-	char *a, *v;
+	const char *a, *v;
 
 	for ( i=0; i<node->attributes.n; ++i ) {
 		a = slist_cstr( &(node->attributes), i );
@@ -371,20 +372,30 @@ xml_has_attribute( xml *node, const char *attribute, const char *attribute_value
 }
 
 int
-xml_tag_has_attribute( xml *node, const char *tag, const char *attribute, const char *attribute_value )
+xml_tag_has_attribute( const xml *node, const char *tag, const char *attribute, const char *attribute_value )
 {
 	if ( !xml_tag_matches( node, tag ) ) return 0;
 	return xml_has_attribute( node, attribute, attribute_value );
 }
 
-str *
-xml_attribute( xml *node, const char *attribute )
+const str *
+xml_attribute(const xml *node, const char *attribute )
 {
 	slist_index n;
 
 	n = slist_findc( &(node->attributes), attribute );
 	if ( slist_wasnotfound( &(node->attributes), n ) ) return NULL;
-	else return slist_str( &(node->attribute_values), n );
+	else return c_slist_str( &(node->attribute_values), n );
+}
+
+const char *
+xml_attribute_cstr( const xml *node, const char *attribute )
+{
+	slist_index n;
+
+	n = slist_findc( &(node->attributes), attribute );
+	if ( slist_wasnotfound( &(node->attributes), n ) ) return NULL;
+	else return slist_cstr( &(node->attribute_values), n );
 }
 
 char *
@@ -398,7 +409,7 @@ xml_attribute_cstr( xml *node, const char *attribute )
 }
 
 int
-xml_has_value( xml *node )
+xml_has_value( const xml *node )
 {
 	if ( node && str_has_value( &(node->value) ) ) return 1;
 	return 0;
@@ -410,8 +421,8 @@ xml_tag( xml *node )
 	return &(node->tag);
 }
 
-char *
-xml_tag_cstr( xml *node )
+const char *
+xml_tag_cstr( const xml *node )
 {
 	return str_cstr( &(node->tag) );
 }
@@ -422,8 +433,8 @@ xml_value( xml *node )
 	return &(node->value);
 }
 
-char *
-xml_value_cstr( xml *node )
+const char *
+xml_value_cstr( const xml *node )
 {
 	return str_cstr( &(node->value) );
 }

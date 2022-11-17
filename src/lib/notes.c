@@ -6,6 +6,7 @@
  * Program and source code released under the GPL version 2
  *
  */
+#include "cross_platform_porting.h"
 #include <string.h>
 #include "bibl.h"
 #include "url.h"
@@ -21,15 +22,15 @@
  */
 
 typedef struct url_t {
-	char *prefix;
-	char *tag;
+	const char *prefix;
+	const char *tag;
 	int offset;
 } url_t;
 
 static int
-added_url( fields *bibout, str *invalue, int level )
+added_url( fields *bibout, const str *invalue, int level )
 {
-	url_t prefixes[] = {
+	const url_t prefixes[] = {
 		{ "arXiv:",                                    "ARXIV",     6 },
 		{ "http://arxiv.org/abs/",                     "ARXIV",    21 },
 		{ "jstor:",                                    "JSTOR",     6 },
@@ -44,7 +45,7 @@ added_url( fields *bibout, str *invalue, int level )
 	int nprefixes = sizeof( prefixes ) / sizeof( prefixes[0] );
 
 	const char *p = str_cstr( invalue );
-	char *tag = "URL";
+	const char *tag = "URL";
 	int fstatus;
 	int i;
 
@@ -67,7 +68,7 @@ added_url( fields *bibout, str *invalue, int level )
 }
 
 static int
-added_doi( fields *bibout, str *invalue, int level, int *status )
+added_doi( fields *bibout, const str *invalue, int level, int *status )
 {
 	int doi, fstatus;
 
@@ -80,12 +81,11 @@ added_doi( fields *bibout, str *invalue, int level, int *status )
 		if ( fstatus != FIELDS_OK ) *status = BIBL_ERR_MEMERR;
 		return 1;
 	}
-
 	else return 0;
 }
 
 int
-add_notes( fields *bibout, str *invalue, int level )
+add_notes( fields *bibout, const str *invalue, int level )
 {
 	int fstatus, done, status;
 

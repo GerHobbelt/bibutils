@@ -9,6 +9,8 @@
 #ifndef IS_WS_H
 #define IS_WS_H
 
+#include "cross_platform_porting.h"
+
 int is_ws( const char ch );
 const char *skip_ws( const char *p );
 const char *skip_notws( const char *p );

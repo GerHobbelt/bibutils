@@ -6,13 +6,14 @@
  * Source code released under the GPL version 2
  *
  */
+#include "cross_platform_porting.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include "bibutils.h"
 #include "bibformats.h"
 
 int
-bibl_initparams( param *p, int readmode, int writemode, char *progname )
+bibl_initparams( param *p, int readmode, int writemode, const char *progname )
 {
 	int status;
 

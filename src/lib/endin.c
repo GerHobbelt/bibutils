@@ -6,6 +6,7 @@
  * Program and source code released under the GPL version 2
  *
  */
+#include "cross_platform_porting.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -19,9 +20,9 @@
 #include "month.h"
 #include "reftypes.h"
 #include "url.h"
+#include "endtypes.h"
+#include "endin.h"
 
-extern variants end_all[];
-extern int end_nall;
 
 /*****************************************************
  PUBLIC: void endin_initparams()
@@ -29,9 +30,6 @@ extern int end_nall;
 
 static int endin_readf( FILE *fp, char *buf, int bufsize, int *bufpos, str *line, str *reference, int *fcharset );
 static int endin_processf( fields *endin, const char *p, const char *filename, long nref, param *pm );
-int endin_typef( fields *endin, const char *filename, int nrefs, param *p );
-int endin_convertf( fields *endin, fields *info, int reftype, param *p );
-int endin_cleanf( bibl *bin, param *p );
 
 int
 endin_initparams( param *pm, const char *progname )
@@ -60,7 +58,7 @@ endin_initparams( param *pm, const char *progname )
 
 	if ( !progname ) pm->progname = NULL;
 	else {
-		pm->progname = strdup( progname );
+		pm->progname = _strdup( progname );
 		if ( !pm->progname ) return BIBL_ERR_MEMERR;
 	}
 
@@ -174,29 +172,26 @@ process_endline2( str *tag, str *data, const char *p )
 static int
 endin_processf( fields *endin, const char *p, const char *filename, long nref, param *pm )
 {
-	str tag, value, *oldvalue;
+	str tag;
+	str value;
+	str* oldvalue;
 	int status, n;
-	char *oldtag;
+	const char *oldtag;
 
 	strs_init( &tag, &value, NULL );
 
 	while ( *p ) {
-
 		strs_empty( &tag, &value, NULL );
 
 		if ( endin_istag( p ) ) {
-
 			p = process_endline( &tag, &value, p );
 			if ( str_is_empty( &value ) ) continue;
 
 			status = fields_add( endin, str_cstr( &tag ), str_cstr( &value ), LEVEL_MAIN );
 			if ( status!=FIELDS_OK ) return 0;
-
 		}
-
 		/* endnote puts %K only on 1st line of keywords */
 		else {
-
 			p = process_endline2( &tag, &value, p );
 			if ( str_is_empty( &value ) ) continue;
 
@@ -240,12 +235,13 @@ int
 endin_typef( fields *endin, const char *filename, int nrefs, param *p )
 {
 	int ntypename, nrefname, is_default, nj, nv, nb, nr, nt, ni;
-	char *refname = "", *typename="";
+	const char* refname = "";
+	const char* typename1 = "";
 
 	ntypename = fields_find( endin, "%0", LEVEL_MAIN );
 	nrefname  = fields_find( endin, "%F", LEVEL_MAIN );
-	if ( nrefname!=-1  ) refname  = fields_value( endin, nrefname,  FIELDS_CHRP_NOUSE );
-	if ( ntypename!=-1 ) typename = fields_value( endin, ntypename, FIELDS_CHRP_NOUSE );
+	if ( nrefname!=-1  ) refname  = (const char *)fields_value( endin, nrefname,  FIELDS_CHRP_NOUSE );
+	if ( ntypename!=-1 ) typename1 = (const char *)fields_value( endin, ntypename, FIELDS_CHRP_NOUSE );
 	else {
 		nj = fields_find( endin, "%J", 0 );
 		nv = fields_find( endin, "%V", 0 );
@@ -254,19 +250,19 @@ endin_typef( fields *endin, const char *filename, int nrefs, param *p )
 		nt = fields_find( endin, "%T", 0 );
 		ni = fields_find( endin, "%I", 0 );
 		if ( nj!=-1 && nv!=-1 ) {
-			typename = "Journal Article";
+			typename1 = "Journal Article";
 		} else if ( nb!=-1 ) {
-			typename = "Book Section";
+			typename1 = "Book Section";
 		} else if ( nr!=-1 && nt==-1 ) {
-			typename = "Report";
+			typename1 = "Report";
 		} else if ( ni!=-1 && nb==-1 && nj==-1 && nr==-1 ) {
-			typename = "Book";
+			typename1 = "Book";
 		} else if ( nb==-1 && nj==-1 && nr==-1 && ni==-1 ) {
-			typename = "Journal Article";
+			typename1 = "Journal Article";
 		}
 	}
 
-	return get_reftype( typename, nrefs, p->progname, p->all, p->nall, refname, &is_default, REFTYPE_CHATTY );
+	return get_reftype( typename1, nrefs, p->progname, p->all, p->nall, refname, &is_default, REFTYPE_CHATTY );
 }
 
 /*****************************************************
@@ -282,17 +278,17 @@ endin_typef( fields *endin, const char *filename, int nrefs, param *p )
 static int
 is_wiley_author( fields *endin, int n )
 {
-	str *t, *v;
-	t = fields_tag( endin, n, FIELDS_STRP_NOUSE );
+	const str *t, *v;
+	t = (const str *)fields_tag( endin, n, FIELDS_STRP_NOUSE );
 	if ( str_is_empty( t ) || strcmp( str_cstr( t ), "%A" ) ) return 0;
-	v = fields_value( endin, n, FIELDS_STRP_NOUSE );
+	v = (const str *)fields_value( endin, n, FIELDS_STRP_NOUSE );
 	if ( str_is_empty( v ) ) return 0;
 	if ( v->data[v->len-1]!=',' ) return 0;
 	return 1;
 }
 
 static int
-add_wiley_author( fields *endin, char *intag, str *instring, int inlevel, str *name, int authornum )
+add_wiley_author( fields *endin, const char *intag, str *instring, int inlevel, const str *name, int authornum )
 {
 	int fstatus;
 
@@ -313,14 +309,16 @@ add_wiley_author( fields *endin, char *intag, str *instring, int inlevel, str *n
 
 static int
 cleanup_wiley_author( fields *endin, int n )
-{	
+{
 	int status=BIBL_OK, inlevel, authornum = 0;
-	str *instring, copy, name;
-	char *p, *intag;
+	str* instring;
+	str copy, name;
+	const char* p;
+	const char* intag;
 
 	strs_init( &copy, &name, NULL );
 
-	intag    = fields_tag  ( endin, n, FIELDS_CHRP_NOUSE );
+	intag    = (const char *)fields_tag  ( endin, n, FIELDS_CHRP_NOUSE );
 	instring = fields_value( endin, n, FIELDS_STRP_NOUSE );
 	inlevel  = fields_level( endin, n );
 
@@ -328,7 +326,6 @@ cleanup_wiley_author( fields *endin, int n )
 	p = str_cstr( &copy );
 
 	while ( *p ) {
-
 		if ( *p==',' ) {
 			if ( str_memerr( &name ) ) {
 				status = BIBL_ERR_MEMERR;
@@ -344,7 +341,6 @@ cleanup_wiley_author( fields *endin, int n )
 			p++;
 			while ( is_ws( *p ) ) p++;
 		}
-
 		else {
 			str_addchar( &name, *p );
 			p++;
@@ -389,9 +385,9 @@ endin_cleanf( bibl *bin, param *p )
 *****************************************************/
 
 static int
-endin_date( fields *bibin, int n, str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
+endin_date( fields *bibin, int n, const str *intag, const str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
-	char *tags[3][2] = {
+	const char *tags[3][2] = {
 		{ "DATE:YEAR",  "PARTDATE:YEAR" },
 		{ "DATE:MONTH", "PARTDATE:MONTH" },
 		{ "DATE:DAY",   "PARTDATE:DAY" }
@@ -460,9 +456,9 @@ endin_date( fields *bibin, int n, str *intag, str *invalue, int level, param *pm
 }
 
 static int
-endin_type( fields *bibin, int n, str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
+endin_type( fields *bibin, int n, const str *intag, const str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
-	lookups types[] = {
+	const lookups types[] = {
 		{ "GENERIC",                "ARTICLE",       0, 0 },
 		{ "BOOK",                   "BOOK",          0, 0 },
 		{ "MANUSCRIPT",             "MANUSCRIPT",    0, 0 },
@@ -508,7 +504,7 @@ endin_type( fields *bibin, int n, str *intag, str *invalue, int level, param *pm
 }
 
 static void
-endin_notag( param *p, char *tag, char *data )
+endin_notag( param *p, const char *tag, const char *data )
 {
 	if ( p->verbose ) {
 		if ( p->progname ) fprintf( stderr, "%s: ", p->progname );
@@ -519,8 +515,10 @@ endin_notag( param *p, char *tag, char *data )
 int
 endin_convertf( fields *bibin, fields *bibout, int reftype, param *p )
 {
-	static int (*convertfns[NUM_REFTYPES])(fields *, int, str *, str *, int, param *, char *, fields *) = {
+	static generic_convert_fn convertfns[NUM_REFTYPES] = {
+#ifdef HAVE_DESIGNATED_INITIALIZER_GNU_EXTENSION
 		[ 0 ... NUM_REFTYPES-1 ] = generic_null,
+#endif
 		[ SIMPLE       ] = generic_simple,
 		[ TITLE        ] = generic_title,
 		[ PERSON       ] = generic_person,
@@ -533,9 +531,14 @@ endin_convertf( fields *bibin, fields *bibout, int reftype, param *p )
 		[ DATE         ] = endin_date,
         };
 
+#ifndef HAVE_DESIGNATED_INITIALIZER_GNU_EXTENSION
+	SET_ARRAY_DEFAULT_VALUE(convertfns, generic_null);
+#endif
+
 	int i, level, process, nfields, fstatus, status = BIBL_OK;
-	char *outtag;
-	str *intag, *invalue;
+	const char *outtag;
+	const str* intag;
+	const str* invalue;
 
 	nfields = fields_num( bibin );
 	for ( i=0; i<nfields; ++i ) {
@@ -546,7 +549,7 @@ endin_convertf( fields *bibin, fields *bibout, int reftype, param *p )
 			continue;
 		}
 
-		intag = fields_tag( bibin, i, FIELDS_STRP );
+		intag = (const str *)fields_tag( bibin, i, FIELDS_STRP );
 		invalue = fields_value( bibin, i, FIELDS_STRP );
 
 		/*
@@ -569,7 +572,6 @@ endin_convertf( fields *bibin, fields *bibout, int reftype, param *p )
 
 		status = convertfns[ process ]( bibin, i, intag, invalue, level, p, outtag, bibout );
 		if ( status!=BIBL_OK ) return status;
-
 	}
 
 	return status;

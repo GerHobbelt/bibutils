@@ -14,6 +14,7 @@
  * Source code released under the GPL version 2
  *
  */
+#include "cross_platform_porting.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -22,7 +23,7 @@
 #include "url.h"
 
 static void
-construct_url( char *prefix, str *id, str *id_url, char sep )
+construct_url( const char *prefix, const str *id, str *id_url, char sep )
 {
 	if ( !strncasecmp( str_cstr( id ), "http:", 5 ) )
 		str_strcpy( id_url, id );
@@ -36,7 +37,7 @@ construct_url( char *prefix, str *id, str *id_url, char sep )
 }
 
 static int
-url_exists( fields *f, char *urltag, str *doi_url )
+url_exists( fields *f, const char *urltag, str *doi_url )
 {
 	int i, n;
 	if ( urltag ) {
@@ -51,7 +52,7 @@ url_exists( fields *f, char *urltag, str *doi_url )
 }
 
 static void
-xxx_to_url( fields *f, int n, char *http_prefix, char *urltag, str *xxx_url, char sep )
+xxx_to_url( fields *f, int n, const char *http_prefix, const char *urltag, str *xxx_url, char sep )
 {
 	str_empty( xxx_url );
 	construct_url( http_prefix, fields_value( f, n, FIELDS_STRP ), xxx_url, sep );
@@ -59,34 +60,34 @@ xxx_to_url( fields *f, int n, char *http_prefix, char *urltag, str *xxx_url, cha
 		str_empty( xxx_url );
 }
 void
-doi_to_url( fields *f, int n, char *urltag, str *url )
+doi_to_url( fields *f, int n, const char *urltag, str *url )
 {
 	xxx_to_url( f, n, "https://doi.org", urltag, url, '/' );
 }
 void
-jstor_to_url( fields *f, int n, char *urltag, str *url )
+jstor_to_url( fields *f, int n, const char *urltag, str *url )
 {
-	xxx_to_url( f, n, "http://www.jstor.org/stable", urltag, url, '/' );
+	xxx_to_url( f, n, "https://www.jstor.org/stable", urltag, url, '/' );
 }
 void
-pmid_to_url( fields *f, int n, char *urltag, str *url )
+pmid_to_url( fields *f, int n, const char *urltag, str *url )
 {
-	xxx_to_url( f, n, "http://www.ncbi.nlm.nih.gov/pubmed", urltag, url, '/' );
+	xxx_to_url( f, n, "https://www.ncbi.nlm.nih.gov/pubmed", urltag, url, '/' );
 }
 void
-pmc_to_url( fields *f, int n, char *urltag, str *url )
+pmc_to_url( fields *f, int n, const char *urltag, str *url )
 {
-	xxx_to_url( f, n, "http://www.ncbi.nlm.nih.gov/pmc/articles", urltag, url, '/' );
+	xxx_to_url( f, n, "https://www.ncbi.nlm.nih.gov/pmc/articles", urltag, url, '/' );
 }
 void
-arxiv_to_url( fields *f, int n, char *urltag, str *url )
+arxiv_to_url( fields *f, int n, const char *urltag, str *url )
 {
-	xxx_to_url( f, n, "http://arxiv.org/abs", urltag, url, '/' );
+	xxx_to_url( f, n, "https://arxiv.org/abs", urltag, url, '/' );
 }
 void
-mrnumber_to_url( fields *f, int n, char *urltag, str *url )
+mrnumber_to_url( fields *f, int n, const char *urltag, str *url )
 {
-	xxx_to_url( f, n, "http://www.ams.org/mathscinet-getitem?mr=", urltag, url, '\0' );
+	xxx_to_url( f, n, "https://www.ams.org/mathscinet-getitem?mr=", urltag, url, '\0' );
 }
 
 /* Rules for the pattern:
@@ -96,9 +97,10 @@ mrnumber_to_url( fields *f, int n, char *urltag, str *url )
  *   all others must match precisely
  */
 static int
-string_pattern( char *s, char *pattern, int matchcase )
+string_pattern( const char *s, const char *pattern, int matchcase )
 {
-	int patlen, match, i;
+	int match;
+	size_t patlen, i;
 	patlen = strlen( pattern );
 	if ( strlen( s ) < patlen ) return 0; /* too short */
 	for ( i=0; i<patlen; ++i ) {
@@ -118,7 +120,7 @@ string_pattern( char *s, char *pattern, int matchcase )
 /* science direct is now doing "M3  - doi: DOI: 10.xxxx/xxxxx" */
 /* elsevier is doing "DO - https://doi.org/xx.xxxx/xxxx..." */
 int
-is_doi( char *s )
+is_doi( const char *s )
 {
 	if ( string_pattern( s, "##.####/", 0 ) ) return 0;
 	if ( string_pattern( s, "doi ##.####/", 0 ) ) return 4;
@@ -137,7 +139,7 @@ is_doi( char *s )
  * returns offset that skips over the URI scheme, if true
  */
 int
-is_uri_remote_scheme( char *p )
+is_uri_remote_scheme( const char *p )
 {
 	char *scheme[]   = { "http:", "https:", "ftp:", "git:", "gopher:" };
 	int  schemelen[] = { 5,       6,        4,      4,      7         };
@@ -149,7 +151,7 @@ is_uri_remote_scheme( char *p )
 }
 
 int
-is_reference_database( char *p )
+is_reference_database( const char *p )
 {
 	char *scheme[]   = { "arXiv:", "pubmed:", "medline:", "isi:" };
 	int  schemelen[] = { 6,        7,         8,          4      };
@@ -162,7 +164,7 @@ is_reference_database( char *p )
 
 /* many fields have been abused to embed URLs, DOIs, etc. */
 int
-is_embedded_link( char *s )
+is_embedded_link( const char *s )
 {
 	if ( is_uri_remote_scheme( s )  != -1 ) return 1;
 	if ( is_reference_database( s ) != -1 ) return 1;
@@ -171,8 +173,8 @@ is_embedded_link( char *s )
 }
 
 typedef struct url_t {
-	char *tag;
-	char *prefix;
+	const char *tag;
+	const char *prefix;
 	int offset;
 } url_t;
 
@@ -205,7 +207,7 @@ static url_t extraprefixes[] = {
 static int nextraprefixes = sizeof( extraprefixes ) / sizeof( extraprefixes[0] );
 
 static int
-find_prefix( const char *s, url_t *p, int np )
+find_prefix( const char *s, const url_t *p, int np )
 {
 	int i;
 
@@ -218,10 +220,10 @@ find_prefix( const char *s, url_t *p, int np )
 }
 
 int
-urls_split_and_add( char *value_in, fields *out, int lvl_out )
+urls_split_and_add( const char *value_in, fields *out, int lvl_out )
 {
 	int n, fstatus, status = BIBL_OK;
-	char *tag = "URL";
+	const char *tag = "URL";
 	int offset = 0;
 
 	n = find_prefix( value_in, prefixes, nprefixes );
@@ -249,7 +251,7 @@ urls_split_and_add( char *value_in, fields *out, int lvl_out )
  *
  */
 static int
-urls_merge_and_add_type( fields *out, char *tag_out, int lvl_out, char *prefix, vplist *values )
+urls_merge_and_add_type( fields *out, const char *tag_out, int lvl_out, const char *prefix, vplist *values )
 {
 	int fstatus, status = BIBL_OK;
 	vplist_index i;
@@ -259,13 +261,12 @@ urls_merge_and_add_type( fields *out, char *tag_out, int lvl_out, char *prefix, 
 
 	for ( i=0; i<values->n; ++i ) {
 		str_strcpyc( &url, prefix );
-		str_strcatc( &url, ( char * ) vplist_get( values, i ) );
+		str_strcatc( &url, ( const char * ) vplist_get( values, i ) );
 		fstatus = fields_add( out, tag_out, str_cstr( &url ), lvl_out );
 		if ( fstatus!=FIELDS_OK ) {
 			status = BIBL_ERR_MEMERR;
 			goto out;
 		}
-
 	}
 out:
 	str_free( &url );
@@ -282,10 +283,11 @@ out:
  * like bibtex ought to do special things with DOI, ARXIV, MRNUMBER, and the like.
  */
 int
-urls_merge_and_add( fields *in, int lvl_in, fields *out, char *tag_out, int lvl_out, slist *types )
+urls_merge_and_add( fields *in, int lvl_in, fields *out, const char *tag_out, int lvl_out, slist *types )
 {
 	int i, j, status = BIBL_OK;
-	char *tag, *prefix, *empty="";
+	const char* tag, * prefix;
+	const char* empty = "";
 	vplist a;
 
 	vplist_init( &a );

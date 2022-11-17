@@ -9,7 +9,9 @@
 #ifndef STRSEARCH_H
 #define STRSEARCH_H
 
-char *strsearch (const char *haystack, const char *needle);
+#include "cross_platform_porting.h"
+
+const char *strsearch (const char *haystack, const char *needle);
 
 #endif
 

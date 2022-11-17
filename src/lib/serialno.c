@@ -6,15 +6,17 @@
  * Source code released under the GPL version 2
  *
  */
+#include "cross_platform_porting.h"
 #include <string.h>
 #include "bibdefs.h"
 #include "serialno.h"
 
 int
-add_sn( fields *info, char *buf, int level )
+add_sn( fields *info, const char *buf, int level )
 {
 	int ndigits, issn=0, isbn=0, isbn10=0, isbn13=0, status;
-	char *p = buf, *tag;
+	const char* p = buf;
+	const char* tag;
 
 	if ( !strncasecmp( p, "ISSN", 4 ) ) issn=1;
 	else if ( !strncasecmp( p, "ISBN", 4 ) ) isbn=1;

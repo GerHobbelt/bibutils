@@ -6,14 +6,18 @@
  * Program and source code released under the GPL version 2
  *
  */
+#include "cross_platform_porting.h"
 #include <stdio.h>
 #include <string.h>
 #include "is_ws.h"
 #include "fields.h"
 #include "reftypes.h"
+#include "reftypes_internals.h"
+#include "endtypes.h"
+
 
 /* if no specific type can be identified */
-static lookups generic[] = {
+static const lookups generic[] = {
 	{ "%0", "INTERNAL_TYPE",   TYPE,     LEVEL_MAIN },
 	{ "%A", "AUTHOR",          PERSON,   LEVEL_MAIN },
 	{ "%H", "TRANSLATOR",      PERSON,   LEVEL_MAIN },
@@ -65,7 +69,7 @@ static lookups generic[] = {
 	{ "%~", "DATABASE",        SIMPLE,   LEVEL_MAIN }
 };
 
-static lookups journalarticle[] = {
+static const lookups journalarticle[] = {
 	{ "%0", "INTERNAL_TYPE",   TYPE,     LEVEL_MAIN },
 	{ "%A", "AUTHOR",          PERSON,   LEVEL_MAIN },
 	{ "%H", "TRANSLATOR",      PERSON,   LEVEL_MAIN },
@@ -115,7 +119,7 @@ static lookups journalarticle[] = {
 	{ "  ", "GENRE:BIBUTILS|academic journal", ALWAYS, LEVEL_HOST }
 };
 
-static lookups magazinearticle[] = {
+static const lookups magazinearticle[] = {
 	{ "%0", "INTERNAL_TYPE",  TYPE,     LEVEL_MAIN },
 	{ "%A", "AUTHOR",         PERSON,   LEVEL_MAIN },
 	{ "%H", "TRANSLATOR",     PERSON,   LEVEL_MAIN },
@@ -163,7 +167,7 @@ static lookups magazinearticle[] = {
 	{ "  ", "GENRE:BIBUTILS|magazine", ALWAYS, LEVEL_HOST }
 };
 
-static lookups newspaperarticle[] = {
+static const lookups newspaperarticle[] = {
 	{ "%0", "INTERNAL_TYPE",  TYPE,     LEVEL_MAIN },
 	{ "%A", "REPORTER",       PERSON,   LEVEL_MAIN },
 	{ "%H", "TRANSLATOR",     PERSON,   LEVEL_MAIN },
@@ -210,7 +214,7 @@ static lookups newspaperarticle[] = {
 	{ "  ", "GENRE:MARC|newspaper", ALWAYS, LEVEL_HOST }
 };
 
-static lookups book[] = {
+static const lookups book[] = {
 	{ "%0", "INTERNAL_TYPE",   TYPE,     LEVEL_MAIN },
 	{ "%A", "AUTHOR",          PERSON,   LEVEL_MAIN },
 	{ "%H", "TRANSLATOR",      PERSON,   LEVEL_MAIN },
@@ -259,7 +263,7 @@ static lookups book[] = {
 	{ "  ", "RESOURCE|text",        ALWAYS, LEVEL_MAIN }
 };
 
-static lookups booksection[] = {
+static const lookups booksection[] = {
 	{ "%0", "INTERNAL_TYPE",   TYPE,     LEVEL_MAIN },
 	{ "%A", "AUTHOR",          PERSON,   LEVEL_MAIN },
 	{ "%H", "TRANSLATOR",      PERSON,   LEVEL_MAIN },
@@ -310,7 +314,7 @@ static lookups booksection[] = {
 	{ "  ", "RESOURCE|text",               ALWAYS, LEVEL_MAIN }
 };
 
-static lookups editedbook[] = {
+static const lookups editedbook[] = {
 	{ "%0", "INTERNAL_TYPE",   TYPE,     LEVEL_MAIN },
 	{ "%A", "EDITOR",          PERSON,   LEVEL_MAIN },
 	{ "%H", "TRANSLATOR",      PERSON,   LEVEL_MAIN },
@@ -358,7 +362,7 @@ static lookups editedbook[] = {
 	{ "  ", "RESOURCE|text",        ALWAYS, LEVEL_MAIN }
 };
 
-static lookups manuscript[] = {
+static const lookups manuscript[] = {
 	{ "%0", "INTERNAL_TYPE",   TYPE,   LEVEL_MAIN },
 	{ "%A", "AUTHOR",          PERSON, LEVEL_MAIN },
 	{ "%H", "TRANSLATOR",      PERSON, LEVEL_MAIN },
@@ -398,7 +402,7 @@ static lookups manuscript[] = {
 	{ "  ", "GENRE:BIBUTILS|manuscript", ALWAYS, LEVEL_MAIN }
 };
 
-static lookups communication[] = {
+static const lookups communication[] = {
 	{ "%0", "INTERNAL_TYPE",   TYPE,   LEVEL_MAIN },
 	{ "%A", "AUTHOR",          PERSON, LEVEL_MAIN },
 	{ "%H", "TRANSLATOR",      PERSON, LEVEL_MAIN },
@@ -437,7 +441,7 @@ static lookups communication[] = {
 	{ "  ", "GENRE:BIBUTILS|communication", ALWAYS, LEVEL_MAIN}
 };
 
-static lookups proceedings[] = {
+static const lookups proceedings[] = {
 	{ "%0", "INTERNAL_TYPE",   TYPE,     LEVEL_MAIN },
 	{ "%A", "AUTHOR",          PERSON,   LEVEL_MAIN },
 	{ "%H", "TRANSLATOR",      PERSON,   LEVEL_MAIN },
@@ -483,7 +487,7 @@ static lookups proceedings[] = {
 	{ "  ", "GENRE:MARC|conference publication", ALWAYS, LEVEL_MAIN }
 };
 
-static lookups conferencepaper[] = {
+static const lookups conferencepaper[] = {
 	{ "%0", "INTERNAL_TYPE",   TYPE,     LEVEL_MAIN },
 	{ "%A", "AUTHOR",          PERSON,   LEVEL_MAIN },
 	{ "%H", "TRANSLATOR",      PERSON,   LEVEL_MAIN },
@@ -530,7 +534,7 @@ static lookups conferencepaper[] = {
 	{ "  ", "GENRE:MARC|conference publication", ALWAYS, LEVEL_HOST }
 };
 
-static lookups thesis[] = {
+static const lookups thesis[] = {
 	{ "%0", "INTERNAL_TYPE",       TYPE,     LEVEL_MAIN },
 	{ "%A", "AUTHOR",              PERSON,   LEVEL_MAIN },
 	{ "%H", "TRANSLATOR",          PERSON,   LEVEL_MAIN },
@@ -571,7 +575,7 @@ static lookups thesis[] = {
 	{ "  ", "GENRE:MARC|thesis",   ALWAYS,   LEVEL_MAIN }
 };
 
-static lookups program[] = {
+static const lookups program[] = {
 	{ "%0", "INTERNAL_TYPE",   TYPE,     LEVEL_MAIN },
 	{ "%A", "AUTHOR",          PERSON,   LEVEL_MAIN },
 	{ "%H", "TRANSLATOR",      PERSON,   LEVEL_MAIN },
@@ -608,7 +612,7 @@ static lookups program[] = {
 	{ "  ", "RESOURCE|software, multimedia", ALWAYS, LEVEL_MAIN }
 };
 
-static lookups audiovisual[] = {
+static const lookups audiovisual[] = {
 	{ "%0", "INTERNAL_TYPE",   TYPE,     LEVEL_MAIN },
 	{ "%A", "WRITER",          PERSON,   LEVEL_MAIN },
 	{ "%H", "TRANSLATOR",      PERSON,   LEVEL_MAIN },
@@ -649,7 +653,7 @@ static lookups audiovisual[] = {
 	{ "  ", "RESOURCE|mixed material", ALWAYS, LEVEL_MAIN }
 };
 
-static lookups broadcast[] = {
+static const lookups broadcast[] = {
 	{ "%0", "INTERNAL_TYPE",   TYPE,     LEVEL_MAIN },
 	{ "%A", "AUTHOR",          PERSON,   LEVEL_MAIN },
 	{ "%H", "TRANSLATOR",      PERSON,   LEVEL_MAIN },
@@ -693,7 +697,7 @@ static lookups broadcast[] = {
 	{ "  ", "GENRE:BIBUTILS|television broadcast", ALWAYS, LEVEL_MAIN },
 };
 
-static lookups electronic[] = {
+static const lookups electronic[] = {
 	{ "%0", "INTERNAL_TYPE",   TYPE,     LEVEL_MAIN },
 	{ "%A", "AUTHOR",          PERSON,   LEVEL_MAIN },
 	{ "%H", "TRANSLATOR",      PERSON,   LEVEL_MAIN },
@@ -734,7 +738,7 @@ static lookups electronic[] = {
         { " ",  "GENRE:UNKNOWN|electronic",      ALWAYS, LEVEL_MAIN },
 };
 
-static lookups webpage[] = {
+static const lookups webpage[] = {
 	{ "%0", "INTERNAL_TYPE",   TYPE,     LEVEL_MAIN },
 	{ "%A", "AUTHOR",          PERSON,   LEVEL_MAIN },
 	{ "%H", "TRANSLATOR",      PERSON,   LEVEL_MAIN },
@@ -775,7 +779,7 @@ static lookups webpage[] = {
         { " ",  "GENRE:MARC|web page",           ALWAYS, LEVEL_MAIN },
 };
 
-static lookups artwork[] = {
+static const lookups artwork[] = {
 	{ "%0", "INTERNAL_TYPE",   TYPE,     LEVEL_MAIN },
 	{ "%A", "ARTIST",          PERSON,   LEVEL_MAIN },
 	{ "%H", "TRANSLATOR",      PERSON,   LEVEL_MAIN },
@@ -812,7 +816,7 @@ static lookups artwork[] = {
 	{ "  ", "GENRE:MARC|art original", ALWAYS, LEVEL_MAIN }
 };
 
-static lookups report[] = {
+static const lookups report[] = {
 	{ "%0", "INTERNAL_TYPE",   TYPE,     LEVEL_MAIN },
 	{ "%A", "AUTHOR",          PERSON,   LEVEL_MAIN },
 	{ "%H", "TRANSLATOR",      PERSON,   LEVEL_MAIN },
@@ -853,7 +857,7 @@ static lookups report[] = {
 	{ "  ", "GENRE:MARC|technical report", ALWAYS, LEVEL_MAIN },
 };
 
-static lookups map[] = {
+static const lookups map[] = {
 	{ "%0", "INTERNAL_TYPE",   TYPE,     LEVEL_MAIN },
 	{ "%A", "CARTOGRAPHER",    PERSON,   LEVEL_MAIN },
 	{ "%H", "TRANSLATOR",      PERSON,   LEVEL_MAIN },
@@ -891,7 +895,7 @@ static lookups map[] = {
 	{ "  ", "GENRE:MARC|map",        ALWAYS, LEVEL_MAIN }
 };
 
-static lookups patent[] = {
+static const lookups patent[] = {
 	{ "%0", "INTERNAL_TYPE",   TYPE,     LEVEL_MAIN },
 	{ "%A", "AUTHOR",          PERSON,   LEVEL_MAIN },
 	{ "%H", "TRANSLATOR",      PERSON,   LEVEL_MAIN },
@@ -931,7 +935,7 @@ static lookups patent[] = {
 	{ "  ", "GENRE:MARC|patent", ALWAYS, LEVEL_MAIN }
 };
 
-static lookups hearing[] = {
+static const lookups hearing[] = {
 	{ "%0", "INTERNAL_TYPE",   TYPE,     LEVEL_MAIN },
 	{ "%D", "DATE:YEAR",       SIMPLE,   LEVEL_MAIN },
 	{ "%H", "TRANSLATOR",      PERSON,   LEVEL_MAIN },
@@ -973,7 +977,7 @@ static lookups hearing[] = {
 	{ "  ", "GENRE:BIBUTILS|hearing",ALWAYS, LEVEL_MAIN }
 };
 
-static lookups bill[] = {
+static const lookups bill[] = {
 	{ "%0", "INTERNAL_TYPE",   TYPE,     LEVEL_MAIN },
 	{ "%D", "DATE:YEAR",       SIMPLE,   LEVEL_MAIN },
 	{ "%H", "TRANSLATOR",      PERSON,   LEVEL_MAIN },
@@ -1015,7 +1019,7 @@ static lookups bill[] = {
 	{ "  ", "GENRE:MARC|legislation", ALWAYS, LEVEL_MAIN }
 };
 
-static lookups statute[] = {
+static const lookups statute[] = {
 	{ "%0", "INTERNAL_TYPE",   TYPE,     LEVEL_MAIN },
 	{ "%D", "DATE:YEAR",       SIMPLE,   LEVEL_MAIN },
 	{ "%H", "TRANSLATOR",      PERSON,   LEVEL_MAIN },
@@ -1055,7 +1059,7 @@ static lookups statute[] = {
 	{ "  ", "GENRE:MARC|legislation", ALWAYS, LEVEL_MAIN }
 };
 
-static lookups lawcase[] = {
+static const lookups lawcase[] = {
 	{ "%0", "INTERNAL_TYPE",   TYPE,     LEVEL_MAIN },
 	{ "%D", "DATE:YEAR",       SIMPLE,   LEVEL_MAIN },
 	{ "%H", "TRANSLATOR",      PERSON,   LEVEL_MAIN },
@@ -1096,7 +1100,7 @@ static lookups lawcase[] = {
 	{ "  ", "GENRE:MARC|legal case and case notes", ALWAYS, LEVEL_MAIN }
 };
 
-static lookups chart[] = {
+static const lookups chart[] = {
 	{ "%0", "INTERNAL_TYPE",   TYPE,     LEVEL_MAIN },
 	{ "%A", "AUTHOR",          PERSON,   LEVEL_MAIN },
 	{ "%H", "TRANSLATOR",      PERSON,   LEVEL_MAIN },
@@ -1149,7 +1153,7 @@ static lookups chart[] = {
 	{ "  ", "GENRE:MARC|chart",  ALWAYS, LEVEL_MAIN }
 };
 
-static lookups unpublished[] = {
+static const lookups unpublished[] = {
 	{ "%0", "INTERNAL_TYPE",   TYPE,     LEVEL_MAIN },
 	{ "%A", "AUTHOR",          PERSON,   LEVEL_MAIN },
 	{ "%H", "TRANSLATOR",      PERSON,   LEVEL_MAIN },
@@ -1208,11 +1212,7 @@ static lookups unpublished[] = {
 /* order is important....."Book" matches "Book" and "Book Section", hence
  * "Book Section must come first */
 
-#define ORIG(a) ( &(a[0]) )
-#define SIZE(a) ( sizeof( a ) / sizeof( lookups ) )
-#define REFTYPE(a,b) { a, ORIG(b), SIZE(b) }
-
-variants end_all[] = {
+const variants end_all[] = {
 	REFTYPE( "Generic", generic ),
 	REFTYPE( "Artwork", artwork ),
 	REFTYPE( "Audiovisual Material", audiovisual ),
@@ -1250,7 +1250,6 @@ variants end_all[] = {
 	REFTYPE( "Unpublished Work", unpublished ),
 	REFTYPE( "Web Page", webpage ),
 };
-
 
 int end_nall = sizeof( end_all ) / sizeof( variants );
 

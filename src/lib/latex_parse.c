@@ -8,6 +8,7 @@
  * Source code released under the GPL version 2
  *
  */
+#include "cross_platform_porting.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -63,7 +64,7 @@ latex_node_delete( latex_node *n )
 }
 
 static int
-is_unescaped( char *p, unsigned long *offset, char c )
+is_unescaped( const char *p, unsigned long *offset, char c )
 {
 	if ( *p!=c ) return 0;
 	if ( *offset > 0 && *(p-1)=='\\' ) return 0;
@@ -71,12 +72,12 @@ is_unescaped( char *p, unsigned long *offset, char c )
 }
 
 static int
-build_latex_graph_r( str *in, unsigned long *offset, int *mathmode, int depth, latex_node **node )
+build_latex_graph_r( const str *in, unsigned long *offset, int *mathmode, int depth, latex_node **node )
 {
 	latex_node *newnode, *downnode;
 	int status = BIBL_OK;
 	latex_edge *newedge;
-	char *p;
+	const char *p;
 
 	newnode = latex_node_new();
 	if ( !newnode ) return BIBL_ERR_MEMERR;
@@ -161,8 +162,8 @@ out:
 	return BIBL_OK;
 }
 
-int
-build_latex_graph( str *in, latex_node **start )
+static int
+build_latex_graph( const str *in, latex_node **start )
 {
 	unsigned long offset = 0;
 	int mathmode = 0;
@@ -316,7 +317,7 @@ write_latex_graph( latex_node *n )
 #endif
 
 int
-latex_parse( str *in, str *out )
+latex_parse( const str *in, str *out )
 {
 	latex_node *n = NULL;
 	int status = BIBL_OK;
@@ -340,7 +341,7 @@ out:
 }
 
 int
-latex_tokenize( slist *tokens, str *s )
+latex_tokenize( slist *tokens, const str *s )
 {
 	int i, n = s->len, nbrackets = 0, status = BIBL_OK;
 	str tok, *t;

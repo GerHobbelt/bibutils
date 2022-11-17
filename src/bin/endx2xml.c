@@ -6,6 +6,7 @@
  * Program and source code released under the GPL version 2
  *
  */
+#include "cross_platform_porting.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include "bibutils.h"
@@ -13,19 +14,25 @@
 #include "tomods.h"
 #include "bibprog.h"
 
-char help1[] =  "Converts a Endnote XML file (v8 or later) into MODS XML\n\n";
-char help2[] = "endnotexml_file";
+#include "monolithic_examples.h"
 
-const char progname[] = "endx2xml";
+static const char help1[] =  "Converts a Endnote XML file (v8 or later) into MODS XML\n\n";
+static const char help2[] = "endnotexml_file";
 
-int
-main( int argc, char *argv[] )
+static const char progname[] = "endx2xml";
+
+#if defined(BUILD_MONOLITHIC)
+#define main     bibutils_endx2xml_main
+#endif
+
+int main(int argc, const char** argv)
 {
 	param p;
 	endxmlin_initparams( &p, progname );
 	modsout_initparams( &p, progname );
-	tomods_processargs( &argc, argv, &p, help1, help2 );
-	bibprog( argc, argv, &p );
-	bibl_freeparams( &p );
-	return EXIT_SUCCESS;
+	int rc = tomods_processargs(&argc, argv, &p, help1, help2);
+	if (rc == BIBL_OK)
+		rc = bibprog(argc, argv, &p);
+	bibl_freeparams(&p);
+	return (rc == BIBL_OK ? EXIT_SUCCESS : EXIT_FAILURE);
 }

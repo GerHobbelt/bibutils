@@ -6,6 +6,7 @@
  * Source code released under the GPL version 2
  *
  */
+#include "cross_platform_porting.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -22,9 +23,8 @@
 #include "reftypes.h"
 #include "bibformats.h"
 #include "generic.h"
+#include "nbibtypes.h"
 
-extern variants nbib_all[];
-extern int nbib_nall;
 
 /*****************************************************
  PUBLIC: void nbib_initparams()
@@ -62,7 +62,7 @@ nbibin_initparams( param *pm, const char *progname )
 
 	if ( !progname ) pm->progname = NULL;
 	else {
-		pm->progname = strdup( progname );
+		pm->progname = _strdup( progname );
 		if ( !pm->progname ) return BIBL_ERR_MEMERR;
 	}
 
@@ -262,20 +262,21 @@ static int
 nbib_typef( fields *nbib, const char *filename, int nref, param *p )
 {
 	int reftype = 0, nrefname, is_default;
-	char *typename, *refname = "";
+	const char* typename1;
+	const char* refname = "";
 	vplist_index i;
 	vplist a;
 
 	nrefname  = fields_find( nbib, "PMID", LEVEL_MAIN );
-	if ( nrefname!=FIELDS_NOTFOUND ) refname = fields_value( nbib, nrefname, FIELDS_CHRP_NOUSE );
+	if ( nrefname!=FIELDS_NOTFOUND ) refname = (const char*)fields_value( nbib, nrefname, FIELDS_CHRP_NOUSE );
 
 	vplist_init( &a );
 
 	fields_findv_each( nbib, LEVEL_MAIN, FIELDS_CHRP_NOUSE, &a, "PT" );
 	is_default = 1;
 	for ( i=0; i<a.n; ++i ) {
-		typename = vplist_get( &a, i );
-		reftype  = get_reftype( typename, nref, p->progname, p->all, p->nall, refname, &is_default, REFTYPE_SILENT );
+		typename1 = (const char*)vplist_get( &a, i );
+		reftype  = get_reftype( typename1, nref, p->progname, p->all, p->nall, refname, &is_default, REFTYPE_SILENT );
 		if ( !is_default ) break;
 	}
 
@@ -297,7 +298,7 @@ nbib_typef( fields *nbib, const char *filename, int nref, param *p )
 *****************************************************/
 
 static int
-nbibin_date( fields *bibin, int n, str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
+nbibin_date( fields *bibin, int n, const str *intag, const str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
 	int fstatus, sstatus, status = BIBL_OK;
 	const char *use;
@@ -362,10 +363,12 @@ out:
 
 /* the LID and AID fields that can be doi's or pii's */
 static int
-nbibin_doi( fields *bibin, int n, str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
+nbibin_doi( fields *bibin, int n, const str *intag, const str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
 	int fstatus, sstatus, status = BIBL_OK;
-	char *id, *type, *usetag="";
+	const char* id;
+	const char* type;
+	const char* usetag = "";
 	slist tokens;
 
 	slist_init( &tokens );
@@ -395,7 +398,7 @@ out:
 }
 
 static void
-nbib_report_notag( param *p, char *tag )
+nbib_report_notag( param *p, const char *tag )
 {
 	if ( p->verbose && strcmp( tag, "TY" ) ) {
 		if ( p->progname ) fprintf( stderr, "%s: ", p->progname );
@@ -406,8 +409,10 @@ nbib_report_notag( param *p, char *tag )
 static int
 nbib_convertf( fields *bibin, fields *bibout, int reftype, param *p )
 {
-	static int (*convertfns[NUM_REFTYPES])(fields *, int i, str *, str *, int, param *, char *, fields *) = {
+	static generic_convert_fn convertfns[NUM_REFTYPES] = {
+#ifdef HAVE_DESIGNATED_INITIALIZER_GNU_EXTENSION
 		[ 0 ... NUM_REFTYPES-1 ] = generic_null,
+#endif
 		[ SIMPLE       ] = generic_simple,
 		[ TITLE        ] = generic_title,
 		[ PERSON       ] = generic_person,
@@ -415,10 +420,16 @@ nbib_convertf( fields *bibin, fields *bibout, int reftype, param *p )
 		[ DATE         ] = nbibin_date,
 		[ PAGES        ] = generic_pages,
 		[ DOI          ] = nbibin_doi,
-        };
+    };
+
+#ifndef HAVE_DESIGNATED_INITIALIZER_GNU_EXTENSION
+	SET_ARRAY_DEFAULT_VALUE(convertfns, generic_null);
+#endif
+
 	int process, level, i, nfields, status = BIBL_OK;
-	str *intag, *invalue;
-	char *outtag;
+	const str* intag;
+	const str* invalue;
+	const char *outtag;
 
 	nfields = fields_num( bibin );
 

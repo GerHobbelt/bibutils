@@ -6,6 +6,7 @@
  * Source code released under the GPL version 2
  *
  */
+#include "cross_platform_porting.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include "is_ws.h"
@@ -53,7 +54,7 @@ wordin_initparams( param *pm, const char *progname )
 
 	if ( !progname ) pm->progname = NULL;
 	else {
-		pm->progname = strdup( progname );
+		pm->progname = _strdup( progname );
 		if ( !pm->progname ) return BIBL_ERR_MEMERR;
 	}
 
@@ -64,14 +65,14 @@ wordin_initparams( param *pm, const char *progname )
  PUBLIC: int wordin_readf()
 *****************************************************/
 
-static char *
-wordin_findstartwrapper( char *buf, int *ntype )
+static const char *
+wordin_findstartwrapper( const char *buf, int *ntype )
 {
 	return xml_find_start( buf, "b:Source" );
 }
 
-static char *
-wordin_findendwrapper( char *buf, int ntype )
+static const char *
+wordin_findendwrapper( const char *buf, int ntype )
 {
 	return xml_find_end( buf, "b:Source" );
 }
@@ -80,7 +81,7 @@ static int
 wordin_readf( FILE *fp, char *buf, int bufsize, int *bufpos, str *line, str *reference, int *fcharset )
 {
 	str tmp;
-	char *startptr = NULL, *endptr;
+	const char *startptr = NULL, *endptr;
 	int haveref = 0, inref = 0, file_charset = CHARSET_UNKNOWN, m, type = 1;
 	str_init( &tmp );
 	while ( !haveref && str_fget( fp, buf, bufsize, bufpos, line ) ) {

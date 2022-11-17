@@ -11,6 +11,6 @@
 
 #include "fields.h"
 
-int add_sn( fields *info, char *buf, int level );
+int add_sn( fields *info, const char *buf, int level );
 
 #endif

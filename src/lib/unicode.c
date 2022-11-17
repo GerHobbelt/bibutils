@@ -4,6 +4,7 @@
  * Helper unicode functions/values to determine the
  * types of unicode characters.
  */
+#include "cross_platform_porting.h"
 #include "utf8.h"
 #include "unicode.h"
 
@@ -299,14 +300,44 @@ unicode_find( unsigned int unicode_character )
 		else
 			max = mid;
 	}
-	if ( ( max==min ) && ( unicodeinfo[min].value == unicode_character ) )
+
+        // Georgi: this addresses the following in v1.2
+        //
+        // TODO:  cp1251 chars are mostly around 1080,  while nunicodeinfo = 268
+        //        There may be a bug, maybe for cp1251 another table should be used?
+        // 
+        //     > ## Can't have files with different encodings in the package, so below
+        //     > ## first convert a UTF-8 file to something else.
+        //     > ##
+        //     > ## input here contains cyrillic (UTF-8) output to Windows Cyrillic,
+        //     > ## notice the "no_latex" option
+        //     > a <- bibConvert(fn_cyr_utf8, bib, encoding = c("utf8", "cp1251"), tex
+        //    = "no_latex")
+        //    unicode.c:302:36: runtime error: index 268 out of bounds for type
+        //    'unicodeinfo_t [268]'
+        //         #0 0x7ff1f5e003a3 in unicode_find
+        //    /data/gannet/ripley/R/packages/incoming/rbibutils.Rcheck/00_pkg_src/rbibutils/src/unicode.c:302
+        //    ...
+        //    unicode.c:302:41: runtime error: load of address 0x7ff1f63860e0 with
+        //    insufficient space for an object of type 'unsigned int'
+        //    ...
+        //    =================================================================
+        //    ==3935511==ERROR: AddressSanitizer: global-buffer-overflow on address
+        //    0x7ff1f63860e0 at pc 0x7ff1f5e002ae bp 0x7fff9a67dde0 sp 0x7fff9a67ddd0
+        //    READ of size 4 at 0x7ff1f63860e0 thread T0
+        //         #0 0x7ff1f5e002ad in unicode_find
+        //    /data/gannet/ripley/R/packages/incoming/rbibutils.Rcheck/00_pkg_src/rbibutils/src/unicode.c:302
+	//
+	// check min < nunicodeinfo in case min = nunicodeinfo
+	//    was: if ( ( max==min ) && ( unicodeinfo[min].value == unicode_character ) )
+	if( ( min < nunicodeinfo ) && ( max==min ) && ( unicodeinfo[min].value == unicode_character ) )
 		return min;
 	else
 		return -1;
 }
 
 unsigned short
-unicode_utf8_classify( char *p )
+unicode_utf8_classify( const char *p )
 {
 	unsigned int unicode_character, pos = 0;
 	int n;
@@ -317,7 +348,7 @@ unicode_utf8_classify( char *p )
 }
 
 unsigned short
-unicode_utf8_classify_str( str *s )
+unicode_utf8_classify_str( const str *s )
 {
 	unsigned int unicode_character, pos = 0;
 	unsigned short value = 0;

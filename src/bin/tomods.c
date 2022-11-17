@@ -6,6 +6,7 @@
  * Program and source code released under the GPL version 2
  *
  */
+#include "cross_platform_porting.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,14 +18,20 @@
 #include "bibprog.h"
 
 static void
-args_tomods_help( char *progname, char *help1, char *help2 )
+args_tomods_help(const char *progname, const char *help1, const char *help2 )
 {
 	args_tellversion( progname );
-	fprintf(stderr,"%s", help1 );
+	if (help1)
+		fprintf(stderr,"%s", help1 );
 
-	fprintf(stderr,"usage: %s %s > xml_file\n\n", progname, help2 );
-        fprintf(stderr,"  %s can be replaced with file list or "
-			"omitted to use as a filter\n\n", help2 );
+	if (help2) {
+		fprintf(stderr, "usage: %s %s > xml_file\n\n", progname, help2);
+		fprintf(stderr, "  %s can be replaced with file list or "
+			"omitted to use as a filter\n\n", help2);
+	}
+	else {
+		fprintf(stderr, "usage: %s\n\n", progname);
+	}
 
 	fprintf(stderr,"  -h, --help                display this help\n");
 	fprintf(stderr,"  -v, --version             display version\n");
@@ -46,20 +53,21 @@ args_tomods_help( char *progname, char *help1, char *help2 )
 	fprintf(stderr,"http://sourceforge.net/p/bibutils/home/Bibutils for more details\n\n");
 }
 
-static void
-args_namelist( int argc, char *argv[], int i, char *progname, char *shortarg, 
-		char *longarg )
+static int
+args_namelist( int argc, const char *argv[], int i, const char *progname, const char *shortarg,
+	const char *longarg )
 {
 	if ( i+1 >= argc ) {
 		fprintf( stderr, "%s: error %s (%s) takes the argument of "
 			"the file\n", progname, shortarg, longarg );
-		exit( EXIT_FAILURE );
+		return BIBL_ERR_EXIT_FAILURE;
 	}
+	return BIBL_OK;
 }
 
-void
-tomods_processargs( int *argc, char *argv[], param *p,
-	char *help1, char *help2 )
+int
+tomods_processargs( int *argc, const char *argv[], param *p,
+	const char *help1, const char *help2 )
 {
 	int i, j, subtract, status;
 	process_charsets( argc, argv, p );
@@ -68,10 +76,10 @@ tomods_processargs( int *argc, char *argv[], param *p,
 		subtract = 0;
 		if ( args_match( argv[i], "-h", "--help" ) ) {
 			args_tomods_help( p->progname, help1, help2 );
-			exit( EXIT_SUCCESS );
+			return BIBL_ERR_EXIT_SUCCESS;
 		} else if ( args_match( argv[i], "-v", "--version" ) ) {
 			args_tellversion( p->progname );
-			exit( EXIT_SUCCESS );
+			return BIBL_ERR_EXIT_SUCCESS;
 		} else if ( args_match( argv[i], "-a", "--add-refcount" ) ) {
 			p->addcount = 1;
 			subtract = 1;
@@ -114,26 +122,30 @@ tomods_processargs( int *argc, char *argv[], param *p,
 			p->xmlout = 1;
 			subtract = 1;
 		} else if ( args_match( argv[i], "-c", "--corporation-file")){
-			args_namelist( *argc, argv, i, p->progname,
+			status = args_namelist( *argc, argv, i, p->progname,
 				"-c", "--corporation-file" );
+			if (status < 0)
+				return status;
 			status = bibl_readcorps( p, argv[i+1] );
 			if ( status == BIBL_ERR_MEMERR ) {
 				fprintf( stderr, "%s: Memory error when reading --corporation-file '%s'\n",
 					p->progname, argv[i+1] );
-				exit( EXIT_FAILURE );
+				return BIBL_ERR_EXIT_FAILURE;
 			} else if ( status == BIBL_ERR_CANTOPEN ) {
 				fprintf( stderr, "%s: Cannot read --corporation-file '%s'\n",
 					p->progname, argv[i+1] );
 			}
 			subtract = 2;
 		} else if ( args_match( argv[i], "-as", "--asis")) {
-			args_namelist( *argc, argv, i, p->progname,
+			status = args_namelist( *argc, argv, i, p->progname,
 				"-as", "--asis" );
+			if (status < 0)
+				return status;
 			status = bibl_readasis( p, argv[i+1] );
 			if ( status == BIBL_ERR_MEMERR ) {
 				fprintf( stderr, "%s: Memory error when reading --asis file '%s'\n",
 					p->progname, argv[i+1] );
-				exit( EXIT_FAILURE );
+				return BIBL_ERR_EXIT_FAILURE;
 			} else if ( status == BIBL_ERR_CANTOPEN ) {
 				fprintf( stderr, "%s: Cannot read --asis file '%s'\n",
 					p->progname, argv[i+1] );
@@ -150,5 +162,5 @@ tomods_processargs( int *argc, char *argv[], param *p,
 			i++;
 		}
 	}
+	return BIBL_OK;
 }
-

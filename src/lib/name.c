@@ -8,6 +8,7 @@
  * Source code released under the GPL version 2
  *
  */
+#include "cross_platform_porting.h"
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
@@ -66,7 +67,7 @@ name_build_withcomma( str *s, const char *p )
 int
 name_findetal( slist *tokens )
 {
-	str *s1, *s2;
+	const str *s1, *s2;
 
 	if ( tokens->n==0 ) return 0;
 
@@ -138,7 +139,7 @@ static int
 has_suffix( slist *tokens, int begin, int end, int *suffixpos )
 {
 	int i, ret;
-	str *s;
+	const str *s;
 
 	/* ...check last element, e.g. "H. F. Author, Sr." */
 	s = slist_str( tokens, end - 1 );
@@ -165,7 +166,7 @@ has_suffix( slist *tokens, int begin, int end, int *suffixpos )
 }
 
 static int
-add_given_split( str *name, str *s )
+add_given_split( str *name, const str *s )
 {
 	unsigned int unicode_char;
 	unsigned int pos = 0;
@@ -199,18 +200,18 @@ add_given_split( str *name, str *s )
 }
 
 static unsigned char
-token_has_no_upper( slist *tokens, int n )
+token_has_no_upper( const slist *tokens, int n )
 {
 	unsigned short m;
-	str *s;
-	s = slist_str( tokens, n );
+	const str *s;
+	s = c_slist_str( tokens, n );
 	m = unicode_utf8_classify_str( s );
 	if ( m & UNICODE_UPPER ) return 0;
 	else return 1;
 }
 
 static unsigned char
-token_has_upper( slist *tokens, int n )
+token_has_upper( const slist *tokens, int n )
 {
 	if ( token_has_no_upper( tokens, n ) ) return 0;
 	else return 1;
@@ -281,7 +282,7 @@ static int
 name_mutlielement_build( str *name, intlist *given, intlist *family, slist *tokens )
 {
 	unsigned short case_given = 0, case_family = 0, should_split = 0;
-	str *s;
+	const str *s;
 	int i, m;
 
 	/* ...copy and analyze family name */

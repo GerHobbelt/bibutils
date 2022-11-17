@@ -6,6 +6,7 @@
  * Source code released under the GPL version 2
  *
  */
+#include "cross_platform_porting.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include "bibutils.h"
@@ -109,7 +110,7 @@ bibl_duplicateparams( param *np, param *op )
 
 	if ( !op->progname ) np->progname = NULL;
 	else {
-		np->progname = strdup( op->progname );
+		np->progname = _strdup( op->progname );
 		if ( !np->progname ) return BIBL_ERR_MEMERR;
 	}
 
@@ -197,12 +198,12 @@ bibl_freeparams( param *p )
 	if ( p ) {
 		slist_free( &(p->asis) );
 		slist_free( &(p->corps) );
-		if ( p->progname ) free( p->progname );
+		if ( p->progname ) free( (void *)p->progname );
 	}
 }
 
 int
-bibl_readasis( param *p, char *f )
+bibl_readasis( param *p, const char *f )
 {
 	int status;
 
@@ -217,7 +218,7 @@ bibl_readasis( param *p, char *f )
 }
 
 int
-bibl_readcorps( param *p, char *f )
+bibl_readcorps( param *p, const char *f )
 {
 	int status;
 
@@ -236,7 +237,7 @@ bibl_readcorps( param *p, char *f )
  * Returns BIBL_OK or BIBL_ERR_MEMERR
  */
 int
-bibl_addtoasis( param *p, char *d )
+bibl_addtoasis( param *p, const char *d )
 {
 	int status;
 
@@ -253,7 +254,7 @@ bibl_addtoasis( param *p, char *d )
  * Returns BIBL_OK or BIBL_ERR_MEMERR
  */
 int
-bibl_addtocorps( param *p, char *d )
+bibl_addtocorps( param *p, const char *d )
 {
 	int status;
 
@@ -299,15 +300,15 @@ bibl_illegaloutmode( int mode )
 }
 
 static void
-bibl_verbose_reference( fields *f, char *filename, long refnum )
+bibl_verbose_reference( fields *f, const char *filename, long refnum )
 {
 	int i, n;
 	n = fields_num( f );
 	fprintf( stderr, "======== %s %ld : converted\n", filename, refnum );
 	for ( i=0; i<n; ++i ) {
 		fprintf( stderr, "'%s'='%s' level=%d\n",
-			(char*) fields_tag( f, i, FIELDS_CHRP_NOUSE ),
-			(char*) fields_value( f, i, FIELDS_CHRP_NOUSE ),
+			(const char*) fields_tag( f, i, FIELDS_CHRP_NOUSE ),
+			(const char*) fields_value( f, i, FIELDS_CHRP_NOUSE ),
 			fields_level( f, i ) );
 	}
 	fprintf( stderr, "\n" );
@@ -335,7 +336,7 @@ bibl_verbose( bibl *bin, const char *msg1, const char *msg2 )
  * value = "Masters thesis"
  */
 static int
-extract_tag_value( str *tag, str *value, char *p )
+extract_tag_value( str *tag, str *value, const char *p )
 {
 	str_empty( tag );
 	while ( p && *p && *p!='|' ) {
@@ -363,16 +364,15 @@ extract_tag_value( str *tag, str *value, char *p )
  * been adding during reference processing.
  */
 static int
-process_defaultadd( fields *f, int reftype, param *r )
+process_defaultadd( fields *f, int reftype, const param *r )
 {
 	int i, n, process, level, status, ret = BIBL_OK;
 	str tag, value;
-	char *p;
+	const char *p;
 
 	strs_init( &tag, &value, NULL );
 
 	for ( i=0; i<r->all[reftype].ntags; ++i ) {
-
 		process = ((r->all[reftype]).tags[i]).processingtype;
 		if ( process!=DEFAULT ) continue;
 
@@ -393,7 +393,6 @@ process_defaultadd( fields *f, int reftype, param *r )
 				goto out;
 			}
 		}
-
 	}
 out:
 	strs_free( &tag, &value, NULL );
@@ -408,16 +407,15 @@ out:
  * DEFAULT processing).
  */
 static int
-process_alwaysadd( fields *f, int reftype, param *r )
+process_alwaysadd( fields *f, int reftype, const param *r )
 {
 	int i, process, level, status, ret = BIBL_OK;
 	str tag, value;
-	char *p;
+	const char *p;
 
 	strs_init( &tag, &value, NULL );
 
 	for ( i=0; i<r->all[reftype].ntags; ++i ) {
-
 		process = ((r->all[reftype]).tags[i]).processingtype;
 		if ( process!=ALWAYS ) continue;
 
@@ -444,7 +442,7 @@ out:
 }
 
 static int
-read_refs( FILE *fp, bibl *bin, char *filename, param *p )
+read_refs( FILE *fp, bibl *bin, const char *filename, param *p )
 {
 	int refnum = 0, bufpos = 0, ret=BIBL_OK, fcharset;/* = CHARSET_UNKNOWN;*/
 	str reference, line;
@@ -492,12 +490,12 @@ out:
 
 /* Don't manipulate latex for URL's and the like */
 static int
-bibl_notexify( char *tag )
+bibl_notexify( const char *tag )
 {
-	char *protected[] = { "DOI", "URL", "REFNUM", "FILEATTACH", "FILE" };
-	int i, nprotected = sizeof( protected ) / sizeof( protected[0] );
+	const char *protected1[] = { "DOI", "URL", "REFNUM", "FILEATTACH", "FILE" };
+	int i, nprotected = countof(protected1);
 	for ( i=0; i<nprotected; ++i )
-		if ( !strcasecmp( tag, protected[i] ) ) return 1;
+		if ( !strcasecmp( tag, protected1[i] ) ) return 1;
 	return 0;
 }
 
@@ -509,15 +507,14 @@ static int
 bibl_fixcharsetdata( fields *ref, param *p )
 {
 	str *data;
-	char *tag;
+	const char *tag;
 	long i, n;
 	int ok;
 
 	n = fields_num( ref );
 
 	for ( i=0; i<n; ++i ) {
-
-		tag  = fields_tag( ref, i, FIELDS_CHRP_NOUSE );
+		tag  = (const char *)fields_tag( ref, i, FIELDS_CHRP_NOUSE );
 		data = fields_value( ref, i, FIELDS_STRP_NOUSE );
 
 		if ( bibl_notexify( tag ) ) {
@@ -563,18 +560,18 @@ bibl_addcount( bibl *b )
 	int n;
 
 	for ( i=0; i<b->n; ++i ) {
-
 		ref = b->ref[i];
 
 		n = fields_find( ref, "REFNUM", LEVEL_MAIN );
 		if ( n==FIELDS_NOTFOUND ) continue;
 
-		sprintf( buf, "_%ld", i+1 );
-		str_strcatc( fields_value( ref, n, FIELDS_STRP_NOUSE ), buf );
-		if ( str_memerr( fields_value( ref, n, FIELDS_STRP_NOUSE ) ) ) {
+		sprintf_s( buf, countof(buf), "_%ld", i+1 );
+
+		str* s = fields_value(ref, n, FIELDS_STRP_NOUSE);
+		str_strcatc( s, buf );
+		if ( str_memerr( s ) ) {
 			return BIBL_ERR_MEMERR;
 		}
-
 	}
 
 	return BIBL_OK;
@@ -584,7 +581,8 @@ static int
 generate_citekey( fields *f, long nref )
 {
 	int n1, n2, status, ret;
-	char *p, buf[100];
+	const char* p;
+	char buf[100];
 	str citekey;
 
 	str_init( &citekey );
@@ -602,23 +600,20 @@ generate_citekey( fields *f, long nref )
 	if ( n2==FIELDS_NOTFOUND ) n2 = fields_find( f, "PARTDATE:YEAR", LEVEL_ANY );
 
 	if ( n1!=FIELDS_NOTFOUND && n2!=FIELDS_NOTFOUND ) {
-
-		p = fields_value( f, n1, FIELDS_CHRP_NOUSE );
+		p = (const char *)fields_value( f, n1, FIELDS_CHRP_NOUSE );
 		while ( p && *p && *p!='|' ) {
 			if ( !is_ws( *p ) ) str_addchar( &citekey, *p ); 
 			p++;
 		}
 
-		p = fields_value( f, n2, FIELDS_CHRP_NOUSE );
+		p = (const char *)fields_value( f, n2, FIELDS_CHRP_NOUSE );
 		while ( p && *p ) {
 			if ( !is_ws( *p ) ) str_addchar( &citekey, *p );
 			p++;
 		}
-
 	}
-
 	else {
-		sprintf( buf, "ref%ld", nref );
+		sprintf_s( buf, countof(buf), "ref%ld", nref );
 		str_strcpyc( &citekey, buf );
 	}
 
@@ -651,7 +646,7 @@ get_citekeys( bibl *bin, slist *citekeys )
 		n = fields_find( f, "REFNUM", LEVEL_ANY );
 		if ( n==FIELDS_NOTFOUND ) n = generate_citekey( f, i+1 );
 		if ( n!=FIELDS_NOTFOUND && fields_has_value( f, n ) ) {
-			status = slist_add( citekeys, fields_value( f, n, FIELDS_STRP_NOUSE ) );
+			status = slist_add( citekeys, (const str *)fields_value( f, n, FIELDS_STRP_NOUSE ) );
 			if ( status!=SLIST_OK ) return BIBL_ERR_MEMERR;
 		} else {
 			status = slist_addc( citekeys, "" );
@@ -685,7 +680,7 @@ identify_duplicates( slist *citekeys, int *dup )
 }
 
 static int
-build_new_citekey( int nsame, str *old_citekey, str *new_citekey )
+build_new_citekey( int nsame, const str *old_citekey, str *new_citekey )
 {
 	const char abc[]="abcdefghijklmnopqrstuvwxyz";
 
@@ -705,18 +700,17 @@ static int
 resolve_duplicates( bibl *b, slist *citekeys, int *dup )
 {
 	int nsame, n, i, j, status = BIBL_OK;
-	str new_citekey, *ref_citekey;
+	str new_citekey;
+	str* ref_citekey;
 
 	str_init( &new_citekey );
 
 	for ( i=0; i<citekeys->n; ++i ) {
-
 		if ( dup[i]==-1 ) continue;
 
 		nsame = 0;
 
 		for ( j=i; j<citekeys->n; ++j ) {
-
 			if ( dup[j]!=i ) continue;
 
 			dup[j] = -1;
@@ -781,14 +775,13 @@ clean_refs( bibl *bin, param *p )
 }
 
 static int 
-convert_refs( bibl *bin, char *fname, bibl *bout, param *p )
+convert_refs( bibl *bin, const char *fname, bibl *bout, param *p )
 {
 	int reftype = 0, status;
 	fields *rin, *rout;
 	long i;
 
 	for ( i=0; i<bin->n; ++i ) {
-
 		rin = bin->ref[i];
 
 		rout = fields_new();
@@ -814,7 +807,7 @@ convert_refs( bibl *bin, char *fname, bibl *bout, param *p )
 }
 
 int
-bibl_read( bibl *b, FILE *fp, char *filename, param *p )
+bibl_read( bibl *b, FILE *fp, const char *filename, param *p )
 {
 	int status = BIBL_OK;
 	param read_params;
@@ -901,30 +894,35 @@ singlerefname( fields *reffields, long nref, int mode )
 	FILE *fp;
 	long count;
 	int  found;
-	if      ( mode==BIBL_ADSABSOUT )     strcpy( suffix, "ads" );
-	else if ( mode==BIBL_BIBTEXOUT )     strcpy( suffix, "bib" );
-	else if ( mode==BIBL_ENDNOTEOUT )    strcpy( suffix, "end" );
-	else if ( mode==BIBL_ISIOUT )        strcpy( suffix, "isi" );
-	else if ( mode==BIBL_MODSOUT )       strcpy( suffix, "xml" );
-	else if ( mode==BIBL_RISOUT )        strcpy( suffix, "ris" );
-	else if ( mode==BIBL_WORD2007OUT )   strcpy( suffix, "xml" );
+	if      ( mode==BIBL_ADSABSOUT )     strcpy_s( suffix, countof(suffix), "ads" );
+	else if ( mode==BIBL_BIBTEXOUT )     strcpy_s( suffix, countof(suffix), "bib" );
+	else if ( mode==BIBL_ENDNOTEOUT )    strcpy_s( suffix, countof(suffix), "end" );
+	else if ( mode==BIBL_ISIOUT )        strcpy_s( suffix, countof(suffix), "isi" );
+	else if ( mode==BIBL_MODSOUT )       strcpy_s( suffix, countof(suffix), "xml" );
+	else if ( mode==BIBL_RISOUT )        strcpy_s( suffix, countof(suffix), "ris" );
+	else if ( mode==BIBL_WORD2007OUT )   strcpy_s( suffix, countof(suffix), "xml" );
 	found = fields_find( reffields, "REFNUM", LEVEL_MAIN );
 	/* find new filename based on reference */
 	if ( found!=-1 ) {
-		sprintf( outfile,"%s.%s",(char*)fields_value(reffields,found,FIELDS_CHRP_NOUSE), suffix );
-	} else  sprintf( outfile,"%ld.%s",nref, suffix );
+		sprintf_s( outfile, countof(outfile), "%s.%s",(const char*)fields_value(reffields,found,FIELDS_CHRP_NOUSE), suffix );
+	}
+	else {
+		sprintf_s(outfile, countof(outfile), "%ld.%s", nref, suffix);
+	}
 	count = 0;
-	fp = fopen( outfile, "r" );
+	errno_t err = fopen_s( &fp, outfile, "r" );
 	while ( fp ) {
 		fclose(fp);
 		count++;
 		if ( count==60000 ) return NULL;
 		if ( found!=-1 )
-			sprintf( outfile, "%s_%ld.%s", (char*)fields_value( reffields, found, FIELDS_CHRP_NOUSE ), count, suffix );
-		else sprintf( outfile,"%ld_%ld.%s", nref, count, suffix );
-		fp = fopen( outfile, "r" );
+			sprintf_s( outfile, countof(outfile), "%s_%ld.%s", (const char*)fields_value( reffields, found, FIELDS_CHRP_NOUSE ), count, suffix );
+		else 
+			sprintf_s( outfile, countof(outfile), "%ld_%ld.%s", nref, count, suffix );
+		err = fopen_s( &fp, outfile, "r" );
 	}
-	return fopen( outfile, "w" );
+	err = fopen_s( &fp, outfile, "w" );
+	return err ? NULL : fp;
 }
 
 static int
@@ -937,7 +935,6 @@ bibl_writeeachfp( FILE *fp, bibl *b, param *p )
 	fields_init( &out );
 
 	for ( i=0; i<b->n; ++i ) {
-
 		fp = singlerefname( b->ref[i], i, p->writeformat );
 		if ( !fp ) return BIBL_ERR_CANTOPEN;
 
@@ -977,7 +974,6 @@ bibl_writefp( FILE *fp, bibl *b, param *p )
 
 	if ( p->headerf ) p->headerf( fp, p );
 	for ( i=0; i<b->n; ++i ) {
-
 		if ( p->assemblef ) {
 			fields_free( &out );
 			status = p->assemblef( b->ref[i], &out, p, i );
@@ -989,7 +985,6 @@ bibl_writefp( FILE *fp, bibl *b, param *p )
 
 		status = p->writef( use, fp, p, i );
 		if ( status!=BIBL_OK ) break;
-
 	}
 
 	if ( debug_set( p ) && p->assemblef ) {

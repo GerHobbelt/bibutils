@@ -6,14 +6,18 @@
  * Program and source code released under the GPL version 2
  *
  */
+#include "cross_platform_porting.h"
 #include <stdio.h>
 #include <string.h>
 #include "is_ws.h"
 #include "fields.h"
 #include "reftypes.h"
+#include "reftypes_internals.h"
+#include "copactypes.h"
+
 
 /* if no specific type can be identified */
-static lookups generic[] = {
+static const lookups generic[] = {
 	{ "TI-", "TITLE" ,       TITLE,  LEVEL_MAIN },
 	{ "AU-", "AUTHOR",       PERSON, LEVEL_MAIN },
 	{ "MV-", "VOLUME",       SIMPLE, LEVEL_MAIN },
@@ -35,14 +39,9 @@ static lookups generic[] = {
 /* order is important....."Book" matches "Book" and "Book Section", hence
  * "Book Section must come first */
 
-#define ORIG(a) ( &(a[0]) )
-#define SIZE(a) ( sizeof( a ) / sizeof( lookups ) )
-#define REFTYPE(a,b) { a, ORIG(b), SIZE(b) }
-
-variants copac_all[] = {
+const variants copac_all[] = {
 	REFTYPE( "Generic", generic ),
 };
-
 
 int copac_nall = sizeof( copac_all ) / sizeof( variants );
 

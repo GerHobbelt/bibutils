@@ -8,6 +8,7 @@
  * Source code released under the GPL version 2
  *
  */
+#include "cross_platform_porting.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -80,7 +81,7 @@ add_title( fields *info, const char *tag, const char *value, int level, unsigned
  *	Full title = "What Makes a Good Team Player? Personality and Team Effectiveness"
  */
 void
-title_combine( str *fullttl, str *mainttl, str *subttl )
+title_combine( str *fullttl, const str *mainttl, const str *subttl )
 {
 	str_empty( fullttl );
 

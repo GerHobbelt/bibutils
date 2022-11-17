@@ -10,7 +10,7 @@
 
 #include "bibl.h"
 
-int add_pages( fields *bibout, str *value, int level );
+int add_pages( fields *bibout, const str *value, int level );
 
 #endif
 

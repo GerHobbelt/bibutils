@@ -6,6 +6,7 @@
  * Program and source code released under the GPL version 2
  *
  */
+#include "cross_platform_porting.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -57,7 +58,7 @@ endout_initparams( param *pm, const char *progname )
 	if ( !pm->progname ) {
 		if ( !progname ) pm->progname = NULL;
 		else {
-			pm->progname = strdup( progname );
+			pm->progname = _strdup( progname );
 			if ( !pm->progname ) return BIBL_ERR_MEMERR;
 		}
 	}
@@ -190,7 +191,7 @@ type_from_default( fields *in, param *p, unsigned long refnum )
 	fprintf( stderr, "Cannot identify TYPE in reference %lu ", refnum+1 );
 	n = fields_find( in, "REFNUM", LEVEL_ANY );
 	if ( n!=FIELDS_NOTFOUND )
-		fprintf( stderr, " %s", (char *) fields_value( in, n, FIELDS_CHRP ) );
+		fprintf( stderr, " %s", (const char *) fields_value( in, n, FIELDS_CHRP ) );
 	if ( type==TYPE_INBOOK )
 		fprintf( stderr, " (defaulting to book chapter)\n" );
 	else
@@ -204,7 +205,7 @@ get_type( fields *in, param *p, unsigned long refnum )
 {
 	/* Comment out TYPE_GENERIC entries as that is default, but
          * keep in source as record of mapping decision. */
-	match_type genre_matches[] = {
+	const match_type genre_matches[] = {
 		/* MARC Authority elements */
 		{ "art original",              TYPE_ARTWORK,            LEVEL_ANY  },
 		{ "art reproduction",          TYPE_ARTWORK,            LEVEL_ANY  },
@@ -318,13 +319,13 @@ get_type( fields *in, param *p, unsigned long refnum )
 	};
 	int ngenre_matches = sizeof( genre_matches ) / sizeof( genre_matches[0] );
 
-	match_type resource_matches[] = {
+	const match_type resource_matches[] = {
 		{ "moving image",              TYPE_FILMBROADCAST,      LEVEL_ANY  },
 		{ "software, multimedia",      TYPE_PROGRAM,            LEVEL_ANY  },
 	};
 	int nresource_matches = sizeof( resource_matches ) / sizeof( resource_matches[0] );
 
-	match_type issuance_matches[] = {
+	const match_type issuance_matches[] = {
 		{ "monographic",               TYPE_BOOK,               LEVEL_MAIN },
 		{ "monographic",               TYPE_INBOOK,             LEVEL_ANY  },
 	};
@@ -351,7 +352,7 @@ static void
 append_type( int type, fields *out, param *p, int *status )
 {
 	/* These are restricted to Endnote-defined types */
-	match_type genrenames[] = {
+	const match_type genrenames[] = {
 		{ "Generic",                TYPE_GENERIC,            0 },
 		{ "Artwork",                TYPE_ARTWORK,            0 },
 		{ "Audiovisual Material",   TYPE_AUDIOVISUAL,        0 },
@@ -411,10 +412,10 @@ append_type( int type, fields *out, param *p, int *status )
 }
 
 static int
-append_title( fields *in, char *full, char *sub, int level, fields *out, char *endtag, int *status )
+append_title( fields *in, const char *full, const char *sub, int level, fields *out, const char *endtag, int *status )
 {
-	str *mainttl = fields_findv( in, level, FIELDS_STRP, full );
-	str *subttl  = fields_findv( in, level, FIELDS_STRP, sub );
+	const str *mainttl = (const str *)fields_findv( in, level, FIELDS_STRP, full );
+	const str *subttl  = (const str *)fields_findv( in, level, FIELDS_STRP, sub );
 	str fullttl;
 	int fstatus;
 
@@ -436,11 +437,11 @@ out:
 }
 
 static void
-append_people( fields *in, char *tag, char *entag, int level, fields *out, int *status )
+append_people( fields *in, const char *tag, const char *entag, int level, fields *out, int *status )
 {
 	int i, n, flvl, fstatus;
 	str oneperson;
-	char *ftag;
+	const char *ftag;
 
 	str_init( &oneperson );
 	n = fields_num( in );
@@ -449,7 +450,7 @@ append_people( fields *in, char *tag, char *entag, int level, fields *out, int *
 		if ( level!=LEVEL_ANY && flvl!=level ) continue;
 		ftag = fields_tag( in, i, FIELDS_CHRP );
 		if ( !strcasecmp( ftag, tag ) ) {
-			name_build_withcomma( &oneperson, fields_value( in, i, FIELDS_CHRP ) );
+			name_build_withcomma( &oneperson, (const char *)fields_value( in, i, FIELDS_CHRP ) );
 			fstatus = fields_add_can_dup( out, entag, str_cstr( &oneperson ), LEVEL_MAIN );
 			if ( fstatus!=FIELDS_OK ) *status = BIBL_ERR_MEMERR;
 		}
@@ -460,10 +461,10 @@ append_people( fields *in, char *tag, char *entag, int level, fields *out, int *
 static void
 append_pages( fields *in, fields *out, int *status )
 {
-	str *sn, *en;
+	const str *sn, *en;
 	int fstatus;
 	str pages;
-	char *ar;
+	const char *ar;
 
 	sn = fields_findv( in, LEVEL_ANY, FIELDS_STRP, "PAGES:START" );
 	en = fields_findv( in, LEVEL_ANY, FIELDS_STRP, "PAGES:STOP" );
@@ -506,7 +507,7 @@ static void
 append_year( fields *in, fields *out, int *status )
 {
 	int fstatus;
-	char *year;
+	const char *year;
 
 	year = fields_findv_firstof( in, LEVEL_ANY, FIELDS_CHRP, "DATE:YEAR", "PARTDATE:YEAR", NULL );
 	if ( year ) {
@@ -543,10 +544,10 @@ append_genrehint_core( int type, fields *out, vplist *a, int *status )
 {
 	vplist_index i;
 	int fstatus;
-	char *g;
+	const char *g;
 
 	for ( i=0; i<a->n; ++i ) {
-		g = ( char * ) vplist_get( a, i );
+		g = ( const char * ) vplist_get( a, i );
 		if ( !strcmp( g, "journal article" ) && type==TYPE_ARTICLE ) continue;
 		if ( !strcmp( g, "academic journal" ) && type==TYPE_ARTICLE ) continue;
 		if ( !strcmp( g, "collection" ) && type==TYPE_INBOOK ) continue;
@@ -733,8 +734,8 @@ endout_write( fields *out, FILE *fp, param *pm, unsigned long refnum )
 
 	for ( i=0; i<out->n; ++i ) {
 		fprintf( fp, "%s %s\n",
-			(char*) fields_tag( out, i, FIELDS_CHRP ),
-			(char*) fields_value( out, i, FIELDS_CHRP )
+			(const char*) fields_tag( out, i, FIELDS_CHRP ),
+			(const char*) fields_value( out, i, FIELDS_CHRP )
 		);
 	}
 

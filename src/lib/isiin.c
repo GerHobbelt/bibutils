@@ -6,6 +6,7 @@
  * Program and source code released under the GPL version 2
  *
  */
+#include "cross_platform_porting.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -19,9 +20,8 @@
 #include "reftypes.h"
 #include "bibformats.h"
 #include "generic.h"
+#include "isitypes.h"
 
-extern variants isi_all[];
-extern int isi_nall;
 
 static int isiin_readf( FILE *fp, char *buf, int bufsize, int *bufpos, str *line, str *reference, int *fcharset );
 static int isiin_typef( fields *isiin, const char *filename, int nref, param *p );
@@ -59,7 +59,7 @@ isiin_initparams( param *pm, const char *progname )
 
 	if ( !progname ) pm->progname = NULL;
 	else {
-		pm->progname = strdup( progname );
+		pm->progname = _strdup( progname );
 		if ( !pm->progname ) return BIBL_ERR_MEMERR;
 	}
 
@@ -94,7 +94,7 @@ static int
 isiin_readf( FILE *fp, char *buf, int bufsize, int *bufpos, str *line, str *reference, int *fcharset )
 {
 	int haveref = 0, inref = 0;
-	char *p;
+	const char *p;
 
 	*fcharset = CHARSET_UNKNOWN;
 
@@ -192,7 +192,7 @@ process_untagged_line( str *value, const char *p )
 }
 
 static int
-add_tag_value( fields *isiin, str *tag, str *value, int *tag_added )
+add_tag_value( fields *isiin, const str *tag, const str *value, int *tag_added )
 {
 	int status;
 
@@ -201,7 +201,6 @@ add_tag_value( fields *isiin, str *tag, str *value, int *tag_added )
 		if ( status!=FIELDS_OK ) return BIBL_ERR_MEMERR;
 		*tag_added = 1;
 	}
-
 	else {
 		*tag_added = 0;
 	}
@@ -238,11 +237,10 @@ merge_tag_value( fields *isiin, str *tag, str *value, int *tag_added )
 				if ( str_memerr( oldvalue ) ) return BIBL_ERR_MEMERR;
 			}
 		}
-
 		else {
-                        status = fields_add( isiin, str_cstr( tag ), str_cstr( value ), LEVEL_MAIN );
-                        if ( status!=FIELDS_OK ) return BIBL_ERR_MEMERR;
-                        *tag_added = 1;
+            status = fields_add( isiin, str_cstr( tag ), str_cstr( value ), LEVEL_MAIN );
+            if ( status!=FIELDS_OK ) return BIBL_ERR_MEMERR;
+            *tag_added = 1;
 		}
 	}
 
@@ -295,15 +293,16 @@ static int
 isiin_typef( fields *isiin, const char *filename, int nref, param *p )
 {
 	int ntypename, nrefname, is_default;
-	char *refname = "", *typename="";
+	const char* refname = "";
+	const char* typename1 = "";
 
 	ntypename = fields_find( isiin, "PT", LEVEL_MAIN );
 	nrefname  = fields_find( isiin, "UT", LEVEL_MAIN );
 
-	if ( nrefname!=FIELDS_NOTFOUND )  refname  = fields_value( isiin, nrefname,  FIELDS_CHRP_NOUSE );
-	if ( ntypename!=FIELDS_NOTFOUND ) typename = fields_value( isiin, ntypename, FIELDS_CHRP_NOUSE );
+	if ( nrefname!=FIELDS_NOTFOUND )  refname  = (const char *)fields_value( isiin, nrefname,  FIELDS_CHRP_NOUSE );
+	if ( ntypename!=FIELDS_NOTFOUND ) typename1 = (const char *)fields_value( isiin, ntypename, FIELDS_CHRP_NOUSE );
 
-	return get_reftype( typename, nref, p->progname, p->all, p->nall, refname, &is_default, REFTYPE_CHATTY );
+	return get_reftype( typename1, nref, p->progname, p->all, p->nall, refname, &is_default, REFTYPE_CHATTY );
 }
 
 /*****************************************************
@@ -312,11 +311,15 @@ isiin_typef( fields *isiin, const char *filename, int nref, param *p )
 
 /* pull off authors first--use AF before AU */
 static int
-isiin_addauthors( fields *isiin, fields *info, int reftype, variants *all, int nall, slist *asis, slist *corps )
+isiin_addauthors( fields *isiin, fields *info, int reftype, const variants *all, int nall, slist *asis, slist *corps )
 {
-	char *newtag, *authortype, use_af[]="AF", use_au[]="AU";
+	const char* newtag;
+	const char* authortype;
+	const char* use_af = "AF";
+	const char* use_au = "AU";
 	int level, i, n, has_af=0, has_au=0, nfields, status;
-	str *t, *d;
+	const str* t;
+	const str* d;
 
 	nfields = fields_num( isiin );
 	for ( i=0; i<nfields && has_af==0; ++i ) {
@@ -329,9 +332,9 @@ isiin_addauthors( fields *isiin, fields *info, int reftype, variants *all, int n
 	else return BIBL_OK; /* no authors */
 
 	for ( i=0; i<nfields; ++i ) {
-		t = fields_tag( isiin, i, FIELDS_STRP );
+		t = (const str *)fields_tag( isiin, i, FIELDS_STRP );
 		if ( strcasecmp( t->data, authortype ) ) continue;
-		d = fields_value( isiin, i, FIELDS_STRP );
+		d = (const str *)fields_value( isiin, i, FIELDS_STRP );
 		n = process_findoldtag( authortype, reftype, all, nall );
 		level = ((all[reftype]).tags[n]).level;
 		newtag = all[reftype].tags[n].newstr;
@@ -343,7 +346,7 @@ isiin_addauthors( fields *isiin, fields *info, int reftype, variants *all, int n
 
 /* PD APR 16 */
 static int
-isiin_date( fields *bibin, int n, str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
+isiin_date( fields *bibin, int n, const str *intag, const str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
 	int fstatus, sstatus, status = BIBL_OK;
 	const char *monthtag = outtag;
@@ -381,7 +384,7 @@ out:
 }
 
 static int
-isiin_keyword( fields *bibin, int n, str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
+isiin_keyword( fields *bibin, int n, const str *intag, const str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
 	const char *p = str_cstr( invalue );
 	int fstatus, status = BIBL_OK;
@@ -402,7 +405,7 @@ out:
 }
 
 static void
-isiin_report_notag( param *p, char *tag )
+isiin_report_notag( param *p, const char *tag )
 {
 	if ( p->verbose && strcmp( tag, "PT" ) ) {
 		if ( p->progname ) fprintf( stderr, "%s: ", p->progname );
@@ -413,8 +416,10 @@ isiin_report_notag( param *p, char *tag )
 static int
 isiin_convertf( fields *bibin, fields *bibout, int reftype, param *p )
 {
-	static int (*convertfns[NUM_REFTYPES])(fields *, int, str *, str *, int, param *, char *, fields *) = {
+	static generic_convert_fn convertfns[NUM_REFTYPES] = {
+#ifdef HAVE_DESIGNATED_INITIALIZER_GNU_EXTENSION
 		[ 0 ... NUM_REFTYPES-1 ] = generic_null,
+#endif
 		[ SIMPLE       ] = generic_simple,
 		[ TITLE        ] = generic_title,
 		[ PERSON       ] = generic_person,
@@ -424,9 +429,14 @@ isiin_convertf( fields *bibin, fields *bibout, int reftype, param *p )
 		[ KEYWORD      ] = isiin_keyword,
 	};
 
+#ifndef HAVE_DESIGNATED_INITIALIZER_GNU_EXTENSION
+	SET_ARRAY_DEFAULT_VALUE(convertfns, generic_null);
+#endif
+
 	int process, level, i, nfields, status;
-	str *intag, *invalue;
-	char *outtag;
+	const str* intag;
+	const str* invalue;
+	const char *outtag;
 
 	status = isiin_addauthors( bibin, bibout, reftype, p->all, p->nall, &(p->asis), &(p->corps) );
 	if ( status!=BIBL_OK ) return status;

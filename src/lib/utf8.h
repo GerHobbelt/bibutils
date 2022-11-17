@@ -9,6 +9,7 @@
 #ifndef UTF8_H
 #define UTF8_H
 
+#include "cross_platform_porting.h"
 #include <stdio.h>
 
 int          utf8_encode( unsigned int value, unsigned char out[6] );

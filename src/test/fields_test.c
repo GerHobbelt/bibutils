@@ -11,13 +11,24 @@
 #include <stdarg.h>
 #include <string.h>
 #include <sys/types.h>
+#ifdef _MSC_VER
+#include <io.h>
+#else
 #include <unistd.h>
+#endif
 #include "fields.h"
 
-char progname[] = "fields_test";
-char version[] = "0.1";
+#include "monolithic_examples.h"
 
-void
+static const char progname[] = "fields_test";
+
+#if defined(BUILD_MONOLITHIC)
+#define main     bibutils_fields_test_main
+#endif
+
+static const char version[] = "0.1";
+
+static void
 memerr( const char *fn )
 {
 	fprintf( stderr, "%s: Memory error in %s()\n", progname, fn );
@@ -32,7 +43,8 @@ memerr( const char *fn )
 }
 
 #define check_len( a, b ) if ( !_check_len( a, b, __FUNCTION__, __LINE__ ) ) return 1;
-int
+
+static int
 _check_len( fields *f, int expected, const char *fn, int line )
 {
 	if ( f->n == expected ) return 1;
@@ -42,10 +54,11 @@ _check_len( fields *f, int expected, const char *fn, int line )
 
 #define check_tag( a, b, c ) if ( !_check_entry( a, b, c, "tag", 0, __FUNCTION__, __LINE__ ) ) return 1;
 #define check_value( a, b, c ) if ( !_check_entry( a, b, c, "value", 1,  __FUNCTION__, __LINE__ ) ) return 1;
-int
+
+static int
 _check_entry( fields *f, int n, const char *expected, const char *type, int typenum, const char *fn, int line )
 {
-	char *s;
+	const char *s;
 
 	if ( typenum==0 ) s = fields_tag( f, n, FIELDS_CHRP_NOUSE );
 	else              s = fields_value( f, n, FIELDS_CHRP_NOUSE );
@@ -68,7 +81,8 @@ _check_entry( fields *f, int n, const char *expected, const char *type, int type
 }
 
 #define check_level( a, b, c ) if ( !_check_level( a, b, c, __FUNCTION__, __LINE__ ) ) return 1;
-int
+
+static int
 _check_level( fields *f, int n, int expected, const char *fn, int line )
 {
 	int lvl;
@@ -86,14 +100,14 @@ _check_level( fields *f, int n, int expected, const char *fn, int line )
 
 #define check_entry( a, b, c, d, e ) { check_tag( a, b, c ); check_value( a, b, d ); check_level( a, b, e ); }
 
-int
+static int
 make_fields_empty( fields *f )
 {
 	fields_init( f );
 	return FIELDS_OK;
 }
 
-int
+static int
 make_fields_with_unique_content( fields *f, ... )
 {
 	int level, status = FIELDS_OK;
@@ -115,7 +129,7 @@ out:
 	return status;
 }
 
-int
+static int
 make_fields_with_unique_content_suffix( fields *f, ... )
 {
 	int level, status = FIELDS_OK;
@@ -138,7 +152,7 @@ out:
 	return status;
 }
 
-int
+static int
 make_fields_with_dup_content( fields *f, ... )
 {
 	int level, status = FIELDS_OK;
@@ -160,7 +174,7 @@ out:
 	return status;
 }
 
-int
+static int
 make_fields_with_dup_content_suffix( fields *f, ... )
 {
 	int level, status = FIELDS_OK;
@@ -186,7 +200,7 @@ out:
 /*
  * fields_init() should initialize an empty structure
  */
-int
+static int
 test_init( void )
 {
 	int status;
@@ -209,7 +223,7 @@ test_init( void )
 /*
  * test fields_new(); should allocate an empty structure
  */
-int
+static int
 test_new( void )
 {
 	fields *f;
@@ -235,7 +249,7 @@ test_new( void )
  *                    should not add entries with a NULL value
  *                    should add a single unique entry and ignore duplicates
  */
-int
+static int
 test_add_single( void )
 {
 	int status;
@@ -257,7 +271,7 @@ test_add_single( void )
 	return 0;
 }
 
-int
+static int
 test_add_badtag( void )
 {
 	int status;
@@ -275,7 +289,7 @@ test_add_badtag( void )
 	return 0;
 }
 
-int
+static int
 test_add_badvalue( void )
 {
 	int status;
@@ -293,7 +307,7 @@ test_add_badvalue( void )
 	return 0;
 }
 
-int
+static int
 test_add_multiple( void )
 {
 	char tag[512], value[512];
@@ -326,7 +340,7 @@ test_add_multiple( void )
 	return 0;
 }
 
-int
+static int
 test_add_check_dup( void )
 {
 	int status;
@@ -353,7 +367,7 @@ test_add_check_dup( void )
 	return 0;
 }
 
-int
+static int
 test_add( void )
 {
 	int err = 0;
@@ -372,7 +386,7 @@ test_add( void )
  *                            should add an entry for each valid combination
  *                            should add all copies of duplicates
  */
-int
+static int
 test_add_can_dup_single( void )
 {
 	int status;
@@ -394,7 +408,7 @@ test_add_can_dup_single( void )
 	return 0;
 }
 
-int
+static int
 test_add_can_dup_badtag( void )
 {
 	int status;
@@ -412,7 +426,7 @@ test_add_can_dup_badtag( void )
 	return 0;
 }
 
-int
+static int
 test_add_can_dup_badvalue( void )
 {
 	int status;
@@ -430,7 +444,7 @@ test_add_can_dup_badvalue( void )
 	return 0;
 }
 
-int
+static int
 test_add_can_dup_multiple( void )
 {
 	char tag[512], value[512];
@@ -463,7 +477,7 @@ test_add_can_dup_multiple( void )
 	return 0;
 }
 
-int
+static int
 test_add_can_dup_check_dup( void )
 {
 	int status;
@@ -491,7 +505,7 @@ test_add_can_dup_check_dup( void )
 	return 0;
 }
 
-int
+static int
 test_add_can_dup( void )
 {
 	int err = 0;
@@ -510,7 +524,7 @@ test_add_can_dup( void )
  *                           should add an entry for each valid combination
  *                           should add a single unique entry and ignore duplicates
  */
-int
+static int
 test_add_suffix_single( void )
 {
 	int status;
@@ -532,7 +546,7 @@ test_add_suffix_single( void )
 	return 0;
 }
 
-int
+static int
 test_add_suffix_badtag( void )
 {
 	int status;
@@ -550,7 +564,7 @@ test_add_suffix_badtag( void )
 	return 0;
 }
 
-int
+static int
 test_add_suffix_badvalue( void )
 {
 	int status;
@@ -568,7 +582,7 @@ test_add_suffix_badvalue( void )
 	return 0;
 }
 
-int
+static int
 test_add_suffix_multiple( void )
 {
 	char tag[512], value[512];
@@ -601,7 +615,7 @@ test_add_suffix_multiple( void )
 	return 0;
 }
 
-int
+static int
 test_add_suffix_check_dup( void )
 {
 	int status;
@@ -630,7 +644,7 @@ test_add_suffix_check_dup( void )
 	return 0;
 }
 
-int
+static int
 test_add_suffix( void )
 {
 	int err = 0;
@@ -649,7 +663,7 @@ test_add_suffix( void )
  *                                   should add an entry for each valid combination
  *                                   should add all copies of duplicates
  */
-int
+static int
 test_add_suffix_can_dup_single( void )
 {
 	int status;
@@ -671,7 +685,7 @@ test_add_suffix_can_dup_single( void )
 	return 0;
 }
 
-int
+static int
 test_add_suffix_can_dup_badtag( void )
 {
 	int status;
@@ -689,7 +703,7 @@ test_add_suffix_can_dup_badtag( void )
 	return 0;
 }
 
-int
+static int
 test_add_suffix_can_dup_badvalue( void )
 {
 	int status;
@@ -707,7 +721,7 @@ test_add_suffix_can_dup_badvalue( void )
 	return 0;
 }
 
-int
+static int
 test_add_suffix_can_dup_multiple( void )
 {
 	char tag[512], value[512];
@@ -743,7 +757,7 @@ test_add_suffix_can_dup_multiple( void )
 /*
  * fields_add() should add a single unique entry and ignore duplicates
  */
-int
+static int
 test_add_suffix_can_dup_check_dup( void )
 {
 	int status;
@@ -773,7 +787,7 @@ test_add_suffix_can_dup_check_dup( void )
 	return 0;
 }
 
-int
+static int
 test_add_suffix_can_dup( void )
 {
 	int err = 0;
@@ -788,7 +802,7 @@ test_add_suffix_can_dup( void )
 /*
  * fields_replace_or_add() replaces the value of a matching tag/value if exists, adds otherwise
  */
-int
+static int
 test_replace_or_add( void )
 {
 	char tag[512], value[512];
@@ -829,7 +843,7 @@ test_replace_or_add( void )
  * test fields_remove(); should eliminate specific entries and return FIELDS_OK
  *                       should return FIELDS_ERR_NOTFOUND with invalid entries
  */
-int
+static int
 test_remove_valid_first( void )
 {
 	int status;
@@ -861,7 +875,7 @@ test_remove_valid_first( void )
 	return 0;
 }
 
-int
+static int
 test_remove_valid_middle( void )
 {
 	int status;
@@ -893,7 +907,7 @@ test_remove_valid_middle( void )
 	return 0;
 }
 
-int
+static int
 test_remove_valid_last( void )
 {
 	int status;
@@ -925,7 +939,7 @@ test_remove_valid_last( void )
 	return 0;
 }
 
-int
+static int
 test_remove_invalid( void )
 {
 	int status;
@@ -958,7 +972,7 @@ test_remove_invalid( void )
 	return 0;
 }
 
-int
+static int
 test_remove( void )
 {
 	int err = 0;
@@ -972,7 +986,7 @@ test_remove( void )
 /*
  * fields_maxlevel() finds the maximum level in the fields structure
  */
-int
+static int
 test_maxlevel( void )
 {
 	char tag[512], value[512];
@@ -1006,7 +1020,7 @@ test_maxlevel( void )
 /*
  * fields_dupl() allocates a new fields structure and copies all values
  */
-int
+static int
 test_dupl_basic( void )
 {
 	int status;
@@ -1040,7 +1054,7 @@ test_dupl_basic( void )
 	return 0;
 }
 
-int
+static int
 test_dupl_independent( void )
 {
 	int status;
@@ -1082,7 +1096,7 @@ test_dupl_independent( void )
 	return 0;
 }
 
-int
+static int
 test_dupl( void )
 {
 	int err = 0;
@@ -1092,7 +1106,7 @@ test_dupl( void )
 }
 
 /* test_used() check used flag for entries */
-int
+static int
 test_used_set( void )
 {
 	int status;
@@ -1122,7 +1136,7 @@ test_used_set( void )
 	return 0;
 }
 
-int
+static int
 test_used_clear( void )
 {
 	int status;
@@ -1154,7 +1168,7 @@ test_used_clear( void )
 	return 0;
 }
 
-int
+static int
 test_used( void )
 {
 	int err = 0;
@@ -1163,7 +1177,7 @@ test_used( void )
 	return err;
 }
 
-int
+static int
 test_match_level( void )
 {
 	int status;
@@ -1213,7 +1227,7 @@ test_match_level( void )
 	return 0;
 }
 
-int
+static int
 test_match_tag( void )
 {
 	int status;
@@ -1253,7 +1267,7 @@ test_match_tag( void )
 	return 0;
 }
 
-int
+static int
 test_match_casetag( void )
 {
 	int status;
@@ -1293,7 +1307,7 @@ test_match_casetag( void )
 	return 0;
 }
 
-int
+static int
 test_match_tag_level( void )
 {
 	int status;
@@ -1327,7 +1341,7 @@ test_match_tag_level( void )
 	return 0;
 }
 
-int
+static int
 test_match_casetag_level( void )
 {
 	int status;
@@ -1365,7 +1379,7 @@ test_match_casetag_level( void )
 	return 0;
 }
 
-int
+static int
 test_find( void )
 {
 	int n, status;
@@ -1406,12 +1420,12 @@ test_find( void )
 	return 0;
 }
 
-int
+static int
 test_findv_chrp_use( void )
 {
 	int n, status;
 	fields f;
-	char *p;
+	const char *p;
 
 	status = make_fields_with_unique_content( &f,
 			"TAG1", "VALUE1", LEVEL_MAIN,
@@ -1437,12 +1451,12 @@ test_findv_chrp_use( void )
 	return 0;
 }
 
-int
+static int
 test_findv_chrp_nouse( void )
 {
 	int n, status;
 	fields f;
-	char *p;
+	const char *p;
 
 	status = make_fields_with_unique_content( &f,
 			"TAG1", "VALUE1", LEVEL_MAIN,
@@ -1466,7 +1480,7 @@ test_findv_chrp_nouse( void )
 	return 0;
 }
 
-int
+static int
 test_findv_chrp_nolen( void )
 {
 	int n, status;
@@ -1493,7 +1507,7 @@ test_findv_chrp_nolen( void )
 	return 0;
 }
 
-int
+static int
 test_findv_chrp( void )
 {
 	int err = 0;
@@ -1503,12 +1517,12 @@ test_findv_chrp( void )
 	return err;
 }
 
-int
+static int
 test_findv_strp_use( void )
 {
 	int n, status;
 	fields f;
-	str *p;
+	const str *p;
 
 	status = make_fields_with_unique_content( &f,
 			"TAG1", "VALUE1", LEVEL_MAIN,
@@ -1534,12 +1548,12 @@ test_findv_strp_use( void )
 	return 0;
 }
 
-int
+static int
 test_findv_strp_nouse( void )
 {
 	int n, status;
 	fields f;
-	str *p;
+	const str *p;
 
 	status = make_fields_with_unique_content( &f,
 			"TAG1", "VALUE1", LEVEL_MAIN,
@@ -1563,12 +1577,12 @@ test_findv_strp_nouse( void )
 	return 0;
 }
 
-int
+static int
 test_findv_strp_nolen( void )
 {
 	int n, status;
 	fields f;
-	str *p;
+	const str *p;
 
 	status = make_fields_with_unique_content( &f,
 			"TAG1", "VALUE1", LEVEL_MAIN,
@@ -1590,7 +1604,7 @@ test_findv_strp_nolen( void )
 	return 0;
 }
 
-int
+static int
 test_findv_strp( void )
 {
 	int err = 0;
@@ -1600,7 +1614,7 @@ test_findv_strp( void )
 	return err;
 }
 
-int
+static int
 test_findv( void )
 {
 	int err = 0;
@@ -1609,8 +1623,7 @@ test_findv( void )
 	return err;
 }
 
-int
-main( int argc, char *argv[] )
+int main(int argc, const char** argv)
 {
 	int failed = 0;
 

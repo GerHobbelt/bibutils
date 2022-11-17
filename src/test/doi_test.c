@@ -6,21 +6,32 @@
  * Source code released under the GPL version 2
  *
  */
+#include "cross_platform_porting.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include "url.h"
+#ifdef BUNDLE_BIBUTILS_TESTS
+#include "bibutils_tests.h"
+#endif
 
-char progname[] = "doi_test";
+#include "monolithic_examples.h"
+
+
+static const char progname[] = "doi_test";
+
+#if defined(BUILD_MONOLITHIC)
+#define main     bibutils_doi_test_main
+#endif
 
 typedef struct test_t {
-	char *s;
+	const char *s;
 	int expected;
 } test_t;
 
-int
+static int
 test_is_doi( void )
 {
-	test_t tests[] = {
+	const test_t tests[] = {
 		{ "10.1021/",            0 },
 		{ "00.0000/",            0 },
 		{ "00,0000/",            -1 },
@@ -44,10 +55,10 @@ test_is_doi( void )
 	return failed;
 }
 
-int
+static int
 test_is_uri_remote_scheme( void )
 {
-	test_t tests[] = {
+	const test_t tests[] = {
 		{ "This is a note",           -1 },
 		{ "doi:99.9999/",             -1 },
 		{ "git://www.git.com",        4 },
@@ -73,10 +84,10 @@ test_is_uri_remote_scheme( void )
 	return failed;
 }
 
-int
+static int
 test_is_embedded_link( void )
 {
-	test_t tests[] = {
+	const test_t tests[] = {
 		{ "This is a note",           0 },
 		{ "doi:99.9999/",             1 },
 		{ "git://www.git.com",        1 },
@@ -103,8 +114,13 @@ test_is_embedded_link( void )
 }
 
 
+#ifdef BUNDLE_BIBUTILS_TESTS
+int 
+doi_test(void)
+#else
 int
-main( int argc, char *argv[] )
+main(void)
+#endif
 {
 	int failed = 0;
 	failed += test_is_doi();

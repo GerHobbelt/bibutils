@@ -16,16 +16,17 @@
  * conventions
  *
  */
+#include "cross_platform_porting.h"
 #include <stdio.h>
 #include <ctype.h>
 #include "strsearch.h"
 
-char *strsearch (const char *haystack, const char *needle)
+const char *strsearch (const char *haystack, const char *needle)
 {
-	char *returnptr=NULL;
+	const char *returnptr=NULL;
 	unsigned long pos=0;
 
-	if ( !(*needle) ) returnptr = (char *) haystack;
+	if ( !(*needle) ) returnptr = haystack;
 
 	while (*(haystack+pos) && returnptr==NULL) {
 		if ( toupper((unsigned char)*(haystack+pos)) == toupper((unsigned char)*(needle+pos)) )
@@ -34,7 +35,7 @@ char *strsearch (const char *haystack, const char *needle)
 			pos = 0;
 			haystack++;
 		}
-		if ( ! (*(needle+pos)) ) returnptr = (char *) haystack;
+		if ( ! (*(needle+pos)) ) returnptr = haystack;
 	}
 
 	return returnptr;

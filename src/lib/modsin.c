@@ -6,6 +6,7 @@
  * Source code released under the GPL version 2
  *
  */
+#include "cross_platform_porting.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -66,7 +67,7 @@ modsin_initparams( param *pm, const char *progname )
 
 	if ( !progname ) pm->progname = NULL;
 	else {
-		pm->progname = strdup( progname );
+		pm->progname = _strdup( progname );
 		if ( !pm->progname ) return BIBL_ERR_MEMERR;
 	}
 
@@ -77,7 +78,7 @@ modsin_initparams( param *pm, const char *progname )
  PUBLIC: int modsin_processf()
 *****************************************************/
 
-static char modsns[]="mods";
+static const char modsns[]="mods";
 
 /* Extract/expand language attributes from tags like:
  *
@@ -85,11 +86,11 @@ static char modsns[]="mods";
  *
  * Returns NULL if attribute is missing
  */
-static char *
+static const char *
 modsin_get_lang_attribute( xml *node )
 {
-	char *lang, *expand;
-	str *langtag;
+	const char *lang, *expand;
+	const str *langtag;
 
 	langtag = xml_attribute( node, "lang" );
 	if ( !langtag ) return NULL;
@@ -146,7 +147,7 @@ modsin_detail_value( xml *node, str *value )
 static int
 modsin_detail_type( xml *node, str *type )
 {
-	str *attribute;
+	const str *attribute;
 
 	attribute = xml_attribute( node, "type" );
 	if ( attribute ) {
@@ -333,7 +334,7 @@ out:
 static void
 modsin_add_sep_if_necessary( str *s, char sep )
 {
-	char *p;
+	const char *p;
 
 	if ( str_is_empty( s ) ) return;
 
@@ -415,11 +416,11 @@ out:
  * "author" or "author|creator" or "edt" or "editor|edt".
  */
 static int
-modsin_marcrole_convert( str *s, char *suffix, str *out )
+modsin_marcrole_convert( const str *s, const char *suffix, str *out )
 {
 	int i, sstatus, status = BIBL_OK;
 	slist tokens;
-	char *p;
+	const char *p;
 
 	slist_init( &tokens );
 
@@ -476,7 +477,7 @@ modsin_asis_corp_r( xml *node, str *name, str *role )
 }
 
 static int
-modsin_asis_corp( xml *node, fields *info, int level, char *suffix )
+modsin_asis_corp( xml *node, fields *info, int level, const char *suffix )
 {
 	int fstatus, status = BIBL_OK;
 	str name, roles, role_out;
@@ -644,9 +645,9 @@ modsin_name( xml *node, fields *info, const char *lang, int level )
  */
 
 static int
-modsin_placeterm_code( xml *node, fields *info, int level, str *auth )
+modsin_placeterm_code( xml *node, fields *info, int level, const str *auth )
 {
-	char *value = NULL, *tag = "ADDRESS";
+	const char *value = NULL, *tag = "ADDRESS";
 	int fstatus, status = BIBL_OK;
 	str s;
 
@@ -682,7 +683,7 @@ modsin_place( xml *node, fields *info, const char *lang, int level )
 	const char *tag[] = { "ADDRESS", "SCHOOL" };
 	int place_is_school = 0, is_school;
 	int status = BIBL_OK;
-	str *type, *auth;
+	const str *type, *auth;
 
 	if ( xml_tag_has_attribute( node, "place", "type", "school" ) )
 		place_is_school = 1;
@@ -809,7 +810,7 @@ static int
 modsin_genre( xml *node, fields *info, const char *lang, int level )
 {
 	int fstatus;
-	char *value;
+	const char *value;
 
 	if ( !xml_has_value( node ) ) return BIBL_OK;
 
@@ -855,8 +856,8 @@ modsin_genre( xml *node, fields *info, const char *lang, int level )
 static int
 modsin_languageterm( xml *node, fields *info, const char *outtag, int level )
 {
-	char *lang = NULL;
-	str *authority;
+	const char *lang = NULL;
+	const str *authority;
 	int fstatus;
 
 	/* if language provided as a code, expand it */
@@ -1214,7 +1215,7 @@ modsin_mods( xml *node, fields *info, int level )
 	const int nmods_vtable = sizeof( mods_vtable ) / sizeof( mods_vtable[0] );
 
 	int i, found=-1, status = BIBL_OK;
-	char *lang;
+	const char *lang;
 
 	lang = modsin_get_lang_attribute( node );
 
@@ -1246,7 +1247,7 @@ static int
 modsin_refid( xml *node, fields *info, int level )
 {
 	int fstatus;
-	str *ns;
+	const str *ns;
 
 	ns = xml_attribute( node, "ID" );
 	if ( str_has_value( ns ) ) {
@@ -1300,10 +1301,10 @@ modsin_processf( fields *modsin, const char *data, const char *filename, long nr
  PUBLIC: int modsin_readf()
 *****************************************************/
 
-static char *
-modsin_startptr( char *p, char **next )
+static const char *
+modsin_startptr( const char *p, const char **next )
 {
-	char *startptr;
+	const char *startptr;
 	*next = NULL;
 	startptr = xml_find_start( p, "mods:mods" );
 	if ( startptr ) {
@@ -1320,8 +1321,8 @@ modsin_startptr( char *p, char **next )
 	return startptr;
 }
 
-static char *
-modsin_endptr( char *p )
+static const char *
+modsin_endptr( const char *p )
 {
 	return xml_find_end( p, "mods" );
 }
@@ -1331,7 +1332,7 @@ modsin_readf( FILE *fp, char *buf, int bufsize, int *bufpos, str *line, str *ref
 {
 	str tmp;
 	int m, file_charset = CHARSET_UNKNOWN;
-	char *startptr = NULL, *nextptr, *endptr = NULL;
+	const char *startptr = NULL, *nextptr, *endptr = NULL;
 
 	str_init( &tmp );
 

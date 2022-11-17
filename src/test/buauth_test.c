@@ -10,14 +10,20 @@
 #include <stdlib.h>
 #include "bu_auth.h"
 
-char progname[] = "buauth_test";
+#include "monolithic_examples.h"
+
+static const char progname[] = "buauth_test";
+
+#if defined(BUILD_MONOLITHIC)
+#define main     bibutils_buauth_test_main
+#endif
 
 typedef struct test_t {
 	char *s;
 	int expected;
 } test_t;
 
-int
+static int
 test_is_bugenre( void )
 {
 	test_t tests[] = {
@@ -72,8 +78,7 @@ test_is_bugenre( void )
 	return failed;
 }
 
-int
-main( int argc, char *argv[] )
+int main(int argc, const char** argv)
 {
 	int failed = 0;
 	failed += test_is_bugenre();

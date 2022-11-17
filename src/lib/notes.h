@@ -11,7 +11,7 @@
 
 #include "bibutils.h"
 
-int add_notes( fields *bibout, str *invalue, int level );
+int add_notes( fields *bibout, const str *invalue, int level );
 
 #endif
 

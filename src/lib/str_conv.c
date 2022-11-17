@@ -8,6 +8,7 @@
  * str routines for converting strs between character sets
  *
  */
+#include "cross_platform_porting.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -24,7 +25,7 @@ static void
 addentity( str *s, unsigned int ch )
 {
 	char buf[512];
-	sprintf( buf, "&#%u;", ch );
+	sprintf_s( buf, countof(buf), "&#%u;", ch );
 	str_strcatc( s, buf );
 }
 

@@ -6,6 +6,7 @@
  * Program and source code released under the GPL version 2
  *
  */
+#include "cross_platform_porting.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -18,9 +19,8 @@
 #include "reftypes.h"
 #include "bibformats.h"
 #include "generic.h"
+#include "copactypes.h"
 
-extern variants copac_all[];
-extern int copac_nall;
 
 /*****************************************************
  PUBLIC: void copacin_initparams()
@@ -57,7 +57,7 @@ copacin_initparams( param *pm, const char *progname )
 
 	if ( !progname ) pm->progname = NULL;
 	else {
-		pm->progname = strdup( progname );
+		pm->progname = _strdup( progname );
 		if ( !pm->progname ) return BIBL_ERR_MEMERR;
 	}
 
@@ -83,7 +83,7 @@ copacin_istag( const char *buf )
 		return 0;
 	if (buf[2]!='-' ) return 0;
 	if (buf[3]!=' ' ) return 0;
-	return 1; 
+	return 1;
 }
 static int
 readmore( FILE *fp, char *buf, int bufsize, int *bufpos, str *line )
@@ -101,7 +101,7 @@ copacin_readf( FILE *fp, char *buf, int bufsize, int *bufpos, str *line, str *re
 	while ( !haveref && readmore( fp, buf, bufsize, bufpos, line ) ) {
 		/* blank line separates */
 		if ( line->data==NULL ) continue;
-		if ( inref && line->len==0 ) haveref=1; 
+		if ( inref && line->len==0 ) haveref=1;
 		p = &(line->data[0]);
 		/* Recognize UTF8 BOM */
 		if ( line->len > 2 &&
@@ -218,9 +218,10 @@ out:
  * editors seem to be stuck in as authors with the tag "[Editor]" in it
  */
 static int
-copacin_person( fields *bibin, int n, str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
+copacin_person( fields *bibin, int n, const str *intag, const str *invalue, int level, param *pm, const char *outtag, fields *bibout )
 {
-	char *usetag = outtag, editor[]="EDITOR";
+	const char* usetag = outtag;
+	const char editor[] = "EDITOR";
 	int comma = 0, i, status;
 	str usename, *s;
 	slist tokens;
@@ -268,7 +269,7 @@ copacin_person( fields *bibin, int n, str *intag, str *invalue, int level, param
 }
 
 static void
-copacin_report_notag( param *p, char *tag )
+copacin_report_notag( param *p, const char *tag )
 {
 	if ( p->verbose ) {
 		if ( p->progname ) fprintf( stderr, "%s: ", p->progname );
@@ -279,8 +280,10 @@ copacin_report_notag( param *p, char *tag )
 static int
 copacin_convertf( fields *bibin, fields *bibout, int reftype, param *p )
 {
-	static int (*convertfns[NUM_REFTYPES])(fields *, int, str *, str *, int, param *, char *, fields *) = {
+	static generic_convert_fn convertfns[NUM_REFTYPES] = {
+#ifdef HAVE_DESIGNATED_INITIALIZER_GNU_EXTENSION
 		[ 0 ... NUM_REFTYPES-1 ] = generic_null,
+#endif
 		[ SIMPLE       ] = generic_simple,
 		[ TITLE        ] = generic_title,
 		[ NOTES        ] = generic_notes,
@@ -288,9 +291,14 @@ copacin_convertf( fields *bibin, fields *bibout, int reftype, param *p )
 		[ PERSON       ] = copacin_person
 	};
 
+#ifndef HAVE_DESIGNATED_INITIALIZER_GNU_EXTENSION
+	SET_ARRAY_DEFAULT_VALUE(convertfns, generic_null);
+#endif
+
 	int  process, level, i, nfields, status = BIBL_OK;
-	str *intag, *invalue;
-	char *outtag;
+	const str* intag;
+	const str* invalue;
+	const char *outtag;
 
 	nfields = fields_num( bibin );
 	for ( i=0; i<nfields; ++i ) {
