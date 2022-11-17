@@ -3,7 +3,7 @@
  *
  * Recognize the MARC authority vocabulary for genre and resource.
  *
- * Copyright (c) Chris Putnam 2008-2020
+ * Copyright (c) Chris Putnam 2008-2021
  *
  * Source code released under the GPL version 2
  *
@@ -14,9 +14,8 @@
 int is_marc_genre( const char *query );
 int is_marc_resource( const char *query );
 
-int marc_find_genre( const char *query );
-int marc_find_resource( const char *query );
+char *marc_convert_relators( const char *query );
+char *marc_convert_country( const char *query );
 
-char *marc_convert_role( const char *query );
 
 #endif

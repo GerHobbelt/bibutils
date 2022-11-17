@@ -9,7 +9,7 @@
  * is_doi()
  * Check for DOI buried in another field.
  *
- * Copyright (c) Chris Putnam 2008-2020
+ * Copyright (c) Chris Putnam 2008-2021
  *
  * Source code released under the GPL version 2
  *
@@ -121,7 +121,10 @@ int
 is_doi( char *s )
 {
 	if ( string_pattern( s, "##.####/", 0 ) ) return 0;
+	if ( string_pattern( s, "doi ##.####/", 0 ) ) return 4;
+	if ( string_pattern( s, "DOI ##.####/", 0 ) ) return 4;
 	if ( string_pattern( s, "doi:##.####/", 0 ) ) return 4;
+	if ( string_pattern( s, "DOI:##.####/", 0 ) ) return 4;
 	if ( string_pattern( s, "doi: ##.####/", 0 ) ) return 5;
 	if ( string_pattern( s, "doi: DOI: ##.####/", 0 ) ) return 10;
 	if ( string_pattern( s, "https://doi.org/##.####/", 0 ) ) return 16;

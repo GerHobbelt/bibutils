@@ -1,7 +1,7 @@
 /*
  * endxmlin.c
  *
- * Copyright (c) Chris Putnam 2006-2020
+ * Copyright (c) Chris Putnam 2006-2021
  *
  * Program and source code released under the GPL version 2
  *
@@ -209,6 +209,12 @@ endxmlin_data( xml *node, char *inttag, fields *info, int level )
  *       <style>ACTUAL TITLE HERE</style><style>MORE TITLE</style>
  *    </title>
  * </titles>
+ *
+ * or
+ *
+ * <titles>
+ *    <title>ACTUAL TITLE HERE</title>
+ * </titles>
  */
 static int
 endxmlin_titles( xml *node, fields *info )
@@ -227,7 +233,7 @@ endxmlin_titles( xml *node, fields *info )
 	str_init( &title );
 
 	for ( i=0; i<n; ++i ) {
-		if ( xml_tag_matches( node, a[i].attrib ) && node->down ) {
+		if ( xml_tag_matches( node, a[i].attrib ) ) {
 			str_empty( &title );
 			fstatus = endxmlin_datar( node, &title );
 			if ( fstatus!=BIBL_OK ) {
@@ -273,13 +279,22 @@ out:
  *
  */
 static int
-endxmlin_contributor( xml *node, fields *info, char *int_tag, int level )
+endxmlin_contributor( xml *node, fields *info, char *internal_tag, int level )
 {
 	int status;
-	status = endxmlin_data( node, int_tag, info, level );
+
+	/* some values have ^M end-of-line characters in them--replace newline/carriage return with spaces */
+	str_findreplace( xml_value( node ), "\r\n", " " );
+	str_findreplace( xml_value( node ), "\r", " " );
+	str_findreplace( xml_value( node ), "\n", " " );
+
+	/* separate multiple names (separated by "and") with "|" for later parsing by the routines in name.c */
+	str_findreplace( xml_value( node ), " and ", "|" );
+
+	status = endxmlin_data( node, internal_tag, info, level );
 	if ( status!=BIBL_OK ) return status;
 	if ( node->next ) {
-		status = endxmlin_contributor( node->next, info, int_tag, level );
+		status = endxmlin_contributor( node->next, info, internal_tag, level );
 		if ( status!=BIBL_OK ) return status;
 	}
 	return BIBL_OK;

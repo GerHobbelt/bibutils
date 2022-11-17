@@ -1,7 +1,7 @@
 /*
  * bibdefs.h
  *
- * Copyright (c) Chris Putnam 2005-2020
+ * Copyright (c) Chris Putnam 2005-2021
  *
  * Source code released under GPL version 2
  *

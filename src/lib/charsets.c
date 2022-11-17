@@ -1,7 +1,7 @@
 /*
  * charsets.c
  *
- * Copyright (c) Chris Putnam 2003-2020
+ * Copyright (c) Chris Putnam 2003-2021
  *
  * Source code released under the GPL version 2
  *
@@ -34243,7 +34243,7 @@ allcharconvert_t allcharconvert[] = {
 	CHARSETARRAY( cp857 )
 },
 { "cp860",
-	"MS-DOS Code Page 860 Portugese",
+	"MS-DOS Code Page 860 Portuguese",
 	{ "CP860", "IBM860", "860", "", "", "", "", },
 	CHARSETARRAY( cp860 )
 },

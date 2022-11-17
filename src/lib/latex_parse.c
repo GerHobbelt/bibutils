@@ -3,7 +3,7 @@
  *
  * Parse LaTeX code.
  *
- * Copyright (c) Chris Putnam 2020
+ * Copyright (c) Chris Putnam 2020-2021
  *
  * Source code released under the GPL version 2
  *
@@ -25,18 +25,6 @@ typedef struct latex_edge {
 	str text;
 } latex_edge;
 
-static latex_node *
-latex_node_new( void )
-{
-	return ( latex_node * ) calloc( 1, sizeof( latex_node ) );
-}
-
-static void
-latex_node_delete( latex_node *n )
-{
-	free( n );
-}
-
 static latex_edge *
 latex_edge_new( void )
 {
@@ -51,6 +39,27 @@ latex_edge_delete( latex_edge *e )
 {
 	str_free( &(e->text) );
 	free( e );
+}
+
+static latex_node *
+latex_node_new( void )
+{
+	return ( latex_node * ) calloc( 1, sizeof( latex_node ) );
+}
+
+static void
+latex_node_delete( latex_node *n )
+{
+	if ( n ) {
+		if ( n->down_node ) {
+			latex_node_delete( n->down_node );
+		}
+		if ( n->next_edge ) {
+			latex_node_delete( n->next_edge->next_node );
+			latex_edge_delete( n->next_edge );
+		}
+		free( n );
+	}
 }
 
 static int
@@ -144,8 +153,7 @@ build_latex_graph_r( str *in, unsigned long *offset, int *mathmode, int depth, l
 
 out:
 	if ( status!=BIBL_OK || str_memerr( &(newedge->text) ) ) {
-		latex_node_delete( newnode );
-		latex_edge_delete( newedge );
+		latex_node_delete( *node );
 		*node = NULL;
 		return BIBL_ERR_MEMERR;
 	}
@@ -158,10 +166,6 @@ build_latex_graph( str *in, latex_node **start )
 {
 	unsigned long offset = 0;
 	int mathmode = 0;
-	latex_node *n;
-
-	n = latex_node_new();
-	if ( !n ) return BIBL_ERR_MEMERR;
 	
 	return build_latex_graph_r( in, &offset, &mathmode, 0, start );
 }
@@ -314,21 +318,25 @@ write_latex_graph( latex_node *n )
 int
 latex_parse( str *in, str *out )
 {
-	latex_node *n;
-	int status;
+	latex_node *n = NULL;
+	int status = BIBL_OK;
 
 	str_empty( out );
+
 	if ( str_is_empty( in ) ) return BIBL_OK;
 
 	status = build_latex_graph( in, &n );
-	if ( status!=BIBL_OK ) return status;
+	if ( status!=BIBL_OK ) goto out;
 
 	status = string_from_latex_graph( n, out );
-	if ( status!=BIBL_OK ) return status;
+	if ( status!=BIBL_OK ) goto out;
 
 	str_trimendingws( out );
 
-	return BIBL_OK;
+out:
+	latex_node_delete( n );
+
+	return status;
 }
 
 int

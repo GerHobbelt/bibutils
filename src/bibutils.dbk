@@ -18,18 +18,18 @@
   <!ENTITY debian      "<productname>Debian</productname>">
   <!ENTITY gnu         "<acronym>GNU</acronym>">
   <!ENTITY gpl         "&gnu; <acronym>GPL</acronym>">
-  <!ENTITY version	"6.10">
+  <!ENTITY version	"7.2">
 
   ]>
 <refentry>
   <refentryinfo>
     <address>&dhemail;</address>
     <copyright>
-      <year>2017</year>
+      <year>2021</year>
       <holder>&dhusername; (Manual)</holder>
     </copyright>
     <copyright>
-      <year>2008</year>
+      <year>2021</year>
       <holder>Christopher Putnam (Software and Manual)</holder>
     </copyright>
     <legalnotice>
@@ -690,7 +690,7 @@ enhancers",
     </refsect1>
     <refsect1>
       <title>License</title>
-      <para>All versions of bibutils are relased under the GNU Public
+      <para>All versions of bibutils are released under the GNU General Public
 	License (GPL). In a nutshell, feel free to download, run, and
 	modify these programs as required. If you re-release these, you
 	need to release the modified version of the source. (And I'd

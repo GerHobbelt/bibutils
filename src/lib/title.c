@@ -3,7 +3,7 @@
  *
  * process titles into title/subtitle pairs for MODS
  *
- * Copyright (c) Chris Putnam 2004-2020
+ * Copyright (c) Chris Putnam 2004-2021
  *
  * Source code released under the GPL version 2
  *
@@ -11,13 +11,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "bibdefs.h"
 #include "str.h"
 #include "fields.h"
 #include "title.h"
 #include "is_ws.h"
 
 int
-title_process( fields *info, const char *tag, const char *value, int level, unsigned char nosplittitle )
+add_title( fields *info, const char *tag, const char *value, int level, unsigned char nosplittitle )
 {
 	str title, subtitle;
 	const char *p, *q;
@@ -45,16 +46,16 @@ title_process( fields *info, const char *tag, const char *value, int level, unsi
 	if ( strncasecmp( "SHORT", tag, 5 ) ) {
 		if ( str_has_value( &title ) ) {
 			status = fields_add( info, "TITLE", str_cstr( &title ), level );
-			if ( status!=FIELDS_OK ) return 0;
+			if ( status!=FIELDS_OK ) return BIBL_ERR_MEMERR;
 		}
 		if ( str_has_value( &subtitle ) ) {
 			status = fields_add( info, "SUBTITLE", str_cstr( &subtitle ), level );
-			if ( status!=FIELDS_OK ) return 0;
+			if ( status!=FIELDS_OK ) return BIBL_ERR_MEMERR;
 		}
 	} else {
 		if ( str_has_value( &title ) ) {
 			status = fields_add( info, "SHORTTITLE", str_cstr( &title ), level );
-			if ( status!=FIELDS_OK ) return 0;
+			if ( status!=FIELDS_OK ) return BIBL_ERR_MEMERR;
 		}
 		/* no SHORT-SUBTITLE! */
 	}
@@ -62,7 +63,7 @@ title_process( fields *info, const char *tag, const char *value, int level, unsi
 	str_free( &subtitle );
 	str_free( &title );
 
-	return 1;
+	return BIBL_OK;
 }
 
 /* title_combine()

@@ -1,7 +1,7 @@
 /*
  * risout.c
  *
- * Copyright (c) Chris Putnam 2003-2020
+ * Copyright (c) Chris Putnam 2003-2021
  *
  * Source code released under the GPL version 2
  *
@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "append_easy.h"
 #include "bibformats.h"
 #include "fields.h"
 #include "generic.h"
@@ -181,31 +182,33 @@ static int
 get_type_genre( fields *f, param *p )
 {
 	match_type match_genres[] = {
-		{ "academic journal",          TYPE_ARTICLE },
-		{ "article",                   TYPE_ARTICLE },
-		{ "journal article",           TYPE_ARTICLE },
-		{ "magazine",                  TYPE_MAGARTICLE },
-		{ "conference publication",    TYPE_CONF },
-		{ "newspaper",                 TYPE_NEWSPAPER },
-		{ "legislation",               TYPE_STATUTE },
-		{ "communication",             TYPE_PCOMM },
-		{ "hearing",                   TYPE_HEAR },
-		{ "electronic",                TYPE_ELEC },
-		{ "legal case and case notes", TYPE_CASE },
-		{ "book chapter",              TYPE_INBOOK },
-		{ "Ph.D. thesis",              TYPE_PHDTHESIS },
-		{ "Licentiate thesis",         TYPE_LICENTIATETHESIS },
-		{ "Masters thesis",            TYPE_MASTERSTHESIS },
-		{ "Diploma thesis",            TYPE_DIPLOMATHESIS },
-		{ "Doctoral thesis",           TYPE_DOCTORALTHESIS },
+		{ "academic journal",          TYPE_ARTICLE            },
+		{ "article",                   TYPE_ARTICLE            },
+		{ "journal article",           TYPE_ARTICLE            },
+		{ "magazine",                  TYPE_MAGARTICLE         },
+		{ "conference publication",    TYPE_CONF               },
+		{ "newspaper",                 TYPE_NEWSPAPER          },
+		{ "legislation",               TYPE_STATUTE            },
+		{ "communication",             TYPE_PCOMM              },
+		{ "hearing",                   TYPE_HEAR               },
+		{ "electronic",                TYPE_ELEC               },
+		{ "legal case and case notes", TYPE_CASE               },
+		{ "book",                      TYPE_BOOK               },
+		{ "collection",                TYPE_BOOK               },
+		{ "book chapter",              TYPE_INBOOK             },
+		{ "Ph.D. thesis",              TYPE_PHDTHESIS          },
+		{ "Licentiate thesis",         TYPE_LICENTIATETHESIS   },
+		{ "Masters thesis",            TYPE_MASTERSTHESIS      },
+		{ "Diploma thesis",            TYPE_DIPLOMATHESIS      },
+		{ "Doctoral thesis",           TYPE_DOCTORALTHESIS     },
 		{ "Habilitation thesis",       TYPE_HABILITATIONTHESIS },
-		{ "report",                    TYPE_REPORT },
-		{ "technical report",          TYPE_REPORT },
-		{ "abstract or summary",       TYPE_ABSTRACT },
-		{ "patent",                    TYPE_PATENT },
-		{ "unpublished",               TYPE_UNPUBLISHED },
-		{ "manuscript",                TYPE_UNPUBLISHED },
-		{ "map",                       TYPE_MAP },
+		{ "report",                    TYPE_REPORT             },
+		{ "technical report",          TYPE_REPORT             },
+		{ "abstract or summary",       TYPE_ABSTRACT           },
+		{ "patent",                    TYPE_PATENT             },
+		{ "unpublished",               TYPE_UNPUBLISHED        },
+		{ "manuscript",                TYPE_UNPUBLISHED        },
+		{ "map",                       TYPE_MAP                },
 	};
 	int nmatch_genres = sizeof( match_genres ) / sizeof( match_genres[0] );
 	char *tag, *value;
@@ -215,25 +218,21 @@ get_type_genre( fields *f, param *p )
 
 	for ( i=0; i<fields_num( f ); ++i ) {
 		tag = ( char * ) fields_tag( f, i, FIELDS_CHRP );
-		if ( strcmp( tag, "GENRE:MARC" ) && strcmp( tag, "GENRE:BIBUTILS" ) && strcmp( tag, "GENRE:UNKNOWN") ) continue;
+		if ( strncmp( tag, "GENRE", 5 ) ) continue;
 		value = ( char * ) fields_value( f, i, FIELDS_CHRP );
 		for ( j=0; j<nmatch_genres; ++j )
 			if ( !strcasecmp( match_genres[j].name, value ) )
 				type = match_genres[j].type;
 		if ( p->verbose ) verbose_type_assignment( tag, value, p, type );
-		if ( type==TYPE_UNKNOWN ) {
+		if ( type==TYPE_BOOK ) {
+			if ( fields_level( f, i ) > 0 ) type=TYPE_INBOOK;
+		}
+		/* delay these in lieu of being able to assign something more specific */
+		else if ( type==TYPE_UNKNOWN ) {
 			if ( !strcasecmp( value, "periodical" ) )
 				type = TYPE_ARTICLE;
 			else if ( !strcasecmp( value, "thesis" ) )
 				type = TYPE_THESIS;
-			else if ( !strcasecmp( value, "book" ) ) {
-				if ( fields_level( f, i )==0 ) type=TYPE_BOOK;
-				else type=TYPE_INBOOK;
-			}
-			else if ( !strcasecmp( value, "collection" ) ) {
-				if ( fields_level( f, i )==0 ) type=TYPE_BOOK;
-				else type=TYPE_INBOOK;
-			}
 		}
 
 	}
@@ -290,7 +289,7 @@ get_type_issuance( fields *f, param *p )
 		if ( !strcasecmp( (char *) fields_tag( f, i, FIELDS_CHRP_NOUSE ), "issuance" ) &&
 		     !strcasecmp( (char *) fields_value( f, i, FIELDS_CHRP_NOUSE ), "MONOGRAPHIC" ) ){
 			monographic = 1;
-			monographic_level = f->level[i];
+			monographic_level = fields_level( f, i );
 		}
 	}
 	if ( monographic ) {
@@ -375,7 +374,7 @@ append_type( int type, param *p, fields *out, int *status )
 }
 
 static void
-append_people( fields *f, char *tag, char *ristag, int level, fields *out, int *status )
+append_people( fields *f, char *tag, int level, fields *out, char *ristag, int *status )
 {
 	vplist_index i;
 	str oneperson;
@@ -475,25 +474,21 @@ static void
 append_pages( fields *in, fields *out, int *status )
 {
 	char *sn, *en, *ar;
-	int fstatus;
 
 	sn = fields_findv( in, LEVEL_ANY, FIELDS_CHRP, "PAGES:START" );
 	en = fields_findv( in, LEVEL_ANY, FIELDS_CHRP, "PAGES:STOP" );
 
 	if ( sn || en ) {
 		if ( sn ) {
-			fstatus = fields_add( out, "SP", sn, LEVEL_MAIN );
-			if ( fstatus!=FIELDS_OK ) *status = BIBL_ERR_MEMERR;
+			*status = append_easypage( out, "SP", sn, LEVEL_MAIN );
 		}
 		if ( en ) {
-			fstatus = fields_add( out, "EP", en, LEVEL_MAIN );
-			if ( fstatus!=FIELDS_OK ) *status = BIBL_ERR_MEMERR;
+			*status = append_easypage( out, "EP", en, LEVEL_MAIN );
 		}
 	} else {
 		ar = fields_findv( in, LEVEL_ANY, FIELDS_CHRP, "ARTICLENUMBER" );
 		if ( ar ) {
-			fstatus = fields_add( out, "SP", ar, LEVEL_MAIN );
-			if ( fstatus!=FIELDS_OK ) *status = BIBL_ERR_MEMERR;
+			*status = append_easypage( out, "SP", ar, LEVEL_MAIN );
 		}
 	}
 }
@@ -566,7 +561,7 @@ is_uri_scheme( char *p )
 
 
 static void
-append_file( fields *in, char *tag, char *ristag, int level, fields *out, int *status )
+append_file( fields *in, char *tag, int level, fields *out, char *ristag, int *status )
 {
 	vplist_index i;
 	str filename;
@@ -576,6 +571,7 @@ append_file( fields *in, char *tag, char *ristag, int level, fields *out, int *s
 
 	str_init( &filename );
 	vplist_init( &a );
+
 	fields_findv_each( in, level, FIELDS_CHRP, &a, tag );
 	for ( i=0; i<a.n; ++i ) {
 		fl = ( char * ) vplist_get( &a, i );
@@ -586,67 +582,48 @@ append_file( fields *in, char *tag, char *ristag, int level, fields *out, int *s
 		fstatus = fields_add( out, ristag, str_cstr( &filename ), LEVEL_MAIN );
 		if ( fstatus!=FIELDS_OK ) { *status = BIBL_ERR_MEMERR; goto out; }
 	}
+
 out:
 	vplist_free( &a );
 	str_free( &filename );
 }
 
-static void
-append_easy( fields *in, char *tag, char *ristag, int level, fields *out, int *status )
-{
-	char *value;
-	int fstatus;
-
-	value = fields_findv( in, level, FIELDS_CHRP, tag );
-	if ( value ) {
-		fstatus = fields_add( out, ristag, value, LEVEL_MAIN );
-		if ( fstatus!=FIELDS_OK ) *status = BIBL_ERR_MEMERR;
-	}
-}
-
-static void
-append_easyall( fields *in, char *tag, char *ristag, int level, fields *out, int *status )
-{
-	vplist_index i;
-	int fstatus;
-	vplist a;
-
-	vplist_init( &a );
-	fields_findv_each( in, level, FIELDS_CHRP, &a, tag );
-	for ( i=0; i<a.n; ++i ) {
-		fstatus = fields_add( out, ristag, (char *) vplist_get( &a, i ), LEVEL_MAIN );
-		if ( fstatus!=FIELDS_OK ) *status = BIBL_ERR_MEMERR;
-	}
-	vplist_free( &a );
-}
 
 static void
 append_allpeople( fields *in, int type, fields *out, int *status )
 {
-	append_people ( in, "AUTHOR",      "AU", LEVEL_MAIN,   out, status );
-	append_easyall( in, "AUTHOR:CORP", "AU", LEVEL_MAIN,   out, status );
-	append_easyall( in, "AUTHOR:ASIS", "AU", LEVEL_MAIN,   out, status );
-	append_people ( in, "AUTHOR",      "A2", LEVEL_HOST,   out, status );
-	append_easyall( in, "AUTHOR:CORP", "A2", LEVEL_HOST,   out, status );
-	append_easyall( in, "AUTHOR:ASIS", "A2", LEVEL_HOST,   out, status );
-	append_people ( in, "AUTHOR",      "A3", LEVEL_SERIES, out, status );
-	append_easyall( in, "AUTHOR:CORP", "A3", LEVEL_SERIES, out, status );
-	append_easyall( in, "AUTHOR:ASIS", "A3", LEVEL_SERIES, out, status );
-	append_people ( in, "EDITOR",      "ED", LEVEL_MAIN,   out, status );
-	append_easyall( in, "EDITOR:CORP", "ED", LEVEL_MAIN,   out, status );
-	append_easyall( in, "EDITOR:ASIS", "ED", LEVEL_MAIN,   out, status );
+
+	append_people ( in, "AUTHOR",      LEVEL_MAIN,   out, "AU", status );
+	append_easyall( in, "AUTHOR:CORP", LEVEL_MAIN,   out, "AU", status );
+	append_easyall( in, "AUTHOR:ASIS", LEVEL_MAIN,   out, "AU", status );
+
+	append_people ( in, "AUTHOR",      LEVEL_HOST,   out, "A2", status );
+	append_easyall( in, "AUTHOR:CORP", LEVEL_HOST,   out, "A2", status );
+	append_easyall( in, "AUTHOR:ASIS", LEVEL_HOST,   out, "A2", status );
+
+	append_people ( in, "AUTHOR",      LEVEL_SERIES, out, "A3", status );
+	append_easyall( in, "AUTHOR:CORP", LEVEL_SERIES, out, "A3", status );
+	append_easyall( in, "AUTHOR:ASIS", LEVEL_SERIES, out, "A3", status );
+
+	append_people ( in, "EDITOR",      LEVEL_MAIN,   out, "ED", status );
+	append_easyall( in, "EDITOR:CORP", LEVEL_MAIN,   out, "ED", status );
+	append_easyall( in, "EDITOR:ASIS", LEVEL_MAIN,   out, "ED", status );
+
 	if ( type_is_element[ type ] ) {
-		append_people ( in, "EDITOR",      "ED", LEVEL_HOST, out, status );
-		append_easyall( in, "EDITOR:CORP", "ED", LEVEL_HOST, out, status );
-		append_easyall( in, "EDITOR:ASIS", "ED", LEVEL_HOST, out, status );
-	} else {
-		append_people ( in, "EDITOR",      "A3", LEVEL_HOST, out, status );
-		append_easyall( in, "EDITOR:CORP", "A3", LEVEL_HOST, out, status );
-		append_easyall( in, "EDITOR:ASIS", "A3", LEVEL_HOST, out, status );
+		append_people ( in, "EDITOR",      LEVEL_HOST, out, "ED", status );
+		append_easyall( in, "EDITOR:CORP", LEVEL_HOST, out, "ED", status );
+		append_easyall( in, "EDITOR:ASIS", LEVEL_HOST, out, "ED", status );
 	}
-	append_people ( in, "EDITOR",      "A3", LEVEL_SERIES, out, status );
-	append_easyall( in, "EDITOR:CORP", "A3", LEVEL_SERIES, out, status );
-	append_easyall( in, "EDITOR:ASIS", "A3", LEVEL_SERIES, out, status );
+
+	else {
+		append_people ( in, "EDITOR",      LEVEL_HOST, out, "A3", status );
+		append_easyall( in, "EDITOR:CORP", LEVEL_HOST, out, "A3", status );
+		append_easyall( in, "EDITOR:ASIS", LEVEL_HOST, out, "A3", status );
+	}
+
+	append_people ( in, "EDITOR",      LEVEL_SERIES, out, "A3", status );
+	append_easyall( in, "EDITOR:CORP", LEVEL_SERIES, out, "A3", status );
+	append_easyall( in, "EDITOR:ASIS", LEVEL_SERIES, out, "A3", status );
 }
 
 static int
@@ -661,30 +638,30 @@ risout_assemble( fields *in, fields *out, param *pm, unsigned long refnum )
 	append_date      ( in, out, &status );
 	append_alltitles ( in, type, out, &status );
 	append_pages     ( in, out, &status );
-	append_easy      ( in, "VOLUME",             "VL", LEVEL_ANY, out, &status );
-	append_easy      ( in, "ISSUE",              "IS", LEVEL_ANY, out, &status );
-	append_easy      ( in, "NUMBER",             "IS", LEVEL_ANY, out, &status );
-	append_easy      ( in, "EDITION",            "ET", LEVEL_ANY, out, &status );
-	append_easy      ( in, "NUMVOLUMES",         "NV", LEVEL_ANY, out, &status );
-	append_easy      ( in, "ADDRESS:AUTHOR",     "AD", LEVEL_ANY, out, &status );
-	append_easy      ( in, "PUBLISHER",          "PB", LEVEL_ANY, out, &status );
-	append_easy      ( in, "DEGREEGRANTOR",      "PB", LEVEL_ANY, out, &status );
-	append_easy      ( in, "DEGREEGRANTOR:ASIS", "PB", LEVEL_ANY, out, &status );
-	append_easy      ( in, "DEGREEGRANTOR:CORP", "PB", LEVEL_ANY, out, &status );
-	append_easy      ( in, "ADDRESS",            "CY", LEVEL_ANY, out, &status );
-	append_easyall   ( in, "KEYWORD",            "KW", LEVEL_ANY, out, &status );
-	append_easy      ( in, "ABSTRACT",           "AB", LEVEL_ANY, out, &status );
-	append_easy      ( in, "CALLNUMBER",         "CN", LEVEL_ANY, out, &status );
-	append_easy      ( in, "ISSN",               "SN", LEVEL_ANY, out, &status );
-	append_easy      ( in, "ISBN",               "SN", LEVEL_ANY, out, &status );
-	append_file      ( in, "FILEATTACH",         "L1", LEVEL_ANY, out, &status );
-	append_file      ( in, "FIGATTACH",          "L4", LEVEL_ANY, out, &status );
-	append_easy      ( in, "CAPTION",            "CA", LEVEL_ANY, out, &status );
+	append_easy      ( in, "VOLUME",             LEVEL_ANY, out, "VL", &status );
+	append_easy      ( in, "ISSUE",              LEVEL_ANY, out, "IS", &status );
+	append_easy      ( in, "NUMBER",             LEVEL_ANY, out, "IS", &status );
+	append_easy      ( in, "EDITION",            LEVEL_ANY, out, "ET", &status );
+	append_easy      ( in, "NUMVOLUMES",         LEVEL_ANY, out, "NV", &status );
+	append_easycombo ( in, "ADDRESS:AUTHOR",     LEVEL_ANY, out, "AD", "; ", &status );
+	append_easy      ( in, "PUBLISHER",          LEVEL_ANY, out, "PB", &status );
+	append_easy      ( in, "DEGREEGRANTOR",      LEVEL_ANY, out, "PB", &status );
+	append_easy      ( in, "DEGREEGRANTOR:ASIS", LEVEL_ANY, out, "PB", &status );
+	append_easy      ( in, "DEGREEGRANTOR:CORP", LEVEL_ANY, out, "PB", &status );
+	append_easycombo ( in, "ADDRESS",            LEVEL_ANY, out, "CY", "; ", &status );
+	append_easyall   ( in, "KEYWORD",            LEVEL_ANY, out, "KW", &status );
+	append_easy      ( in, "ABSTRACT",           LEVEL_ANY, out, "AB", &status );
+	append_easy      ( in, "CALLNUMBER",         LEVEL_ANY, out, "CN", &status );
+	append_easy      ( in, "ISSN",               LEVEL_ANY, out, "SN", &status );
+	append_easy      ( in, "ISBN",               LEVEL_ANY, out, "SN", &status );
+	append_file      ( in, "FILEATTACH",         LEVEL_ANY, out, "L1", &status );
+	append_file      ( in, "FIGATTACH",          LEVEL_ANY, out, "L4", &status );
+	append_easy      ( in, "CAPTION",            LEVEL_ANY, out, "CA", &status );
 	append_urls      ( in, out, &status );
-	append_easyall   ( in, "DOI",                "DO", LEVEL_ANY, out, &status );
-	append_easy      ( in, "LANGUAGE",           "LA", LEVEL_ANY, out, &status );
-	append_easy      ( in, "NOTES",              "N1", LEVEL_ANY, out, &status );
-	append_easy      ( in, "REFNUM",             "ID", LEVEL_ANY, out, &status );
+	append_easyall   ( in, "DOI",                LEVEL_ANY, out, "DO", &status );
+	append_easy      ( in, "LANGUAGE",           LEVEL_ANY, out, "LA", &status );
+	append_easy      ( in, "NOTES",              LEVEL_ANY, out, "N1", &status );
+	append_easy      ( in, "REFNUM",             LEVEL_ANY, out, "ID", &status );
 	append_thesishint( type, out, &status );
 
 	return status;

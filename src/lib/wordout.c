@@ -3,7 +3,7 @@
  * 
  * (Word 2007 format)
  *
- * Copyright (c) Chris Putnam 2007-2020
+ * Copyright (c) Chris Putnam 2007-2021
  *
  * Source code released under the GPL version 2
  *
@@ -13,6 +13,7 @@
 #include <string.h>
 #include "str.h"
 #include "fields.h"
+#include "month.h"
 #include "utf8.h"
 #include "bibformats.h"
 
@@ -172,14 +173,28 @@ output_itemv( FILE *outptr, const char *tag, const char *item, int level )
  *
  */
 static void
+output_nodash( FILE *outptr, const char *p )
+{
+	while ( *p ) {
+		/* -30 is the first character of a UTF8 em-dash and en-dash */
+		if ( *p==-30 && ( utf8_is_emdash( p ) || utf8_is_endash( p ) ) ) {
+			fprintf( outptr, "-" );
+			p+=3;
+		} else {
+			fprintf( outptr, "%c", *p );
+			p+=1;
+		}
+	}
+}
+static void
 output_range( FILE *outptr, const char *tag, const char *start, const char *end, int level )
 {
-	if ( start && end ) {
-		output_level( outptr, level );
-		fprintf( outptr, "<%s>%s-%s</%s>\n", tag, start, end, tag );
-	}
-	else if ( start ) output_itemv( outptr, tag, start, level );
-	else if ( end )   output_itemv( outptr, tag, end,   level );
+	if ( !start && !end ) return;
+	fprintf( outptr, "<%s>", tag );
+	if ( start ) output_nodash( outptr, start );
+	if ( start && end ) fprintf( outptr, "-" );
+	if ( end ) output_nodash( outptr, end );
+	fprintf( outptr, "</%s>\n", tag );
 }
 
 static void
@@ -237,7 +252,7 @@ get_type_from_genre( fields *info )
 				type = genres[j].value;
 		}
 		if ( type==TYPE_UNKNOWN ) {
-			level = info->level[i];
+			level = fields_level( info, i );
 			if ( !strcasecmp( genre, "academic journal" ) ) {
 				type = TYPE_JOURNALARTICLE;
 			}
@@ -247,7 +262,7 @@ get_type_from_genre( fields *info )
 			}
 			else if ( !strcasecmp( genre, "book" ) ||
 				!strcasecmp( genre, "collection" ) ) {
-				if ( info->level[i]==0 ) type = TYPE_BOOK;
+				if ( fields_level( info, i ) == 0 ) type = TYPE_BOOK;
 				else type = TYPE_BOOKSECTION;
 			}
 			else if ( !strcasecmp( genre, "conference publication" ) ) {
@@ -428,7 +443,7 @@ output_name_type( fields *info, FILE *outptr, int level, char *map[], int nmap, 
 	nfields = fields_num( info );
 	for ( j=0; j<nmap; ++j ) {
 		for ( i=0; i<nfields; ++i ) {
-			code = extract_name_and_info( &ntag, &(info->tag[i]) );
+			code = extract_name_and_info( &ntag, fields_tag( info, i, FIELDS_STRP ) );
 			if ( strcasecmp( str_cstr( &ntag ), map[j] ) ) continue;
 			if ( n==0 )
 				fprintf( outptr, "<%s><b:NameList>\n", tag );
@@ -471,6 +486,8 @@ output_names( fields *info, FILE *outptr, int level, int type )
 static void
 output_date( fields *info, FILE *outptr, int level )
 {
+	const char *use;
+
 	const char *year  = fields_findv_firstof( info, level, FIELDS_CHRP,
 			"PARTDATE:YEAR", "DATE:YEAR", NULL );
 	const char *month = fields_findv_firstof( info, level, FIELDS_CHRP,
@@ -478,7 +495,10 @@ output_date( fields *info, FILE *outptr, int level )
 	const char *day   = fields_findv_firstof( info, level, FIELDS_CHRP,
 			"PARTDATE:DAY", "DATE:DAY", NULL );
 	if ( year )  output_itemv( outptr, "b:Year", year, 0 );
-	if ( month ) output_itemv( outptr, "b:Month", month, 0 );
+	if ( month ) {
+		(void) number_to_full_month( month, &use );
+		output_itemv( outptr, "b:Month", use, 0 );
+	}
 	if ( day )   output_itemv( outptr, "b:Day", day, 0 );
 }
 
