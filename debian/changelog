@@ -1,3 +1,47 @@
+bibutils (6.2-1) unstable; urgency=medium
+
+  * New upstream version
+  * Bug fix: "newer version", thanks to Clint Adams (Closes: #896573).
+
+ -- David Bremner <bremner@debian.org>  Sun, 22 Apr 2018 11:15:02 -0300
+
+bibutils (6.0-1) experimental; urgency=medium
+
+  * New upstream version
+  * bump SONAME to libbibutils.so.6
+
+ -- David Bremner <bremner@debian.org>  Tue, 04 Jul 2017 21:17:44 -0300
+
+bibutils (5.6-1) experimental; urgency=medium
+
+  * New upstream version
+  * Bump soname of libbibutils, yet again.
+  * Claim conformance with policy 3.9.6
+
+ -- David Bremner <bremner@debian.org>  Fri, 22 May 2015 07:46:56 +0200
+
+bibutils (5.4-1) experimental; urgency=medium
+
+  * New upstream version
+  * Bump soname of libbibutils, again.
+
+ -- David Bremner <bremner@debian.org>  Sun, 10 Aug 2014 11:47:11 -0300
+
+bibutils (5.0-2) experimental; urgency=low
+
+  * Fix: "Missing authors in copyright file", thanks to Lior Kaplan
+    (Closes: #719483).
+
+ -- David Bremner <bremner@debian.org>  Mon, 12 Aug 2013 15:37:16 +0200
+
+bibutils (5.0-1) experimental; urgency=low
+
+  * New upstream release
+  * Bump soname of libbibutils.
+  * Bump standards version (no changes needed).
+
+ -- David Bremner <bremner@debian.org>  Sat, 10 Aug 2013 21:52:03 +0200
+
 bibutils (4.12-5) unstable; urgency=low
 
   * Remove extraneous backslashes from libbibutils.pc. 

@@ -9,12 +9,13 @@ POSTFIX       = REPLACE_POSTFIX
 INSTALLDIR    = REPLACE_INSTALLDIR
 LIBINSTALLDIR = REPLACE_LIBINSTALLDIR
 
-MAJORVERSION  = 5
-MINORVERSION  = 0
+MAJORVERSION  = 6
+MINORVERSION  = 10
 VERSION       = $(MAJORVERSION).$(MINORVERSION)
-DATE          = 2013-05-27
+DATE          = 2020-03-23
 
 PROGRAMS      = bib2xml \
+		bibdiff \
                 biblatex2xml \
                 copac2xml \
                 ebi2xml \
@@ -22,12 +23,15 @@ PROGRAMS      = bib2xml \
                 endx2xml \
                 isi2xml \
                 med2xml \
+                nbib2xml \
                 ris2xml \
                 wordbib2xml \
                 xml2ads \
                 xml2bib \
+		xml2biblatex \
                 xml2end \
                 xml2isi \
+		xml2nbib \
                 xml2ris \
                 xml2wordbib \
                 modsclean
@@ -68,6 +72,7 @@ test: all FORCE
 
 install: all FORCE
 	$(MAKE) -C lib \
+                LIBTARGETIN=$(LIBTARGET) \
                 MAJORVERSION=$(MAJORVERSION) \
                 MINORVERSION=$(MINORVERSION) \
                 LIBINSTALLDIR=$(LIBINSTALLDIR) \

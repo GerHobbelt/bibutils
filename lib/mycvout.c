@@ -1,7 +1,7 @@
 /*
- * bibtexout.c
+ * mycvout.c
  *
- * Copyright (c) Chris Putnam 2003-2013
+ * Copyright (c) Chris Putnam 2003-2020
  *
  * Source code released under the GPL version 2
  *
@@ -10,34 +10,34 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include "newstr.h"
+#include "str.h"
 #include "strsearch.h"
 #include "utf8.h"
 #include "xml.h"
 #include "fields.h"
 #include "bibl.h"
 #include "doi.h"
-#include "bibtexout.h"
+#include "bibutils.h"
 
 void
-bibtexout_initparams( param *p, const char *progname )
+bibtexout_initparams( param *pm, const char *progname )
 {
-	p->writeformat      = BIBL_BIBTEXOUT;
-	p->format_opts      = 0;
-	p->charsetout       = BIBL_CHARSET_DEFAULT;
-	p->charsetout_src   = BIBL_SRC_DEFAULT;
-	p->latexout         = 1;
-	p->utf8out          = 0;
-	p->utf8bom          = 0;
-	p->xmlout           = 0;
-	p->nosplittitle     = 0;
+	pm->writeformat      = BIBL_BIBTEXOUT;
+	pm->format_opts      = 0;
+	pm->charsetout       = BIBL_CHARSET_DEFAULT;
+	pm->charsetout_src   = BIBL_SRC_DEFAULT;
+	pm->latexout         = 1;
+	pm->utf8out          = 0;
+	pm->utf8bom          = 0;
+	pm->xmlout           = BIBL_XMLOUT_FALSE;
+	pm->nosplittitle     = 0;
 	p->verbose          = 0;
-	p->addcount         = 0;
-	p->singlerefperfile = 0;
+	pm->addcount         = 0;
+	pm->singlerefperfile = 0;
 
-	p->headerf = bibtexout_writeheader;
-	p->footerf = NULL;
-	p->writef  = bibtexout_write;
+	pm->headerf = bibtexout_writeheader;
+	pm->footerf = NULL;
+	pm->writef  = bibtexout_write;
 
 	if ( !p->progname && progname )
 		p->progname = strdup( progname );
@@ -69,7 +69,7 @@ output_citekey( FILE *fp, fields *info, unsigned long refnum, int format_opts )
 	if ( n!=-1 ) {
 		p = info->data[n].data;
 		while ( p && *p && *p!='|' ) {
-			if ( format_opts & BIBOUT_STRICTKEY ) {
+			if ( format_opts & BIBL_FORMAT_BIBOUT_STRICTKEY ) {
 				if ( isdigit((unsigned char)*p) || (*p>='A' && *p<='Z') ||
 				     (*p>='a' && *p<='z' ) )
 					fprintf( fp, "%c", *p );
@@ -91,9 +91,9 @@ bibtexout_type( fields *info, char *filename, int refnum, param *p )
 	int type = TYPE_UNKNOWN, i, maxlevel, n, level;
 
 	/* determine bibliography type */
-	for ( i=0; i<info->nfields; ++i ) {
-		if ( strcasecmp( info->tag[i].data, "GENRE" ) &&
-		     strcasecmp( info->tag[i].data, "NGENRE" ) ) continue;
+	for ( i=0; i<info->n; ++i ) {
+		if ( strcasecmp( info->tag[i].data, "GENRE:MARC" ) &&
+		     strcasecmp( info->tag[i].data, "GENRE:BIBUTILS" ) ) continue;
 		genre = info->data[i].data;
 		level = info->level[i];
 		if ( !strcasecmp( genre, "periodical" ) ||
@@ -112,7 +112,7 @@ bibtexout_type( fields *info, char *filename, int refnum, param *p )
 		} else if ( !strcasecmp( genre, "collection" ) ) {
 			if ( level==0 ) type=TYPE_COLLECTION;
 			else type = TYPE_INCOLLECTION;
-		} else if ( !strcasecmp( genre, "report" ) )
+		} else if ( !strcasecmp( genre, "technical report" ) )
 			type = TYPE_REPORT;
 		else if ( !strcasecmp( genre, "book" ) ) {
 			if ( level==0 ) type=TYPE_BOOK;
@@ -127,7 +127,7 @@ bibtexout_type( fields *info, char *filename, int refnum, param *p )
 			type = TYPE_ELECTRONIC;
 	}
 	if ( type==TYPE_UNKNOWN ) {
-		for ( i=0; i<info->nfields; ++i ) {
+		for ( i=0; i<info->n; ++i ) {
 			if ( strcasecmp( info->tag[i].data, "ISSUANCE" ) ) continue;
 			if ( !strcasecmp( info->data[i].data, "monographic" ) ) {
 				if ( info->level[i]==0 ) type = TYPE_BOOK;
@@ -186,7 +186,7 @@ output_type( FILE *fp, int type, int format_opts )
 		}
 	}
 	if ( !s ) s = types[ntypes-1].type_name; /* default to TYPE_MISC */
-	if ( !(format_opts & BIBOUT_UPPERCASE ) ) fprintf( fp, "@%s{", s );
+	if ( !(format_opts & BIBL_FORMAT_BIBOUT_UPPERCASE ) ) fprintf( fp, "@%s{", s );
 	else {
 		len = strlen( s );
 		fprintf( fp, "@" );
@@ -202,17 +202,17 @@ output_element( FILE *fp, char *tag, char *data, int format_opts )
 	int i, len, nquotes = 0;
 	char ch;
 	fprintf( fp, ",\n" );
-	if ( format_opts & BIBOUT_WHITESPACE ) fprintf( fp, "  " );
-	if ( !(format_opts & BIBOUT_UPPERCASE ) ) fprintf( fp, "%s", tag );
+	if ( format_opts & BIBL_FORMAT_BIBOUT_WHITESPACE ) fprintf( fp, "  " );
+	if ( !(format_opts & BIBL_FORMAT_BIBOUT_UPPERCASE ) ) fprintf( fp, "%s", tag );
 	else {
 		len = strlen( tag );
 		for ( i=0; i<len; ++i )
 			fprintf( fp, "%c", toupper((unsigned char)tag[i]) );
 	}
-	if ( format_opts & BIBOUT_WHITESPACE ) fprintf( fp, " = \t" );
+	if ( format_opts & BIBL_FORMAT_BIBOUT_WHITESPACE ) fprintf( fp, " = \t" );
 	else fprintf( fp, "=" );
 
-	if ( format_opts & BIBOUT_BRACKETS ) fprintf( fp, "{" );
+	if ( format_opts & BIBL_FORMAT_BIBOUT_BRACKETS ) fprintf( fp, "{" );
 	else fprintf( fp, "\"" );
 
 	len = strlen( data );
@@ -220,7 +220,7 @@ output_element( FILE *fp, char *tag, char *data, int format_opts )
 		ch = data[i];
 		if ( ch!='\"' ) fprintf( fp, "%c", ch );
 		else {
-			if ( format_opts & BIBOUT_BRACKETS || 
+			if ( format_opts & BIBL_FORMAT_BIBOUT_BRACKETS || 
 			    ( i>0 && data[i-1]=='\\' ) )
 				fprintf( fp, "\"" );
 			else {
@@ -232,7 +232,7 @@ output_element( FILE *fp, char *tag, char *data, int format_opts )
 		}
 	}
 
-	if ( format_opts & BIBOUT_BRACKETS ) fprintf( fp, "}" );
+	if ( format_opts & BIBL_FORMAT_BIBOUT_BRACKETS ) fprintf( fp, "}" );
 	else fprintf( fp, "\"" );
 }
 
@@ -240,7 +240,7 @@ static void
 output_and_use( FILE *fp, fields *info, int n, char *outtag, int format_opts )
 {
 	output_element( fp, outtag, info->data[n].data, format_opts );
-	fields_setused( info, n );
+	fields_set_used( info, n );
 }
 
 static void
@@ -258,7 +258,7 @@ output_simpleall( FILE *fp, fields *info, char *intag, char *outtag,
 		int format_opts )
 {
 	int i;
-	for ( i=0; i<info->nfields; ++i ) {
+	for ( i=0; i<info->n; ++i ) {
 		if ( strcasecmp( info->tag[i].data, intag ) ) continue;
 		output_and_use( fp, info, i, outtag, format_opts );
 	}
@@ -267,39 +267,39 @@ output_simpleall( FILE *fp, fields *info, char *intag, char *outtag,
 static void
 output_fileattach( FILE *fp, fields *info, int format_opts )
 {
-	newstr data;
+	str data;
 	int i;
-	newstr_init( &data );
-	for ( i=0; i<info->nfields; ++i ) {
+	str_init( &data );
+	for ( i=0; i<info->n; ++i ) {
 		if ( strcasecmp( info->tag[i].data, "FILEATTACH" ) ) continue;
-		newstr_strcpy( &data, ":" );
-		newstr_newstrcat( &data, &(info->data[i]) );
+		str_strcpy( &data, ":" );
+		str_strcatc( &data, &(info->data[i]) );
 		if ( strsearch( info->data[i].data, ".pdf" ) )
-			newstr_strcat( &data, ":PDF" );
+			str_strcatc( &data, ":PDF" );
 		else if ( strsearch( info->data[i].data, ".html" ) )
-			newstr_strcat( &data, ":HTML" );
-		else newstr_strcat( &data, ":TYPE" );
+			str_strcatc( &data, ":HTML" );
+		else str_strcatc( &data, ":TYPE" );
 		output_element( fp, "file", data.data, format_opts );
-		fields_setused( info, i );
-		newstr_empty( &data );
+		fields_set_used( info, i );
+		str_empty( &data );
 	}
-	newstr_free( &data );
+	str_free( &data );
 }
 
 static void
-add_person( newstr *s, char *p )
+add_person( str *s, char *p )
 {
 	int nseps = 0, nch;
 	while ( *p ) {
 		nch = 0;
-		if ( nseps==1 ) newstr_addchar( s, ',' );
-		if ( nseps ) newstr_addchar( s, ' ' );
+		if ( nseps==1 ) str_addchar( s, ',' );
+		if ( nseps ) str_addchar( s, ' ' );
 		while ( *p && *p!='|' ) {
-			newstr_addchar( s, *p++ );
+			str_addchar( s, *p++ );
 			nch++;
 		}
 		if ( *p=='|' ) p++;
-		if ( nseps!=0 && nch==1 ) newstr_addchar( s, '.' );
+		if ( nseps!=0 && nch==1 ) str_addchar( s, '.' );
 		nseps++;
 	}
 }
@@ -309,49 +309,49 @@ output_people( FILE *fp, fields *info, unsigned long refnum, char *tag,
 		char *ctag, char *atag, char *bibtag, int level, 
 		int format_opts )
 {
-	newstr allpeople;
+	str allpeople;
 	int i, npeople, person, corp, asis;
 
 	/* primary citation authors */
 	npeople = 0;
-	for ( i=0; i<info->nfields; ++i ) {
+	for ( i=0; i<info->n; ++i ) {
 		if ( level!=-1 && info->level[i]!=level ) continue;
 		person = ( strcasecmp( info->tag[i].data, tag ) == 0 );
 		corp   = ( strcasecmp( info->tag[i].data, ctag ) == 0 );
 		asis   = ( strcasecmp( info->tag[i].data, atag ) == 0 );
 		if ( person || corp || asis ) {
-			if ( npeople==0 ) newstr_init( &allpeople );
+			if ( npeople==0 ) str_init( &allpeople );
 			else {
-				if ( format_opts & BIBOUT_WHITESPACE )
-					newstr_strcat(&allpeople,"\n\t\tand ");
-				else newstr_strcat( &allpeople, "\nand " );
+				if ( format_opts & BIBL_FORMAT_BIBOUT_WHITESPACE )
+					str_strcatc(&allpeople,"\n\t\tand ");
+				else str_strcatc( &allpeople, "\nand " );
 			}
 			if ( corp ) {
-				newstr_addchar( &allpeople, '{' );
-				newstr_strcat( &allpeople, info->data[i].data );
-				newstr_addchar( &allpeople, '}' );
+				str_addchar( &allpeople, '{' );
+				str_strcatc( &allpeople, info->data[i].data );
+				str_addchar( &allpeople, '}' );
 			} else if ( asis ) {
-				newstr_addchar( &allpeople, '{' );
-				newstr_strcat( &allpeople, info->data[i].data );
-				newstr_addchar( &allpeople, '}' );
+				str_addchar( &allpeople, '{' );
+				str_strcatc( &allpeople, info->data[i].data );
+				str_addchar( &allpeople, '}' );
 			} else add_person( &allpeople, info->data[i].data ); 
-			fields_setused( info, i );
+			fields_set_used( info, i );
 			npeople++;
 		}
 	}
 	if ( npeople ) {
 		output_element( fp, bibtag, allpeople.data, format_opts );
-		newstr_free( &allpeople );
+		str_free( &allpeople );
 	}
 }
 
 static void
 output_title( FILE *fp, fields *info, unsigned long refnum, char *bibtag, int level, int format_opts )
 {
-	newstr title;
+	str title;
 	int n1 = -1, n2 = -1;
 	/* Option is for short titles of journals */
-	if ( ( format_opts & BIBOUT_SHORTTITLE ) && level==1 ) {
+	if ( ( format_opts & BIBL_FORMAT_BIBOUT_SHORTTITLE ) && level==1 ) {
 		n1 = fields_find( info, "SHORTTITLE", level );
 		n2 = fields_find( info, "SHORTSUBTITLE", level );
 	}
@@ -360,18 +360,18 @@ output_title( FILE *fp, fields *info, unsigned long refnum, char *bibtag, int le
 		n2 = fields_find( info, "SUBTITLE", level );
 	}
 	if ( n1!=-1 ) {
-		newstr_init( &title );
-		newstr_newstrcpy( &title, &(info->data[n1]) );
-		fields_setused( info, n1 );
+		str_init( &title );
+		str_strcpy( &title, &(info->data[n1]) );
+		fields_set_used( info, n1 );
 		if ( n2!=-1 ) {
 			if ( info->data[n1].data[info->data[n1].len]!='?' )
-				newstr_strcat( &title, ": " );
-			else newstr_addchar( &title, ' ' );
-			newstr_strcat( &title, info->data[n2].data );
-			fields_setused( info, n2 );
+				str_strcatc( &title, ": " );
+			else str_addchar( &title, ' ' );
+			str_strcatc( &title, info->data[n2].data );
+			fields_set_used( info, n2 );
 		}
 		output_element( fp, bibtag, title.data, format_opts );
-		newstr_free( &title );
+		str_free( &title );
 	}
 }
 
@@ -381,27 +381,27 @@ output_date( FILE *fp, fields *info, unsigned long refnum, int format_opts )
 	char *months[12] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", 
 		"Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 	int n, month;
-	n = fields_find( info, "YEAR", -1 );
-	if ( n==-1 ) n = fields_find( info, "PARTYEAR", -1 );
+	n = fields_find( info, "DATE:YEAR", -1 );
+	if ( n==-1 ) n = fields_find( info, "PARTDATE:YEAR", -1 );
 	if ( n!=-1 ) {
 		output_element( fp, "year", info->data[n].data, format_opts );
-		fields_setused( info, n );
+		fields_set_used( info, n );
 	}
-	n = fields_find( info, "MONTH", -1 );
-	if ( n==-1 ) n = fields_find( info, "PARTMONTH", -1 );
+	n = fields_find( info, "DATE:MONTH", -1 );
+	if ( n==-1 ) n = fields_find( info, "PARTDATE:MONTH", -1 );
 	if ( n!=-1 ) {
 		month = atoi( info->data[n].data );
 		if ( month>0 && month<13 )
 			output_element( fp, "month", months[month-1], format_opts );
 		else
 			output_element( fp, "month", info->data[n].data, format_opts );
-		fields_setused( info, n );
+		fields_set_used( info, n );
 	}
-	n = fields_find( info, "DAY", -1 );
-	if ( n==-1 ) n = fields_find( info, "PARTDAY", -1 );
+	n = fields_find( info, "DATE:DAY", -1 );
+	if ( n==-1 ) n = fields_find( info, "PARTDATE:DAY", -1 );
 	if ( n!=-1 ) {
 		output_element( fp, "day", info->data[n].data, format_opts );
-		fields_setused( info, n );
+		fields_set_used( info, n );
 	}
 }
 
@@ -413,12 +413,12 @@ output_articlenumber( FILE *fp, fields *info, unsigned long refnum,
 {
 	int ar = fields_find( info, "ARTICLENUMBER", -1 );
 	if ( ar!=-1 ) {
-		newstr pages;
-		newstr_init( &pages );
-		newstr_strcat( &pages, info->data[ar].data );
+		str pages;
+		str_init( &pages );
+		str_strcatc( &pages, info->data[ar].data );
 		output_element( fp, "pages", pages.data, format_opts );
-		fields_setused( info, ar );
-		newstr_free( &pages );
+		fields_set_used( info, ar );
+		str_free( &pages );
 	}
 }
 
@@ -427,12 +427,12 @@ output_arxiv( FILE *fp, fields *info, int format_opts )
 {
 	int ar = fields_find( info, "ARXIV", -1 );
 	if ( ar!=-1 ) {
-		newstr arxiv;
-		newstr_init( &arxiv );
+		str arxiv;
+		str_init( &arxiv );
 		arxiv_to_url( info, ar, "URL", &arxiv );
 		if ( arxiv.len )
 			output_element( fp, "url", arxiv.data, format_opts );
-		newstr_free( &arxiv );
+		str_free( &arxiv );
 	}
 }
 
@@ -441,12 +441,12 @@ output_pmid( FILE *fp, fields *info, int format_opts )
 {
 	int pm = fields_find( info, "PMID", -1 );
 	if ( pm!=-1 ) {
-		newstr pmid;
-		newstr_init( &pmid );
+		str pmid;
+		str_init( &pmid );
 		pmid_to_url( info, pm, "URL", &pmid );
 		if ( pmid.len )
 			output_element( fp, "url", pmid.data, format_opts );
-		newstr_free( &pmid );
+		str_free( &pmid );
 	}
 }
 
@@ -455,43 +455,43 @@ output_jstor( FILE *fp, fields *info, int format_opts )
 {
 	int js = fields_find( info, "JSTOR", -1 );
 	if ( js!=-1 ) {
-		newstr jstor;
-		newstr_init( &jstor );
+		str jstor;
+		str_init( &jstor );
 		jstor_to_url( info, js, "URL", &jstor );
 		if ( jstor.len )
 			output_element( fp, "url", jstor.data, format_opts );
-		newstr_free( &jstor );
+		str_free( &jstor );
 	}
 }
 
 static void
 output_pages( FILE *fp, fields *info, unsigned long refnum, int format_opts )
 {
-	newstr pages;
+	str pages;
 	int sn, en;
-	sn = fields_find( info, "PAGESTART", -1 );
-	en = fields_find( info, "PAGEEND", -1 );
+	sn = fields_find( info, "PAGES:START", -1 );
+	en = fields_find( info, "PAGES:STOP", -1 );
 	if ( sn==-1 && en==-1 ) {
 		output_articlenumber( fp, info, refnum, format_opts );
 		return;
 	}
-	newstr_init( &pages );
+	str_init( &pages );
 	if ( sn!=-1 ) {
-		newstr_strcat( &pages, info->data[sn].data );
-		fields_setused( info, sn );
+		str_strcat( &pages, info->data[sn].data );
+		fields_set_used( info, sn );
 	}
 	if ( sn!=-1 && en!=-1 ) {
-		if ( format_opts & BIBOUT_SINGLEDASH ) 
-			newstr_strcat( &pages, "-" );
+		if ( format_opts & BIBL_FORMAT_BIBOUT_SINGLEDASH ) 
+			str_strcat( &pages, "-" );
 		else
-			newstr_strcat( &pages, "--" );
+			str_strcat( &pages, "--" );
 	}
 	if ( en!=-1 ) {
-		newstr_strcat( &pages, info->data[en].data );
-		fields_setused( info, en );
+		str_strcat( &pages, info->data[en].data );
+		fields_set_used( info, en );
 	}
 	output_element( fp, "pages", pages.data, format_opts );
-	newstr_free( &pages );
+	str_free( &pages );
 }
 
 /*
@@ -516,22 +516,22 @@ output_issue_number( FILE *fp, fields *info, int format_opts )
 		output_and_use( fp, info, nnumber, "number", format_opts );
 /*		output_element( fp, "issue", info->data[nissue].data, 
 				format_opts );
-		fields_setused( info, nissue );
+		fields_set_used( info, nissue );
 		output_element( fp, "number", info->data[nnumber].data, 
 				format_opts );
-		fields_setused( info, nnumber );*/
+		fields_set_used( info, nnumber );*/
 	} else if ( nissue!=-1 ) {
 		output_and_use( fp, info, nissue, "number", format_opts );
 /*
 		output_element( fp, "number", info->data[nissue].data, 
 				format_opts );
-		fields_setused( info, nissue );*/
+		fields_set_used( info, nissue );*/
 	} else if ( nnumber!=-1 ) {
 		output_and_use( fp, info, nnumber, "number", format_opts );
 /*
 		output_element( fp, "number", info->data[nnumber].data, 
 				format_opts );
-		fields_setused( info, nnumber );
+		fields_set_used( info, nnumber );
 */
 	}
 }
@@ -540,10 +540,10 @@ void
 bibtexout_write( fields *info, FILE *fp, param *p, unsigned long refnum )
 {
 	int type;
-	fields_clearused( info );
+	fields_clear_used( info );
 	type = bibtexout_type( info, "", refnum, p );
 	output_type( fp, type, p->format_opts );
-	if ( !( p->format_opts & BIBOUT_DROPKEY ) )
+	if ( !( p->format_opts & BIBL_FORMAT_BIBOUT_DROPKEY ) )
 		output_citekey( fp, info, refnum, p->format_opts );
 	output_people( fp, info, refnum, "AUTHOR", "AUTHOR:CORP", "AUTHOR:ASIS", "author", 0,
 		p->format_opts );
@@ -601,7 +601,7 @@ bibtexout_write( fields *info, FILE *fp, param *p, unsigned long refnum )
 	output_pmid( fp, info, p->format_opts );
 	output_jstor( fp, info, p->format_opts );
 	output_simple( fp, info, "LANGUAGE", "language", p->format_opts );
-	if ( p->format_opts & BIBOUT_FINALCOMMA ) fprintf( fp, "," );
+	if ( p->format_opts & BIBL_FORMAT_BIBOUT_FINALCOMMA ) fprintf( fp, "," );
 	fprintf( fp, "\n}\n\n" );
 	fflush( fp );
 }

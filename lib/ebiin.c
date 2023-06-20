@@ -1,7 +1,7 @@
 /*
  * ebiin.c
  *
- * Copyright (c) Chris Putnam 2004-2013
+ * Copyright (c) Chris Putnam 2004-2020
  *
  * Program and source code released under the GPL version 2
  *
@@ -9,96 +9,95 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "is_ws.h"
-#include "newstr.h"
-#include "newstr_conv.h"
+#include "str.h"
+#include "str_conv.h"
 #include "fields.h"
+#include "bu_auth.h"
+#include "marc_auth.h"
 #include "xml.h"
 #include "xml_encoding.h"
-#include "ebiin.h"
+#include "bibformats.h"
 
-void
-ebiin_initparams( param *p, const char *progname )
+static int ebiin_readf( FILE *fp, char *buf, int bufsize, int *bufpos, str *line, str *reference, int *fcharset );
+static int ebiin_processf( fields *ebiin, const char *data, const char *filename, long nref, param *p );
+
+
+/*****************************************************
+ PUBLIC: void ebiin_initparams()
+*****************************************************/
+int
+ebiin_initparams( param *pm, const char *progname )
 {
-	p->readformat       = BIBL_EBIIN;
-	p->charsetin        = BIBL_CHARSET_UNICODE;
-	p->charsetin_src    = BIBL_SRC_DEFAULT;
-	p->latexin          = 0;
-	p->xmlin            = 1;
-	p->utf8in           = 1;
-	p->nosplittitle     = 0;
-	p->verbose          = 0;
-	p->addcount         = 0;
-	p->output_raw       = BIBL_RAW_WITHMAKEREFID |
-	                      BIBL_RAW_WITHCHARCONVERT;
+	pm->readformat       = BIBL_EBIIN;
+	pm->charsetin        = BIBL_CHARSET_UNICODE;
+	pm->charsetin_src    = BIBL_SRC_DEFAULT;
+	pm->latexin          = 0;
+	pm->xmlin            = 1;
+	pm->utf8in           = 1;
+	pm->nosplittitle     = 0;
+	pm->verbose          = 0;
+	pm->addcount         = 0;
+	pm->output_raw       = BIBL_RAW_WITHMAKEREFID |
+	                       BIBL_RAW_WITHCHARCONVERT;
 
-	p->readf    = ebiin_readf;
-	p->processf = ebiin_processf;
-	p->cleanf   = NULL;
-	p->typef    = NULL;
-	p->convertf = NULL;
-	p->all      = NULL;
-	p->nall     = 0;
+	pm->readf    = ebiin_readf;
+	pm->processf = ebiin_processf;
+	pm->cleanf   = NULL;
+	pm->typef    = NULL;
+	pm->convertf = NULL;
+	pm->all      = NULL;
+	pm->nall     = 0;
 
-	list_init( &(p->asis) );
-	list_init( &(p->corps) );
+	slist_init( &(pm->asis) );
+	slist_init( &(pm->corps) );
 
-	if ( !progname ) p->progname = NULL;
-	else p->progname = strdup( progname );
+	if ( !progname ) pm->progname = NULL;
+	else {
+		pm->progname = strdup( progname );
+		if ( !pm->progname ) return BIBL_ERR_MEMERR;
+	}
+
+	return BIBL_OK;
 }
 
-int
-ebiin_readf( FILE *fp, char *buf, int bufsize, int *bufpos, newstr *line, newstr *reference, int *fcharset )
+/*****************************************************
+ PUBLIC: int ebiin_readf()
+*****************************************************/
+static int
+ebiin_readf( FILE *fp, char *buf, int bufsize, int *bufpos, str *line, str *reference, int *fcharset )
 {
-	newstr tmp;
-	char *startptr = NULL, *endptr;
 	int haveref = 0, inref = 0, file_charset = CHARSET_UNKNOWN, m;
-	newstr_init( &tmp );
-	while ( !haveref && newstr_fget( fp, buf, bufsize, bufpos, line ) ) {
+	char *startptr = NULL, *endptr;
+	str tmp;
+	str_init( &tmp );
+	while ( !haveref && str_fget( fp, buf, bufsize, bufpos, line ) ) {
 		if ( line->data ) {
 			m = xml_getencoding( line );
 			if ( m!=CHARSET_UNKNOWN ) file_charset = m;
 		}
-		if ( line->data )
-			startptr = xml_findstart( line->data, "Publication" );
+		if ( str_has_value( line ) )
+			startptr = xml_find_start( str_cstr( line ), "Publication" );
 		if ( startptr || inref ) {
-			if ( inref ) newstr_strcat( &tmp, line->data );
+			if ( inref ) str_strcat( &tmp, line );
 			else {
-				newstr_strcat( &tmp, startptr );
+				str_strcatc( &tmp, startptr );
 				inref = 1;
 			}
-			endptr = xml_findend( tmp.data, "Publication" );
+			endptr = xml_find_end( str_cstr( &tmp ), "Publication" );
 			if ( endptr ) {
-				newstr_segcpy( reference, tmp.data, endptr );
+				str_segcpy( reference, str_cstr( &tmp ), endptr );
 				haveref = 1;
 			}
 		}
 	}
-	newstr_free( &tmp );
+	str_free( &tmp );
 	*fcharset = file_charset;
 	return haveref;
 }
 
-
-static inline int
-xml_hasdata( xml *node )
-{
-	if ( node && node->value && node->value->data ) return 1;
-	return 0;
-}
-
-static inline char *
-xml_data( xml *node )
-{
-	return node->value->data;
-}
-
-
-static inline int
-xml_tagwithdata( xml *node, char *tag )
-{
-	if ( !xml_hasdata( node ) ) return 0;
-	return xml_tagexact( node, tag );
-}
+/*****************************************************
+ PUBLIC: int ebiin_processf()
+*****************************************************/
 
 typedef struct xml_convert {
 	char *in;       /* The input tag */
@@ -108,71 +107,141 @@ typedef struct xml_convert {
 } xml_convert;
 
 static int
-ebiin_doconvert( xml *node, fields *info, xml_convert *c, int nc )
+ebiin_doconvert( xml *node, fields *info, xml_convert *c, int nc, int *found )
 {
-	int i, found = 0;
+	int i, status;
 	char *d;
-	if ( !xml_hasdata( node ) ) return 0;
-	d = xml_data( node );
-	for ( i=0; i<nc && found==0; ++i ) {
+
+	if ( !xml_has_value( node ) ) goto out;
+
+	d = xml_value_cstr( node );
+	for ( i=0; i<nc; ++i ) {
 		if ( c[i].a==NULL ) {
-			if ( xml_tagexact( node, c[i].in ) ) {
-				found = 1;
-				fields_add( info, c[i].out, d, c[i].level );
+			if ( xml_tag_matches( node, c[i].in ) ) {
+				*found = 1;
+				status = fields_add( info, c[i].out, d, c[i].level );
+				if ( status!=FIELDS_OK ) return BIBL_ERR_MEMERR;
+				else return BIBL_OK;
 			}
 		} else {
-			if ( xml_tag_attrib( node, c[i].in, c[i].a, c[i].aval)){
-				found = 1;
-				fields_add( info, c[i].out, d, c[i].level );
+			if ( xml_tag_has_attribute( node, c[i].in, c[i].a, c[i].aval ) ){
+				*found = 1;
+				status = fields_add( info, c[i].out, d, c[i].level );
+				if ( status!=FIELDS_OK ) return BIBL_ERR_MEMERR;
+				else return BIBL_OK;
 			}
 		}
 	
 	}
-	return found;
+out:
+	*found = 0;
+	return BIBL_OK;
 }
 
 /* <ArticleTitle>Mechanism and.....</ArticleTitle>
+ * and
  * <Title>Mechanism and....</Title>
  */
-static void
+static int
 ebiin_title( xml *node, fields *info, int title_level )
 {
-	if ( xml_hasdata( node ) )
-		fields_add( info, "TITLE", xml_data( node ), title_level );
+	int status;
+	if ( xml_has_value( node ) ) {
+		status = fields_add( info, "TITLE", xml_value_cstr( node ), title_level );
+		if ( status!=FIELDS_OK ) return BIBL_ERR_MEMERR;
+	}
+	return BIBL_OK;
 }
 
-/*            <MedlineDate>2003 Jan-Feb</MedlineDate> */
-static void
-ebiin_medlinedate( fields *info, char *string, int level )
+/* ebiin_medlinedate()
+ *
+ *   - extract medline information from entries like:
+ *             <MedlineDate>2003 Jan-Feb</MedlineDate>
+ */
+static int
+ebiin_medlinedate_year( fields *info, const char *p, int level, const char **end )
 {
-	newstr tmp;
-	char *p, *q;
-	newstr_init( &tmp );
-	/* extract year */
-	p = string;
-	q = skip_notws( string );
-	newstr_segcpy( &tmp, p, q );
-	fields_add( info, "PARTYEAR", tmp.data, level );
-	q = skip_ws( q );
-	/* extract month */
-	if ( q ) {
-		p = q;
-		newstr_empty( &tmp );
-		q = skip_notws( q );
-		newstr_segcpy( &tmp, p, q );
-		newstr_findreplace( &tmp, "-", "/" );
-		fields_add( info, "PARTMONTH", tmp.data, level );
-		q = skip_ws( q );
+	int fstatus, status = BIBL_OK;
+	str s;
+
+	str_init( &s );
+
+	*end = str_cpytodelim( &s, p, " \t\n\r", 0 );
+	if ( str_memerr( &s ) ) {
+		status = BIBL_ERR_MEMERR;
+		goto out;
 	}
-	/* extract day */
-	if ( q ) {
-		p = q;
-		newstr_empty( &tmp );
-		q = skip_notws( q );
-		newstr_segcpy( &tmp, p, q );
-		fields_add( info, "PARTDAY", tmp.data, level );
+	if ( str_has_value( &s ) ) {
+		fstatus = fields_add( info, "PARTDATE:YEAR", str_cstr( &s ), level );
+		if ( fstatus!=FIELDS_OK ) status = BIBL_ERR_MEMERR;
 	}
-	newstr_free( &tmp );
+out:
+	str_free( &s );
+	return status;
+}
+static int
+ebiin_medlinedate_month( fields *info, const char *p, int level, const char **end )
+{
+	int fstatus, status = BIBL_OK;
+	str s;
+
+	str_init( &s );
+
+	*end = str_cpytodelim( &s, p, " \t\n\r", 0 );
+	str_findreplace( &s, "-", "/" );
+	if ( str_memerr( &s ) ) {
+		status = BIBL_ERR_MEMERR;
+		goto out;
+	}
+	if ( str_has_value( &s ) ) {
+		fstatus = fields_add( info, "PARTDATE:MONTH", str_cstr( &s ), level );
+		if ( fstatus!=FIELDS_OK ) status = BIBL_ERR_MEMERR;
+	}
+out:
+	str_free( &s );
+	return status;
+}
+
+static int
+ebiin_medlinedate_day( fields *info, const char *p, int level, const char **end )
+{
+	int fstatus, status = BIBL_OK;
+	str s;
+
+	str_init( &s );
+
+	*end = str_cpytodelim( &s, p, " \t\n\r", 0 );
+	if ( str_memerr( &s ) ) {
+		status = BIBL_ERR_MEMERR;
+		goto out;
+	}
+	if ( str_has_value( &s ) ) {
+		fstatus = fields_add( info, "PARTDATE:DAY", str_cstr( &s ), level );
+		if ( fstatus!=FIELDS_OK ) status = BIBL_ERR_MEMERR;
+	}
+out:
+	str_free( &s );
+	return status;
+}
+
+static int
+ebiin_medlinedate( fields *info, xml *node, int level )
+{
+	int status = BIBL_OK;
+	const char *p;
+
+	if ( !xml_has_value( node ) ) return status;
+
+	p = xml_value_cstr( node );
+
+	if ( *p )
+		status = ebiin_medlinedate_year( info, skip_ws( p ), level, &p );
+	if ( *p && status==BIBL_OK )
+		status = ebiin_medlinedate_month( info, skip_ws( p ), level, &p );
+	if ( *p && status==BIBL_OK )
+		status = ebiin_medlinedate_day( info, skip_ws( p ), level, &p );
+
+	return status;
 }
 
 /* <Journal>
@@ -203,71 +272,124 @@ ebiin_medlinedate( fields *info, char *string, int level )
  *    <ISOAbbreviation>Alcohol Alcohol.</ISOAbbreviation>
  * </Journal>
  */
-static void
+static int
 ebiin_journal1( xml *node, fields *info )
 {
 	xml_convert c[] = {
-		{ "ISSN",     NULL, NULL, "ISSN",      1 },
-		{ "Volume",   NULL, NULL, "VOLUME",    1 },
-		{ "Issue",    NULL, NULL, "ISSUE",     1 },
-		{ "Year",     NULL, NULL, "PARTYEAR",  1 },
-		{ "Month",    NULL, NULL, "PARTMONTH", 1 },
-		{ "Day",      NULL, NULL, "PARTDAY",   1 },
-		{ "Language", NULL, NULL, "LANGUAGE",  1 },
+		{ "ISSN",     NULL, NULL, "ISSN",           1 },
+		{ "Volume",   NULL, NULL, "VOLUME",         1 },
+		{ "Issue",    NULL, NULL, "ISSUE",          1 },
+		{ "Year",     NULL, NULL, "PARTDATE:YEAR",  1 },
+		{ "Month",    NULL, NULL, "PARTDATE:MONTH", 1 },
+		{ "Day",      NULL, NULL, "PARTDATE:DAY",   1 },
+		{ "Language", NULL, NULL, "LANGUAGE",       1 },
 	};
-	int nc = sizeof( c ) / sizeof( c[0] );;
-	if ( xml_hasdata( node ) && !ebiin_doconvert( node, info, c, nc ) ) {
-		if ( xml_tagexact( node, "MedlineDate" ) )
-			ebiin_medlinedate( info, xml_data( node ), 1 );
+	int nc = sizeof( c ) / sizeof( c[0] ), status, found;
+	if ( xml_has_value( node ) ) {
+		status = ebiin_doconvert( node, info, c, nc, &found );
+		if ( status!=BIBL_OK ) return status;
+		if ( !found ) {
+			if ( xml_tag_matches( node, "MedlineDate" ) ) {
+				status = ebiin_medlinedate( info, node, LEVEL_HOST );
+				if ( status!=BIBL_OK ) return status;
+			}
+		}
 	}
-	if ( node->down ) ebiin_journal1( node->down, info );
-	if ( node->next ) ebiin_journal1( node->next, info );
+	if ( node->down ) {
+		status = ebiin_journal1( node->down, info );
+		if ( status!=BIBL_OK ) return status;
+	}
+	if ( node->next ) {
+		status = ebiin_journal1( node->next, info );
+		if ( status!=BIBL_OK ) return status;
+	}
+	return BIBL_OK;
 }
-
 
 /* <Pagination>
  *    <MedlinePgn>12111-6</MedlinePgn>
  * </Pagination>
  */
-static void
+static int
+ebiin_pages( fields *info, const char *p )
+{
+	int i, status, ret = BIBL_OK;
+	const int level = 1;
+	str sp, ep, *up;
+
+	strs_init( &sp, &ep, NULL );
+
+	/* ...start page */
+	p = str_cpytodelim( &sp, skip_ws( p ), "-", 1 );
+	if ( str_memerr( &sp ) ) {
+		ret = BIBL_ERR_MEMERR;
+		goto out;
+	}
+
+	/* ...end page */
+	(void) str_cpytodelim( &ep, skip_ws( p ), " \t\n\r", 0 );
+	if ( str_memerr( &ep ) ) {
+		ret = BIBL_ERR_MEMERR;
+		goto out;
+	}
+
+	if ( sp.len ) {
+		status = fields_add( info, "PAGES:START", str_cstr( &sp ), level );
+		if ( status!=FIELDS_OK ) {
+			ret = BIBL_ERR_MEMERR;
+			goto out;
+		}
+	}
+	if ( ep.len ) {
+		if ( sp.len > ep.len ) {
+			for ( i=sp.len-ep.len; i<sp.len; ++i )
+				sp.data[i] = ep.data[i-sp.len+ep.len];
+			up = &(sp);
+		} else up = &(ep);
+		status = fields_add( info, "PAGES:STOP", str_cstr( up ), level );
+		if ( status!=FIELDS_OK ) ret = BIBL_ERR_MEMERR;
+	}
+
+out:
+	strs_free( &sp, &ep, NULL );
+	return ret;
+}
+static int
 ebiin_pagination( xml *node, fields *info )
 {
-	newstr sp, ep;
-	char *p;
-	int i;
-	if ( xml_tagexact( node, "Pages" ) && node->value ) {
-		newstrs_init( &sp, &ep, NULL );
-		p = xml_data( node );
-		while ( *p && *p!='-' )
-			newstr_addchar( &sp, *p++ );
-		if ( *p=='-' ) p++;
-		while ( *p )
-			newstr_addchar( &ep, *p++ );
-		if ( sp.len ) fields_add( info, "PAGESTART", sp.data, 1 );
-		if ( ep.len ) {
-			if ( sp.len > ep.len ) {
-				for ( i=sp.len-ep.len; i<sp.len; ++i )
-					sp.data[i] = ep.data[i-sp.len+ep.len];
-				fields_add( info, "PAGEEND", sp.data, 1 );
-			} else
-				fields_add( info, "PAGEEND", ep.data, 1 );
-		}
-		newstrs_free( &sp, &ep, NULL );
+	int status;
+	if ( xml_tag_matches_has_value( node, "Pages" ) ) {
+		status = ebiin_pages( info, xml_value_cstr( node ) );
+		if ( status!=BIBL_OK ) return status;
 	}
-	if ( node->down ) ebiin_pagination( node->down, info );
-	if ( node->next ) ebiin_pagination( node->next, info );
+	if ( node->down ) {
+		status = ebiin_pagination( node->down, info );
+		if ( status!=BIBL_OK ) return status;
+	}
+	if ( node->next ) {
+		status = ebiin_pagination( node->next, info );
+		if ( status!=BIBL_OK ) return status;
+	}
+	return BIBL_OK;
 }
 
 /* <Abstract>
  *    <AbstractText>ljwejrelr</AbstractText>
  * </Abstract>
  */
-static void
+static int
 ebiin_abstract( xml *node, fields *info )
 {
-	if ( xml_hasdata( node ) && xml_tagexact( node, "AbstractText" ) )
-		fields_add( info, "ABSTRACT", xml_data( node ), 0 );
-	else if ( node->next ) ebiin_abstract( node->next, info );
+	int status;
+	if ( xml_tag_matches_has_value( node, "AbstractText" ) ) {
+		status = fields_add( info, "ABSTRACT", xml_value_cstr( node ), LEVEL_MAIN );
+		if ( status!=FIELDS_OK ) return BIBL_ERR_MEMERR;
+	}
+	else if ( node->next ) {
+		status = ebiin_abstract( node->next, info );
+		if ( status!=BIBL_OK ) return status;
+	}
+	return BIBL_OK;
 }
 
 /* <AuthorList CompleteYN="Y">
@@ -279,53 +401,77 @@ ebiin_abstract( xml *node, fields *info )
  *    </Author>
  * </AuthorList>
  */
-static void
-ebiin_author( xml *node, newstr *name )
+static int
+ebiin_author( xml *node, str *name )
 {
+	int status;
 	char *p;
-	if ( xml_tagexact( node, "LastName" ) ) {
+
+	if ( xml_tag_matches( node, "LastName" ) ) {
 		if ( name->len ) {
-			newstr_prepend( name, "|" );
-			newstr_prepend( name, xml_data( node ) );
+			str_prepend( name, "|" );
+			str_prepend( name, xml_value_cstr( node ) );
 		}
-		else newstr_strcat( name, xml_data( node ) );
-	} else if ( xml_tagexact( node, "ForeName" ) || 
-	            xml_tagexact( node, "FirstName" ) ) {
-		p = xml_data( node );
+		else str_strcat( name, xml_value( node ) );
+	}
+
+	else if ( xml_tag_matches( node, "ForeName" ) ||
+	            xml_tag_matches( node, "FirstName" ) ) {
+		p = xml_value_cstr( node );
 		while ( p && *p ) {
-			if ( name->len ) newstr_addchar( name, '|' );
-			while ( *p && *p==' ' ) p++;
-			while ( *p && *p!=' ' ) newstr_addchar( name, *p++ );
-		}
-	} else if ( xml_tagexact( node, "Initials" ) && !strchr( name->data, '|' ) ) {
-		p = xml_data( node );
-		while ( p && *p ) {
-			if ( name->len ) newstr_addchar( name, '|' );
-			if ( !is_ws(*p ) ) newstr_addchar( name, *p++ );
+			if ( name->len ) str_addchar( name, '|' );
+			while ( *p==' ' ) p++;
+			while ( *p && *p!=' ' ) str_addchar( name, *p++ );
 		}
 	}
-		 
-	if ( node->down ) ebiin_author( node->down, name );
-	if ( node->next ) ebiin_author( node->next, name );
-}
 
-static void
+	else if ( xml_tag_matches( node, "Initials" ) && !strchr( name->data, '|' ) ) {
+		p = xml_value_cstr( node );
+		while ( p && *p ) {
+			if ( name->len ) str_addchar( name, '|' );
+			if ( !is_ws(*p ) ) str_addchar( name, *p++ );
+		}
+	}
+
+	if ( str_memerr( name ) ) return BIBL_ERR_MEMERR;
+ 
+	if ( node->down ) {
+		status = ebiin_author( node->down, name );
+		if ( status!=BIBL_OK ) return status;
+	}
+
+	if ( node->next ) {
+		status = ebiin_author( node->next, name );
+		if ( status!=BIBL_OK ) return status;
+	}
+
+	return BIBL_OK;
+}
+static int
 ebiin_authorlist( xml *node, fields *info, int level )
 {
-	newstr name;
-	newstr_init( &name );
+	int fstatus, status = BIBL_OK;
+	str name;
+
+	str_init( &name );
+
 	node = node->down;
+
 	while ( node ) {
-		if ( xml_tagexact( node, "Author" ) && node->down ) {
-			ebiin_author( node->down, &name );
-			if ( name.len ) {
-				fields_add(info,"AUTHOR",name.data,level);
-				newstr_empty( &name );
+		if ( xml_tag_matches( node, "Author" ) && node->down ) {
+			status = ebiin_author( node->down, &name );
+			if ( status!=BIBL_OK ) goto out;
+			if ( str_has_value( &name ) ) {
+				fstatus = fields_add( info, "AUTHOR", str_cstr( &name ), level );
+				if ( fstatus!=FIELDS_OK ) { status = BIBL_ERR_MEMERR; goto out; }
+				str_empty( &name );
 			}
 		}
 		node = node->next;
 	}
-	newstr_free( &name );
+out:
+	str_free( &name );
+	return status;
 }
 
 /* <PublicationTypeList>
@@ -340,13 +486,23 @@ ebiin_authorlist( xml *node, fields *info, int level )
  * </MedlineJournalInfo>
  */
 
-static void
+static int
 ebiin_journal2( xml *node, fields *info )
 {
-	if ( xml_tagwithdata( node, "TitleAbbreviation" ) )
-		fields_add( info, "TITLE", xml_data( node ), 1 );
-	if ( node->down ) ebiin_journal2( node->down, info );
-	if ( node->next ) ebiin_journal2( node->next, info );
+	int status;
+	if ( xml_tag_matches_has_value( node, "TitleAbbreviation" ) ) {
+		status = fields_add( info, "TITLE", xml_value_cstr( node ), LEVEL_HOST );
+		if ( status!=FIELDS_OK ) return BIBL_ERR_MEMERR;
+	}
+	if ( node->down ) {
+		status = ebiin_journal2( node->down, info );
+		if ( status!=BIBL_OK ) return status;
+	}
+	if ( node->next ) {
+		status = ebiin_journal2( node->next, info );
+		if ( status!=BIBL_OK ) return status;
+	}
+	return BIBL_OK;
 }
 
 /*
@@ -359,151 +515,258 @@ ebiin_journal2( xml *node, fields *info )
  *   </MeshHeading>
  * </MeshHeadingList>
 */
-static void
+static int
 ebiin_meshheading( xml *node, fields *info )
 {
-	if ( xml_tagwithdata( node, "DescriptorName" ) )
-		fields_add( info, "KEYWORD", xml_data( node ), 0 );
-	if ( node->next ) ebiin_meshheading( node->next, info );
+	int status;
+	if ( xml_tag_matches_has_value( node, "DescriptorName" ) ) {
+		status = fields_add( info, "KEYWORD", xml_value_cstr( node ), LEVEL_MAIN );
+		if ( status!=FIELDS_OK ) return BIBL_ERR_MEMERR;
+	}
+	if ( node->next ) {
+		status = ebiin_meshheading( node->next, info );
+		if ( status!=BIBL_OK ) return status;
+	}
+	return BIBL_OK;
 }
 
-static void
+static int
 ebiin_meshheadinglist( xml *node, fields *info )
 {
-	if ( xml_tagexact( node, "MeshHeading" ) && node->down )
-		ebiin_meshheading( node->down, info );
-	if ( node->next ) ebiin_meshheadinglist( node->next, info );
+	int status;
+	if ( xml_tag_matches( node, "MeshHeading" ) && node->down ) {
+		status = ebiin_meshheading( node->down, info );
+		if ( status!=BIBL_OK ) return status;
+	}
+	if ( node->next ) {
+		status = ebiin_meshheadinglist( node->next, info );
+		if ( status!=BIBL_OK ) return status;
+	}
+	return BIBL_OK;
 }
 
-static void
+static int
 ebiin_book( xml *node, fields *info, int book_level )
 {
 	xml_convert book[] = {
-		{ "Publisher",              NULL, NULL, "PUBLISHER",  0 },
-		{ "Language",               NULL, NULL, "LANGUAGE",   0 },
-		{ "ISBN10",                 NULL, NULL, "ISBN",       0 },
-		{ "ISBN13",                 NULL, NULL, "ISBN13",     0 },
-		{ "Year",                   NULL, NULL, "YEAR",       0 },
-		{ "Month",                  NULL, NULL, "MONTH",      0 },
-		{ "Day",                    NULL, NULL, "DAY",        0 },
-		{ "PageTotal",              NULL, NULL, "TOTALPAGES", 0 },
-		{ "SeriesName",             NULL, NULL, "TITLE",      1 },
-		{ "SeriesISSN",             NULL, NULL, "ISSN",       0 },
-		{ "OtherReportInformation", NULL, NULL, "NOTES",      0 },
-		{ "Edition",                NULL, NULL, "EDITION",    0 },
+		{ "Publisher",              NULL, NULL, "PUBLISHER",      0 },
+		{ "Language",               NULL, NULL, "LANGUAGE",       0 },
+		{ "ISBN10",                 NULL, NULL, "ISBN",           0 },
+		{ "ISBN13",                 NULL, NULL, "ISBN13",         0 },
+		{ "Year",                   NULL, NULL, "DATE:YEAR",      0 },
+		{ "Month",                  NULL, NULL, "DATE:MONTH",     0 },
+		{ "Day",                    NULL, NULL, "DATE:DAY",       0 },
+		{ "PageTotal",              NULL, NULL, "PAGES:TOTAL",    0 },
+		{ "SeriesName",             NULL, NULL, "TITLE",          1 },
+		{ "SeriesISSN",             NULL, NULL, "ISSN",           0 },
+		{ "OtherReportInformation", NULL, NULL, "NOTES",          0 },
+		{ "Edition",                NULL, NULL, "EDITION",        0 },
 	};
 	int nbook = sizeof( book ) / sizeof( book[0] );
 	xml_convert inbook[] = {
-		{ "Publisher",              NULL, NULL, "PUBLISHER",  1 },
-		{ "Language",               NULL, NULL, "LANGUAGE",   0 },
-		{ "ISBN10",                 NULL, NULL, "ISBN",       1 },
-		{ "ISBN13",                 NULL, NULL, "ISBN13",     1 },
-		{ "Year",                   NULL, NULL, "PARTYEAR",   1 },
-		{ "Month",                  NULL, NULL, "PARTMONTH",  1 },
-		{ "Day",                    NULL, NULL, "PARTDAY",    1 },
-		{ "PageTotal",              NULL, NULL, "TOTALPAGES", 1 },
-		{ "SeriesName",             NULL, NULL, "TITLE",      2 },
-		{ "SeriesISSN",             NULL, NULL, "ISSN",       1 },
-		{ "OtherReportInformation", NULL, NULL, "NOTES",      1 },
-		{ "Edition",                NULL, NULL, "EDITION",    1 },
+		{ "Publisher",              NULL, NULL, "PUBLISHER",      1 },
+		{ "Language",               NULL, NULL, "LANGUAGE",       0 },
+		{ "ISBN10",                 NULL, NULL, "ISBN",           1 },
+		{ "ISBN13",                 NULL, NULL, "ISBN13",         1 },
+		{ "Year",                   NULL, NULL, "PARTDATE:YEAR",  1 },
+		{ "Month",                  NULL, NULL, "PARTDATE:MONTH", 1 },
+		{ "Day",                    NULL, NULL, "PARTDATE:DAY",   1 },
+		{ "PageTotal",              NULL, NULL, "PAGES:TOTAL",    1 },
+		{ "SeriesName",             NULL, NULL, "TITLE",          2 },
+		{ "SeriesISSN",             NULL, NULL, "ISSN",           1 },
+		{ "OtherReportInformation", NULL, NULL, "NOTES",          1 },
+		{ "Edition",                NULL, NULL, "EDITION",        1 },
 	};
 	int ninbook = sizeof( inbook ) / sizeof( inbook[0] );
+	int nc, status, found;
 	xml_convert *c;
-	int nc;
-	if ( book_level==0 ) { c = book; nc = nbook; }
-	else { c = inbook; nc = ninbook; }
-	if ( xml_hasdata( node ) && !ebiin_doconvert( node, info, c, nc ) ) {
-		if ( xml_tagexact( node, "MedlineDate" ) )
-			ebiin_medlinedate( info, xml_data( node ), book_level);
-		else if ( xml_tagexact( node, "Title" ) )
-			ebiin_title( node, info, book_level );
-		else if ( xml_tagexact( node, "Pagination" ) && node->down )
-			ebiin_pagination( node->down, info );
-		else if ( xml_tagexact( node, "Abstract" ) && node->down )
-			ebiin_abstract( node->down, info );
-		else if ( xml_tagexact( node, "AuthorList" ) ) 
-			ebiin_authorlist( node, info, book_level );
-		else if ( xml_tagexact( node, "PubDate" ) && node->down)
-			ebiin_book( node->down, info, book_level );
+
+	if ( book_level==0 ) {
+		c  = book;
+		nc = nbook;
 	}
-	if ( node->next ) ebiin_book( node->next, info, book_level );
+	else {
+		c  = inbook;
+		nc = ninbook;
+	}
+
+	status = ebiin_doconvert( node, info, c, nc, &found );
+	if ( status!=BIBL_OK ) return status;
+
+	if ( !found ) {
+		status = BIBL_OK;
+		if ( xml_tag_matches( node, "MedlineDate" ) )
+			status = ebiin_medlinedate( info, node, book_level );
+		else if ( xml_tag_matches( node, "Title" ) )
+			status = ebiin_title( node, info, book_level );
+		else if ( xml_tag_matches( node, "Pagination" ) && node->down )
+			status = ebiin_pagination( node->down, info );
+		else if ( xml_tag_matches( node, "Abstract" ) && node->down )
+			status = ebiin_abstract( node->down, info );
+		else if ( xml_tag_matches( node, "AuthorList" ) )
+			status = ebiin_authorlist( node, info, book_level );
+		else if ( xml_tag_matches( node, "PubDate" ) && node->down )
+			status = ebiin_book( node->down, info, book_level );
+		if ( status!=BIBL_OK ) return status;
+	}
+
+	if ( node->next ) {
+		status = ebiin_book( node->next, info, book_level );
+		if ( status!=BIBL_OK ) return status;
+	}
+
+	return BIBL_OK;
 }
 
-static void
+static int
 ebiin_article( xml *node, fields *info )
 {
-	if ( xml_tagexact( node, "Journal" ) ) 
-		ebiin_journal1( node, info );
-	else if ( node->down && ( xml_tagexact( node, "Book" ) || 
-			xml_tagexact(node, "Report") )) 
-		ebiin_book( node->down, info, 1 );
-	else if ( xml_tagexact( node, "ArticleTitle" ) )
-		ebiin_title( node, info, 0 );
-	else if ( xml_tagexact( node, "Pagination" ) && node->down )
-		ebiin_pagination( node->down, info );
-	else if ( xml_tagexact( node, "Abstract" ) && node->down )
-		ebiin_abstract( node->down, info );
-	else if ( xml_tagexact( node, "AuthorList" ) )
-		ebiin_authorlist( node, info, 0 );
-	if ( node->next ) ebiin_article( node->next, info );
+	int status = BIBL_OK;
+
+	if ( xml_tag_matches( node, "Journal" ) )
+		status = ebiin_journal1( node, info );
+	else if ( node->down && ( xml_tag_matches( node, "Book" ) ||
+			xml_tag_matches(node, "Report") ))
+		status = ebiin_book( node->down, info, LEVEL_HOST );
+	else if ( xml_tag_matches( node, "ArticleTitle" ) )
+		status = ebiin_title( node, info, LEVEL_MAIN );
+	else if ( xml_tag_matches( node, "Pagination" ) && node->down )
+		status = ebiin_pagination( node->down, info );
+	else if ( xml_tag_matches( node, "Abstract" ) && node->down )
+		status = ebiin_abstract( node->down, info );
+	else if ( xml_tag_matches( node, "AuthorList" ) )
+		status = ebiin_authorlist( node, info, LEVEL_MAIN );
+	if ( status!=BIBL_OK ) return status;
+
+	if ( node->next ) {
+		status = ebiin_article( node->next, info );
+		if ( status!=BIBL_OK ) return status;
+	}
+
+	return BIBL_OK;
 }
 
-static void
+static int
 ebiin_publication( xml *node, fields *info )
 {
+	int status = BIBL_OK;
 	if ( node->down ) {
-		if ( xml_tagexact( node, "Article" ) )
-			ebiin_article( node->down, info );
-		else if ( xml_tagexact( node, "Book" ) )
-			ebiin_book( node->down, info, 0 );
-		else if ( xml_tagexact( node, "Report" ) )
-			ebiin_book( node->down, info, 0 );
-		else if ( xml_tagexact( node, "JournalInfo" ) )
-			ebiin_journal2( node->down, info );
-		else if ( xml_tagexact( node, "MeshHeadingList" ) )
-			ebiin_meshheadinglist( node->down, info );
+		if ( xml_tag_matches( node, "Article" ) )
+			status = ebiin_article( node->down, info );
+		else if ( xml_tag_matches( node, "Book" ) )
+			status = ebiin_book( node->down, info, LEVEL_MAIN );
+		else if ( xml_tag_matches( node, "Report" ) )
+			status = ebiin_book( node->down, info, LEVEL_MAIN );
+		else if ( xml_tag_matches( node, "JournalInfo" ) )
+			status = ebiin_journal2( node->down, info );
+		else if ( xml_tag_matches( node, "MeshHeadingList" ) )
+			status = ebiin_meshheadinglist( node->down, info );
+		if ( status!=BIBL_OK ) return status;
 	}
-	if ( node->next ) ebiin_publication( node->next, info );
+	if ( node->next ) {
+		status = ebiin_publication( node->next, info );
+		if ( status!=BIBL_OK ) return status;
+	}
+	return BIBL_OK;
 }
 
 /* Call with the "Publication" node */
-static void
+static int
 ebiin_fixtype( xml *node, fields *info )
 {
-	newstr *type;
-	fields_add( info, "RESOURCE", "text", 0 );
-	type = xml_getattrib( node, "Type" );
-	if ( !type || type->len==0 ) return;
+	char *resource = NULL, *issuance = NULL, *genre1 = NULL, *genre2 = NULL;
+	int reslvl, isslvl, gen1lvl, gen2lvl;
+	int status;
+	str *type;
+
+	type = xml_attribute( node, "Type" );
+	if ( !type || type->len==0 ) return BIBL_OK;
+
 	if ( !strcmp( type->data, "JournalArticle" ) ) {
-		fields_add( info, "ISSUANCE", "continuing", 1 );
-		fields_add( info, "GENRE", "periodical", 1 );
-		fields_add( info, "GENRE", "academic journal", 1 );
+		resource = "text";
+		issuance = "continuing";
+		genre1   = "periodical";
+		genre2   = "academic journal";
+		reslvl   = LEVEL_MAIN;
+		isslvl   = LEVEL_HOST;
+		gen1lvl  = LEVEL_HOST;
+		gen2lvl  = LEVEL_HOST;
 	} else if ( !strcmp( type->data, "Book" ) ) {
-		fields_add( info, "GENRE", "book", 0 );
-		fields_add( info, "ISSUANCE", "monographic", 0 );
+		resource = "text";
+		issuance = "monographic";
+		genre1   = "book";
+		reslvl   = LEVEL_MAIN;
+		isslvl   = LEVEL_MAIN;
+		gen1lvl  = LEVEL_MAIN;
 	} else if ( !strcmp( type->data, "BookArticle" ) ) {
-		fields_add( info, "GENRE", "book", 1 );
-		fields_add( info, "ISSUANCE", "monographic", 1 );
+		resource = "text";
+		issuance = "monographic";
+		genre1   = "book";
+		reslvl   = LEVEL_MAIN;
+		isslvl   = LEVEL_HOST;
+		gen1lvl  = LEVEL_HOST;
 	}
+
+	if ( resource ) {
+		status = fields_add( info, "RESOURCE", resource, reslvl );
+		if ( status!=FIELDS_OK ) return BIBL_ERR_MEMERR;
+	}
+	if ( issuance ) {
+		status = fields_add( info, "ISSUANCE", issuance, isslvl );
+		if ( status!=FIELDS_OK ) return BIBL_ERR_MEMERR;
+	}
+	if ( genre1 ) {
+		if ( is_marc_genre( genre1 ) )
+			status = fields_add( info, "GENRE:MARC", genre1, gen1lvl );
+		else if ( is_bu_genre( genre1 ) )
+			status = fields_add( info, "GENRE:BIBUTILS", genre1, gen1lvl );
+		else
+			status = fields_add( info, "GENRE:UNKNOWN", genre1, gen1lvl );
+		if ( status!=FIELDS_OK ) return BIBL_ERR_MEMERR;
+	}
+	if ( genre2 ) {
+		if ( is_marc_genre( genre2 ) )
+			status = fields_add( info, "GENRE:MARC", genre2, gen2lvl );
+		else if ( is_bu_genre( genre2 ) )
+			status = fields_add( info, "GENRE:BIBUTILS", genre2, gen2lvl );
+		else
+			status = fields_add( info, "GENRE:UNKNOWN", genre2, gen2lvl );
+		if ( status!=FIELDS_OK ) return BIBL_ERR_MEMERR;
+	}
+
+	return BIBL_OK;
 }
 
-static void
+static int
 ebiin_assembleref( xml *node, fields *info )
 {
-	if ( xml_tagexact( node, "Publication" ) && node->down) {
-		ebiin_fixtype( node, info );
-		ebiin_publication( node->down, info );
-	} else if ( node->down ) ebiin_assembleref( node->down, info );
-	if ( node->next ) ebiin_assembleref( node->next, info );
+	int status;
+	if ( xml_tag_matches( node, "Publication" ) && node->down ) {
+		status = ebiin_fixtype( node, info );
+		if ( status!=BIBL_OK ) return status;
+		status = ebiin_publication( node->down, info );
+		if ( status!=BIBL_OK ) return status;
+	} else if ( node->down ) {
+		status = ebiin_assembleref( node->down, info );
+		if ( status!=BIBL_OK ) return status;
+	}
+	if ( node->next ) {
+		status = ebiin_assembleref( node->next, info );
+		if ( status!=BIBL_OK ) return status;
+	}
+	return BIBL_OK;
 }
 
-int
-ebiin_processf( fields *ebiin, char *data, char *filename, long nref )
+static int
+ebiin_processf( fields *ebiin, const char *data, const char *filename, long nref, param *p )
 {
+	int status;
 	xml top;
+
 	xml_init( &top );
-	xml_tree( data, &top );
-	ebiin_assembleref( &top, ebiin );
+	xml_parse( data, &top );
+	status = ebiin_assembleref( &top, ebiin );
 	xml_free( &top );
-	return 1;
+
+	return ( status==BIBL_OK ) ? 1 : 0;
 }

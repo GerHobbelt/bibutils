@@ -1,7 +1,7 @@
 /*
  * copacin.c
  *
- * Copyright (c) Chris Putnam 2004-2013
+ * Copyright (c) Chris Putnam 2004-2020
  *
  * Program and source code released under the GPL version 2
  *
@@ -10,44 +10,63 @@
 #include <stdlib.h>
 #include <string.h>
 #include "is_ws.h"
-#include "newstr.h"
-#include "newstr_conv.h"
-#include "list.h"
+#include "str.h"
+#include "str_conv.h"
+#include "slist.h"
 #include "name.h"
-#include "title.h"
 #include "fields.h"
 #include "reftypes.h"
-#include "serialno.h"
-#include "copacin.h"
+#include "bibformats.h"
+#include "generic.h"
 
-void
-copacin_initparams( param *p, const char *progname )
+extern variants copac_all[];
+extern int copac_nall;
+
+/*****************************************************
+ PUBLIC: void copacin_initparams()
+*****************************************************/
+
+static int copacin_readf( FILE *fp, char *buf, int bufsize, int *bufpos, str *line, str *reference, int *fcharset );
+static int copacin_processf( fields *bibin, const char *p, const char *filename, long nref, param *pm );
+static int copacin_convertf( fields *bibin, fields *info, int reftype, param *pm );
+
+int
+copacin_initparams( param *pm, const char *progname )
 {
-	p->readformat       = BIBL_COPACIN;
-	p->charsetin        = BIBL_CHARSET_DEFAULT;
-	p->charsetin_src    = BIBL_SRC_DEFAULT;
-	p->latexin          = 0;
-	p->xmlin            = 0;
-	p->utf8in           = 0;
-	p->nosplittitle     = 0;
-	p->verbose          = 0;
-	p->addcount         = 0;
-	p->output_raw       = 0;
+	pm->readformat       = BIBL_COPACIN;
+	pm->charsetin        = BIBL_CHARSET_DEFAULT;
+	pm->charsetin_src    = BIBL_SRC_DEFAULT;
+	pm->latexin          = 0;
+	pm->xmlin            = 0;
+	pm->utf8in           = 0;
+	pm->nosplittitle     = 0;
+	pm->verbose          = 0;
+	pm->addcount         = 0;
+	pm->output_raw       = 0;
 
-	p->readf    = copacin_readf;
-	p->processf = copacin_processf;
-	p->cleanf   = NULL;
-	p->typef    = NULL;
-	p->convertf = copacin_convertf;
-	p->all      = copac_all;
-	p->nall     = copac_nall;
+	pm->readf    = copacin_readf;
+	pm->processf = copacin_processf;
+	pm->cleanf   = NULL;
+	pm->typef    = NULL;
+	pm->convertf = copacin_convertf;
+	pm->all      = copac_all;
+	pm->nall     = copac_nall;
 
-	list_init( &(p->asis) );
-	list_init( &(p->corps) );
+	slist_init( &(pm->asis) );
+	slist_init( &(pm->corps) );
 
-	if ( !progname ) p->progname = NULL;
-	else p->progname = strdup( progname );
+	if ( !progname ) pm->progname = NULL;
+	else {
+		pm->progname = strdup( progname );
+		if ( !pm->progname ) return BIBL_ERR_MEMERR;
+	}
+
+	return BIBL_OK;
 }
+
+/*****************************************************
+ PUBLIC: int copacin_readf()
+*****************************************************/
 
 /* Endnote-Refer/Copac tag definition:
     character 1 = alphabetic character
@@ -56,7 +75,7 @@ copacin_initparams( param *p, const char *progname )
     character 4 = space
 */
 static int
-copacin_istag( char *buf )
+copacin_istag( const char *buf )
 {
 	if (! ((buf[0]>='A' && buf[0]<='Z')) || (buf[0]>='a' && buf[0]<='z') )
 		return 0;
@@ -67,14 +86,14 @@ copacin_istag( char *buf )
 	return 1; 
 }
 static int
-readmore( FILE *fp, char *buf, int bufsize, int *bufpos, newstr *line )
+readmore( FILE *fp, char *buf, int bufsize, int *bufpos, str *line )
 {
 	if ( line->len ) return 1;
-	else return newstr_fget( fp, buf, bufsize, bufpos, line );
+	else return str_fget( fp, buf, bufsize, bufpos, line );
 }
 
-int
-copacin_readf( FILE *fp, char *buf, int bufsize, int *bufpos, newstr *line, newstr *reference, int *fcharset )
+static int
+copacin_readf( FILE *fp, char *buf, int bufsize, int *bufpos, str *line, str *reference, int *fcharset )
 {
 	int haveref = 0, inref=0;
 	char *p;
@@ -93,76 +112,105 @@ copacin_readf( FILE *fp, char *buf, int bufsize, int *bufpos, newstr *line, news
 			p += 3;
 		}
 		if ( copacin_istag( p ) ) {
-			if ( inref ) newstr_addchar( reference, '\n' );
-			newstr_strcat( reference, p );
-			newstr_empty( line );
+			if ( inref ) str_addchar( reference, '\n' );
+			str_strcatc( reference, p );
 			inref = 1;
 		} else if ( inref ) {
-			if ( p ) {
-				/* copac puts tag only on 1st line */
-				newstr_addchar( reference, ' ' );
-				if ( *p ) p++;
-				if ( *p ) p++;
-				if ( *p ) p++;
-			   	newstr_strcat( reference, p );
+			/* copac puts tag only on 1st line */
+			if ( *p ) p++;
+			if ( *p ) p++;
+			if ( *p ) p++;
+			if ( *p ) {
+				str_addchar( reference, ' ' );
+				str_strcatc( reference, p );
 			}
-			newstr_empty( line );
-		} else {
-			newstr_empty( line );
 		}
+		str_empty( line );
 	}
 	return haveref;
 }
 
-static char*
-copacin_addtag2( char *p, newstr *tag, newstr *data )
+/*****************************************************
+ PUBLIC: int copacin_processf()
+*****************************************************/
+
+static const char*
+copacin_addfield( const char *p, str *tag, str *value )
 {
-	int  i;
-	i =0;
+	int i;
+
+	str_empty( tag );
+	str_empty( value );
+
+	i = 0;
 	while ( i<3 && *p ) {
-		newstr_addchar( tag, *p++ );
+		str_addchar( tag, *p );
+		p++;
 		i++;
 	}
+
 	while ( *p==' ' || *p=='\t' ) p++;
+
 	while ( *p && *p!='\r' && *p!='\n' ) {
-		newstr_addchar( data, *p );
+		str_addchar( value, *p );
 		p++;
 	}
-	newstr_trimendingws( data );
+
+	str_trimendingws( value );
+
 	while ( *p=='\n' || *p=='\r' ) p++;
+
 	return p;
 }
 
-static char *
-copacin_nextline( char *p )
+static const char *
+copacin_nextline( const char *p )
 {
 	while ( *p && *p!='\n' && *p!='\r') p++;
 	while ( *p=='\n' || *p=='\r' ) p++;
 	return p;
 }
 
-int
-copacin_processf( fields *copacin, char *p, char *filename, long nref )
+static int
+copacin_processf( fields *copacin, const char *p, const char *filename, long nref, param *pm )
 {
-	newstr tag, data;
-	newstr_init( &tag );
-	newstr_init( &data );
+	int status, ret = 1;
+	str tag, value;
+
+	str_init( &tag );
+	str_init( &value );
+
 	while ( *p ) {
+
 		p = skip_ws( p );
+
 		if ( copacin_istag( p ) ) {
-			p = copacin_addtag2( p, &tag, &data );
+			p = copacin_addfield( p, &tag, &value );
 			/* don't add empty strings */
-			if ( tag.len && data.len )
-				fields_add( copacin, tag.data, data.data, 0 );
-			newstr_empty( &tag );
-			newstr_empty( &data );
+			if ( str_has_value( &tag ) && str_has_value( &value ) ) {
+				status = fields_add( copacin, str_cstr( &tag ), str_cstr( &value ), LEVEL_MAIN );
+				if ( status!=FIELDS_OK ) {
+					ret = 0;
+					goto out;
+				}
+			}
 		}
-		else p = copacin_nextline( p );
+
+		else {
+			p = copacin_nextline( p );
+		}
 	}
-	newstr_free( &tag );
-	newstr_free( &data );
-	return 1;
+
+out:
+	str_free( &tag );
+	str_free( &value );
+
+	return ret;
 }
+
+/*****************************************************
+ PUBLIC: int copacin_convertf(), returns BIBL_OK or BIBL_ERR_MEMERR
+*****************************************************/
 
 /* copac names appear to always start with last name first, but don't
  * always seem to have a comma after the name
@@ -170,127 +218,56 @@ copacin_processf( fields *copacin, char *p, char *filename, long nref )
  * editors seem to be stuck in as authors with the tag "[Editor]" in it
  */
 static int
-copacin_addname( fields *info, char *tag, newstr *name, int level, list *asis,
-	list *corps )
+copacin_person( fields *bibin, int n, str *intag, str *invalue, int level, param *pm, char *outtag, fields *bibout )
 {
-	char *usetag = tag, editor[]="EDITOR";
-	newstr usename, *s;
-	list tokens;
-	int comma = 0, i;
+	char *usetag = outtag, editor[]="EDITOR";
+	int comma = 0, i, ok, status;
+	str usename, *s;
+	slist tokens;
 
-	if ( list_find( asis, name->data ) !=-1  ||
-	     list_find( corps, name->data ) !=-1 ) {
-		return name_add( info, tag, name->data, level, asis, corps );
+	if ( slist_find( &(pm->asis),  invalue ) !=-1  ||
+	     slist_find( &(pm->corps), invalue ) !=-1 ) {
+		ok = name_add( bibout, outtag, str_cstr( invalue ), level, &(pm->asis), &(pm->corps) );
+		if ( ok ) return BIBL_OK;
+		else return BIBL_ERR_MEMERR;
 	}
 
-	list_init( &tokens );
-	newstr_init( &usename );
+	slist_init( &tokens );
+	str_init( &usename );
 
-	list_tokenize( &tokens, name, ' ', 1 );
+	status = slist_tokenize( &tokens, invalue, " ", 1 );
+	if ( status!=SLIST_OK ) return BIBL_ERR_MEMERR;
+
 	for ( i=0; i<tokens.n; ++i ) {
-		s = list_get( &tokens, i );
-		if ( !strcmp( s->data, "[Editor]" ) ) {
+		s = slist_str( &tokens, i );
+		if ( !strcmp( str_cstr( s ), "[Editor]" ) ) {
 			usetag = editor;
-			newstr_strcpy( s, "" );
+			str_empty( s );
 		} else if ( s->len && s->data[s->len-1]==',' ) {
 			comma++;
 		}
 	}
 
 	if ( comma==0 && tokens.n ) {
-		s = list_get( &tokens, 0 );
-		newstr_addchar( s, ',' );
+		s = slist_str( &tokens, 0 );
+		str_addchar( s, ',' );
 	}
 
 	for ( i=0; i<tokens.n; ++i ) {
-		if ( i ) newstr_addchar( &usename, ' ' );
-		newstr_newstrcat( &usename, list_get( &tokens, i ) );
+		s = slist_str( &tokens, i );
+		if ( str_is_empty( s ) ) continue;
+		if ( i ) str_addchar( &usename, ' ' );
+		str_strcat( &usename, s );
 	}
 
-	return name_add( info, usetag, usename.data, level, asis, corps );
-}
+	slist_free( &tokens );
 
-static int
-copacin_addpage( fields *info, char *p, int level )
-{
-	newstr page;
-	int ok;
-	newstr_init( &page );
-	p = skip_ws( p );
-	while ( *p && !is_ws(*p) && *p!='-' && *p!='\r' && *p!='\n' ) 
-		newstr_addchar( &page, *p++ );
-	if ( page.len>0 ) {
-		ok = fields_add( info, "PAGESTART", page.data, level );
-		if ( !ok ) return 0;
-	}
-	newstr_empty( &page );
-	while ( *p && (is_ws(*p) || *p=='-' ) ) p++;
-	while ( *p && !is_ws(*p) && *p!='-' && *p!='\r' && *p!='\n' ) 
-		newstr_addchar( &page, *p++ );
-	if ( page.len>0 ) {
-		ok = fields_add( info, "PAGEEND", page.data, level );
-		if ( !ok ) return 0;
-	}
-	newstr_free( &page );
-	return 1;
-}
+	ok = name_add( bibout, usetag, str_cstr( &usename ), level, &(pm->asis), &(pm->corps) );
 
-static int
-copacin_adddate( fields *info, char *tag, char *newtag, char *p, int level )
-{
-	char *months[12]={ "January", "February", "March", "April",
-		"May", "June", "July", "August", "September",
-		"October", "November", "December" };
-	char month[10];
-	int found,i,part,ok;
-	newstr date;
-	newstr_init( &date );
-	part = (!strncasecmp(newtag,"PART",4));
-	if ( !strcasecmp( tag, "%D" ) ) {
-		while ( *p ) newstr_addchar( &date, *p++ );
-		if ( date.len>0 ) {
-			if ( part ) 
-				ok = fields_add(info, "PARTYEAR", date.data, level);
-			else
-				ok = fields_add( info, "YEAR", date.data, level );
-			if ( !ok ) return 0;
-		}
-	} else if ( !strcasecmp( tag, "%8" ) ) {
-		while ( *p && *p!=' ' && *p!=',' ) newstr_addchar( &date, *p++ );
-		if ( date.len>0 ) {
-			found = -1;
-			for ( i=0; i<12 && found==-1; ++i )
-				if ( !strncasecmp( date.data, months[i], 3 ) )
-					found = i;
-			if ( found!=-1 ) {
-				if (found>8) sprintf( month, "%d", found+1 );
-				else sprintf( month, "0%d", found+1 );
-				if ( part ) 
-					ok = fields_add( info, "PARTMONTH", month, level );
-				else    ok = fields_add( info, "MONTH", month, level );
-				if ( !ok ) return 0;
-			} else {
-				if ( part )
-					ok = fields_add( info, "PARTMONTH", date.data, level );
-				else
-					ok = fields_add( info, "MONTH", date.data, level );
-				if ( !ok ) return 0;
-			}
-		}
-		newstr_empty( &date );
-		p = skip_ws( p );
-		while ( *p && *p!='\n' && *p!=',' )
-			newstr_addchar( &date, *p++ );
-		if ( date.len>0 && date.len<3 ) {
-			if ( part )
-				ok = fields_add( info, "PARTDAY", date.data, level );
-			else
-				ok = fields_add( info, "DAY", date.data, level );
-			if ( !ok ) return 0;
-		}
-	}
-	newstr_free( &date );
-	return 1;
+	str_free( &usename );
+
+	if ( ok ) return BIBL_OK;
+	else return BIBL_ERR_MEMERR;
 }
 
 static void
@@ -302,63 +279,38 @@ copacin_report_notag( param *p, char *tag )
 	}
 }
 
-int
-copacin_convertf( fields *copacin, fields *out, int reftype, param *p, variants *all, int nall )
+static int
+copacin_convertf( fields *bibin, fields *bibout, int reftype, param *p )
 {
-	int  process, level, i, n, nfields, ok;
-	newstr *tag, *data;
-	char *newtag;
+	static int (*convertfns[NUM_REFTYPES])(fields *, int, str *, str *, int, param *, char *, fields *) = {
+		[ 0 ... NUM_REFTYPES-1 ] = generic_null,
+		[ SIMPLE       ] = generic_simple,
+		[ TITLE        ] = generic_title,
+		[ NOTES        ] = generic_notes,
+		[ SERIALNO     ] = generic_serialno,
+		[ PERSON       ] = copacin_person
+	};
 
-	nfields = fields_num( copacin );
+	int  process, level, i, nfields, status = BIBL_OK;
+	str *intag, *invalue;
+	char *outtag;
+
+	nfields = fields_num( bibin );
 	for ( i=0; i<nfields; ++i ) {
 
-		tag = fields_tag( copacin, i, FIELDS_STRP );
+		intag = fields_tag( bibin, i, FIELDS_STRP );
 
-		n = translate_oldtag( tag->data, reftype, all, nall, &process, &level, &newtag );
-		if ( n==-1 ) {
-			copacin_report_notag( p, tag->data );
+		if ( !translate_oldtag( str_cstr( intag ), reftype, p->all, p->nall, &process, &level, &outtag ) ) {
+			copacin_report_notag( p, str_cstr( intag ) );
 			continue;
 		}
-		if ( process == ALWAYS ) continue; /*add these later*/
 
-		data = fields_value( copacin, i, FIELDS_STRP );
+		invalue = fields_value( bibin, i, FIELDS_STRP );
 
-		switch ( process ) {
-
-		case SIMPLE:
-			ok = fields_add( out, newtag, data->data, level );
-			break;
-
-		case TITLE:
-			ok = title_process( out, newtag, data->data, level, p->nosplittitle );
-			break;
-
-		case PERSON:
-			ok = copacin_addname( out, newtag, data, level, &(p->asis), &(p->corps) );
-			break;
-
-		case DATE:
-			ok = copacin_adddate(out,all[reftype].  tags[i].oldstr,newtag,data->data,level);
-			break;
-
-		case PAGES:
-			ok = copacin_addpage( out, data->data, level );
-			break;
-
-		case SERIALNO:
-			ok = addsn( out, data->data, level );
-			break;
-
-		default:
-			fprintf(stderr,"%s: internal error -- " "illegal process value %d\n", p->progname, process );
-			ok = 1;
-			break;
-		}
-
-		if ( !ok ) return BIBL_ERR_MEMERR;
+		status = convertfns[ process ] ( bibin, i, intag, invalue, level, p, outtag, bibout );
+		if ( status!=BIBL_OK ) return status;
 
 	}
 
-	return BIBL_OK;
+	return status;
 }
-

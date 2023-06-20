@@ -1,7 +1,7 @@
 /*
  * xml.h
  *
- * Copyright (c) Chris Putnam 2004-2013
+ * Copyright (c) Chris Putnam 2004-2019
  *
  * Source code released under the GPL version 2
  *
@@ -9,32 +9,35 @@
 #ifndef XML_H
 #define XML_H
 
-#include "list.h"
-#include "newstr.h"
-
-typedef struct xml_attrib {
-	list attrib;
-	list value;
-} xml_attrib;
+#include "slist.h"
+#include "str.h"
 
 typedef struct xml {
-	newstr *tag;
-	newstr *value;
-	xml_attrib *a;
+	str tag;
+	str value;
+	slist attributes;
+	slist attribute_values;
 	struct xml *down;
 	struct xml *next;
 } xml;
 
-extern void xml_init( xml *x );
-extern newstr * xml_getattrib( xml *node, char *attrib );
-extern char * xml_findstart( char *buffer, char *tag );
-extern char * xml_findend( char *buffer, char *tag );
-extern int xml_tagexact( xml *node, char *s );
-extern int xml_tag_attrib( xml *node, char *s, char *attrib, char *value );
-extern void xml_free( xml *x );
-extern char * xml_tree( char *p, xml *onode );
+void   xml_init                 ( xml *node );
+void   xml_free                 ( xml *node );
+int    xml_has_value            ( xml *node );
+str *  xml_value                ( xml *node );
+char * xml_value_cstr           ( xml *node );
+str *  xml_tag                  ( xml *node );
+char * xml_tag_cstr             ( xml *node );
+int    xml_tag_matches          ( xml *node, const char *tag );
+int    xml_tag_matches_has_value( xml *node, const char *tag );
+str *  xml_attribute            ( xml *node, const char *attribute );
+char * xml_find_start           ( char *buffer, char *tag );
+char * xml_find_end             ( char *buffer, char *tag );
+int    xml_tag_has_attribute    ( xml *node, const char *tag, const char *attribute, const char *attribute_value );
+int    xml_has_attribute        ( xml *node, const char *attribute, const char *attribute_value );
+const char * xml_parse                ( const char *p, xml *onode );
 
-extern char *xml_pns; /* global Namespace */
+extern char * xml_pns; /* global Namespace */
 
 #endif
 

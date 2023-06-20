@@ -1,17 +1,16 @@
 /*
  * tomods.c
  *
- * Copyright (c) Chris Putnam 2004-2013
+ * Copyright (c) Chris Putnam 2004-2020
  *
- * Source code released under the GPL version 2
+ * Program and source code released under the GPL version 2
  *
  */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "list.h"
+#include "slist.h"
 #include "bibl.h"
-#include "modsout.h"
 #include "bibutils.h"
 #include "tomods.h"
 #include "args.h"
@@ -62,17 +61,15 @@ void
 tomods_processargs( int *argc, char *argv[], param *p,
 	char *help1, char *help2 )
 {
-	int i, j, subtract;
+	int i, j, subtract, status;
 	process_charsets( argc, argv, p );
 	i = 0;
 	while ( i<*argc ) {
 		subtract = 0;
 		if ( args_match( argv[i], "-h", "--help" ) ) {
-			subtract = 1;
 			args_tomods_help( p->progname, help1, help2 );
 			exit( EXIT_SUCCESS );
 		} else if ( args_match( argv[i], "-v", "--version" ) ) {
-			subtract = 1;
 			args_tellversion( p->progname );
 			exit( EXIT_SUCCESS );
 		} else if ( args_match( argv[i], "-a", "--add-refcount" ) ) {
@@ -88,7 +85,7 @@ tomods_processargs( int *argc, char *argv[], param *p,
 			p->format_opts |= BIBL_FORMAT_VERBOSE;
 			subtract = 1;
 		} else if ( args_match( argv[i], "-d", "--drop-key" ) ) {
-			p->format_opts |= MODSOUT_DROPKEY;
+			p->format_opts |= BIBL_FORMAT_MODSOUT_DROPKEY;
 			subtract = 1;
 		} else if ( args_match( argv[i], "-s", "--single-refperfile" )){
 			p->singlerefperfile = 1;
@@ -119,12 +116,28 @@ tomods_processargs( int *argc, char *argv[], param *p,
 		} else if ( args_match( argv[i], "-c", "--corporation-file")){
 			args_namelist( *argc, argv, i, p->progname,
 				"-c", "--corporation-file" );
-			bibl_readcorps( p, argv[i+1] );
+			status = bibl_readcorps( p, argv[i+1] );
+			if ( status == BIBL_ERR_MEMERR ) {
+				fprintf( stderr, "%s: Memory error when reading --corporation-file '%s'\n",
+					p->progname, argv[i+1] );
+				exit( EXIT_FAILURE );
+			} else if ( status == BIBL_ERR_CANTOPEN ) {
+				fprintf( stderr, "%s: Cannot read --corporation-file '%s'\n",
+					p->progname, argv[i+1] );
+			}
 			subtract = 2;
 		} else if ( args_match( argv[i], "-as", "--asis")) {
 			args_namelist( *argc, argv, i, p->progname,
 				"-as", "--asis" );
-			bibl_readasis( p, argv[i+1] );
+			status = bibl_readasis( p, argv[i+1] );
+			if ( status == BIBL_ERR_MEMERR ) {
+				fprintf( stderr, "%s: Memory error when reading --asis file '%s'\n",
+					p->progname, argv[i+1] );
+				exit( EXIT_FAILURE );
+			} else if ( status == BIBL_ERR_CANTOPEN ) {
+				fprintf( stderr, "%s: Cannot read --asis file '%s'\n",
+					p->progname, argv[i+1] );
+			}
 			subtract = 2;
 		}
 		if ( subtract ) {

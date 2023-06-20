@@ -1,7 +1,9 @@
 /*
  * intlist.h
  *
- * Copyright (c) Chris Putnam 2007-2013
+ * Copyright (c) Chris Putnam 2007-2019
+ *
+ * Version 01/12/2017
  *
  * Source code released under the GPL version 2
  *
@@ -10,31 +12,41 @@
 #ifndef INTLIST_H
 #define INTLIST_H
 
-#include <stdio.h>
-#include <stdlib.h>
+#define INTLIST_OK            (0)
+#define INTLIST_MEMERR        (-1)
+#define INTLIST_VALUE_MISSING (-2)
 
 typedef struct intlist {
 	int n, max;
 	int *data;
 } intlist;
 
-extern void intlist_init( intlist *info );
-extern void intlist_init_range( intlist *info, int low, int high, int step );
-extern intlist* intlist_new( void );
-extern intlist* intlist_new_range( int low, int high, int step );
-extern void intlist_sort( intlist *info );
-extern void intlist_randomize( intlist *info );
-extern int  intlist_add(  intlist *info, int value );
-extern int  intlist_add_unique(  intlist *info, int value );
-extern int  intlist_find( intlist *info, int searchvalue );
-extern int  intlist_find_or_add( intlist *info, int searchvalue );
-extern void intlist_empty( intlist *info );
-extern void intlist_free( intlist *info );
-extern void intlist_copy( intlist *to, intlist *from );
-extern int  intlist_get( intlist *info, int pos );
-extern void intlist_remove( intlist *info, int searchvalue );
-extern void intlist_remove_pos( intlist *info, int pos );
-extern void intlist_append( intlist *to, intlist *from );
-extern void intlist_append_unique( intlist *to, intlist *from );
+void      intlist_init( intlist *il );
+int       intlist_init_fill( intlist *il, int n, int value );
+int       intlist_init_range( intlist *il, int low, int high, int step );
+intlist * intlist_new( void );
+intlist * intlist_new_fill( int n, int value );
+intlist * intlist_new_range( int low, int high, int step );
+void      intlist_delete( intlist *il );
+void      intlist_sort( intlist *il );
+void      intlist_randomize( intlist *il );
+int       intlist_add( intlist *il, int value );
+int       intlist_add_unique( intlist *il, int value );
+int       intlist_fill( intlist *il, int n, int value );
+int       intlist_fill_range( intlist *il, int low, int high, int step );
+int       intlist_find( intlist *il, int searchvalue );
+int       intlist_find_or_add( intlist *il, int searchvalue );
+void      intlist_empty( intlist *il );
+void      intlist_free( intlist *il );
+int       intlist_copy( intlist *to, intlist *from );
+intlist * intlist_dup( intlist *from );
+int       intlist_get( intlist *il, int pos );
+int       intlist_set( intlist *il, int pos, int value );
+int       intlist_remove( intlist *il, int searchvalue );
+int       intlist_remove_pos( intlist *il, int pos );
+int       intlist_append( intlist *to, intlist *from );
+int       intlist_append_unique( intlist *to, intlist *from );
+float     intlist_median( intlist *il );
+float     intlist_mean( intlist *il );
 
 #endif
