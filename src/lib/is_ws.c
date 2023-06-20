@@ -6,6 +6,7 @@
  * Source code released under the GPL version 2
  *
  */
+#include "cross_platform_porting.h"
 #include "is_ws.h"
 
 /* is_ws(), is whitespace */

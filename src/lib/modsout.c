@@ -6,6 +6,7 @@
  * Source code released under the GPL version 2
  *
  */
+#include "cross_platform_porting.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -54,7 +55,7 @@ modsout_initparams( param *pm, const char *progname )
 	if ( !pm->progname ) {
 		if ( !progname ) pm->progname = NULL;
 		else {
-			pm->progname = strdup( progname );
+			pm->progname = _strdup( progname );
 			if ( !pm->progname ) return BIBL_ERR_MEMERR;
 		}
 	}
@@ -86,7 +87,7 @@ modsout_initparams( param *pm, const char *progname )
 static void
 output_tag_core( FILE *outptr, int nindents, const char *tag, const char *data, unsigned char mode, va_list *attrs )
 {
-	const char *attr, *val;
+	const char *attr, *val = NULL;
 	int i;
 
 	for ( i=0; i<nindents; ++i ) fprintf( outptr, "    " );
@@ -159,7 +160,7 @@ output_vpl( FILE *outptr, int nindents, const char *tag, vplist *values, unsigne
 {
 	vplist_index i;
 	va_list attrs;
-	char *value;
+	const char *value;
 
 	/* need to reinitialize attrs for each loop */
 	for ( i=0; i<values->n; ++i ) {
@@ -235,7 +236,7 @@ output_title( FILE *outptr, fields *f, int level )
 }
 
 static void
-output_name( FILE *outptr, char *p, int level )
+output_name( FILE *outptr, const char *p, int level )
 {
 	str family, part, suffix;
 	int n=0;
@@ -443,7 +444,7 @@ find_dateinfo( fields *f, int level, int datepos[ NUM_DATE_TYPES ] )
 static void
 output_datepieces( fields *f, FILE *outptr, int pos[ NUM_DATE_TYPES ] )
 {
-	str *s;
+	const str *s;
 	int i;
 
 	for ( i=0; i<3 && pos[i]!=-1; ++i ) {
@@ -455,7 +456,7 @@ output_datepieces( fields *f, FILE *outptr, int pos[ NUM_DATE_TYPES ] )
 				fprintf( outptr, "0" );
 			}
 		}
-		fprintf( outptr, "%s", (char *) fields_value( f, pos[i], FIELDS_CHRP ) );
+		fprintf( outptr, "%s", (const char *) fields_value( f, pos[i], FIELDS_CHRP ) );
 	}
 }
 
@@ -471,7 +472,7 @@ output_dateissued( fields *f, FILE *outptr, int level, int pos[ NUM_DATE_TYPES ]
 	if ( pos[ DATE_YEAR ]!=-1 || pos[ DATE_MONTH ]!=-1 || pos[ DATE_DAY ]!=-1 ) {
 		output_datepieces( f, outptr, pos );
 	} else {
-		fprintf( outptr, "%s", (char *) fields_value( f, pos[ DATE_ALL ], FIELDS_CHRP ) );
+		fprintf( outptr, "%s", (const char *) fields_value( f, pos[ DATE_ALL ], FIELDS_CHRP ) );
 	}
 	output_tag( outptr, 0, "dateIssued", NULL, TAG_CLOSE | TAG_NEWLINE, NULL );
 }
@@ -608,7 +609,7 @@ output_description( FILE *outptr, fields *f, int level )
 	n = fields_find( f, "DESCRIPTION", level );
 	if ( n==FIELDS_NOTFOUND ) return;
 
-	val = ( const char * ) fields_value( f, n, FIELDS_CHRP );
+		val = ( const char * ) fields_value( f, n, FIELDS_CHRP );
 
 	indent1 = lvl2indent( level );
 	indent2 = lvl2indent( incr_level( level, 1 ) );
@@ -626,7 +627,7 @@ static void
 output_toc( FILE *outptr, fields *f, int level )
 {
 	int n, indent;
-	char *val;
+	const char *val;
 
 	n = fields_find( f, "CONTENTS", level );
 	if ( n==FIELDS_NOTFOUND ) return;
@@ -645,7 +646,7 @@ output_toc( FILE *outptr, fields *f, int level )
  * <detail type="volume"><number>xxx</number></detail>
  */
 static void
-output_detail( FILE *outptr, fields *f, int n, char *item_name, int level )
+output_detail( FILE *outptr, fields *f, int n, const char *item_name, int level )
 {
 	int indent;
 
@@ -726,17 +727,17 @@ output_partdate( FILE *outptr, fields *f, int level, int wrote_header )
 	output_tag( outptr, lvl2indent(incr_level(level,1)), "date", NULL, TAG_OPEN, NULL );
 
 	if ( parts[0].pos!=-1 ) {
-		fprintf( outptr, "%s", (char *) fields_value( f, parts[0].pos, FIELDS_CHRP ) );
+		fprintf( outptr, "%s", (const char *) fields_value( f, parts[0].pos, FIELDS_CHRP ) );
 	} else fprintf( outptr, "XXXX" );
 
 	if ( parts[1].pos!=-1 ) {
-		fprintf( outptr, "-%s", (char *) fields_value( f, parts[1].pos, FIELDS_CHRP ) );
+		fprintf( outptr, "-%s", (const char *) fields_value( f, parts[1].pos, FIELDS_CHRP ) );
 	}
 
 	if ( parts[2].pos!=-1 ) {
 		if ( parts[1].pos==-1 )
 			fprintf( outptr, "-XX" );
-		fprintf( outptr, "-%s", (char *) fields_value( f, parts[2].pos, FIELDS_CHRP ) );
+		fprintf( outptr, "-%s", (const char *) fields_value( f, parts[2].pos, FIELDS_CHRP ) );
 	}
 
 	fprintf( outptr,"</date>\n");
@@ -952,7 +953,7 @@ static void
 output_notes( FILE *outptr, fields *f, int level )
 {
 	int i, n;
-	char *t;
+	const char *t;
 
 	n = fields_num( f );
 	for ( i=0; i<n; ++i ) {
@@ -989,7 +990,7 @@ output_key( FILE *outptr, fields *f, int level )
 {
 	int indent1, indent2;
 	vplist_index i;
-	char *value;
+	const char *value;
 	vplist keys;
 	int status;
 
@@ -1212,7 +1213,8 @@ no_unused_tags( fields *f )
 static void
 report_unused_tags( FILE *outptr, fields *f, param *p, unsigned long refnum )
 {
-	char *tag, *value, *prefix;
+	char* tag, * value;
+	const char * prefix;
 	int i, n, nwritten, level;
 
 	if ( no_unused_tags( f ) ) return;
@@ -1271,7 +1273,7 @@ report_unused_tags( FILE *outptr, fields *f, param *p, unsigned long refnum )
 static void
 output_refnum( FILE *outptr, fields *f, int n )
 {
-	char *p = fields_value( f, n, FIELDS_CHRP_NOUSE );
+	const char *p = fields_value( f, n, FIELDS_CHRP_NOUSE );
 	while ( p && *p ) {
 		if ( !is_ws(*p) ) fprintf( outptr, "%c", *p );
 		p++;

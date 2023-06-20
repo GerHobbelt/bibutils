@@ -6,6 +6,7 @@
  * Source code released under the GPL version 2
  *
  */
+#include "cross_platform_porting.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -16,11 +17,11 @@
 #include "xml_encoding.h"
 
 static int
-xml_getencodingr( xml *node )
+xml_getencodingr( const xml *node )
 {
 	int n = CHARSET_UNKNOWN, m;
-	str *s;
-	char *t;
+	const str *s;
+	const char *t;
 
 	if ( xml_tag_matches( node, "xml" ) ) {
 		s = xml_attribute( node, "encoding" );
@@ -38,11 +39,11 @@ xml_getencodingr( xml *node )
 			}
 		}
 	}
-        if ( node->down ) {
+    if ( node->down ) {
 		m = xml_getencodingr( node->down );
 		if ( m!=CHARSET_UNKNOWN ) n = m;
 	}
-        if ( node->next ) {
+    if ( node->next ) {
 		m = xml_getencodingr( node->next );
 		if ( m!=CHARSET_UNKNOWN ) n = m;
 	}
@@ -56,7 +57,7 @@ xml_getencoding( str *s )
 	int file_charset = CHARSET_UNKNOWN;
 	str descriptor;
 	xml descriptxml;
-	char *p, *q;
+	const char *p, *q;
 
 	p = strstr( str_cstr( s ), "<?xml" );
 	if ( !p ) p = strstr( str_cstr( s ), "<?XML" );

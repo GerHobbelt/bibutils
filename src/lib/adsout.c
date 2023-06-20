@@ -7,6 +7,7 @@
  * Program and source code released under the GPL version 2
  *
  */
+#include "cross_platform_porting.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -101,7 +102,7 @@ enum {
 static int
 get_type( fields *in )
 {
-	match_type genre_matches[] = {
+	const match_type genre_matches[] = {
 		{ "academic journal",          TYPE_ARTICLE,            LEVEL_ANY },
 		{ "communication",             TYPE_COMMUNICATION,      LEVEL_ANY },
 		{ "conference publication",    TYPE_INPROCEEDINGS,      LEVEL_ANY },
@@ -130,13 +131,13 @@ get_type( fields *in )
 	};
 	int ngenre_matches = sizeof( genre_matches ) / sizeof( genre_matches[0] );
 
-	match_type resource_matches[] = {
+	const match_type resource_matches[] = {
 		{ "moving image",              TYPE_BROADCAST,          LEVEL_ANY  },
 		{ "software, multimedia",      TYPE_PROGRAM,            LEVEL_ANY  },
 	};
 	int nresource_matches = sizeof( resource_matches ) /sizeof( resource_matches[0] );
 
-	match_type issuance_matches[] = {
+	const match_type issuance_matches[] = {
 		{ "monographic",               TYPE_BOOK,               LEVEL_MAIN },
 		{ "monographic",               TYPE_INBOOK,             LEVEL_ANY  },
 	};
@@ -153,15 +154,16 @@ get_type( fields *in )
 }
 
 static int
-append_title( fields *in, char *ttl, char *sub, char *adstag, int level, fields *out, int *status )
+append_title( fields *in, const char *ttl, const char *sub, const char *adstag, int level, fields *out, int *status )
 {
-	str fulltitle, *title, *subtitle, *vol, *iss, *sn, *en, *ar;
+	str fulltitle;
+	const str* title, * subtitle, * vol, * iss, * sn, * en, * ar;
 	int fstatus, output = 0;
 
 	str_init( &fulltitle );
 
-	title     = fields_findv( in, level, FIELDS_STRP, ttl );
-	subtitle  = fields_findv( in, level, FIELDS_STRP, sub );
+	title     = (const str*)fields_findv( in, level, FIELDS_STRP, ttl );
+	subtitle  = (const str*)fields_findv( in, level, FIELDS_STRP, sub );
 
 	if ( str_has_value( title ) ) {
 
@@ -169,21 +171,21 @@ append_title( fields *in, char *ttl, char *sub, char *adstag, int level, fields 
 
 		title_combine( &fulltitle, title, subtitle );
 
-		vol = fields_findv( in, LEVEL_ANY, FIELDS_STRP, "VOLUME" );
+		vol = (const str*)fields_findv( in, LEVEL_ANY, FIELDS_STRP, "VOLUME" );
 		if ( str_has_value( vol ) ) {
 			str_strcatc( &fulltitle, ", vol. " );
 			str_strcat( &fulltitle, vol );
 		}
 
-		iss = fields_findv_firstof( in, LEVEL_ANY, FIELDS_STRP, "ISSUE", "NUMBER", NULL );
+		iss = (const str*)fields_findv_firstof( in, LEVEL_ANY, FIELDS_STRP, "ISSUE", "NUMBER", NULL );
 		if ( str_has_value( iss ) ) {
 			str_strcatc( &fulltitle, ", no. " );
 			str_strcat( &fulltitle, iss );
 		}
 
-		sn = fields_findv( in, LEVEL_ANY, FIELDS_STRP, "PAGES:START" );
-		en = fields_findv( in, LEVEL_ANY, FIELDS_STRP, "PAGES:STOP" );
-		ar = fields_findv( in, LEVEL_ANY, FIELDS_STRP, "ARTICLENUMBER" );
+		sn = (const str*)fields_findv( in, LEVEL_ANY, FIELDS_STRP, "PAGES:START" );
+		en = (const str*)fields_findv( in, LEVEL_ANY, FIELDS_STRP, "PAGES:STOP" );
+		ar = (const str*)fields_findv( in, LEVEL_ANY, FIELDS_STRP, "ARTICLENUMBER" );
 
 		if ( str_has_value( sn ) ) {
 			if ( str_has_value( en ) ) {
@@ -207,8 +209,8 @@ append_title( fields *in, char *ttl, char *sub, char *adstag, int level, fields 
 		}
 
 		fstatus = fields_add( out, adstag, str_cstr( &fulltitle ), LEVEL_MAIN );
-		if ( fstatus!=FIELDS_OK ) *status = BIBL_ERR_MEMERR;
-
+		if ( fstatus!=FIELDS_OK )
+			*status = BIBL_ERR_MEMERR;
 	}
 
 out:
@@ -229,7 +231,7 @@ append_titles( fields *in, int type, fields *out, int *status )
 }
 
 static void
-append_people( fields *in, char *tag1, char *tag2, char *tag3, char *adstag, int level, fields *out, int *status )
+append_people( fields *in, const char *tag1, const char *tag2, const char *tag3, const char *adstag, int level, fields *out, int *status )
 {
 	str oneperson, allpeople;
 	vplist_index i;
@@ -244,7 +246,7 @@ append_people( fields *in, char *tag1, char *tag2, char *tag3, char *adstag, int
 	if ( a.n ) {
 		for ( i=0; i<a.n; ++i ) {
 			if ( i!=0 ) str_strcatc( &allpeople, "; " );
-			name_build_withcomma( &oneperson, (char *) vplist_get( &a, i) );
+			name_build_withcomma( &oneperson, (const char *) vplist_get( &a, i) );
 			str_strcat( &allpeople, &oneperson );
 		}
 		fstatus = fields_add( out, adstag, str_cstr( &allpeople ), LEVEL_MAIN );
@@ -259,7 +261,7 @@ append_people( fields *in, char *tag1, char *tag2, char *tag3, char *adstag, int
 static void
 append_pages( fields *in, fields *out, int *status )
 {
-	char *sn, *en, *ar;
+	const char *sn, *en, *ar;
 
 	sn = fields_findv( in, LEVEL_ANY, FIELDS_CHRP, "PAGES:START" );
 	en = fields_findv( in, LEVEL_ANY, FIELDS_CHRP, "PAGES:STOP" );
@@ -279,9 +281,11 @@ append_pages( fields *in, fields *out, int *status )
 }
 
 static void
-append_date( fields *in, char *adstag, int level, fields *out, int *status )
+append_date( fields *in, const char *adstag, int level, fields *out, int *status )
 {
-	str *year, *month, date;
+	str date;
+	const str* year;
+	const str* month;
 	int fstatus;
 
 	str_init( &date );
@@ -308,22 +312,22 @@ append_date( fields *in, char *adstag, int level, fields *out, int *status )
 	str_free( &date );
 }
 
-#include "adsout_journals.c"
+#include "adsout_journals.h"
 
 static void
-output_4digit_value( char *pos, long long n )
+output_4digit_value( char *pos, size_t dstlen, long long n )
 {
 	char buf[6];
 	n = n % 10000; /* truncate to 0->9999, will fit in buf[6] */
 #ifdef WIN32
-	sprintf( buf, "%I64d", n );
+	sprintf_s( buf, countof(buf), "%I64d", n );
 #else
-	sprintf( buf, "%lld", n );
+	sprintf_s( buf, countof(buf), "%lld", n );
 #endif
-	if ( n < 10 )        strncpy( pos+3, buf, 1 );
-	else if ( n < 100 )  strncpy( pos+2, buf, 2 );
-	else if ( n < 1000 ) strncpy( pos+1, buf, 3 );
-	else                 strncpy( pos,   buf, 4 );
+	if ( n < 10 )        strncpy_s( pos+3, dstlen-3, buf, 1 );
+	else if ( n < 100 )  strncpy_s( pos+2, dstlen-2, buf, 2 );
+	else if ( n < 1000 ) strncpy_s( pos+1, dstlen-1, buf, 3 );
+	else                 strncpy_s( pos,   dstlen,   buf, 4 );
 }
 
 static char
@@ -333,9 +337,11 @@ initial_ascii( const char *name )
 
 	if ( isascii( name[0] )  )
 		return name[0];
-
-        b1 = name[0]+256;
-        b2 = name[1]+256;
+	
+	// (Georgi) fixes github issue #8: name[0]+256; doesn't give the expected
+	// result on platforms where char is unsigned char
+	b1 = (unsigned char)(name[0]); // name[0]+256;
+	b2 = (unsigned char)(name[1]); // name[1]+256;
 
 	switch( b1 ) {
 
@@ -364,7 +370,13 @@ initial_ascii( const char *name )
 	case 0xc4:
 		     if ( b2 >= 0x80 && b2 <= 0x85 ) return 'A';
 		else if ( b2 >= 0x86 && b2 <= 0x8d ) return 'C';
-		else if ( b2 >= 0x8e || b2 <= 0x91 ) return 'D';
+
+		// (Georgi) was: 
+		//   else if ( b2 >= 0x8e || b2 <= 0x91 ) return 'D';
+		// but that always evaluates to true! 
+		// Looks like '||' should be '&&'
+		else if ( b2 >= 0x8e && b2 <= 0x91 ) return 'D';
+
 		else if ( b2 >= 0x92 && b2 <= 0x9b ) return 'E';
 		else if ( b2 >= 0x9c && b2 <= 0xa3 ) return 'G';
 		else if ( b2 >= 0xa4 && b2 <= 0xa7 ) return 'H';
@@ -377,7 +389,13 @@ initial_ascii( const char *name )
 	case 0xc5:
 		     if ( b2 >= 0x80 && b2 <= 0x82 ) return 'L';
 		else if ( b2 >= 0x83 && b2 <= 0x8b ) return 'N';
-		else if ( b2 >= 0x8c || b2 <= 0x93 ) return 'O';
+
+		// (Georgi) was: 
+		//    else if ( b2 >= 0x8c || b2 <= 0x93 ) return 'O';
+		// but that always evaluate to true!
+		// Looks like '||' should be '&&'
+		else if ( b2 >= 0x8c && b2 <= 0x93 ) return 'O';
+
 		else if ( b2 >= 0x94 && b2 <= 0x99 ) return 'R';
 		else if ( b2 >= 0x9a && b2 <= 0xa1 ) return 'S';
 		else if ( b2 >= 0xa2 && b2 <= 0xa7 ) return 'T';
@@ -390,14 +408,24 @@ initial_ascii( const char *name )
 	case 0xc6:
 		     if ( b2 >= 0x80 && b2 <= 0x85 ) return 'B';
 		else if ( b2 >= 0x86 && b2 <= 0x88 ) return 'C';
-		else if ( b2 >= 0x89 || b2 <= 0x8d ) return 'D';
+		// (Georgi) was: 
+		//   else if ( b2 >= 0x89 || b2 <= 0x8d ) return 'D';
+		// but that always evaluate to true! 
+		// Looks like '||' should be '&&'
+		else if ( b2 >= 0x89 && b2 <= 0x8d ) return 'D';
+		     
 		else if ( b2 >= 0x8e && b2 <= 0x90 ) return 'E';
 		else if ( b2 >= 0x91 && b2 <= 0x92 ) return 'F';
 		else if ( b2 >= 0x93 && b2 <= 0x94 ) return 'G';
 		else if ( b2 == 0x95 )               return 'H';
 		else if ( b2 >= 0x96 && b2 <= 0x97 ) return 'I';
 		else if ( b2 >= 0x98 && b2 <= 0x99 ) return 'K';
-		else if ( b2 >= 0xba && b2 <= 0x9b ) return 'L';
+		// (Georgi) was: 
+		//   else if ( b2 >= 0xba && b2 <= 0x9b ) return 'L';
+		// but that always evaluate to false!
+		// Looking at the surrounding code, seems like '0xba' should be '0x9a'
+		else if ( b2 >= 0x9a && b2 <= 0x9b ) return 'L';
+
 		else if ( b2 == 0xbc )               return 'M';
 		else if ( b2 >= 0x9d && b2 <= 0x9e ) return 'N';
 		else if ( b2 >= 0x9f && b2 <= 0xa3 ) return 'O';
@@ -419,7 +447,7 @@ initial_ascii( const char *name )
 static char
 get_firstinitial( fields *in )
 {
-	char *name;
+	const char *name;
 	int n;
 
 	n = fields_find( in, "AUTHOR", LEVEL_MAIN );
@@ -434,7 +462,7 @@ get_firstinitial( fields *in )
 static int
 get_journalabbr( fields *in )
 {
-	char *jrnl;
+	const char *jrnl;
 	int n, j;
 
 	n = fields_find( in, "TITLE", LEVEL_HOST );
@@ -449,18 +477,18 @@ get_journalabbr( fields *in )
 }
 
 static void
-append_Rtag( fields *in, char *adstag, int type, fields *out, int *status )
+append_Rtag( fields *in, const char *adstag, int type, fields *out, int *status )
 {
 	char outstr[20], ch;
 	int n, i, fstatus;
 	long long page;
 
-	strcpy( outstr, "..................." );
+	strcpy_s( outstr, countof(outstr), "..................." );
 
 	/** YYYY */
 	n = fields_find( in, "DATE:YEAR", LEVEL_ANY );
 	if ( n==FIELDS_NOTFOUND ) n = fields_find( in, "PARTDATE:YEAR", LEVEL_ANY );
-	if ( n!=FIELDS_NOTFOUND ) output_4digit_value( outstr, atoi( fields_value( in, n, FIELDS_CHRP ) ) );
+	if ( n!=FIELDS_NOTFOUND ) output_4digit_value( outstr, countof(outstr), atoi( fields_value( in, n, FIELDS_CHRP ) ) );
 
 	/** JJJJ */
 	n = get_journalabbr( in );
@@ -474,16 +502,16 @@ append_Rtag( fields *in, char *adstag, int type, fields *out, int *status )
 
 	/** VVVV */
 	n = fields_find( in, "VOLUME", LEVEL_ANY );
-	if ( n!=FIELDS_NOTFOUND ) output_4digit_value( outstr+9, atoi( fields_value( in, n, FIELDS_CHRP ) ) );
+	if ( n!=FIELDS_NOTFOUND ) output_4digit_value( outstr+9, countof(outstr)-9, atoi( fields_value( in, n, FIELDS_CHRP ) ) );
 
 	/** MPPPP */
 	n = fields_find( in, "PAGES:START", LEVEL_ANY );
 	if ( n==FIELDS_NOTFOUND ) n = fields_find( in, "ARTICLENUMBER", LEVEL_ANY );
 	if ( n!=FIELDS_NOTFOUND ) {
 		page = atoll( fields_value( in, n, FIELDS_CHRP ) );
-		output_4digit_value( outstr+14, page );
+		output_4digit_value( outstr+14, countof(outstr)-14, page );
 		if ( page>=10000 ) {
-			ch = 'a' + (page/10000);
+			ch = 'a' + (unsigned char)(page/10000);
 			outstr[13] = ch;
 		}
 	}

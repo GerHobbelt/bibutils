@@ -1,3 +1,0 @@
-# There is one man page for the whole package, all functions are documented
-# inside.
-bibutils binary: spare-manual-page usr/share/man/man1/bibutils.1.gz

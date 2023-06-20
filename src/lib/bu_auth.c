@@ -5,7 +5,7 @@
  *
  * Source code released under the GPL version 2
  */
-
+#include "cross_platform_porting.h"
 #include <stdlib.h>
 #include <string.h>
 #include "bu_auth.h"
@@ -16,7 +16,9 @@
  */
 static const unsigned int bu_genre_hash_size = 50;
 static const char *bu_genre[50] = {
+#ifdef HAVE_DESIGNATED_INITIALIZER_GNU_EXTENSION
 	[ 0 ... 49 ] = NULL,
+#endif
 	[  11 ] = "academic journal",
 	[   6 ] = "airtel",
 	[  37 ] = "Airtel",

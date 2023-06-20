@@ -30,8 +30,8 @@ args_match( const char *check, const char *shortarg, const char *longarg )
 	return 0;
 }
 
-char *
-args_next( int argc, char *argv[], int n, const char *progname, const char *shortarg, const char *longarg )
+const char *
+args_next( int argc, const char *argv[], int n, const char *progname, const char *shortarg, const char *longarg )
 {
 	if ( n>=argc ) {
 		fprintf( stderr, "%s: option ", progname );
@@ -45,7 +45,7 @@ args_next( int argc, char *argv[], int n, const char *progname, const char *shor
 }
 
 static int
-args_charset( char *charset_name, int *charset, unsigned char *utf8 )
+args_charset( const char *charset_name, int *charset, unsigned char *utf8 )
 {
 	if ( !strcasecmp( charset_name, "unicode" ) || 
 	     !strcasecmp( charset_name, "utf8" ) ) {
@@ -63,11 +63,11 @@ args_charset( char *charset_name, int *charset, unsigned char *utf8 )
 }
 
 static void
-args_encoding( int argc, char *argv[], int i, int *charset, 
-	unsigned char *utf8, char *progname, int inout )
+args_encoding( int argc, const char *argv[], int i, int *charset, 
+	unsigned char *utf8, const char *progname, int inout )
 {
-	char *shortver[] = { "-i", "-o" };
-	char *longver[] = { "--input-encoding", "--output-encoding" };
+	const char *shortver[] = { "-i", "-o" };
+	const char *longver[] = { "--input-encoding", "--output-encoding" };
 	if ( i+1 >= argc ) {
 		fprintf( stderr, "%s: error %s (%s) takes "
 				"the argument of the character set type\n",
@@ -89,7 +89,7 @@ args_encoding( int argc, char *argv[], int i, int *charset,
 
 /* Must process charset info first so switches are order independent */
 void
-process_charsets( int *argc, char *argv[], param *p )
+process_charsets( int *argc, const char *argv[], param *p )
 {
 	int i, j, subtract;
 	i = 1;

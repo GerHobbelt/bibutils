@@ -6,6 +6,7 @@
  * Source code released under the GPL version 2
  *
  */
+#include "cross_platform_porting.h"
 #include <stdio.h>
 #include <string.h>
 #include "is_ws.h"
@@ -13,7 +14,7 @@
 #include "reftypes.h"
 
 int
-get_reftype( const char *p, long refnum, char *progname, variants *all, int nall, char *tag, int *is_default, int chattiness )
+get_reftype( const char *p, long refnum, const char *progname, const variants *all, int nall, const char *tag, int *is_default, int chattiness )
 {
 	int i;
 
@@ -38,32 +39,33 @@ get_reftype( const char *p, long refnum, char *progname, variants *all, int nall
 }
 
 int
-process_findoldtag( const char *oldtag, int reftype, variants all[], int nall )
+process_findoldtag( const char *oldtag, int reftype, const variants *all, int nall )
 {
-        variants *v;
-        int i;
+    const variants *v;
+    int i;
 
-        v = &(all[reftype]);
-        for ( i=0; i<v->ntags; ++i ) {
-                if ( !strcasecmp( (v->tags[i]).oldstr, oldtag ) )
-                        return i;
+    v = &(all[reftype]);
+    for ( i=0; i<v->ntags; ++i ) {
+        if ( !strcasecmp( (v->tags[i]).oldstr, oldtag ) )
+            return i;
 	}
-        return -1;
+    return -1;
 }
 
 /* translate_oldtag()
  */
 int
-translate_oldtag( const char *oldtag, int reftype, variants all[], int nall,
-		int *processingtype, int *level, char **newtag )
+translate_oldtag( const char *oldtag, int reftype, const variants *all, int nall,
+		int *processingtype, int *level, const char **newtag )
 {
 	int n;
 
 	n = process_findoldtag( oldtag, reftype, all, nall );
 	if ( n!=-1 ) {
-		*processingtype = ((all[reftype]).tags[n]).processingtype;
-		*level          = ((all[reftype]).tags[n]).level;
-		*newtag         = ((all[reftype]).tags[n]).newstr;
+		const lookups* l = &((all[reftype]).tags[n]);
+		*processingtype = l->processingtype;
+		*level          = l->level;
+		*newtag         = l->newstr;
 		return 1;
 	}
 

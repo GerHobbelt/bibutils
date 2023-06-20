@@ -6,6 +6,7 @@
  * Program and source code released under the GPL version 2
  *
  */
+#include "cross_platform_porting.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include "bibutils.h"
@@ -13,15 +14,21 @@
 #include "args.h"
 #include "bibprog.h"
 
-const char progname[] = "xml2isi";
+#include "monolithic_examples.h"
 
-void
-help( char *progname )
+static const char progname[] = "xml2isi";
+
+#if defined(BUILD_MONOLITHIC)
+#define main     bibutils_xml2isi_main
+#endif
+
+static void
+help( const char *name )
 {
-	args_tellversion( progname );
+	args_tellversion( name );
 	fprintf(stderr,"Converts an XML intermediate reference file into ISI format\n\n");
 
-	fprintf(stderr,"usage: %s xml_file > isi_file\n\n",progname);
+	fprintf(stderr,"usage: %s xml_file > isi_file\n\n", name);
         fprintf(stderr,"  xml_file can be replaced with file list or omitted to use as a filter\n\n");
 
 	fprintf(stderr,"  -h, --help     display this help\n");
@@ -38,8 +45,8 @@ help( char *progname )
 	fprintf(stderr,"http://sourceforge.net/p/bibutils/home/Bibutils for more details\n\n");
 }
 
-void
-process_args( int *argc, char *argv[], param *p )
+static void
+process_args( int *argc, const char *argv[], param *p )
 {
 	int i, j, subtract;
 	i = 1;
@@ -75,8 +82,7 @@ process_args( int *argc, char *argv[], param *p )
 	}
 }
 
-int 
-main(int argc, char *argv[])
+int main(int argc, const char** argv)
 {
 	param p;
 	modsin_initparams( &p, progname );

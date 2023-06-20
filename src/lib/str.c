@@ -11,6 +11,7 @@
  * routines for dynamically allocated strings
  *
  */
+#include "cross_platform_porting.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -180,7 +181,7 @@ strs_init( str *s, ... )
 }
 
 int
-str_memerr( str *s )
+str_memerr( const str *s )
 {
 #ifndef STR_SMALL
 	return s->status == STR_MEMERR;
@@ -332,15 +333,15 @@ str_addutf8( str *s, const char *p )
 	return p;
 }
 
-char *
-str_cstr( str *s )
+const char *
+str_cstr( const str *s )
 {
 	assert( s );
 	return s->data;
 }
 
 void 
-str_fprintf( FILE *fp, str *s )
+str_fprintf( FILE *fp, const str *s )
 {
 	assert( s );
 	if ( s->data ) fprintf( fp, "%s", s->data );
@@ -358,16 +359,21 @@ str_prepend( str *s, const char *addstr )
 	lenaddstr = strlen( addstr );
 	if ( lenaddstr==0 ) return; /* appending an empty string is a null op */
 
-	if ( !s->data || !s->dim )
-		str_initalloc( s, lenaddstr+1 );
+	if (!s->data || !s->dim) {
+		str_initalloc(s, lenaddstr + 1);
+	}
 	else {
 		if ( s->len + lenaddstr  + 1 > s->dim )
 			str_realloc( s, s->len + lenaddstr + 1 );
 		for ( i=s->len+lenaddstr-1; i>=lenaddstr; i-- )
 			s->data[i] = s->data[i-lenaddstr];
 	}
-	strncpy( s->data, addstr, lenaddstr );
+	// A *safe* strncpy() operation would plonk a NUL at the end of the copy anyway.
+	// We DO NOT want that here, hence we use memcpy() instead:
+	//strncpy_s( s->data, s->dim, addstr, lenaddstr );
+	memcpy(s->data, addstr, lenaddstr);
 	s->len += lenaddstr;
+	assert(s->len < s->dim);
 	s->data[ s->len ] = '\0';
 }
 
@@ -386,13 +392,14 @@ str_strcat_internal( str *s, const char *addstr, unsigned long n )
 {
 	return_if_memerr( s );
 	str_strcat_ensurespace( s, n );
-	strncat( &(s->data[s->len]), addstr, n );
+	strncat_s( s->data + s->len, s->dim - s->len, addstr, n );
 	s->len += n;
-	s->data[s->len]='\0';
+	assert(s->len < s->dim);
+	s->data[ s->len ]='\0';
 }
 
 void
-str_strcat( str *s, str *from )
+str_strcat( str *s, const str *from )
 {
 	assert ( s && from );
 	if ( !from->data ) return;
@@ -432,7 +439,7 @@ str_segcat( str *s, char *startat, char *endat )
 }
 
 void
-str_indxcat( str *s, char *p, unsigned long start, unsigned long stop )
+str_indxcat( str *s, const char *p, unsigned long start, unsigned long stop )
 {
 	unsigned long i;
 
@@ -495,13 +502,14 @@ str_strcpy_internal( str *s, const char *p, unsigned long n )
 	return_if_memerr( s );
 
 	str_strcpy_ensurespace( s, n );
-	strncpy( s->data, p, n );
-	s->data[n] = '\0';
+	strncpy_s( s->data, s->dim, p, n );
+	assert(n < s->dim);
+	s->data[ n ] = '\0';
 	s->len = n;
 }
 
 void
-str_strcpy( str *s, str *from )
+str_strcpy( str *s, const str *from )
 {
 	assert( s );
 	assert( from );
@@ -524,10 +532,10 @@ str_strcpyc( str *s, const char *from )
  * copies [start,end) into s
  */
 void
-str_segcpy( str *s, char *startat, char *endat )
+str_segcpy( str *s, const char *startat, const char *endat )
 {
 	unsigned long n;
-	char *p;
+	const char *p;
 
 	assert( s && startat && endat );
 	assert( ((size_t) startat) <= ((size_t) endat) );
@@ -555,7 +563,7 @@ str_segcpy( str *s, char *startat, char *endat )
  * copies in[start,stop) (excludes stop) into s
  */
 void
-str_indxcpy( str *s, char *p, unsigned long start, unsigned long stop )
+str_indxcpy( str *s, const char *p, unsigned long start, unsigned long stop )
 {
 	unsigned long i;
 
@@ -594,7 +602,7 @@ str_strdupc( const char *from )
 }
 
 void
-str_segdel( str *s, char *p, char *q )
+str_segdel( str *s, const char *p, const char *q )
 {
 	str tmp1, tmp2;
 	char *r;
@@ -855,7 +863,7 @@ str_pad( str *s, unsigned long len, char ch )
 }
 
 void
-str_copyposlen( str *s, str *in, unsigned long pos, unsigned long len )
+str_copyposlen( str *s, const str *in, unsigned long pos, unsigned long len )
 {
 	unsigned long i, max;
 	assert( s );
@@ -867,14 +875,13 @@ str_copyposlen( str *s, str *in, unsigned long pos, unsigned long len )
 }
 
 static void
-str_check_case( str *s, int *lowercase, int *uppercase )
+str_check_case( const str *s, int *lowercase, int *uppercase )
 {
-	int i;
 	assert( s );
 	*lowercase = 0;
 	*uppercase = 0;
 	if ( s->len < 1 ) return;
-	for ( i=0; i<s->len && !( *lowercase && *uppercase ); ++i ) {
+	for ( unsigned long i=0; i<s->len && !( *lowercase && *uppercase ); ++i ) {
 		if ( isalpha( (unsigned char)s->data[i] ) ) {
 			if ( isupper( (unsigned char)s->data[i] ) ) *uppercase += 1;
 			else if ( islower( (unsigned char)s->data[i] ) ) *lowercase += 1;
@@ -883,7 +890,7 @@ str_check_case( str *s, int *lowercase, int *uppercase )
 }
 
 int
-str_is_mixedcase( str *s )
+str_is_mixedcase( const str *s )
 {
 	int lowercase, uppercase;
 	str_check_case( s, &lowercase, &uppercase );
@@ -892,7 +899,7 @@ str_is_mixedcase( str *s )
 }
 
 int
-str_is_lowercase( str *s )
+str_is_lowercase( const str *s )
 {
 	int lowercase, uppercase;
 	str_check_case( s, &lowercase, &uppercase );
@@ -901,7 +908,7 @@ str_is_lowercase( str *s )
 }
 
 int
-str_is_uppercase( str *s )
+str_is_uppercase( const str *s )
 {
 	int lowercase, uppercase;
 	str_check_case( s, &lowercase, &uppercase );
@@ -990,7 +997,7 @@ str_strcasecmpc( const str *s, const char *t )
 	return strcasecmp( s->data, t );
 }
 
-char *
+const char *
 str_strstr( const str *s, const str *t )
 {
 	assert( s );
@@ -1001,7 +1008,7 @@ str_strstr( const str *s, const str *t )
 	return strstr( s->data, t->data );
 }
 
-char *
+const char *
 str_strstrc( const str *s, const char *t )
 {
 	assert( s );
@@ -1059,7 +1066,7 @@ str_fgetline( str *s, FILE *fp )
  * str_char( s, 3 ) = '\0' str_revchar( s, 3 ) = '\0'
  */
 char
-str_char( str *s, unsigned long n )
+str_char( const str *s, unsigned long n )
 {
 	assert( s );
 	if ( s->len==0 || n >= s->len ) return '\0';
@@ -1067,7 +1074,7 @@ str_char( str *s, unsigned long n )
 }
 
 char
-str_revchar( str *s, unsigned long n )
+str_revchar( const str *s, unsigned long n )
 {
 	assert( s );
 	if ( s->len==0 || n >= s->len ) return '\0';
@@ -1104,21 +1111,21 @@ str_fill( str *s, unsigned long n, char fillchar )
 }
 
 int
-str_has_value( str *s )
+str_has_value( const str *s )
 {
 	if ( !s || s->len==0 ) return 0;
 	return 1;
 }
 
 int
-str_is_empty( str *s )
+str_is_empty( const str *s )
 {
 	if ( !s || s->len==0 ) return 1;
 	return 0;
 }
 
 unsigned long
-str_strlen( str *s )
+str_strlen( const str *s )
 {
 	if ( !s ) return 0;
 	else return s->len;

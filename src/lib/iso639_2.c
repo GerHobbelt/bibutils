@@ -1,14 +1,15 @@
 /*
  * iso639-2 language codes
  */
+#include "cross_platform_porting.h"
 #include <string.h>
 #include "iso639_2.h"
 
 typedef struct {
-	char *code1;
-	char *code2;
+	const char *code1;
+	const char *code2;
 	unsigned char main;
-	char *language;
+	const char *language;
 } iso639_2_t;
 
 static iso639_2_t iso639_2[] = {
@@ -586,7 +587,7 @@ static iso639_2_t iso639_2[] = {
 };
 static int niso639_2= sizeof( iso639_2 ) / sizeof( iso639_2[0] );
 
-char *
+const char *
 iso639_2_from_code( const char *code )
 {
 	int i;
@@ -600,7 +601,7 @@ iso639_2_from_code( const char *code )
 	return NULL;
 }
 
-char *
+const char *
 iso639_2_from_language( const char *lang )
 {
 	int i, n;
@@ -635,7 +636,7 @@ check_alphabetical( void )
 }
 
 int
-main( int argc, char *argv[] )
+main(void)
 {
 	int ok;
 	ok = check_alphabetical();

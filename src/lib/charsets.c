@@ -6,6 +6,7 @@
  * Source code released under the GPL version 2
  *
  */
+#include "cross_platform_porting.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -22,14 +23,14 @@ typedef struct convert_t {
 } convert_t;
 
 typedef struct allcharconvert_t {
-	char cmdname[15];
-	char descriptname[200];
-	char aliases[CHARSET_NALIASES][25];
-	convert_t *table;
+	const char *cmdname;
+	const char *descriptname;
+	const char *aliases[CHARSET_NALIASES];
+	const convert_t *table;
 	int ntable;
 } allcharconvert_t;
 
-static convert_t adobeiso[] = {
+static const convert_t adobeiso[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -425,7 +426,7 @@ static convert_t adobeiso[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t adobestd[] = {
+static const convert_t adobestd[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -838,7 +839,7 @@ static convert_t adobestd[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t adobesym[] = {
+static const convert_t adobesym[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -1256,7 +1257,7 @@ static convert_t adobesym[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t applecro[] = {
+static const convert_t applecro[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -1641,7 +1642,7 @@ static convert_t applecro[] = {
 	{ 122, 378 },
 	{ 122, 380 },
 };
-static convert_t applecyr[] = {
+static const convert_t applecyr[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -2087,7 +2088,7 @@ static convert_t applecyr[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t applegk2[] = {
+static const convert_t applegk2[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -2515,7 +2516,7 @@ static convert_t applegk2[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t applegrk[] = {
+static const convert_t applegrk[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -2965,7 +2966,7 @@ static convert_t applegrk[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t macice[] = {
+static const convert_t macice[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -3354,7 +3355,7 @@ static convert_t macice[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t macroman[] = {
+static const convert_t macroman[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -3745,7 +3746,7 @@ static convert_t macroman[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t macromanian[] = {
+static const convert_t macromanian[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -4132,7 +4133,7 @@ static convert_t macromanian[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t macturkish[] = {
+static const convert_t macturkish[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -4518,7 +4519,7 @@ static convert_t macturkish[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t atarist[] = {
+static const convert_t atarist[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -4932,7 +4933,7 @@ static convert_t atarist[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t cp437[] = {
+static const convert_t cp437[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -5353,7 +5354,7 @@ static convert_t cp437[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t cp737[] = {
+static const convert_t cp737[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -5805,7 +5806,7 @@ static convert_t cp737[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t cp775[] = {
+static const convert_t cp775[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -6190,7 +6191,7 @@ static convert_t cp775[] = {
 	{ 121, 255 },
 	{ 121, 375 },
 };
-static convert_t cp850[] = {
+static const convert_t cp850[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -6586,7 +6587,7 @@ static convert_t cp850[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t cp851[] = {
+static const convert_t cp851[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -7019,7 +7020,7 @@ static convert_t cp851[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t cp852[] = {
+static const convert_t cp852[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -7393,7 +7394,7 @@ static convert_t cp852[] = {
 	{ 121, 255 },
 	{ 121, 375 },
 };
-static convert_t cp853[] = {
+static const convert_t cp853[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -7775,7 +7776,7 @@ static convert_t cp853[] = {
 	{ 122, 378 },
 	{ 122, 382 },
 };
-static convert_t cp855[] = {
+static const convert_t cp855[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -8227,7 +8228,7 @@ static convert_t cp855[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t cp857[] = {
+static const convert_t cp857[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -8620,7 +8621,7 @@ static convert_t cp857[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t cp860[] = {
+static const convert_t cp860[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -9036,7 +9037,7 @@ static convert_t cp860[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t cp861[] = {
+static const convert_t cp861[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -9457,7 +9458,7 @@ static convert_t cp861[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t cp862[] = {
+static const convert_t cp862[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -9903,7 +9904,7 @@ static convert_t cp862[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t cp863[] = {
+static const convert_t cp863[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -10327,7 +10328,7 @@ static convert_t cp863[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t cp864[] = {
+static const convert_t cp864[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -10778,7 +10779,7 @@ static convert_t cp864[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t cp865[] = {
+static const convert_t cp865[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -11197,7 +11198,7 @@ static convert_t cp865[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t cp866[] = {
+static const convert_t cp866[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -11649,7 +11650,7 @@ static convert_t cp866[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t cp869[] = {
+static const convert_t cp869[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -12099,7 +12100,7 @@ static convert_t cp869[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t cp874[] = {
+static const convert_t cp874[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -12539,7 +12540,7 @@ static convert_t cp874[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t cp895[] = {
+static const convert_t cp895[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -12947,7 +12948,7 @@ static convert_t cp895[] = {
 	{ 122, 378 },
 	{ 122, 380 },
 };
-static convert_t cp1250[] = {
+static const convert_t cp1250[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -13315,7 +13316,7 @@ static convert_t cp1250[] = {
 	{ 121, 255 },
 	{ 121, 375 },
 };
-static convert_t cp1251[] = {
+static const convert_t cp1251[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -13761,7 +13762,7 @@ static convert_t cp1251[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t cp1252[] = {
+static const convert_t cp1252[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -14147,7 +14148,7 @@ static convert_t cp1252[] = {
 	{ 122, 378 },
 	{ 122, 380 },
 };
-static convert_t cp1253[] = {
+static const convert_t cp1253[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -14591,7 +14592,7 @@ static convert_t cp1253[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t cp1254[] = {
+static const convert_t cp1254[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -14975,7 +14976,7 @@ static convert_t cp1254[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t cp1255[] = {
+static const convert_t cp1255[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -15390,7 +15391,7 @@ static convert_t cp1255[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t cp1256[] = {
+static const convert_t cp1256[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -15803,7 +15804,7 @@ static convert_t cp1256[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t cp1257[] = {
+static const convert_t cp1257[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -16185,7 +16186,7 @@ static convert_t cp1257[] = {
 	{ 121, 255 },
 	{ 121, 375 },
 };
-static convert_t cp1258[] = {
+static const convert_t cp1258[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -16583,7 +16584,7 @@ static convert_t cp1258[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t decmcs[] = {
+static const convert_t decmcs[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -16981,7 +16982,7 @@ static convert_t decmcs[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t ebc037[] = {
+static const convert_t ebc037[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -17378,7 +17379,7 @@ static convert_t ebc037[] = {
 	{ 169, 380 },
 	{ 169, 382 },
 };
-static convert_t ebc1026[] = {
+static const convert_t ebc1026[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -17771,7 +17772,7 @@ static convert_t ebc1026[] = {
 	{ 169, 380 },
 	{ 169, 382 },
 };
-static convert_t ebc1047[] = {
+static const convert_t ebc1047[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -18168,7 +18169,7 @@ static convert_t ebc1047[] = {
 	{ 169, 380 },
 	{ 169, 382 },
 };
-static convert_t ebc500[] = {
+static const convert_t ebc500[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -18565,7 +18566,7 @@ static convert_t ebc500[] = {
 	{ 169, 380 },
 	{ 169, 382 },
 };
-static convert_t ebc875[] = {
+static const convert_t ebc875[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -19008,7 +19009,7 @@ static convert_t ebc875[] = {
 	{ 169, 380 },
 	{ 169, 382 },
 };
-static convert_t hp48[] = {
+static const convert_t hp48[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -19405,7 +19406,7 @@ static convert_t hp48[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t hproman8[] = {
+static const convert_t hproman8[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -19799,7 +19800,7 @@ static convert_t hproman8[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t iso646[] = {
+static const convert_t iso646[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -20196,7 +20197,7 @@ static convert_t iso646[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t iso646_irv[] = {
+static const convert_t iso646_irv[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -20593,7 +20594,7 @@ static convert_t iso646_irv[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t iso646_ca[] = {
+static const convert_t iso646_ca[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -20990,7 +20991,7 @@ static convert_t iso646_ca[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t iso646_ch[] = {
+static const convert_t iso646_ch[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -21387,7 +21388,7 @@ static convert_t iso646_ch[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t iso646_de[] = {
+static const convert_t iso646_de[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -21784,7 +21785,7 @@ static convert_t iso646_de[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t iso646_es[] = {
+static const convert_t iso646_es[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -22181,7 +22182,7 @@ static convert_t iso646_es[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t iso646_fi[] = {
+static const convert_t iso646_fi[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -22578,7 +22579,7 @@ static convert_t iso646_fi[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t iso646_fr[] = {
+static const convert_t iso646_fr[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -22975,7 +22976,7 @@ static convert_t iso646_fr[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t iso646_gb[] = {
+static const convert_t iso646_gb[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -23372,7 +23373,7 @@ static convert_t iso646_gb[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t iso646_it[] = {
+static const convert_t iso646_it[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -23769,7 +23770,7 @@ static convert_t iso646_it[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t iso646_nl[] = {
+static const convert_t iso646_nl[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -24166,7 +24167,7 @@ static convert_t iso646_nl[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t iso646_no[] = {
+static const convert_t iso646_no[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -24563,7 +24564,7 @@ static convert_t iso646_no[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t iso646_pt[] = {
+static const convert_t iso646_pt[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -24960,7 +24961,7 @@ static convert_t iso646_pt[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t iso646_se[] = {
+static const convert_t iso646_se[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -25357,7 +25358,7 @@ static convert_t iso646_se[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t iso8859_1[] = {
+static const convert_t iso8859_1[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -25754,7 +25755,7 @@ static convert_t iso8859_1[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t iso8859_2[] = {
+static const convert_t iso8859_2[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -26128,7 +26129,7 @@ static convert_t iso8859_2[] = {
 	{ 121, 255 },
 	{ 121, 375 },
 };
-static convert_t iso8859_3[] = {
+static const convert_t iso8859_3[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -26510,7 +26511,7 @@ static convert_t iso8859_3[] = {
 	{ 122, 378 },
 	{ 122, 382 },
 };
-static convert_t iso8859_4[] = {
+static const convert_t iso8859_4[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -26890,7 +26891,7 @@ static convert_t iso8859_4[] = {
 	{ 122, 378 },
 	{ 122, 380 },
 };
-static convert_t iso8859_5[] = {
+static const convert_t iso8859_5[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -27342,7 +27343,7 @@ static convert_t iso8859_5[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t iso8859_6[] = {
+static const convert_t iso8859_6[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -27779,7 +27780,7 @@ static convert_t iso8859_6[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t iso8859_7[] = {
+static const convert_t iso8859_7[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -28227,7 +28228,7 @@ static convert_t iso8859_7[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t iso8859_8[] = {
+static const convert_t iso8859_8[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -28649,7 +28650,7 @@ static convert_t iso8859_8[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t iso8859_9[] = {
+static const convert_t iso8859_9[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -29042,7 +29043,7 @@ static convert_t iso8859_9[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t iso8859_10[] = {
+static const convert_t iso8859_10[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -29418,7 +29419,7 @@ static convert_t iso8859_10[] = {
 	{ 122, 378 },
 	{ 122, 380 },
 };
-static convert_t iso8859_11[] = {
+static const convert_t iso8859_11[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -29864,7 +29865,7 @@ static convert_t iso8859_11[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t iso8859_13[] = {
+static const convert_t iso8859_13[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -30249,7 +30250,7 @@ static convert_t iso8859_13[] = {
 	{ 121, 255 },
 	{ 121, 375 },
 };
-static convert_t iso8859_14[] = {
+static const convert_t iso8859_14[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -30637,7 +30638,7 @@ static convert_t iso8859_14[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t iso8859_15[] = {
+static const convert_t iso8859_15[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -31029,7 +31030,7 @@ static convert_t iso8859_15[] = {
 	{ 122, 378 },
 	{ 122, 380 },
 };
-static convert_t iso8859_16[] = {
+static const convert_t iso8859_16[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -31408,7 +31409,7 @@ static convert_t iso8859_16[] = {
 	{ 121, 253 },
 	{ 121, 375 },
 };
-static convert_t koi8_r[] = {
+static const convert_t koi8_r[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -31860,7 +31861,7 @@ static convert_t koi8_r[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t koi8_u[] = {
+static const convert_t koi8_u[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -32312,7 +32313,7 @@ static convert_t koi8_u[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t mslinedr[] = {
+static const convert_t mslinedr[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -32736,7 +32737,7 @@ static convert_t mslinedr[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t nextstep[] = {
+static const convert_t nextstep[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -33126,7 +33127,7 @@ static convert_t nextstep[] = {
 	{ 122, 380 },
 	{ 122, 382 },
 };
-static convert_t symbol[] = {
+static const convert_t symbol[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -33442,7 +33443,7 @@ static convert_t symbol[] = {
 	{ 253, 121 },
 	{ 253, 375 },
 };
-static convert_t tex_dcr_in[] = {
+static const convert_t tex_dcr_in[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -33789,7 +33790,7 @@ static convert_t tex_dcr_in[] = {
 	{ 89, 374 },
 	{ 121, 375 },
 };
-static convert_t tex_dcr_out[] = {
+static const convert_t tex_dcr_out[] = {
 	{ 0, 0 },
 	{ 1, 1 },
 	{ 2, 2 },
@@ -34136,7 +34137,8 @@ static convert_t tex_dcr_out[] = {
 	{ 89, 374 },
 	{ 121, 375 },
 };
-allcharconvert_t allcharconvert[] = {
+
+static const allcharconvert_t allcharconvert[] = {
 { "adobeiso",
 	"Adobe ISO",
 	{ "ADOBEISO", "", "", "", "", "", "", },
@@ -34558,15 +34560,15 @@ allcharconvert_t allcharconvert[] = {
 	CHARSETARRAY( tex_dcr_out )
 },
 };
-int nallcharconvert = ARRAYSIZE( allcharconvert );
+static int nallcharconvert = ARRAYSIZE( allcharconvert );
 
-char *
+const char *
 charset_get_xmlname( int n )
 {
-	static char unknown[] = "???";
-	static char utf8[] = "UTF-8";
-	static char gb18030[] = "GB18030";
-	char *ret = unknown;
+	static const char unknown[] = "???";
+	static const char utf8[] = "UTF-8";
+	static const char gb18030[] = "GB18030";
+	const char *ret = unknown;
 	if ( n>=0 && n < nallcharconvert ) {
 		ret = allcharconvert[n].aliases[0];
 	} else if ( n==CHARSET_UNICODE ) {
@@ -34578,7 +34580,7 @@ charset_get_xmlname( int n )
 }
 
 int
-charset_find( char *name )
+charset_find( const char *name )
 {
 	int i, j, ret = CHARSET_UNKNOWN;
 	if ( name==NULL ) return ret;

@@ -11,7 +11,7 @@
 
 void  args_tellversion( const char *progname );
 int   args_match( const char *check, const char *shortarg, const char *longarg );
-char *args_next( int argc, char *argv[], int n, const char *progname, const char *shortarg, const char *longarg );
-void  process_charsets( int *argc, char *argv[], param *p );
+const char *args_next( int argc, const char *argv[], int n, const char *progname, const char *shortarg, const char *longarg );
+void  process_charsets( int *argc, const char *argv[], param *p );
 
 #endif

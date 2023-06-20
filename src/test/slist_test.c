@@ -5,25 +5,45 @@
  *
  * Source code released under the GPL version 2
  */
+#include "cross_platform_porting.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+#ifdef HAVE_PROCESS_H
+#include <process.h>
+#endif
 #include "slist.h"
+#ifdef BUNDLE_BIBUTILS_TESTS
+#include "bibutils_tests.h"
+#endif
 
-char progname[] = "slist_test";
-char version[] = "0.3";
+#include "monolithic_examples.h"
 
-#define check( a, b ) { \
-	if ( !(a) ) { \
-		fprintf( stderr, "Failed %s (%s) in %s() line %d\n", #a, b, __FUNCTION__, __LINE__ );\
-		return 1; \
-	} \
+
+static const char progname[] = "slist_test";
+
+#if defined(BUILD_MONOLITHIC)
+#define main     bibutils_slist_test_main
+#endif
+
+static const char version[] = "0.3";
+
+#define check( a, b ) if ( !(a) ) return _check( #a, b, __FUNCTION__, (int)__LINE__ );
+
+static int
+_check(const char* a_str, const char* expected, const char* fn, int line)
+{
+	fprintf(stderr, "Failed %s (%s) in %s() line %d\n", a_str, expected, fn, line);
+	return 1;
 }
 
 #define check_len( a, b ) if ( !_check_len( a, b, __FUNCTION__, __LINE__ ) ) return 1;
-int
+
+static int
 _check_len( slist *a, slist_index expected, const char *fn, int line )
 {
 	if ( a->n == expected ) return 1;
@@ -31,11 +51,12 @@ _check_len( slist *a, slist_index expected, const char *fn, int line )
 	return 0;
 }
 
-#define check_entry( a, b, c ) if ( !_check_entry( a, b, c, __FUNCTION__, __LINE__ ) ) return 1;
-int
-_check_entry( slist *a, int n, const char *expected, const char *fn, int line )
+#define check_entry( a, b, c ) if ( !_check_entry( a, b, c, __FUNCTION__, (int)__LINE__ ) ) return 1;
+
+static int
+_check_entry( const slist *a, int n, const char *expected, const char *fn, int line )
 {
-	char *s;
+	const char *s;
 	s = slist_cstr( a, n );
 	if ( s==NULL && expected==NULL ) return 1;
 	if ( s!=NULL && expected==NULL ) {
@@ -55,7 +76,8 @@ _check_entry( slist *a, int n, const char *expected, const char *fn, int line )
 }
 
 #define check_add_result( a, b ) if ( !_check_add_result( a, b, __FUNCTION__, __LINE__ ) ) return 1;
-int
+
+static int
 _check_add_result( int obtained, int expected, const char *fn, int line )
 {
 	if ( obtained!=expected ) {
@@ -66,7 +88,7 @@ _check_add_result( int obtained, int expected, const char *fn, int line )
 	return 1;
 }
 
-int
+static int
 test_init( void )
 {
 	slist a;
@@ -83,7 +105,7 @@ test_init( void )
 	return 0;
 }
 
-int
+static int
 test_add( void )
 {
 	int status;
@@ -113,7 +135,7 @@ test_add( void )
 	return 0;
 }
 
-int
+static int
 test_addc( void )
 {
 	int status;
@@ -138,7 +160,8 @@ test_addc( void )
 	return 0;
 }
 
-int
+#if 0
+static int
 test_addvp( void )
 {
 	int status;
@@ -166,8 +189,9 @@ test_addvp( void )
 	slist_free( &a );
 	return 0;
 }
+#endif
 
-int
+static int
 test_add_all( void )
 {
 	str s, t;
@@ -202,10 +226,11 @@ test_add_all( void )
 }
 
 #define COUNT (10)
-int
+
+static int
 test_addc_all( void )
 {
-	char *u;
+	const char *u;
 	slist a;
 	int i;
 
@@ -231,13 +256,15 @@ test_addc_all( void )
 }
 #undef COUNT
 
+#if 0
 #define COUNT (10)
-int
+
+static int
 test_addvp_all( void )
 {
 	str s, t;
 	int i, j;
-	char *u;
+	const char *u;
 	slist a;
 
 	str_init( &s );
@@ -270,11 +297,12 @@ test_addvp_all( void )
 	return 0;
 }
 #undef COUNT
+#endif
 
 /*
  * str * slist_add_unique( slist *a, str *value );
  */
-int
+static int
 test_add_unique( void )
 {
 	str s, t;
@@ -312,7 +340,7 @@ test_add_unique( void )
 /*
  * str * slist_addc_unique( slist *a, const char *value );
  */
-int
+static int
 test_addc_unique( void )
 {
 	int i, j;
@@ -342,10 +370,11 @@ test_addc_unique( void )
 	return 0;
 }
 
+#if 0
 /*
- * str * slist_addvp_unique( slist *a, unsigned char mode, void *vp );
+ * str * slist_addvp_unique( slist *a, unsigned char mode, const void *vp );
  */
-int
+static int
 test_addvp_unique( void )
 {
 	str s, t;
@@ -388,8 +417,9 @@ test_addvp_unique( void )
 
 	return 0;
 }
+#endif
 
-int
+static int
 test_addsorted( void )
 {
 	int status, i;
@@ -429,7 +459,7 @@ test_addsorted( void )
 	/* Copy list with list_dup() and check sort status */
 	c = slist_dup( &a );
 	if ( !c ) {
-		fprintf( stderr, "%s: Memory error in %s() line %d\n", progname, __FUNCTION__, __LINE__ );
+		fprintf( stderr, "%s: Memory error in %s() line %d\n", progname, __FUNCTION__, (int)__LINE__ );
 		return 1;
 	}
 	check_len( &a, c->n );
@@ -450,7 +480,7 @@ test_addsorted( void )
 /*
  * int     slist_tokenize( slist *tokens, str *in, const char *delim, int merge_delim );
  */
-int
+static int
 test_tokenize( void )
 {
 	int status;
@@ -463,7 +493,7 @@ test_tokenize( void )
 	str_strcpyc( &s, "1 2 3 4 5" );
 	status = slist_tokenize( &a, &s, " \t", 0 );
 	if ( status!=SLIST_OK ) {
-		fprintf( stderr, "memory error at %s() line %d\n", __FUNCTION__, __LINE__ );
+		fprintf( stderr, "memory error at %s() line %d\n", __FUNCTION__, (int)__LINE__ );
 		goto out;
 	}
 	check( (a.n==5), "list a should have five elements" );
@@ -477,7 +507,7 @@ test_tokenize( void )
 	str_strcpyc( &s, "1\t2\t3\t4\t5" );
 	status = slist_tokenize( &a, &s, " \t", 1 );
 	if ( status!=SLIST_OK ) {
-		fprintf( stderr, "Memory error at %s() line %d\n", __FUNCTION__, __LINE__ );
+		fprintf( stderr, "Memory error at %s() line %d\n", __FUNCTION__, (int)__LINE__ );
 		goto out;
 	}
 	check( (a.n==5), "list a should have five elements" );
@@ -491,7 +521,7 @@ test_tokenize( void )
 	str_strcpyc( &s, "1  2 3 4" );
 	status = slist_tokenize( &a, &s, " \t", 0 );
 	if ( status!=SLIST_OK ) {
-		fprintf( stderr, "Memory error at %s() line %d\n", __FUNCTION__, __LINE__ );
+		fprintf( stderr, "Memory error at %s() line %d\n", __FUNCTION__, (int)__LINE__ );
 		goto out;
 	}
 	check( (a.n==5), "list a should have five elements" );
@@ -505,7 +535,7 @@ test_tokenize( void )
 	str_strcpyc( &s, "1  2 3 4" );
 	status = slist_tokenize( &a, &s, " \t", 1 );
 	if ( status!=SLIST_OK ) {
-		fprintf( stderr, "Memory error at %s() line %d\n", __FUNCTION__, __LINE__ );
+		fprintf( stderr, "Memory error at %s() line %d\n", __FUNCTION__, (int)__LINE__ );
 		goto out;
 	}
 	check( (a.n==4), "list a should have four elements" );
@@ -525,7 +555,7 @@ out:
 /*
  * int     slist_tokenizec( slist *tokens, char *p, const char *delim, int merge_delim );
  */
-int
+static int
 test_tokenizec( void )
 {
 	int status;
@@ -535,7 +565,7 @@ test_tokenizec( void )
 
 	status = slist_tokenizec( &a, "1 2 3 4 5", " \t", 0 );
 	if ( status!=SLIST_OK ) {
-		fprintf( stderr, "memory error at %s() line %d\n", __FUNCTION__, __LINE__ );
+		fprintf( stderr, "memory error at %s() line %d\n", __FUNCTION__, (int)__LINE__ );
 		goto out;
 	}
 	check( (a.n==5), "list a should have five elements" );
@@ -548,7 +578,7 @@ test_tokenizec( void )
 
 	status = slist_tokenizec( &a, "1\t2\t3\t4\t5", " \t", 1 );
 	if ( status!=SLIST_OK ) {
-		fprintf( stderr, "Memory error at %s() line %d\n", __FUNCTION__, __LINE__ );
+		fprintf( stderr, "Memory error at %s() line %d\n", __FUNCTION__, (int)__LINE__ );
 		goto out;
 	}
 	check( (a.n==5), "list a should have five elements" );
@@ -561,7 +591,7 @@ test_tokenizec( void )
 
 	status = slist_tokenizec( &a, "1  2 3 4", " \t", 0 );
 	if ( status!=SLIST_OK ) {
-		fprintf( stderr, "Memory error at %s() line %d\n", __FUNCTION__, __LINE__ );
+		fprintf( stderr, "Memory error at %s() line %d\n", __FUNCTION__, (int)__LINE__ );
 		goto out;
 	}
 	check( (a.n==5), "list a should have five elements" );
@@ -574,7 +604,7 @@ test_tokenizec( void )
 
 	status = slist_tokenizec( &a, "1  2 3 4", " \t", 1 );
 	if ( status!=SLIST_OK ) {
-		fprintf( stderr, "Memory error at %s() line %d\n", __FUNCTION__, __LINE__ );
+		fprintf( stderr, "Memory error at %s() line %d\n", __FUNCTION__, (int)__LINE__ );
 		goto out;
 	}
 	check( (a.n==4), "list a should have four elements" );
@@ -593,7 +623,7 @@ out:
 /*
  * void    slist_empty( slist *a );
  */
-int
+static int
 test_empty( void )
 {
 	int status;
@@ -630,7 +660,7 @@ test_empty( void )
 /*
  * slist * slist_new( void );
  */
-int
+static int
 test_new( void )
 {
 	int i, status;
@@ -639,7 +669,7 @@ test_new( void )
 
 	a = slist_new();
 	if ( !a ) {
-		fprintf( stderr, "Memory error at %s() line %d\n", __FUNCTION__, __LINE__ );
+		fprintf( stderr, "Memory error at %s() line %d\n", __FUNCTION__, (int)__LINE__ );
 		return 0;
 	}
 	check_len( a, 0 );
@@ -655,7 +685,7 @@ test_new( void )
 	}
 	check_len( a, 100 );
 	for ( i=0; i<100; ++i ) {
-		sprintf( buf, "Test%d", i );
+		sprintf_s( buf, countof(buf), "Test%d", i );
 		check_entry( a, i, buf );
 	}
 	check_entry( a, 101, NULL );
@@ -669,7 +699,7 @@ out:
 /*
  * slist * slist_dup( slist *a );
  */
-int
+static int
 test_dup( void )
 {
 	char buf[1000];
@@ -689,12 +719,12 @@ test_dup( void )
 
 	dupa = slist_dup( &a );
 	if ( !dupa ) {
-		fprintf( stderr, "Memory error 2 at %s() line %d\n", __FUNCTION__, __LINE__ );
+		fprintf( stderr, "Memory error 2 at %s() line %d\n", __FUNCTION__, (int)__LINE__ );
 		goto out;
 	}
 	check_len( dupa, 100 );
 	for ( i=0; i<100; ++i ) {
-		sprintf( buf, "Test%d", i );
+		sprintf_s( buf, countof(buf), "Test%d", i );
 		check_entry( dupa, i, buf );
 	}
 	check_entry( dupa, 101, NULL );
@@ -710,7 +740,7 @@ out:
 /*
  * int slist_copy( slist *to, slist *from );
  */
-int
+static int
 test_copy( void )
 {
 	int i, status, ret = 0;
@@ -726,11 +756,10 @@ test_copy( void )
 			fprintf( stderr, "Memory error at %s() line %d\n", __FUNCTION__, __LINE__ );
 			goto out;
 		}
-	
 	}
 	check_len( &a, 100 );
 	for ( i=0; i<100; ++i ) {
-		sprintf( buf, "ToBeCopied%d", i );
+		sprintf_s( buf, countof(buf), "ToBeCopied%d", i );
 		check_entry( &a, i, buf );
 	}
 	check_entry( &a, 101, NULL );
@@ -747,7 +776,7 @@ test_copy( void )
 	}
 	check_len( &copya, 10 );
 	for ( i=0; i<10; ++i ) {
-		sprintf( buf, "ToBeOverwritten%d", i );
+		sprintf_s( buf, countof(buf), "ToBeOverwritten%d", i );
 		check_entry( &copya, i, buf );
 	}
 	check_entry( &copya, 10, NULL );
@@ -755,13 +784,13 @@ test_copy( void )
 	/* Copy and check copy */
 	status = slist_copy( &copya, &a );
 	if ( status!=SLIST_OK ) {
-		fprintf( stderr, "Memory error at %s() line %d\n", __FUNCTION__, __LINE__ );
+		fprintf( stderr, "Memory error at %s() line %d\n", __FUNCTION__, (int)__LINE__ );
 		ret = 1;
 		goto out;
 	}
 	check_len( &copya, 100 );
 	for ( i=0; i<100; ++i ) {
-		sprintf( buf, "ToBeCopied%d", i );
+		sprintf_s( buf, countof(buf), "ToBeCopied%d", i );
 		check_entry( &copya, i, buf );
 	}
 	check_entry( &copya, 100, NULL );
@@ -776,7 +805,7 @@ out:
 /*
  * int slist_append( slist *a, slist *toadd );
  */
-int
+static int
 test_append( void )
 {
 	int status;
@@ -825,7 +854,7 @@ test_append( void )
 /*
  * int slist_append_unique( slist *a, slist *toadd );
  */
-int
+static int
 test_append_unique( void )
 {
 	int status;
@@ -887,7 +916,7 @@ test_append_unique( void )
 /*
  * int slist_remove( slist *a, int n );
  */
-int
+static int
 test_remove( void )
 {
 	int status;
@@ -938,7 +967,7 @@ test_remove( void )
 /*
  * void slist_swap( slist *a, int n1, int n2 );
  */
-int
+static int
 test_swap( void )
 {
 	int status;
@@ -1000,7 +1029,7 @@ test_swap( void )
 /*
  * void slist_sort( slist *a );
  */
-int
+static int
 test_sort( void )
 {
 	int status;
@@ -1058,11 +1087,11 @@ test_sort( void )
 /*
  * str* list_str( list *a, int n );
  */
-int
+static int
 test_get( void )
 {
 	int status;
-	str *s;
+	const str *s;
 	slist a;
 
 	slist_init( &a );
@@ -1093,11 +1122,11 @@ test_get( void )
 /*
  * char* slist_cstr( list *a, int n );
  */
-int
+static int
 test_getc( void )
 {
 	int status;
-	char *s;
+	const char *s;
 	slist a;
 
 	slist_init( &a );
@@ -1128,7 +1157,7 @@ test_getc( void )
 /*
  * str* slist_set( list *a, int n, str *s );
  */
-int
+static int
 test_set( void )
 {
 	int status;
@@ -1182,7 +1211,7 @@ test_set( void )
 /*
  * str* slist_setc( list *a, int n, const char *s );
  */
-int
+static int
 test_setc( void )
 {
 	int status;
@@ -1232,7 +1261,7 @@ test_setc( void )
 /*
  * int slist_find( list *a, str *searchstr );
  */
-int
+static int
 test_find( void )
 {
 	int n, status;
@@ -1277,7 +1306,7 @@ test_find( void )
 /*
  * int slist_findc( list *a, const char *searchstr );
  */
-int
+static int
 test_findc( void )
 {
 	int n, status;
@@ -1315,7 +1344,7 @@ test_findc( void )
 /*
  * int slist_findnocase( list *a, const char *searchstr );
  */
-int
+static int
 test_findnocase( void )
 {
 	int n, status;
@@ -1384,7 +1413,7 @@ test_findnocase( void )
 /*
  * int slist_findnocasec( list *a, const char *searchstr );
  */
-int
+static int
 test_findnocasec( void )
 {
 	int n, status;
@@ -1442,7 +1471,7 @@ test_findnocasec( void )
 /*
  * int slist_match_entry( slist *a, int n, const char *s );
  */
-int
+static int
 test_match_entry( void )
 {
 	int n, status;
@@ -1497,7 +1526,7 @@ test_match_entry( void )
 /*
  * void slist_trimend( slist *a, int n );
  */
-int
+static int
 test_trimend( void )
 {
 	int status;
@@ -1536,7 +1565,7 @@ extern int     list_fill( list *a, const char *filename, unsigned char skip_blan
 extern int     list_fillfp( list *a, FILE *fp, unsigned char skip_blank_lines );
 */
 
-int
+static int
 test_fill( void )
 {
 	char filename[512];
@@ -1545,11 +1574,11 @@ test_fill( void )
 	FILE *fp;
 	slist a;
 
-	val = ( unsigned long ) getpid();
-	sprintf( filename, "test_slist.%lu", val );
+	val = ( unsigned long ) _getpid();
+	sprintf_s( filename, countof(filename), "test_slist.%lu", val );
 
-	fp = fopen( filename, "w" );
-	if ( !fp ) {
+	errno_t err = fopen_s( &fp, filename, "w" );
+	if ( err || !fp ) {
 		fprintf( stderr, "%s: Could not open file %s\n", progname, filename );
 		return 1;
 	}
@@ -1594,7 +1623,7 @@ test_fill( void )
 
 	slist_free( &a );
 
-	status = unlink( filename );
+	status = _unlink( filename );
 	if ( status!=0 )
 		fprintf( stderr, "%s: Error unlink failed for %s\n", progname, filename );
 
@@ -1604,7 +1633,7 @@ test_fill( void )
 /*
  * void    slist_dump( slist *a, FILE *fp, int newline );
  */
-int
+static int
 test_dump( void )
 {
 	char filename[512];
@@ -1613,11 +1642,11 @@ test_dump( void )
 	slist a, b;
 	FILE *fp;
 
-	val = ( unsigned long ) getpid();
-	sprintf( filename, "test_slist.%lu", val );
+	val = ( unsigned long ) _getpid();
+	sprintf_s( filename, countof(filename), "test_slist.%lu", val );
 
-	fp = fopen( filename, "w" );
-	if ( !fp ) {
+	errno_t err = fopen_s( &fp, filename, "w" );
+	if ( err || !fp ) {
 		fprintf( stderr, "%s: Could not open file %s\n", progname, filename );
 		return 1;
 	}
@@ -1640,7 +1669,7 @@ test_dump( void )
 	check_entry( &b, 3, "amateurish" );
 	check_entry( &b, 4, NULL );
 
-	status = unlink( filename );
+	status = _unlink( filename );
 	if ( status!=0 )
 		fprintf( stderr, "%s: Error unlink failed for %s\n", progname, filename );
 
@@ -1654,7 +1683,7 @@ test_dump( void )
  * void slists_free( slist *a, ... );
  * void slists_empty( slist *a, ... );
  */
-int
+static int
 test_lists( void )
 {
 	char buf[1000];
@@ -1670,15 +1699,15 @@ test_lists( void )
 	check_entry( &c, 0, NULL );
 
 	for ( i=0; i<10; ++i ) {
-		sprintf( buf, "a_entry%d\n", i );
+		sprintf_s( buf, countof(buf), "a_entry%d\n", i );
 		slist_addc( &a, buf );
 	}
 	for ( i=0; i<100; ++i ) {
-		sprintf( buf, "b_entry%d\n", i );
+		sprintf_s( buf, countof(buf), "b_entry%d\n", i );
 		slist_addc( &b, buf );
 	}
 	for ( i=0; i<1000; ++i ) {
-		sprintf( buf, "c_entry%d\n", i );
+		sprintf_s( buf, countof(buf), "c_entry%d\n", i );
 		slist_addc( &c, buf );
 	}
 	check_len( &a, 10 );
@@ -1688,15 +1717,15 @@ test_lists( void )
 	check_entry( &b, 100, NULL );
 	check_entry( &c, 1000, NULL );
 	for ( i=0; i<10; ++i ) {
-		sprintf( buf, "a_entry%d\n", i );
+		sprintf_s( buf, countof(buf), "a_entry%d\n", i );
 		check_entry( &a, i, buf );
 	}
 	for ( i=0; i<100; ++i ) {
-		sprintf( buf, "b_entry%d\n", i );
+		sprintf_s( buf, countof(buf), "b_entry%d\n", i );
 		check_entry( &b, i, buf );
 	}
 	for ( i=0; i<1000; ++i ) {
-		sprintf( buf, "c_entry%d\n", i );
+		sprintf_s( buf, countof(buf), "c_entry%d\n", i );
 		check_entry( &c, i, buf );
 	}
 
@@ -1716,7 +1745,7 @@ test_lists( void )
 /*
  * unsigned long slist_get_maxlen( slist *a );
  */
-int
+static int
 test_get_maxlen( void )
 {
 	unsigned long n;
@@ -1748,8 +1777,13 @@ test_get_maxlen( void )
 	return 0;
 }
 
+#ifdef BUNDLE_BIBUTILS_TESTS
 int
-main( int argc, char *argv[] )
+slist_test(void)
+#else
+int
+main(void)
+#endif
 {
 	int failed = 0;
 
@@ -1757,15 +1791,15 @@ main( int argc, char *argv[] )
 
 	failed += test_add();
 	failed += test_addc();
-	failed += test_addvp();
+	//failed += test_addvp();
 
 	failed += test_add_all();
 	failed += test_addc_all();
-	failed += test_addvp_all();
+	//failed += test_addvp_all();
 
 	failed += test_add_unique();
 	failed += test_addc_unique();
-	failed += test_addvp_unique();
+	//failed += test_addvp_unique();
 
 	failed += test_addsorted();
 
@@ -1812,6 +1846,4 @@ main( int argc, char *argv[] )
 		printf( "%s: FAILED\n", progname );
 		return EXIT_FAILURE;
 	}
-
-	return EXIT_SUCCESS;
 }

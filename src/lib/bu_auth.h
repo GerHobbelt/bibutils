@@ -11,6 +11,8 @@
 #ifndef BU_AUTH_H
 #define BU_AUTH_H
 
+#include "cross_platform_porting.h"
+
 int is_bu_genre( const char *query );
 
 #endif

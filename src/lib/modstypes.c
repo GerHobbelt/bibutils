@@ -6,12 +6,13 @@
  * Source code released under the GPL version 2
  *      
  */
+#include "cross_platform_porting.h"
 #include <stdio.h>
 #include <string.h>
 #include "modstypes.h"
 
-char *
-mods_get_id_from_internal( char *internal_name, convert *data, int ndata )
+const char *
+mods_get_id_from_internal( const char *internal_name, convert *data, int ndata )
 {
 	int i;
 	for ( i=0; i<ndata; ++i ) {
@@ -21,8 +22,8 @@ mods_get_id_from_internal( char *internal_name, convert *data, int ndata )
 	return NULL;
 }
 
-char *
-mods_get_id_from_mods( char *mods_name, convert *data, int ndata )
+const char *
+mods_get_id_from_mods( const char *mods_name, convert *data, int ndata )
 {
 	int i;
 	for ( i=0; i<ndata; ++i ) {

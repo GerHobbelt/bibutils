@@ -6,13 +6,17 @@
  * Program and source code released under the GPL version 2
  *
  */
+#include "cross_platform_porting.h"
 #include <stdio.h>
 #include <string.h>
 #include "is_ws.h"
 #include "fields.h"
 #include "reftypes.h"
+#include "reftypes_internals.h"
+#include "isitypes.h"
 
-static lookups article[] = {
+
+static const lookups article[] = {
 	{ "AU",     "AUTHOR",                PERSON,   LEVEL_MAIN },
 	{ "AF",     "AUTHOR",                PERSON,   LEVEL_MAIN },
 	{ "TI",     "TITLE",                 TITLE,    LEVEL_MAIN },
@@ -54,7 +58,7 @@ static lookups article[] = {
 	{ " ",      "GENRE:BIBUTILS|academic journal", ALWAYS, LEVEL_HOST }
 };
 
-static lookups book[] = {
+static const lookups book[] = {
 	{ "AU",     "AUTHOR",                PERSON,   LEVEL_MAIN },
 	{ "AF",     "AUTHOR",                PERSON,   LEVEL_MAIN },
 	{ "TI",     "TITLE",                 TITLE,    LEVEL_MAIN },
@@ -94,7 +98,7 @@ static lookups book[] = {
 	{ " ",      "GENRE:MARC|book",                 ALWAYS, LEVEL_MAIN }
 };
 
-static lookups inbook[] = {
+static const lookups inbook[] = {
 	{ "AU",     "AUTHOR",                PERSON,   LEVEL_MAIN },
 	{ "AF",     "AUTHOR",                PERSON,   LEVEL_MAIN },
 	{ "TI",     "TITLE",                 TITLE,    LEVEL_MAIN },
@@ -134,7 +138,7 @@ static lookups inbook[] = {
 	{ " ",      "GENRE:MARC|book",                 ALWAYS, LEVEL_HOST }
 };
 
-static lookups bookinseries[] = {
+static const lookups bookinseries[] = {
 	{ "AU",     "AUTHOR",                PERSON,   LEVEL_MAIN },
 	{ "AF",     "AUTHOR",                PERSON,   LEVEL_MAIN },
 	{ "TI",     "TITLE",                 TITLE,    LEVEL_MAIN },
@@ -175,11 +179,7 @@ static lookups bookinseries[] = {
 	{ " ",      "GENRE:BIBUTILS|collection",       ALWAYS, LEVEL_MAIN }
 };
 
-#define ORIG(a) ( &(a[0]) )
-#define SIZE(a) ( sizeof( a ) / sizeof( lookups ) )
-#define REFTYPE(a,b) { a, ORIG(b), SIZE(b) }
-
-variants isi_all[] = {
+const variants isi_all[] = {
 	REFTYPE( "Journal", article ),
 	REFTYPE( "J", article ),
 	REFTYPE( "Book", book ),

@@ -5,14 +5,26 @@
  *
  * Source code released under the GPL version 2
  */
+#include "cross_platform_porting.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include "entities.h"
+#ifdef BUNDLE_BIBUTILS_TESTS
+#include "bibutils_tests.h"
+#endif
 
-char progname[] = "entities_test";
-char version[] = "0.1";
+#include "monolithic_examples.h"
 
-int
+
+static const char progname[] = "entities_test";
+
+#if defined(BUILD_MONOLITHIC)
+#define main     bibutils_entities_test_main
+#endif
+
+static const char version[] = "0.1";
+
+static int
 test_decimal_entities1( void )
 {
 	unsigned int i, answer, pos_in;
@@ -21,7 +33,7 @@ test_decimal_entities1( void )
 	for ( i=0; i<10000; ++i ) {
 		pos_in = 0;
 		err = 0;
-		sprintf( buf, "&#%u;*", i );
+		sprintf_s( buf, countof(buf), "&#%u;*", i );
 		answer = decode_entity( buf, &pos_in, &unicode, &err );
 		if ( err ) {
 			failed = 1;
@@ -45,7 +57,7 @@ test_decimal_entities1( void )
 	return failed;
 }
 
-int
+static int
 test_decimal_entities2( void )
 {
 	unsigned int i, answer, pos_in;
@@ -54,7 +66,7 @@ test_decimal_entities2( void )
 	for ( i=0; i<10000; ++i ) {
 		pos_in = 1;
 		err = 0;
-		sprintf( buf, "&#%u;*", i );
+		sprintf_s( buf, countof(buf), "&#%u;*", i );
 		answer = decode_entity( buf, &pos_in, &unicode, &err );
 		if ( !err ) {
 			failed = 1;
@@ -66,7 +78,7 @@ test_decimal_entities2( void )
 	for ( i=0; i<1000; ++i ) {
 		pos_in = 0;
 		err = 0;
-		sprintf( buf, "&#%u ;", i );
+		sprintf_s( buf, countof(buf), "&#%u ;", i );
 		answer = decode_entity( buf, &pos_in, &unicode, &err );
 		if ( !err ) {
 			failed = 1;
@@ -78,7 +90,7 @@ test_decimal_entities2( void )
 	return failed;
 }
 
-int
+static int
 test_hex_entities( void )
 {
 	unsigned int i, answer, pos_in;
@@ -87,7 +99,7 @@ test_hex_entities( void )
 	for ( i=0; i<10000; ++i ) {
 		pos_in = 0;
 		err = 0;
-		sprintf( buf, "&#x%x;*", i );
+		sprintf_s( buf, countof(buf), "&#x%x;*", i );
 		answer = decode_entity( buf, &pos_in, &unicode, &err );
 		if ( err ) {
 			failed = 1;
@@ -111,8 +123,13 @@ test_hex_entities( void )
 	return failed;
 }
 
+#ifdef BUNDLE_BIBUTILS_TESTS
 int
-main( int argc, char *argv[] )
+entities_test(void)
+#else
+int
+main(void)
+#endif
 {
 	int failed = 0;
 	failed += test_decimal_entities1();

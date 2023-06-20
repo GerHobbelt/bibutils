@@ -15,6 +15,7 @@
 #define NAME_ASIS   (1)
 #define NAME_CORP   (2)
 
+#include "cross_platform_porting.h"
 #include "str.h"
 #include "slist.h"
 #include "fields.h"

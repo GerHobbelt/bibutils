@@ -21,6 +21,7 @@
 #define LEVEL_HOST    (1)
 #define LEVEL_SERIES  (2)
 
+#include "cross_platform_porting.h"
 #include <stdarg.h>
 #include "str.h"
 #include "vplist.h"
@@ -79,16 +80,16 @@ int fields_match_casetag_level( fields *f, int n, const char *tag, int level );
 void fields_report( fields *f, FILE *fp );
 
 #define FIELDS_STRP_FLAG     (2)
-#define FIELDS_POSP_FLAG     (4)
+//#define FIELDS_POSP_FLAG     (4)
 #define FIELDS_NOLENOK_FLAG  (8)
 #define FIELDS_SETUSE_FLAG  (16)
 
 #define FIELDS_CHRP        (FIELDS_SETUSE_FLAG                                         )
 #define FIELDS_STRP        (FIELDS_SETUSE_FLAG | FIELDS_STRP_FLAG                      )
-#define FIELDS_POSP        (FIELDS_SETUSE_FLAG | FIELDS_POSP_FLAG                      )
+//#define FIELDS_POSP        (FIELDS_SETUSE_FLAG | FIELDS_POSP_FLAG                      )
 #define FIELDS_CHRP_NOLEN  (FIELDS_SETUSE_FLAG |                    FIELDS_NOLENOK_FLAG)
 #define FIELDS_STRP_NOLEN  (FIELDS_SETUSE_FLAG | FIELDS_STRP_FLAG | FIELDS_NOLENOK_FLAG)
-#define FIELDS_POSP_NOLEN  (FIELDS_SETUSE_FLAG | FIELDS_POSP_FLAG | FIELDS_NOLENOK_FLAG)
+//#define FIELDS_POSP_NOLEN  (FIELDS_SETUSE_FLAG | FIELDS_POSP_FLAG | FIELDS_NOLENOK_FLAG)
 #define FIELDS_CHRP_NOUSE  (                            0                              )
 #define FIELDS_STRP_NOUSE  (                     FIELDS_STRP_FLAG                      )
 

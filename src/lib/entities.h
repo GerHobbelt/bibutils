@@ -9,7 +9,9 @@
 #ifndef ENTITIES_H
 #define ENTITIES_H
 
-unsigned int decode_entity( char *s, unsigned int *pi, int *unicode, int *err );
+#include "cross_platform_porting.h"
+
+unsigned int decode_entity( const char *s, unsigned int *pi, int *unicode, int *err );
 
 #endif
 

@@ -6,31 +6,38 @@
  * Program and source code released under the GPL version 2
  *
  */
+#include "cross_platform_porting.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include "bibutils.h"
 #include "intlist.h"
 #include "args.h"
 
-char progname[] = "bibdiff";
+#include "monolithic_examples.h"
+
+static const char progname[] = "bibdiff";
+
+#if defined(BUILD_MONOLITHIC)
+#define main     bibutils_bibdiff_main
+#endif
 
 /* find_tag_level_matches()
  *
  * Find all possible matches for tag/level combinations
  */
 
-int
-find_tag_level_matches( fields *f, char *tag, int level, intlist *matchs )
+static int
+find_tag_level_matches( fields *f, const char *tag, int level, intlist *matchs )
 {
 	int i, n = 0;
-	char *ftag;
+	const char *ftag;
 
 	for ( i=0; i<f->n; ++i )
 		intlist_set( matchs, i, 0 );
 
 	for ( i=0; i<f->n; ++i ) {
 		if ( fields_level( f, i ) != level ) continue;
-		ftag = fields_tag( f, i, FIELDS_CHRP_NOLEN );
+		ftag = (const char*)fields_tag( f, i, FIELDS_CHRP_NOLEN );
 		if ( !strcmp( tag, ftag ) ) {
 			intlist_set( matchs, i, 1 );
 			n++;
@@ -40,12 +47,13 @@ find_tag_level_matches( fields *f, char *tag, int level, intlist *matchs )
 	return n;
 }
 
-int
+static int
 compare_references( fields *f1, const char *fname1, fields *f2, const char *fname2, long n )
 {
 	int i, j, cnt, cnt1, cnt2, level, diff = 0;
 	intlist found1, found2, matches;
-	char *tag, *data;
+	const char* tag;
+	const char* data;
 
 	intlist_init_fill( &found1, f1->n, -1 );
 	intlist_init_fill( &found2, f2->n, -1 );
@@ -53,8 +61,8 @@ compare_references( fields *f1, const char *fname1, fields *f2, const char *fnam
 
 	for ( i=0; i<f1->n; ++i ) {
 
-		tag   = fields_tag(   f1, i, FIELDS_CHRP_NOLEN );
-		data  = fields_value( f1, i, FIELDS_CHRP_NOLEN );
+		tag   = (const char *)fields_tag(   f1, i, FIELDS_CHRP_NOLEN );
+		data  = (const char *)fields_value( f1, i, FIELDS_CHRP_NOLEN );
 		level = fields_level( f1, i );
 
 		cnt = find_tag_level_matches( f2, tag, level, &matches );
@@ -65,7 +73,7 @@ compare_references( fields *f1, const char *fname1, fields *f2, const char *fnam
 		for ( j=0; j<f2->n; ++j ) {
 			if ( intlist_get( &matches, j ) == 0 ) continue; /* not a potential match */
 			if ( intlist_get( &found2, j ) != -1 ) continue; /* already claimed */
-			if ( strcmp( data, fields_value( f2, j, FIELDS_CHRP_NOLEN ) ) ) continue; /* values don't match */
+			if ( strcmp( data, (const char *)fields_value( f2, j, FIELDS_CHRP_NOLEN ) ) ) continue; /* values don't match */
 			intlist_set( &found1, i, j );
 			intlist_set( &found2, j, i );
 			break;
@@ -86,20 +94,19 @@ compare_references( fields *f1, const char *fname1, fields *f2, const char *fnam
 
 		for ( i=0; i<f1->n; ++i ) {
 			if ( intlist_get( &found1, i ) != -1 ) continue;
-			tag = fields_tag( f1, i, FIELDS_CHRP_NOLEN );
-			data = fields_value( f1, i, FIELDS_CHRP_NOLEN );
+			tag = (const char *)fields_tag( f1, i, FIELDS_CHRP_NOLEN );
+			data = (const char*)fields_value( f1, i, FIELDS_CHRP_NOLEN );
 			level = fields_level( f1, i );
 			printf( "< '%s' '%s' %d\n", tag, data, level );
 		}
 
 		for ( i=0; i<f2->n; ++i ) {
 			if ( intlist_get( &found2, i ) != -1 ) continue;
-			tag = fields_tag( f2, i, FIELDS_CHRP_NOLEN );
-			data = fields_value( f2, i, FIELDS_CHRP_NOLEN );
+			tag = (const char*)fields_tag( f2, i, FIELDS_CHRP_NOLEN );
+			data = (const char*)fields_value( f2, i, FIELDS_CHRP_NOLEN );
 			level = fields_level( f2, i );
 			printf( "> '%s' '%s' %d\n", tag, data, level );
 		}
-
 	}
 
 	intlist_free( &found1 );
@@ -109,7 +116,7 @@ compare_references( fields *f1, const char *fname1, fields *f2, const char *fnam
 	return diff;
 }
 
-int
+static int
 compare_bibliographies( bibl *b1, const char *fname1, bibl *b2, const char *fname2 )
 {
 	fields *f1, *f2;
@@ -130,14 +137,14 @@ compare_bibliographies( bibl *b1, const char *fname1, bibl *b2, const char *fnam
 	return 0;
 }
 
-void
+static int
 version( void )
 {
 	args_tellversion( progname );
-	exit( EXIT_FAILURE );
+	return BIBL_ERR_EXIT_FAILURE;
 }
 
-void
+static int
 help( void )
 {
 	args_tellversion( progname );
@@ -148,19 +155,19 @@ help( void )
 	fprintf( stderr, "-h,  --help               display this help\n" );
 	fprintf( stderr, "-v,  --version            display version\n" );
 	fprintf( stderr, "-f1, --format1 FORMAT     specify input format for ref1_file\n" );
-	fprintf( stderr, "-f2, --format2 FORMAT     specify input format for ref1_file\n" );
+	fprintf( stderr, "-f2, --format2 FORMAT     specify input format for ref2_file\n" );
 	fprintf( stderr, "\n" );
 
 	fprintf( stderr, "Valid format specifiers are 'bibtex', 'biblatex', 'copac', 'ebi', "
 		"'endnote', 'endnote-xml', 'medline', 'mods', 'nbib', 'ris', 'word2007'\n\n" );
 
-	exit( EXIT_FAILURE );
+	return BIBL_ERR_EXIT_FAILURE;
 }
 
-int
+static int
 lookup_format( const char *format )
 {
-	typedef struct flist_t { char *name; int code; } flist_t;
+	typedef struct flist_t { const char *name; int code; } flist_t;
 	flist_t formats[] = {
 		{ "bibtex",      BIBL_BIBTEXIN },
 		{ "biblatex",    BIBL_BIBLATEXIN },
@@ -184,20 +191,20 @@ lookup_format( const char *format )
 	fprintf( stderr, "%s: Valid format specifiers are 'bibtex', 'biblatex', 'copac', 'ebi', "
 		"'endnote', 'endnote-xml', 'medline', 'mods', 'nbib', 'ris', 'word2007'\n", progname );
 	fprintf( stderr, "%s: Exiting.\n", progname );
-	exit( EXIT_FAILURE );
+	return BIBL_ERR_EXIT_FAILURE;
 }
 
-void
-process_args( int *argc, char *argv[], int *format1, int *format2 )
+static int
+process_args( int *argc, const char *argv[], int *format1, int *format2 )
 {
 	int i, j, done, subtract;
-	char *f1, *f2;
+	const char *f1, *f2;
 
 	for ( i=0; i<*argc; ++i )
-		if ( args_match( argv[i], "-h", "--help" ) ) help();
+		if ( args_match( argv[i], "-h", "--help" ) ) return help();
 
 	for ( i=0; i<*argc; ++i )
-		if ( args_match( argv[i], "-v", "--version" ) ) version();
+		if ( args_match( argv[i], "-v", "--version" ) ) return version();
 
 	done = 0;
 	i = 1;
@@ -206,11 +213,15 @@ process_args( int *argc, char *argv[], int *format1, int *format2 )
 		if ( args_match( argv[i], "-f1", "--format1" ) ) {
 			f1 = args_next( *argc, argv, i, progname, "-f1", "--format1" );
 			*format1 = lookup_format( f1 );
+			if (*format1 < 0)
+				return *format1;
 			subtract = 2;
 		}
 		else if ( args_match( argv[i], "-f2", "--format2" ) ) {
 			f2 = args_next( *argc, argv, i, progname, "-f1", "--format1" );
 			*format2 = lookup_format( f2 );
+			if (*format2 < 0)
+				return *format2;
 			subtract = 2;
 		}
 		else if ( !strcmp( argv[i], "--" ) ) {
@@ -219,7 +230,7 @@ process_args( int *argc, char *argv[], int *format1, int *format2 )
 		}
 		else if ( !strncmp( argv[i], "-", 1 ) ) {
 			fprintf( stderr, "%s: Unrecognized command-line switch '%s'. Exiting.\n", progname, argv[i] );
-			exit( EXIT_FAILURE );
+			return BIBL_ERR_EXIT_FAILURE;
 		}
 		if ( subtract ) {
 			for ( j=i+subtract; j<*argc; ++j )
@@ -228,10 +239,10 @@ process_args( int *argc, char *argv[], int *format1, int *format2 )
 		} else i++;
 
 	}
+	return BIBL_OK;
 }
 
-int
-main( int argc, char *argv[] )
+int main(int argc, const char** argv)
 {
 	int format1 = BIBL_MODSIN;
 	int format2 = BIBL_MODSIN;
@@ -240,17 +251,19 @@ main( int argc, char *argv[] )
 	int status;
 	FILE *fp;
 
-	process_args( &argc, argv, &format1, &format2 );
+	status = process_args( &argc, argv, &format1, &format2 );
+	if (status < 0)
+		return status - BIBL_ERR_EXIT_SUCCESS;
 
-	if ( argc < 2 ) help();
+	if ( argc < 2 ) return help() - BIBL_ERR_EXIT_SUCCESS;
 
 	bibl_initparams( &p1, format1, BIBL_MODSOUT, progname );
 	bibl_initparams( &p2, format2, BIBL_MODSOUT, progname );
 
-	fp = fopen( argv[1], "r" );
-	if ( !fp ) {
+	errno_t err = fopen_s( &fp, argv[1], "r" );
+	if ( err || !fp ) {
 		fprintf( stderr, "%s: Cannot open %s\n", progname, argv[1] );
-		return EXIT_SUCCESS;
+		return EXIT_FAILURE;
 	}
 
 	bibl_init( &b1 );
@@ -261,10 +274,10 @@ main( int argc, char *argv[] )
 		return EXIT_FAILURE;
 	}
 
-	fp = fopen( argv[2], "r" );
-	if ( !fp ) {
+	err = fopen_s( &fp, argv[2], "r" );
+	if ( err || !fp ) {
 		fprintf( stderr, "%s: Cannot open %s\n", progname, argv[2] );
-		return EXIT_SUCCESS;
+		return EXIT_FAILURE;
 	}
 
 	bibl_init( &b2 );

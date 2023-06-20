@@ -6,13 +6,24 @@
  * Source code released under the GPL version 2
  *
  */
+#include "cross_platform_porting.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include "utf8.h"
+#ifdef BUNDLE_BIBUTILS_TESTS
+#include "bibutils_tests.h"
+#endif
 
-char progname[] = "utf8_test";
+#include "monolithic_examples.h"
 
-int
+
+static const char progname[] = "utf8_test";
+
+#if defined(BUILD_MONOLITHIC)
+#define main     bibutils_utf8_test_main
+#endif
+
+static int
 test_utf8( void )
 {
 	unsigned char ubuf[512];
@@ -42,8 +53,13 @@ test_utf8( void )
 }
 
 
+#ifdef BUNDLE_BIBUTILS_TESTS
 int
-main( int argc, char *argv[] )
+utf8_test(void)
+#else
+int
+main(void)
+#endif
 {
 	int failed = 0;
 	failed += test_utf8();

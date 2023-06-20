@@ -13,7 +13,7 @@
  * Note that hash size was set to ensure no collisions among
  * valid terms.
  */
-
+#include "cross_platform_porting.h"
 #include <stdlib.h>
 #include <string.h>
 #include "hash.h"
@@ -29,7 +29,9 @@ typedef struct marc_trans {
  */
 static const unsigned int marc_genre_hash_size = 360;
 static const char *marc_genre[360] = {
+#ifdef HAVE_DESIGNATED_INITIALIZER_GNU_EXTENSION
 	[ 0 ... 359 ] = NULL,
+#endif
 	[  47 ] = "abstract or summary",
 	[ 104 ] = "art original",
 	[  88 ] = "art reproduction",
@@ -138,7 +140,9 @@ is_marc_genre( const char *query )
  */
 static const unsigned int marc_resource_hash_size = 22;
 static const char *marc_resource[22] = {
+#ifdef HAVE_DESIGNATED_INITIALIZER_GNU_EXTENSION
 	[ 0 ... 21 ] = NULL,
+#endif
 	[  15 ] = "cartographic",
 	[   1 ] = "kit",
 	[  10 ] = "mixed material",
@@ -172,7 +176,9 @@ is_marc_resource( const char *query )
 
 static const unsigned int marc_relators_hash_size = 1295;
 static const marc_trans marc_relators[1295] = {
+#ifdef HAVE_DESIGNATED_INITIALIZER_GNU_EXTENSION
 	[ 0 ... 1294 ] = { NULL, NULL },
+#endif
 	[  424 ] = { "ABRIDGER",                            "abr"                                 },
 	[   23 ] = { "ART_COPYIST",                         "acp"                                 },
 	[  133 ] = { "ACTOR",                               "act"                                 },
@@ -473,7 +479,9 @@ marc_convert_relators( const char *query )
 
 static const unsigned int marc_country_hash_size = 2018;
 static const marc_trans marc_country[2018] = {
+#ifdef HAVE_DESIGNATED_INITIALIZER_GNU_EXTENSION
 	[ 0 ... 2017 ] = { NULL, NULL },
+#endif
 	[ 1131 ] = { "Albania",                             "aa"                                  },
 	[ 2015 ] = { "Alberta",                             "abc"                                 },
 	[ 1252 ] = { "Ashmore and Cartier Islands",         "ac"                                  },/* discontinued */

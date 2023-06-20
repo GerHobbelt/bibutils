@@ -9,7 +9,9 @@
 #ifndef LATEX_H
 #define LATEX_H
 
-unsigned int latex2char( char *s, unsigned int *pos, int *unicode );
+#include "cross_platform_porting.h"
+
+unsigned int latex2char( const char *s, unsigned int *pos, int *unicode );
 void         uni2latex ( unsigned int ch, char buf[], int buf_size );
 
 #endif

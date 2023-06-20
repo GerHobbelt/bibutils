@@ -10,6 +10,7 @@
  * Implements a simple managed array of pointers to void
  *
  */
+#include "cross_platform_porting.h"
 #include <stdlib.h>
 #include "vplist.h"
 
@@ -89,7 +90,6 @@ vplist_ensure_space( vplist *vpl, vplist_index n, unsigned char mode )
 		if ( mode == VPLIST_DOUBLE_SIZE && alloc < VPLIST_MINALLOC ) alloc = VPLIST_MINALLOC;
 		status = vplist_alloc( vpl, alloc );
 	}
-
 	else if ( vpl->max < n ) {
 		if ( mode == VPLIST_DOUBLE_SIZE && alloc < 2 * vpl->max ) alloc = 2 * vpl->max;
 		status = vplist_realloc( vpl, alloc );
@@ -99,7 +99,7 @@ vplist_ensure_space( vplist *vpl, vplist_index n, unsigned char mode )
 }
 
 int
-vplist_copy( vplist *to, vplist *from )
+vplist_copy( vplist *to, const vplist *from )
 {
 	vplist_index i;
 	int status;
@@ -110,11 +110,9 @@ vplist_copy( vplist *to, vplist *from )
 	status = vplist_ensure_space( to, from->n, VPLIST_EXACT_SIZE );
 
 	if ( status == VPLIST_OK ) {
-
 		for ( i=0; i<from->n; ++i )
 			to->data[i] = from->data[i];
 		to->n = from->n;
-
 	}
 
 	return status;
@@ -131,11 +129,9 @@ vplist_fill( vplist *vpl, vplist_index n, void *v )
 	status = vplist_ensure_space( vpl, n, VPLIST_EXACT_SIZE );
 
 	if ( status == VPLIST_OK ) {
-
 		for ( i=0; i<n; ++i )
 			vpl->data[i] = v;
 		vpl->n = n;
-
 	}
 
 	return status;
@@ -151,10 +147,8 @@ vplist_add( vplist *vpl, void *v )
 	status = vplist_ensure_space( vpl, vpl->n + 1, VPLIST_DOUBLE_SIZE );
 
 	if ( status == VPLIST_OK ) {
-
 		vpl->data[vpl->n] = v;
 		vpl->n++;
-
 	}
 
 	return status;
@@ -176,7 +170,6 @@ vplist_insert_list( vplist *vpl, vplist_index pos, vplist *add )
 	status = vplist_ensure_space( vpl, vpl->n + add->n, VPLIST_DOUBLE_SIZE );
 
 	if ( status == VPLIST_OK ) {
-
 		for ( i=vpl->n-1; i>=pos; --i )
 			vpl->data[i+add->n] = vpl->data[i];
 
@@ -201,12 +194,10 @@ vplist_append( vplist *vpl, vplist *add )
 	status = vplist_ensure_space( vpl, vpl->n + add->n, VPLIST_DOUBLE_SIZE );
 
 	if ( status == VPLIST_OK ) {
-
 		for ( i=0; i<add->n; ++i )
 			vpl->data[ vpl->n + i ] = add->data[i];
 
 		vpl->n += add->n;
-
 	}
 
 	return status;
@@ -216,10 +207,10 @@ static void
 vplist_freemembers( vplist *vpl, vplist_ptrfree vpf )
 {
 	vplist_index i;
-	void *v;
+	const void **vref;
 	for ( i=0; i<vpl->n; ++i ) {
-		v = vplist_get( vpl, i );
-		if ( v ) (*vpf)( v );
+		vref = vplist_getref( vpl, i );
+		if ( vref ) (*vpf)( vref );
 	}
 }
 
@@ -273,12 +264,20 @@ vplist_validindex( vplist *vpl, vplist_index n )
 	return 1;
 }
 
-void *
+const void *
 vplist_get( vplist *vpl, vplist_index n )
 {
 	assert( vpl );
 	if ( !vplist_validindex( vpl, n ) ) return NULL;
 	return vpl->data[ n ];
+}
+
+void **
+vplist_getref(vplist* vpl, vplist_index n)
+{
+	assert(vpl);
+	if (!vplist_validindex(vpl, n)) return NULL;
+	return &vpl->data[n];
 }
 
 void
@@ -290,7 +289,7 @@ vplist_set( vplist *vpl, vplist_index n, void *v )
 }
 
 int
-vplist_find( vplist *vpl, void *v )
+vplist_find( vplist *vpl, const void *v )
 {
 	vplist_index i;
 	assert( vpl );
@@ -321,7 +320,7 @@ vplist_removefn( vplist *vpl, vplist_index n, vplist_ptrfree vpf )
 	assert( vpl );
 	assert( vplist_validindex( vpl, n ) );
 
-	if ( vpf ) (*vpf)( vplist_get( vpl, n ) );
+	if ( vpf ) (*vpf)( vplist_getref( vpl, n ) );
 
 	for ( i=n+1; i<vpl->n; ++i )
 		vpl->data[ i-1 ] = vpl->data[ i ];
@@ -337,7 +336,7 @@ vplist_remove( vplist *vpl, vplist_index n )
 }
 
 int
-vplist_removevpfn( vplist *vpl, void *v, vplist_ptrfree vpf )
+vplist_removevpfn( vplist *vpl, const void *v, vplist_ptrfree vpf )
 {
 	vplist_index n;
 	int count = 0;
@@ -356,7 +355,7 @@ vplist_removevpfn( vplist *vpl, void *v, vplist_ptrfree vpf )
 }
 
 int
-vplist_removevp( vplist *vpl, void *v )
+vplist_removevp( vplist *vpl, const void *v )
 {
 	return vplist_removevpfn( vpl, v, NULL );
 }
@@ -372,7 +371,7 @@ vplist_remove_rangefn( vplist *vpl, vplist_index start, vplist_index endplusone,
 	n = endplusone - start;
 	if ( vpf ) {
 		for ( i=start; i<endplusone; ++i )
-			(*vpf)( vplist_get( vpl, i ) );
+			(*vpf)( vplist_getref( vpl, i ) );
 	}
 	for ( i=endplusone; i<vpl->n; ++i ) {
 		vpl->data[i-n] = vpl->data[i];

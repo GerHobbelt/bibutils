@@ -10,6 +10,7 @@
  * Implements a simple managed array of ints
  *
  */
+#include "cross_platform_porting.h"
 #include <stdlib.h>
 #include <assert.h>
 #include "intlist.h"
@@ -381,7 +382,6 @@ intlist_fill_range( intlist *il, int low, int high, int step )
 				il->n += 1;
 			}
 		}
-
 	}
 
 	return status;

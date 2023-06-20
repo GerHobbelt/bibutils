@@ -6,6 +6,7 @@
  * Source code released under the GPL version 2
  *
  */
+#include "cross_platform_porting.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -54,7 +55,7 @@ nbibout_initparams( param *pm, const char *progname )
 	if ( !pm->progname ) {
 		if ( !progname ) pm->progname = NULL;
 		else {
-			pm->progname = strdup( progname );
+			pm->progname = _strdup( progname );
 			if ( !pm->progname ) return BIBL_ERR_MEMERR;
 		}
 	}
@@ -78,8 +79,9 @@ append_type( fields *in, fields *out, int *status )
 {
 	int fstatus;
 	char *s;
-        int type = TYPE_UNKNOWN, i, n, level;
-	char *tag, *value;
+    int type = TYPE_UNKNOWN, i, n, level;
+	const char* tag;
+	const char* value;
 
 	n = fields_num( in );
         for ( i=0; i<n; ++i ) {
@@ -111,10 +113,10 @@ append_type( fields *in, fields *out, int *status )
 }
 
 static void
-append_titlecore( fields *in, char *nbibtag, int level, char *maintag, char *subtag, fields *out, int *status )
+append_titlecore( fields *in, const char *nbibtag, int level, const char *maintag, const char *subtag, fields *out, int *status )
 {
-	str *mainttl = fields_findv( in, level, FIELDS_STRP, maintag );
-	str *subttl  = fields_findv( in, level, FIELDS_STRP, subtag );
+	const str *mainttl = fields_findv( in, level, FIELDS_STRP, maintag );
+	const str *subttl  = fields_findv( in, level, FIELDS_STRP, subtag );
 	str fullttl;
 	int fstatus;
 
@@ -141,16 +143,16 @@ append_title( fields *in, int inlevel, fields *out, char *outtag, int *status )
 }
 
 static void
-append_abbrtitle( fields *in, char *nbibtag, int level, fields *out, int *status )
+append_abbrtitle( fields *in, const char *nbibtag, int level, fields *out, int *status )
 {
 	append_titlecore( in, nbibtag, level, "SHORTTITLE", "SHORTSUBTITLE", out, status );
 }
 
 static void
-process_person( str *person, char *name, int full )
+process_person( str *person, const char *name, int full )
 {
 	str family, given, suffix;
-	char *p = name;
+	const char *p = name;
 
 	str_empty( person );
 
@@ -196,7 +198,7 @@ process_person( str *person, char *name, int full )
 }
 
 static void
-append_people( fields *f, char *tag, char *nbibtag_full, char *nbibtag_abbr, int level, fields *out, int *status )
+append_people( fields *f, const char *tag, const char *nbibtag_full, const char *nbibtag_abbr, int level, fields *out, int *status )
 {
 	vplist_index i;
 	vplist people;
@@ -209,12 +211,12 @@ append_people( fields *f, char *tag, char *nbibtag_full, char *nbibtag_abbr, int
 	fields_findv_each( f, level, FIELDS_CHRP, &people, tag );
 	for ( i=0; i<people.n; ++i ) {
 
-		process_person( &person, (char *)vplist_get( &people, i ), 1 );
+		process_person( &person, (const char *)vplist_get( &people, i ), 1 );
 		if ( str_memerr( &person ) ) { *status = BIBL_ERR_MEMERR; goto out; }
 		fstatus = fields_add_can_dup( out, nbibtag_full, str_cstr( &person ), LEVEL_MAIN );
 		if ( fstatus!=FIELDS_OK ) { *status = BIBL_ERR_MEMERR; goto out; }
 
-		process_person( &person, (char *)vplist_get( &people, i ), 0 );
+		process_person( &person, (const char *)vplist_get( &people, i ), 0 );
 		if ( str_memerr( &person ) ) { *status = BIBL_ERR_MEMERR; goto out; }
 		fstatus = fields_add_can_dup( out, nbibtag_abbr, str_cstr( &person ), LEVEL_MAIN );
 		if ( fstatus!=FIELDS_OK ) { *status = BIBL_ERR_MEMERR; goto out; }
@@ -229,10 +231,10 @@ out:
 static void
 append_pages( fields *in, int inlevel, fields *out, const char *outtag, int *status )
 {
-	str *start, *stop, *articlenumber;
+	const str *start, *stop, *articlenumber;
 	int fstatus;
 	str pages;
-	char *p, *q;
+	const char *p, *q;
 
 	str_init( &pages );
 
@@ -350,7 +352,7 @@ append_lang( fields *in, int inlevel, fields *out, const char *outtag, int *stat
 {
 	int fstatus;
 	str *lang;
-	char *code;
+	const char *code;
 
 	lang = fields_findv( in, inlevel, FIELDS_STRP, "LANGUAGE" );
 	if ( lang ) {
@@ -393,15 +395,15 @@ append_data( fields *in, fields *out )
 static void
 output_verbose( fields *f, const char *type, unsigned long refnum )
 {
-	char *tag, *value;
+	const char *tag, *value;
 	int i, n, level;
 
 	fprintf( stderr, "REF #%lu %s---\n", refnum+1, type );
 
 	n = fields_num( f );
 	for ( i=0; i<n; ++i ) {
-		tag   = fields_tag( f, i, FIELDS_CHRP_NOUSE );
-		value = fields_value( f, i, FIELDS_CHRP_NOUSE );
+		tag   = (const char*)fields_tag( f, i, FIELDS_CHRP_NOUSE );
+		value = (const char*)fields_value( f, i, FIELDS_CHRP_NOUSE );
 		level = fields_level( f, i );
 		fprintf( stderr, "\t'%s'\t'%s'\t%d\n", tag, value, level );
 	}
@@ -410,7 +412,7 @@ output_verbose( fields *f, const char *type, unsigned long refnum )
 }
 
 static void
-output_tag( FILE *fp, char *p )
+output_tag( FILE *fp, const char *p )
 {
 	int i = 0;
 
@@ -426,9 +428,9 @@ output_tag( FILE *fp, char *p )
 }
 
 static void
-output_value( FILE *fp, str *value )
+output_value( FILE *fp, const str *value )
 {
-	char *p, *q, *lastws;
+	const char *p, *q, *lastws;
 	int n;
 
 	if ( value->len < 82 ) {
@@ -473,14 +475,13 @@ output_reference( FILE *fp, fields *out )
 	int i;
 
 	for ( i=0; i<out->n; ++i ) {
-
-		output_tag( fp, ( char * ) fields_tag( out, i, FIELDS_CHRP ) );
-		output_value( fp, ( str * ) fields_value( out, i, FIELDS_STRP ) );
+		output_tag( fp, ( const char * ) fields_tag( out, i, FIELDS_CHRP ) );
+		output_value( fp, ( const str * ) fields_value( out, i, FIELDS_STRP ) );
 		fprintf( fp, "\n" );
 	}
 
-        fprintf( fp, "\n\n" );
-        fflush( fp );
+    fprintf( fp, "\n\n" );
+    fflush( fp );
 }
 
 static int

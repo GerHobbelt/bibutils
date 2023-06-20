@@ -5,6 +5,7 @@
  *
  * Source code released under the GPL version 2
  */
+#include "cross_platform_porting.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -13,7 +14,7 @@
 static int
 is_genre_element( fields *in, int n )
 {
-	char *tag;
+	const char *tag;
 
 	tag = fields_tag( in, n, FIELDS_CHRP );
 
@@ -63,10 +64,10 @@ match_hints( const char *value, int level, const char *match_name, int match_lev
  *
  */
 int
-type_from_mods_hints( fields *in, int mode, match_type matches[], int nmatches, int type_unknown )
+type_from_mods_hints( fields *in, int mode, const match_type matches[], int nmatches, int type_unknown )
 {
 	int i, j, level, type = type_unknown;
-	char *value;
+	const char *value;
 
 	for ( i=0; i<nmatches; ++i ) {
 

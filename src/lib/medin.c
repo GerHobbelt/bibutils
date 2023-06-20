@@ -6,6 +6,7 @@
  * Source code released under the GPL version 2
  *
  */
+#include "cross_platform_porting.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include "is_ws.h"
@@ -54,7 +55,7 @@ medin_initparams( param *pm, const char *progname )
 
 	if ( !progname ) pm->progname = NULL;
 	else {
-		pm->progname = strdup( progname );
+		pm->progname = _strdup( progname );
 		if ( !pm->progname ) return BIBL_ERR_MEMERR;
 	}
 
@@ -73,10 +74,10 @@ medin_initparams( param *pm, const char *progname )
 static char *wrapper[] = { "PubmedArticle", "MedlineCitation" };
 static int nwrapper = sizeof( wrapper ) / sizeof( wrapper[0] );
 
-static char *
-medin_findstartwrapper( char *buf, int *ntype )
+static const char *
+medin_findstartwrapper( const char *buf, int *ntype )
 {
-	char *startptr=NULL;
+	const char *startptr = NULL;
 	int i;
 	for ( i=0; i<nwrapper && startptr==NULL; ++i ) {
 		startptr = xml_find_start( buf, wrapper[ i ] );
@@ -85,10 +86,10 @@ medin_findstartwrapper( char *buf, int *ntype )
 	return startptr;
 }
 
-static char *
-medin_findendwrapper( char *buf, int ntype )
+static const char *
+medin_findendwrapper( const char *buf, int ntype )
 {
-	char *endptr = xml_find_end( buf, wrapper[ ntype ] );
+	const char *endptr = xml_find_end( buf, wrapper[ ntype ] );
 	return endptr;
 }
 
@@ -96,10 +97,36 @@ static int
 medin_readf( FILE *fp, char *buf, int bufsize, int *bufpos, str *line, str *reference, int *fcharset )
 {
 	str tmp;
-	char *startptr = NULL, *endptr;
+	const char *startptr = NULL, *endptr;
 	int haveref = 0, inref = 0, file_charset = CHARSET_UNKNOWN, m, type = -1;
 	str_init( &tmp );
-	while ( !haveref && str_fget( fp, buf, bufsize, bufpos, line ) ) {
+	// while ( !haveref && str_fget( fp, buf, bufsize, bufpos, line ) ) {
+	// 	if ( line->data ) {
+	// 		m = xml_getencoding( line );
+	// 		if ( m!=CHARSET_UNKNOWN ) file_charset = m;
+	// 	}
+	// 	if ( line->data ) {
+	// 		startptr = medin_findstartwrapper( line->data, &type );
+	// 	}
+	// 	if ( startptr || inref ) {
+	// 		if ( inref ) str_strcat( &tmp, line );
+	// 		else {
+	// 			str_strcatc( &tmp, startptr );
+	// 			inref = 1;
+	// 		}
+	// 		endptr = medin_findendwrapper( str_cstr( &tmp ), type );
+	// 		if ( endptr ) {
+	// 			str_segcpy( reference, str_cstr( &tmp ), endptr );
+	// 			haveref = 1;
+	// 		}
+	// 	}
+	// }
+
+	// Georgi: bugfix: issue #4
+	//
+	//         The above code doesn't work properly if the end of a reference is not on a
+	//         line by itself (it drops all text on the line after the end of the reference).
+	do {
 		if ( line->data ) {
 			m = xml_getencoding( line );
 			if ( m!=CHARSET_UNKNOWN ) file_charset = m;
@@ -113,13 +140,16 @@ medin_readf( FILE *fp, char *buf, int bufsize, int *bufpos, str *line, str *refe
 				str_strcatc( &tmp, startptr );
 				inref = 1;
 			}
+			str_empty( line );  // Georgi
 			endptr = medin_findendwrapper( str_cstr( &tmp ), type );
 			if ( endptr ) {
 				str_segcpy( reference, str_cstr( &tmp ), endptr );
+				str_strcpyc( line, endptr ); // Georgi: leave unprocessed stuff in line
 				haveref = 1;
 			}
 		}
-	}
+	} while ( !haveref && str_fget( fp, buf, bufsize, bufpos, line ) ) ;
+	
 	str_free( &tmp );
 	*fcharset = file_charset;
 	return haveref;
@@ -137,10 +167,10 @@ typedef struct xml_convert {
 } xml_convert;
 
 static int
-medin_doconvert( xml *node, fields *info, xml_convert *c, int nc, int *found )
+medin_doconvert( const xml *node, fields *info, xml_convert *c, int nc, int *found )
 {
 	int i, fstatus;
-	char *d;
+	const char *d;
 	*found = 0;
 	if ( !xml_has_value( node ) ) return BIBL_OK;
 	d = xml_value_cstr( node );
@@ -166,7 +196,7 @@ medin_doconvert( xml *node, fields *info, xml_convert *c, int nc, int *found )
 /* <ArticleTitle>Mechanism and.....</ArticleTitle>
  */
 static int
-medin_articletitle( xml *node, fields *info )
+medin_articletitle( const xml *node, fields *info )
 {
 	int fstatus, status = BIBL_OK;
 	if ( xml_has_value( node ) ) {
@@ -220,7 +250,7 @@ medin_medlinedate( fields *info, const char *p, int level )
 static int
 medin_language( xml *node, fields *info, int level )
 {
-	char *code, *language;
+	const char *code, *language;
 	int fstatus;
 	code = xml_value_cstr( node );
 	if ( !code ) return BIBL_OK;
@@ -328,7 +358,6 @@ static int
 medin_pagination( xml *node, fields *info )
 {
 	int fstatus, status;
-	unsigned long i;
 	str sp, ep;
 	const char *p, *pp;
 	if ( xml_tag_matches( node, "MedlinePgn" ) && node->value.len ) {
@@ -343,7 +372,7 @@ medin_pagination( xml *node, fields *info )
 		if ( str_memerr( &ep ) ) return BIBL_ERR_MEMERR;
 		if ( str_has_value( &ep ) ) {
 			if ( sp.len > ep.len ) {
-				for ( i=sp.len-ep.len; i<sp.len; ++i )
+				for ( unsigned long i=sp.len-ep.len; i<sp.len; ++i )
 					sp.data[i] = ep.data[i-sp.len+ep.len];
 				pp = sp.data;
 			} else  pp = ep.data;
@@ -393,7 +422,7 @@ medin_abstract( xml *node, fields *info )
 static int
 medin_author( xml *node, str *name )
 {
-	char *p;
+	const char *p;
 	if ( xml_tag_matches( node, "LastName" ) ) {
 		if ( str_has_value( name ) ) {
 			str_prepend( name, "|" );

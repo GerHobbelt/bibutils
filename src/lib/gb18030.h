@@ -9,6 +9,8 @@
 #ifndef GB18030_H
 #define GB18030_H
 
+#include "cross_platform_porting.h"
+
 int          gb18030_encode( unsigned int unicode, unsigned char out[4] );
 unsigned int gb18030_decode( char *s, unsigned int *pi );
 

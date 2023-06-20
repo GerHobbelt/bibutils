@@ -6,6 +6,7 @@
  * Source code released under the GPL version 2
  *
  */
+#include "cross_platform_porting.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -55,7 +56,7 @@ isiout_initparams( param *pm, const char *progname )
 	if ( !pm->progname ) {
 		if ( !progname ) pm->progname = NULL;
 		else {
-			pm->progname = strdup( progname );
+			pm->progname = _strdup( progname );
 			if ( !pm->progname ) return BIBL_ERR_MEMERR;
 		}
 	}
@@ -77,7 +78,7 @@ enum {
 static int 
 get_type( fields *in )
 {
-	match_type genre_matches[] = {
+	const match_type genre_matches[] = {
 		{ "periodical",         TYPE_ARTICLE,        LEVEL_ANY  },
 		{ "academic journal",   TYPE_ARTICLE,        LEVEL_ANY  },
 		{ "journal article",    TYPE_ARTICLE,        LEVEL_ANY  },
@@ -90,7 +91,7 @@ get_type( fields *in )
 
 	int ngenre_matches = sizeof( genre_matches ) / sizeof( genre_matches[0] );
 
-	match_type issuance_matches[] = {
+	const match_type issuance_matches[] = {
 		{ "monographic",        TYPE_BOOK,           LEVEL_MAIN },
 		{ "monographic",        TYPE_INBOOK,         LEVEL_ANY  },
 	};
@@ -108,7 +109,7 @@ static void
 append_type( int type, fields *out, int *status )
 {
 	int fstatus;
-	char *s;
+	const char *s;
 
 	switch( type ) {
 		case TYPE_ARTICLE: s = "Journal"; break;
@@ -122,10 +123,10 @@ append_type( int type, fields *out, int *status )
 }
 
 static void
-append_titlecore( fields *in, char *isitag, int level, fields *out, char *maintag, char *subtag, int *status )
+append_titlecore( fields *in, const char *isitag, int level, fields *out, char *maintag, char *subtag, int *status )
 {
-	str *mainttl = fields_findv( in, level, FIELDS_STRP, maintag );
-	str *subttl  = fields_findv( in, level, FIELDS_STRP, subtag );
+	const str *mainttl = fields_findv( in, level, FIELDS_STRP, maintag );
+	const str *subttl  = fields_findv( in, level, FIELDS_STRP, subtag );
 	str fullttl;
 	int fstatus;
 
@@ -146,22 +147,22 @@ out:
 }
 
 static void
-append_title( fields *in, char *isitag, int level, fields *out, int *status )
+append_title( fields *in, const char *isitag, int level, fields *out, int *status )
 {
 	append_titlecore( in, isitag, level, out, "TITLE", "SUBTITLE", status );
 }
 
 static void
-append_abbrtitle( fields *in, char *isitag, int level, fields *out, int *status )
+append_abbrtitle( fields *in, const char *isitag, int level, fields *out, int *status )
 {
 	append_titlecore( in, isitag, level, out, "SHORTTITLE", "SHORTSUBTITLE", status );
 }
 
 static void
-process_person( str *person, char *name )
+process_person( str *person, const char *name )
 {
 	str family, given, suffix;
-	char *p = name;
+	const char *p = name;
 
 	str_empty( person );
 
@@ -172,8 +173,26 @@ process_person( str *person, char *name )
 
 	while ( *p=='|' && *(p+1)!='|' ) {
 		p++;
-		if ( *p!='|' ) str_addchar( &given, *p++ );
-		while ( *p && *p!='|' ) p++;
+		// 2021-12-06 :TODO: Georgi
+		//    so, only the first letter of the given name is kept, the rest skipped;
+		// see Org/isiout_bug.txt for details.
+                //   
+                // Crude patch, was:
+		//     if ( *p!='|' ) str_addchar( &given, *p++ );
+		//     while ( *p && *p!='|' ) p++;
+		if ( *p!='|' ) {
+		  if( (*p & 128) == 0) { // ascii
+		    str_addchar( &given, *p++);
+		  } else { // not ascii
+		    // Georgi TODO: do this properly.
+		    //
+		    // this will be ok if the following character is ascii
+		    // but it will emit all char's up to the first ascii one
+		    while ( *p && (*p & 128) ) str_addchar( &given, *p++);
+		  }
+		  while ( *p && *p!='|' ) p++;
+		}
+		
 	}
 
 	if ( *p=='|' && *(p+1)=='|' ) {
@@ -207,7 +226,7 @@ append_people( fields *f, char *tag, int level, fields *out, char *isitag, int *
 
 	fields_findv_each( f, level, FIELDS_CHRP, &people, tag );
 	for ( i=0; i<people.n; ++i ) {
-		process_person( &person, (char *)vplist_get( &people, i ) );
+		process_person( &person, (const char *)vplist_get( &people, i ) );
 		if ( str_memerr( &person ) ) { *status = BIBL_ERR_MEMERR; goto out; }
 		if ( i==0 ) fstatus = fields_add_can_dup( out, isitag, str_cstr( &person ), LEVEL_MAIN );
 		else        fstatus = fields_add_can_dup( out, "  ",   str_cstr( &person ), LEVEL_MAIN );
@@ -223,7 +242,7 @@ out:
 static void
 append_page( fields *in, const char *intag, int levelin, fields* out, const char *outtag, int *status )
 {
-	char *value;
+	const char *value;
 
 	value = fields_findv( in, levelin, FIELDS_CHRP, intag );
 	if ( value ) {
@@ -314,8 +333,8 @@ isiout_write( fields *out, FILE *fp, param *p, unsigned long refnum )
 
 	for ( i=0; i<out->n; ++i ) {
 		fprintf( fp, "%s %s\n",
-			( char * ) fields_tag  ( out, i, FIELDS_CHRP ),
-			( char * ) fields_value( out, i, FIELDS_CHRP )
+			( const char * ) fields_tag  ( out, i, FIELDS_CHRP ),
+			( const char * ) fields_value( out, i, FIELDS_CHRP )
 		);
 	}
         fprintf( fp, "ER\n\n" );

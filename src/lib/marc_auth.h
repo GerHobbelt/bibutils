@@ -11,6 +11,8 @@
 #ifndef MARC_AUTH_H
 #define MARC_AUTH_H
 
+#include "cross_platform_porting.h"
+
 int is_marc_genre( const char *query );
 int is_marc_resource( const char *query );
 

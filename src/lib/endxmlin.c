@@ -6,6 +6,7 @@
  * Program and source code released under the GPL version 2
  *
  */
+#include "cross_platform_porting.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include "str.h"
@@ -16,20 +17,17 @@
 #include "xml_encoding.h"
 #include "reftypes.h"
 #include "bibformats.h"
+#include "endtypes.h"
+#include "endin.h"
+
 
 typedef struct {
-	char *attrib;
-	char *internal;
+	const char *attrib;
+	const char *internal;
 } attribs;
-
-extern variants end_all[];
-extern int end_nall;
 
 static int endxmlin_readf( FILE *fp, char *buf, int bufsize, int *bufpos, str *line, str *reference, int *fcharset );
 static int endxmlin_processf( fields *endin, const char *p, const char *filename, long nref, param *pm );
-extern int endin_typef( fields *endin, const char *filename, int nrefs, param *p );
-extern int endin_convertf( fields *endin, fields *info, int reftype, param *p );
-extern int endin_cleanf( bibl *bin, param *p );
 
 
 /*****************************************************
@@ -62,7 +60,7 @@ endxmlin_initparams( param *pm, const char *progname )
 
 	if ( !progname ) pm->progname = NULL;
 	else {
-		pm->progname = strdup( progname );
+		pm->progname = _strdup( progname );
 		if ( !pm->progname ) return BIBL_ERR_MEMERR;
 	}
 
@@ -84,7 +82,7 @@ static int
 endxmlin_readf( FILE *fp, char *buf, int bufsize, int *bufpos, str *line, str *reference, int *fcharset )
 {
 	int haveref = 0, inref = 0, done = 0, file_charset = CHARSET_UNKNOWN, m;
-	char *startptr = NULL, *endptr = NULL;
+	const char *startptr = NULL, *endptr = NULL;
 	str tmp;
 
 	str_init( &tmp );
@@ -185,7 +183,7 @@ endxmlin_datar( xml *node, str *s )
 }
 
 static int
-endxmlin_data( xml *node, char *inttag, fields *info, int level )
+endxmlin_data( xml *node, const char *inttag, fields *info, int level )
 {
 	int status;
 	str s;
@@ -219,7 +217,7 @@ endxmlin_data( xml *node, char *inttag, fields *info, int level )
 static int
 endxmlin_titles( xml *node, fields *info )
 {
-	attribs a[] = {
+	const attribs a[] = {
 		{ "title",           "%T"         },
 		{ "secondary-title", "%B"         },
 		{ "tertiary-title",  "%S"         },
@@ -279,7 +277,7 @@ out:
  *
  */
 static int
-endxmlin_contributor( xml *node, fields *info, char *internal_tag, int level )
+endxmlin_contributor( xml *node, fields *info, const char *internal_tag, int level )
 {
 	int status;
 
@@ -303,7 +301,7 @@ endxmlin_contributor( xml *node, fields *info, char *internal_tag, int level )
 static int
 endxmlin_contributors( xml *node, fields *info )
 {
-	attribs a[] = {
+	const attribs a[] = {
 		{ "authors",            "%A" },
 		{ "secondary-authors",  "%E" },
 		{ "tertiary-authors",   "%Y" },
@@ -462,10 +460,10 @@ endxmlin_dates( xml *node, fields *info )
  * <ref-type name="Journal Article">17</ref-type>
  */
 static int
-endxmlin_reftype( xml *node, fields *info )
+endxmlin_reftype( const xml *node, fields *info )
 {
 	int status;
-	str *s;
+	const str *s;
 
 	s = xml_attribute( node, "name" );
 	if ( str_has_value( s ) ) {

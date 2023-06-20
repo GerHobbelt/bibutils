@@ -6,6 +6,7 @@
  * Program and source code released under the GPL version 2
  *
  */
+#include "cross_platform_porting.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include "is_ws.h"
@@ -53,7 +54,7 @@ ebiin_initparams( param *pm, const char *progname )
 
 	if ( !progname ) pm->progname = NULL;
 	else {
-		pm->progname = strdup( progname );
+		pm->progname = _strdup( progname );
 		if ( !pm->progname ) return BIBL_ERR_MEMERR;
 	}
 
@@ -67,7 +68,7 @@ static int
 ebiin_readf( FILE *fp, char *buf, int bufsize, int *bufpos, str *line, str *reference, int *fcharset )
 {
 	int haveref = 0, inref = 0, file_charset = CHARSET_UNKNOWN, m;
-	char *startptr = NULL, *endptr;
+	const char *startptr = NULL, *endptr;
 	str tmp;
 	str_init( &tmp );
 	while ( !haveref && str_fget( fp, buf, bufsize, bufpos, line ) ) {
@@ -109,7 +110,7 @@ static int
 ebiin_doconvert( xml *node, fields *info, xml_convert *c, int nc, int *found )
 {
 	int i, status;
-	char *d;
+	const char *d;
 
 	if ( !xml_has_value( node ) ) goto out;
 
@@ -312,7 +313,7 @@ ebiin_journal1( xml *node, fields *info )
 static int
 ebiin_pages( fields *info, const char *p )
 {
-	int i, status, ret = BIBL_OK;
+	int status, ret = BIBL_OK;
 	const int level = 1;
 	str sp, ep, *up;
 
@@ -341,7 +342,7 @@ ebiin_pages( fields *info, const char *p )
 	}
 	if ( ep.len ) {
 		if ( sp.len > ep.len ) {
-			for ( i=sp.len-ep.len; i<sp.len; ++i )
+			for ( unsigned long i=sp.len-ep.len; i<sp.len; ++i )
 				sp.data[i] = ep.data[i-sp.len+ep.len];
 			up = &(sp);
 		} else up = &(ep);
@@ -404,7 +405,7 @@ static int
 ebiin_author( xml *node, str *name )
 {
 	int status;
-	char *p;
+	const char *p;
 
 	if ( xml_tag_matches( node, "LastName" ) ) {
 		if ( name->len ) {
@@ -671,12 +672,12 @@ ebiin_publication( xml *node, fields *info )
 
 /* Call with the "Publication" node */
 static int
-ebiin_fixtype( xml *node, fields *info )
+ebiin_fixtype( const xml *node, fields *info )
 {
-	char *resource = NULL, *issuance = NULL, *genre1 = NULL, *genre2 = NULL;
+	const char *resource = NULL, *issuance = NULL, *genre1 = NULL, *genre2 = NULL;
 	int reslvl, isslvl, gen1lvl, gen2lvl;
 	int status;
-	char *type;
+	const char *type;
 
 	type = xml_attribute_cstr( node, "Type" );
 	if ( !type ) return BIBL_OK;

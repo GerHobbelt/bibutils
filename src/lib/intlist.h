@@ -12,6 +12,8 @@
 #ifndef INTLIST_H
 #define INTLIST_H
 
+#include "cross_platform_porting.h"
+
 #define INTLIST_OK            (0)
 #define INTLIST_MEMERR        (-1)
 #define INTLIST_VALUE_MISSING (-2)

@@ -6,6 +6,7 @@
  * Program and source code released under the GPL version 2
  *
  */
+#include "cross_platform_porting.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -100,7 +101,7 @@ enum {
 static int
 biblatexout_type( fields *in, const char *progname, const char *filename, unsigned long refnum )
 {
-	match_type genre_matches[] = {
+	const match_type genre_matches[] = {
 		{ "periodical",             TYPE_ARTICLE,       LEVEL_ANY  },
 		{ "academic journal",       TYPE_ARTICLE,       LEVEL_ANY  },
 		{ "magazine",               TYPE_ARTICLE,       LEVEL_ANY  },
@@ -130,13 +131,13 @@ biblatexout_type( fields *in, const char *progname, const char *filename, unsign
 	};
 	int ngenre_matches = sizeof( genre_matches ) / sizeof( genre_matches[0] );
 
-	match_type resource_matches[] = {
+	const match_type resource_matches[] = {
 		{ "moving image",           TYPE_ELECTRONIC,    LEVEL_ANY  },
 		{ "software, multimedia",   TYPE_ELECTRONIC,    LEVEL_ANY  },
 	};
 	int nresource_matches = sizeof( resource_matches ) /sizeof( resource_matches[0] );
 
-	match_type issuance_matches[] = {
+	const match_type issuance_matches[] = {
 		{ "monographic",            TYPE_BOOK,          LEVEL_MAIN },
 		{ "monographic",            TYPE_INBOOK,        LEVEL_ANY  },
 	};
@@ -157,7 +158,7 @@ biblatexout_type( fields *in, const char *progname, const char *filename, unsign
 			fprintf( stderr, "Cannot identify TYPE in reference %lu ", refnum+1 );
 			n = fields_find( in, "REFNUM", LEVEL_ANY );
 			if ( n!=FIELDS_NOTFOUND ) 
-				fprintf( stderr, " %s", (char*) fields_value( in, n, FIELDS_CHRP ) );
+				fprintf( stderr, " %s", (const char*) fields_value( in, n, FIELDS_CHRP ) );
 			fprintf( stderr, " (defaulting to @Misc)\n" );
 			type = TYPE_MISC;
 		}
@@ -211,7 +212,7 @@ append_citekey( fields *in, fields *out, int format_opts, int *status )
 {
 	int n, fstatus;
 	str s;
-	char *p;
+	const char *p;
 
 	n = fields_find( in, "REFNUM", LEVEL_ANY );
 	if ( ( format_opts & BIBL_FORMAT_BIBOUT_DROPKEY ) || n==FIELDS_NOTFOUND ) {
@@ -246,7 +247,8 @@ append_citekey( fields *in, fields *out, int format_opts, int *status )
 static void
 append_fileattach( fields *in, fields *out, int *status )
 {
-	char *tag, *value;
+	const char* tag;
+	const char* value;
 	int i, fstatus;
 	str data;
 
@@ -285,8 +287,8 @@ out:
 }
 
 static void
-append_people( fields *in, char *tag, char *ctag, char *atag,
-		char *bibtag, int level, fields *out, int format_opts, int latex_out, int *status )
+append_people( fields *in, const char *tag, const char *ctag, const char *atag,
+		const char *bibtag, int level, fields *out, int format_opts, int latex_out, int *status )
 {
 	int i, npeople, person, corp, asis, fstatus;
 	str allpeople, oneperson;
@@ -330,9 +332,10 @@ append_people( fields *in, char *tag, char *ctag, char *atag,
 }
 
 static int
-append_title_chosen( fields *in, char *bibtag, fields *out, int nmainttl, int nsubttl )
+append_title_chosen( fields *in, const char *bibtag, fields *out, int nmainttl, int nsubttl )
 {
-	str fulltitle, *mainttl = NULL, *subttl = NULL;
+	str fulltitle;
+	const str* mainttl = NULL, * subttl = NULL;
 	int status, ret = BIBL_OK;
 
 	str_init( &fulltitle );
@@ -365,7 +368,7 @@ out:
 }
 
 static int
-append_title( fields *in, char *bibtag, char *shortbibtag, int level, fields *out, int format_opts )
+append_title( fields *in, const char *bibtag, const char *shortbibtag, int level, fields *out, int format_opts )
 {
 	int title, short_title, subtitle, short_subtitle, use_title, use_subtitle;
 	int status;
@@ -446,16 +449,16 @@ append_titles( fields *in, int type, fields *out, int format_opts, int *status )
 }
 
 static int
-find_date( fields *in, char *date_element )
+find_date( fields *in, const char *date_element )
 {
 	char date[100], partdate[100];
 	int n;
 
-	sprintf( date, "DATE:%s", date_element );
+	sprintf_s( date, countof(date), "DATE:%s", date_element );
 	n = fields_find( in, date, LEVEL_ANY );
 
 	if ( n==FIELDS_NOTFOUND ) {
-		sprintf( partdate, "PARTDATE:%s", date_element );
+		sprintf_s( partdate, countof(partdate), "PARTDATE:%s", date_element );
 		n = fields_find( in, partdate, LEVEL_ANY );
 	}
 
@@ -465,7 +468,7 @@ find_date( fields *in, char *date_element )
 static int
 str_is_wholenumber( str *s )
 {
-	char *p;
+	const char *p;
 
 	p = str_cstr( s );
 	if ( !p ) return 1;
@@ -755,7 +758,7 @@ static void
 append_howpublished( fields *in, fields *out, int *status )
 {
 	int n, fstatus;
-	char *d;
+	const char *d;
 
 	n = fields_find( in, "GENRE:BIBUTILS", LEVEL_ANY );
 	if ( n==FIELDS_NOTFOUND ) return;
@@ -839,10 +842,11 @@ static int
 biblatexout_write( fields *out, FILE *fp, param *pm, unsigned long refnum )
 {
 	int i, j, len, nquotes, format_opts = pm->format_opts;
-	char *tag, *value, ch;
+	const char* tag, * value;
+	char ch;
 
 	/* ...output type information "@article{" */
-	value = ( char * ) fields_value( out, 0, FIELDS_CHRP );
+	value = fields_value( out, 0, FIELDS_CHRP );
 	if ( !(format_opts & BIBL_FORMAT_BIBOUT_UPPERCASE) ) fprintf( fp, "@%s{", value );
 	else {
 		len = (value) ? strlen( value ) : 0;
@@ -853,14 +857,14 @@ biblatexout_write( fields *out, FILE *fp, param *pm, unsigned long refnum )
 	}
 
 	/* ...output refnum "Smith2001" */
-	value = ( char * ) fields_value( out, 1, FIELDS_CHRP );
+	value = fields_value( out, 1, FIELDS_CHRP );
 	fprintf( fp, "%s", value );
 
 	/* ...rest of the references */
 	for ( j=2; j<out->n; ++j ) {
 		nquotes = 0;
-		tag   = ( char * ) fields_tag( out, j, FIELDS_CHRP );
-		value = ( char * ) fields_value( out, j, FIELDS_CHRP );
+		tag   = fields_tag( out, j, FIELDS_CHRP );
+		value = fields_value( out, j, FIELDS_CHRP );
 		fprintf( fp, ",\n" );
 		if ( format_opts & BIBL_FORMAT_BIBOUT_WHITESPACE ) fprintf( fp, "  " );
 		if ( !(format_opts & BIBL_FORMAT_BIBOUT_UPPERCASE ) ) fprintf( fp, "%s", tag );

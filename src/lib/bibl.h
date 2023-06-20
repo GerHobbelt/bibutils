@@ -9,6 +9,7 @@
 #ifndef BIBL_H
 #define BIBL_H
 
+#include "cross_platform_porting.h"
 #include <stdio.h>
 #include "str.h"
 #include "fields.h"

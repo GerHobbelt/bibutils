@@ -15,6 +15,6 @@
 #include "fields.h"
 
 int  add_title( fields *info, const char *tag, const char *value, int level, unsigned char nosplittitle );
-void title_combine( str *fullttl, str *mainttl, str *subttl );
+void title_combine( str *fullttl, const str *mainttl, const str *subttl );
 
 #endif
