@@ -1,16 +1,32 @@
+bibutils (4.8-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- David Bremner <bremner@unb.ca>  Wed, 03 Feb 2010 09:54:51 -0400
+
+bibutils (4.6-1) unstable; urgency=low
+
+  * New upstream release
+    - name_comma: initialize pointer (Closes: #552570)
+  * add versioned build dependency on quilt to support dh --quilt
+  * add DM-Upload-Allowed flag
+
+ -- David Bremner <bremner@unb.ca>  Tue, 03 Nov 2009 07:45:47 -0400
+
 bibutils (4.3-1) unstable; urgency=low
 
   * New upstream release
   * make /usr/lib/libbibutils.so point to /usr/lib/libbibutils.so.1 (the
     soname)
   * Link binaries dynamically again
-  * Update to new standars version 3.8.3 (no changes)
+  * Update to new standards version 3.8.3 (no changes)
   
  -- David Bremner <bremner@unb.ca>  Sun, 23 Aug 2009 10:17:54 -0400
 
 bibutils (4.1-1) unstable; urgency=low
 
-  * New Upstream Version (Closes: #506960)
+  * New Upstream Version 
+    - patch from Rafael Laboissiere to lib/medin.c applied upstream (Closes: #506960)
   * Convert to topgit (Closes: #485243)
   * Change maintainer to debian-science-maintainers@lists.alioth.debian.org
   * Update Vcs-Git and Vcs-Browser

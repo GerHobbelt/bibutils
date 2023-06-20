@@ -1,0 +1,27 @@
+From: David Bremner <bremner@unb.ca>
+Subject: [PATCH] fix/name_comma
+
+If the first character of the input string is ',', then the existing
+code does not initialize end_last. This causes undefined behaviour,
+and in particular segmentation faults on i386 on some inputs.
+
+Signed-off-by: David Bremner <bremner@unb.ca>
+
+---
+ lib/name.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+diff --git a/lib/name.c b/lib/name.c
+index 94a225c..1f51828 100644
+--- a/lib/name.c
++++ b/lib/name.c
+@@ -185,6 +185,7 @@ name_comma( char *p, newstr *outname )
+ 
+ 	/** Last name **/
+ 	start_last = skip_ws( p );
++	end_last = start_last;
+ 	while ( *p && ( *p!=',' ) ) {
+ 		newstr_addchar( outname, *p++ );
+ 		end_last = p;
+-- 
+tg: (1782cdf..) fix/name_comma (depends on: upstream)
