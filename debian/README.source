@@ -1,0 +1,21 @@
+Building bibutils for Debian
+--------------------------
+
+The bibutils source package uses quilt to apply and remove its patches. Please
+refer to /usr/share/doc/quilt/README.source for information about how to use
+quilt for source packages.
+
+The quilt series is generated from the Git repository,  using topgit.
+This process is documented in /usr/share/doc/topgit/HOWTO-tg2quilt.gz if
+the topgit package is installed.
+
+The bibutils package uses the branch layout described in HOWTO-tg2quilt.gz
+
+The original source tarballs are stored in the git repo using
+pristine-tar.  You can check out the current tarball by
+
+    git branch pristine-tar origin/pristine-tar
+    # UPSTREAM should be the current upstream version
+    pristine-tar checkout ../bibutils_$(UPSTREAM).orig.tar.gz
+
+ -- David Bremner <bremner@unb.ca>, Sun, 29 Mar 2009 09:05:44 -0300
