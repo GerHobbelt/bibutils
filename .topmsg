@@ -1,7 +1,0 @@
-From: David Bremner <bremner@unb.ca>
-Subject: [PATCH] debian/mkshlibs
-
-Use libtool to create a shared library; modify Makefiles to link to
-that shared library.
-
-Signed-off-by: David Bremner <bremner@unb.ca>
