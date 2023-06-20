@@ -1,7 +1,0 @@
-# Hey emacs: -*- readme-debian -*-   
-
-TODO for bibutils 
-
-* Consider not generating bibutils.1 during build process
-* create -dbg package
- -- David Bremner <bremner@debian.org>, Mon, 12 Aug 2013 16:10:30 +0200

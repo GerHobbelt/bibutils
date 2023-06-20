@@ -2,16 +2,23 @@ Source: bibutils
 Section: text
 Priority: optional
 Maintainer: Debian Science Maintainers <debian-science-maintainers@lists.alioth.debian.org>
-Uploaders: David Bremner <bremner@debian.org>
-Build-Depends: debhelper (>= 10),   xsltproc, docbook-xsl, docbook-xml
-Standards-Version: 3.9.6
-Homepage: http://www.scripps.edu/~cdputnam/software/bibutils/
-Vcs-Git: git://git.debian.org/git/debian-science/packages/bibutils/
-Vcs-Browser: http://git.debian.org/?p=debian-science/packages/bibutils.git
+Uploaders: Pierre Gruet <pgt@debian.org>
+Build-Depends: debhelper-compat (= 13),
+               dh-exec,
+               docbook-xml,
+               docbook-xsl,
+               xsltproc
+Standards-Version: 4.6.0
+Homepage: https://sourceforge.net/projects/bibutils/
+Vcs-Git: https://salsa.debian.org/science-team/bibutils.git
+Vcs-Browser: https://salsa.debian.org/science-team/bibutils
+Rules-Requires-Root: no
 
 Package: bibutils
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, libbibutils6
+Depends: ${shlibs:Depends},
+         ${misc:Depends},
+         libbibutils8
 Description: interconvert various bibliographic data formats
  Convert between the following bibliographic data formats: BibTeX,
  COPAC, EndNote refer, EndNote XML, Pubmed XML, ISI web of science, US
@@ -20,13 +27,15 @@ Description: interconvert various bibliographic data formats
  This package provides command line tools bib2xml, copac2xml, end2xml
  endx2xml, isi2xml, med2xml, ris2xml which convert to MODS XML format,
  modsclean which reformats MODS XML, and a matching set of commands
- xml2ads, xml2bib, xml2end, xml2isi, xml2ris, xml2wordbib which convert 
+ xml2ads, xml2bib, xml2end, xml2isi, xml2ris, xml2wordbib which convert
  from MODS XML.
 
 Package: libbibutils-dev
 Section: libdevel
 Architecture: any
-Depends: libbibutils6 (= ${binary:Version}), ${misc:Depends}
+Depends: libbibutils8 (= ${binary:Version}),
+         ${misc:Depends}
+Multi-Arch: same
 Description: bibliography file converter, development kit
  Convert between the following bibliographic data formats: BibTeX,
  COPAC, EndNote refer, EndNote XML, Pubmed XML, ISI web of science, US
@@ -34,10 +43,12 @@ Description: bibliography file converter, development kit
  .
  This package contains the static library and headers for use by developers.
 
-Package: libbibutils6
+Package: libbibutils8
 Section: libs
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${shlibs:Depends},
+         ${misc:Depends}
+Multi-Arch: same
 Description: bibliography file converter, shared library
  Convert between the following bibliographic data formats: BibTeX,
  COPAC, EndNote refer, EndNote XML, Pubmed XML, ISI web of science, US

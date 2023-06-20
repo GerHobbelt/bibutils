@@ -1,5 +1,6 @@
-lib/libbibutils.so usr/lib
-lib/libbibcore.a usr/lib
-lib/libbibutils.a usr/lib
+#!/usr/bin/dh-exec
+lib/libbibutils.so usr/lib/${DEB_HOST_MULTIARCH}/
+lib/libbibcore.a usr/lib/${DEB_HOST_MULTIARCH}/
+lib/libbibutils.a usr/lib/${DEB_HOST_MULTIARCH}/
 lib/*.h usr/include/bibutils
-lib/bibutils.pc usr/lib/pkgconfig
+lib/bibutils.pc usr/lib/${DEB_HOST_MULTIARCH}/pkgconfig
