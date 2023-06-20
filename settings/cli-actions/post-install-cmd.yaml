@@ -1,2 +1,0 @@
-class: Proximify\PublicationFetcher\DependencyInstaller
-method: checkDependencies
