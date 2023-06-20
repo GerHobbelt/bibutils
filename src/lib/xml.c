@@ -398,16 +398,6 @@ xml_attribute_cstr( const xml *node, const char *attribute )
 	else return slist_cstr( &(node->attribute_values), n );
 }
 
-char *
-xml_attribute_cstr( xml *node, const char *attribute )
-{
-	slist_index n;
-
-	n = slist_findc( &(node->attributes), attribute );
-	if ( slist_wasnotfound( &(node->attributes), n ) ) return NULL;
-	else return slist_cstr( &(node->attribute_values), n );
-}
-
 int
 xml_has_value( const xml *node )
 {
