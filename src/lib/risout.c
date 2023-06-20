@@ -474,25 +474,21 @@ static void
 append_pages( fields *in, fields *out, int *status )
 {
 	char *sn, *en, *ar;
-	int fstatus;
 
 	sn = fields_findv( in, LEVEL_ANY, FIELDS_CHRP, "PAGES:START" );
 	en = fields_findv( in, LEVEL_ANY, FIELDS_CHRP, "PAGES:STOP" );
 
 	if ( sn || en ) {
 		if ( sn ) {
-			fstatus = fields_add( out, "SP", sn, LEVEL_MAIN );
-			if ( fstatus!=FIELDS_OK ) *status = BIBL_ERR_MEMERR;
+			*status = append_easypage( out, "SP", sn, LEVEL_MAIN );
 		}
 		if ( en ) {
-			fstatus = fields_add( out, "EP", en, LEVEL_MAIN );
-			if ( fstatus!=FIELDS_OK ) *status = BIBL_ERR_MEMERR;
+			*status = append_easypage( out, "EP", en, LEVEL_MAIN );
 		}
 	} else {
 		ar = fields_findv( in, LEVEL_ANY, FIELDS_CHRP, "ARTICLENUMBER" );
 		if ( ar ) {
-			fstatus = fields_add( out, "SP", ar, LEVEL_MAIN );
-			if ( fstatus!=FIELDS_OK ) *status = BIBL_ERR_MEMERR;
+			*status = append_easypage( out, "SP", ar, LEVEL_MAIN );
 		}
 	}
 }
