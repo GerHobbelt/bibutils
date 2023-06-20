@@ -1,7 +1,7 @@
 /*
  * xml.h
  *
- * Copyright (c) Chris Putnam 2004-2019
+ * Copyright (c) Chris Putnam 2004-2021
  *
  * Source code released under the GPL version 2
  *
@@ -31,6 +31,7 @@ char * xml_tag_cstr             ( xml *node );
 int    xml_tag_matches          ( xml *node, const char *tag );
 int    xml_tag_matches_has_value( xml *node, const char *tag );
 str *  xml_attribute            ( xml *node, const char *attribute );
+char * xml_attribute_cstr       ( xml *node, const char *attribute );
 char * xml_find_start           ( char *buffer, char *tag );
 char * xml_find_end             ( char *buffer, char *tag );
 int    xml_tag_has_attribute    ( xml *node, const char *tag, const char *attribute, const char *attribute_value );

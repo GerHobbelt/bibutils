@@ -1,7 +1,7 @@
 /*
  * serialno.h
  *
- * Copyright (c) Chris Putnam 2005-2019
+ * Copyright (c) Chris Putnam 2005-2021
  *
  * Source code released under the GPL version 2
  *
@@ -11,6 +11,6 @@
 
 #include "fields.h"
 
-int addsn( fields *info, char *buf, int level );
+int add_sn( fields *info, char *buf, int level );
 
 #endif

@@ -1,7 +1,7 @@
 /*
  * bibcore.c
  *
- * Copyright (c) Chris Putnam 2005-2020
+ * Copyright (c) Chris Putnam 2005-2021
  *
  * Source code released under the GPL version 2
  *
@@ -663,9 +663,11 @@ get_citekeys( bibl *bin, slist *citekeys )
 }
 
 static int
-identify_duplicates( bibl *b, slist *citekeys, int *dup )
+identify_duplicates( slist *citekeys, int *dup )
 {
 	int i, j, ndup = 0;
+
+	for ( i=0; i<citekeys->n; ++i ) dup[i] = -1;
 
 	for ( i=0; i<citekeys->n-1; ++i ) {
 		if ( dup[i]!=-1 ) continue;
@@ -741,13 +743,12 @@ out:
 static int
 identify_and_resolve_duplicate_citekeys( bibl *b, slist *citekeys )
 {
-	int i, *dup, ndup, status=BIBL_OK;
+	int *dup, ndup, status=BIBL_OK;
 
 	dup = ( int * ) malloc( sizeof( int ) * citekeys->n );
 	if ( !dup ) return BIBL_ERR_MEMERR;
-	for ( i=0; i<citekeys->n; ++i ) dup[i] = -1;
 
-	ndup = identify_duplicates( b, citekeys, dup );
+	ndup = identify_duplicates( citekeys, dup );
 
 	if ( ndup ) status = resolve_duplicates( b, citekeys, dup );
 

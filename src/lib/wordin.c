@@ -1,7 +1,7 @@
 /*
  * wordin.c
  *
- * Copyright (c) Chris Putnam 2010-2020
+ * Copyright (c) Chris Putnam 2010-2021
  *
  * Source code released under the GPL version 2
  *
@@ -12,6 +12,7 @@
 #include "str.h"
 #include "str_conv.h"
 #include "fields.h"
+#include "pages.h"
 #include "xml.h"
 #include "xml_encoding.h"
 #include "bibformats.h"
@@ -205,57 +206,6 @@ wordin_people( xml *node, fields *info, char *type )
 }
 
 static int
-wordin_pages( xml *node, fields *info )
-{
-	int i, status, ret = BIBL_OK;
-	str sp, ep;
-	char *p;
-
-	strs_init( &sp, &ep, NULL );
-
-	p = xml_value_cstr( node );
-	while ( *p && *p!='-' )
-		str_addchar( &sp, *p++ );
-	if ( str_memerr( &sp ) ) {
-		ret = BIBL_ERR_MEMERR;
-		goto out;
-	}
-
-	if ( *p=='-' ) p++;
-	while ( *p )
-		str_addchar( &ep, *p++ );
-	if ( str_memerr( &ep ) ) {
-		ret = BIBL_ERR_MEMERR;
-		goto out;
-	}
-
-	if ( str_has_value( &sp ) ) {
-		status = fields_add( info, "PAGES:START", str_cstr( &sp ), 1 );
-		if ( status!=FIELDS_OK ) {
-			ret = BIBL_ERR_MEMERR;
-			goto out;
-		}
-	}
-
-	if ( str_has_value( &ep ) ) {
-		if ( sp.len > ep.len ) {
-			for ( i=sp.len-ep.len; i<sp.len; ++i )
-				sp.data[i] = ep.data[i-sp.len+ep.len];
-			status = fields_add( info, "PAGES:STOP", str_cstr( &sp ), 1 );
-		} else
-			status = fields_add( info, "PAGES:STOP", str_cstr( &ep ), 1 );
-		if ( status!=FIELDS_OK ) {
-			ret = BIBL_ERR_MEMERR;
-			goto out;
-		}
-	}
-
-out:
-	strs_free( &sp, &ep, NULL );
-	return ret;
-}
-
-static int
 wordin_reference( xml *node, fields *info )
 {
 	int status, ret = BIBL_OK;
@@ -283,7 +233,7 @@ wordin_reference( xml *node, fields *info )
 			status = fields_add( info, "NOTES", xml_value_cstr( node ), 0 );
 			if ( status!=FIELDS_OK ) ret = BIBL_ERR_MEMERR;
 		} else if ( xml_tag_matches( node, "b:Pages" ) ) {
-			ret = wordin_pages( node, info );
+			ret = add_pages( info, xml_value( node ), 1 );
 		} else if ( xml_tag_matches( node, "b:Author" ) && node->down ) {
 			ret = wordin_people( node->down, info, "AUTHOR" );
 		} else if ( xml_tag_matches( node, "b:Editor" ) && node->down ) {
