@@ -1,50 +1,42 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
-# Sample debian/rules that uses debhelper.
-# This file was originally written by Joey Hess and Craig Small.
-# As a special exception, when this file is copied by dh-make into a
-# dh-make output file, you may use that output file without restriction.
-# This special exception was added by Craig Small in version 0.37 of dh-make.
-include /usr/share/quilt/quilt.make
-
-TG_BRANCHES=debian/mkshlibs
-# wildcard is to avoid a warning from dh when topgit is not installed
-include $(wildcard /usr/share/topgit/tg2quilt.mk)
-
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
+
+DATE=$(shell sed -n 's/^DATE=\(.*\)/\1/p' Makefile_start)
+VERSION=$(shell sed -n 's/^VERSION=\(.*\)/\1/p' Makefile_start)
 
 DB2MAN=/usr/share/sgml/docbook/stylesheet/xsl/nwalsh/manpages/docbook.xsl
 XP=xsltproc -''-nonet
 
-# what to pass to libtool
-SO_CURRENT=1
-SO_REVISION=0
-SO_AGE=0
-SOVERSION=$(SO_CURRENT):$(SO_REVISION):$(SO_AGE)
-SONAME="libbibutils.so."$(SO_CURRENT)
+# Set SONAME
+SOMAJOR=2
+SOMINOR=0
+SONAME="libbibutils.so."$(SOMAJOR)
 
-INSTALLDIR=$(CURDIR)/debian/tmp/bin
-DEVLIB=${CURDIR}/debian/libbibutils-dev/usr/lib
+DESTDIR=${CURDIR}/debian/tmp/
+INSTALLDIR=${DESTDIR}/usr/bin
+LIBINSTALLDIR=${DESTDIR}/usr/lib
 
 %:
-	dh --with quilt  $@
+	dh $@
 
 override_dh_auto_configure:
-	# do the sed ourselves to avoid build dependency on csh
-	sed -e 's/REPLACE_CC/CC="cc -Wall"/' \
-	    -e 's/REPLACE_RANLIB/RANLIB="ranlib"/'  \
-	    -e "s|REPLACE_INSTALLDIR|${INSTALLDIR}|"  \
-	    -e 's/REPLACE_POSTFIX//' < Makefile_start > Makefile
+	@echo Skipping auto_configure
+	@echo building bibutils $(VERSION), upstream date $(DATE)
 
 override_dh_auto_build:
-	$(MAKE) SOVERSION=$(SOVERSION) all
+	$(MAKE) -C lib -f Makefile.dynamic SONAME=$(SONAME) SOMINOR=$(SOMINOR) all
+	$(MAKE) -C bin -f Makefile.dynamic VERSION=$(VERSION) DATE=$(DATE) all
+	# this relies on target clean not removing the shared libs
+	$(MAKE) -C lib -f Makefile.static clean
+	$(MAKE) -C lib -f Makefile.static libbibutils.a libbibcore.a
 	$(XP) -o bibutils.1 $(DB2MAN) bibutils.dbk
-	make -C test all
-	make -C test test
+	sed 's/VERSION/${VERSION}/g' packageconfig_start > lib/bibutils.pc
 
 override_dh_auto_install:
-	mkdir -p ${INSTALLDIR}
-	$(MAKE) SOVERSION=$(SOVERSION) install
-	mkdir -p ${DEVLIB} && ln -s ${SONAME} ${DEVLIB}/libbibutils.so
+	@echo Skipping auto_install
 
+override_dh_auto_test:
+	make -C test all
+	make -C test test

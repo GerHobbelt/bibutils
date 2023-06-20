@@ -1,25 +1,30 @@
 /*
  * med2xml.c
  * 
- * Copyright (c) Chris Putnam 2004-8
+ * Copyright (c) Chris Putnam 2004-2013
  *
- * Source code and program released under the GPL
+ * Program and source code released under the GPL version 2
  *
  */
 #include <stdio.h>
 #include <stdlib.h>
 #include "bibutils.h"
+#include "medin.h"
+#include "modsout.h"
 #include "tomods.h"
 #include "bibprog.h"
 
 char help1[] =  "Converts a Medline XML file into MODS XML\n\n";
 char help2[] = "medline_file";
 
+const char progname[] = "med2xml";
+
 int
 main( int argc, char *argv[] )
 {
 	param p;
-	bibl_initparams( &p, BIBL_MEDLINEIN, BIBL_MODSOUT, "med2xml" );
+	medin_initparams( &p, progname );
+	modsout_initparams( &p, progname );
 	tomods_processargs( &argc, argv, &p, help1, help2 );
 	bibprog( argc, argv, &p );
 	bibl_freeparams( &p );

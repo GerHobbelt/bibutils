@@ -1,44 +1,88 @@
-POSTFIX=REPLACE_POSTFIX
-CC = REPLACE_CC
-RANLIB=REPLACE_RANLIB
-INSTALLDIR=REPLACE_INSTALLDIR
-SOVERSION ?= 0:0:0
-VERSION=4.8
-DATE=2/2/10
+CC            = REPLACE_CC
+EXEEXT        = REPLACE_EXEEXT
+LIBTARGET     = REPLACE_LIBTARGET
+LIBEXT        = REPLACE_LIBEXT
+CFLAGS        = REPLACE_CFLAGS
+CLIBFLAGS     = REPLACE_CLIBFLAGS
+RANLIB        = REPLACE_RANLIB
+POSTFIX       = REPLACE_POSTFIX
+INSTALLDIR    = REPLACE_INSTALLDIR
+LIBINSTALLDIR = REPLACE_LIBINSTALLDIR
 
-PROGRAMS=bib2xml ris2xml end2xml endx2xml med2xml isi2xml copac2xml \
-	ebi2xml wordbib2xml \
-	xml2ads xml2bib xml2end xml2isi xml2ris xml2wordbib modsclean
+MAJORVERSION  = 5
+MINORVERSION  = 0
+VERSION       = $(MAJORVERSION).$(MINORVERSION)
+DATE          = 2013-05-27
+
+PROGRAMS      = bib2xml \
+                biblatex2xml \
+                copac2xml \
+                ebi2xml \
+                end2xml \
+                endx2xml \
+                isi2xml \
+                med2xml \
+                ris2xml \
+                wordbib2xml \
+                xml2ads \
+                xml2bib \
+                xml2end \
+                xml2isi \
+                xml2ris \
+                xml2wordbib \
+                modsclean
 
 all : FORCE
-	cd lib; make -k $(RANLIB) SOVERSION=$(SOVERSION); cd ..
-	cd bin; make -k $(CC) VERSION="$(VERSION)" -k DATE="$(DATE)"; cd ..
+	$(MAKE) -C lib -k \
+                CC=$(CC) \
+                CFLAGSIN="$(CLIBFLAGS) $(DISTRO_CFLAGS)"\
+                LIBTARGETIN=$(LIBTARGET) \
+                MAJORVERSION=$(MAJORVERSION) \
+                MINORVERSION=$(MINORVERSION) \
+                RANLIB=$(RANLIB)
+	$(MAKE) -C bin -k \
+                CC=$(CC) \
+                CFLAGSIN="$(CFLAGS) $(DISTRO_CFLAGS)"\
+                EXEEXT=$(EXEEXT) \
+                VERSION="$(VERSION)" \
+                DATE="$(DATE)" \
+                PROGSIN="$(PROGRAMS)"
 
 clean: FORCE
-	cd lib     ; make clean ; cd ..
-	cd bin     ; make clean ; cd ..
-	cd test    ; make clean ; cd ..
+	$(MAKE) -C lib clean
+	$(MAKE) -C bin clean
+	$(MAKE) -C test clean
 
 realclean: FORCE
-	cd lib     ; make realclean ; cd ..
-	cd bin     ; make realclean ; cd ..
-	cd test    ; make realclean ; cd ..
+	$(MAKE) -C lib realclean
+	$(MAKE) -C bin PROGSIN="$(PROGRAMS)" realclean
+	$(MAKE) -C test realclean
 	rm -rf update lib/bibutils.pc
 
 test: all FORCE
-	cd lib    ; make test; cd ..
-	cd bin    ; make test; cd ..
+	$(MAKE) -C lib
+	$(MAKE) -C bin test
+	$(MAKE) -C test \
+                CFLAGSIN="$(CFLAGS) $(DISTRO_CFLAGS)"\
+                test
 
 install: all FORCE
+	$(MAKE) -C lib \
+                MAJORVERSION=$(MAJORVERSION) \
+                MINORVERSION=$(MINORVERSION) \
+                LIBINSTALLDIR=$(LIBINSTALLDIR) \
+                install
+	$(MAKE) -C bin \
+                EXEEXT=$(EXEEXT) \
+                PROGSIN="$(PROGRAMS)" \
+                INSTALLDIR=$(INSTALLDIR) \
+                install
 	sed 's/VERSION/${VERSION}/g' packageconfig_start > lib/bibutils.pc
-	@for p in ${PROGRAMS}; \
-		do ( cp bin/$$p ${INSTALLDIR}/$$p ); \
-	done
 
 package: all FORCE
-	csh -f maketgz.csh ${VERSION} ${POSTFIX}
+	sh -f maketgz.sh $(VERSION) $(POSTFIX) $(LIBTARGET) $(EXEEXT)
 
 deb: all FORCE
-	csh -f makedeb.csh ${VERSION} ${POSTFIX}
+	sh -f makedeb.sh $(VERSION) $(POSTFIX)
 
 FORCE:

@@ -1,9 +1,9 @@
 /*
  * modsout.h
  *
- * Copyright (c) Chris Putnam 2003-2009
+ * Copyright (c) Chris Putnam 2003-2013
  *
- * Source code released under the GPL
+ * Source code released under the GPL version 2
  *
  */
 #ifndef MODSOUT_H
@@ -21,6 +21,7 @@ extern void modsout_writeheader( FILE *outptr, param *p );
 extern void modsout_writefooter( FILE *outptr );
 extern void modsout_write( fields *info, FILE *outptr,
 	param *p, unsigned long numrefs );
+extern void modsout_initparams( param *p, const char *progname );
 
 #endif
 

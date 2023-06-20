@@ -1,25 +1,30 @@
 /*
  * ris2xml.c
  *
- * Copyright (c) Chris Putnam 2003-8
+ * Copyright (c) Chris Putnam 2003-2013
  *
- * Program and source code released under the GPL
+ * Program and source code released under the GPL version 2
  *
  */
 #include <stdio.h>
 #include <stdlib.h>
 #include "bibutils.h"
+#include "risin.h"
+#include "modsout.h"
 #include "tomods.h"
 #include "bibprog.h"
 
 char help1[] = "Converts a RIS reference file into MODS XML";
 char help2[] = "ris_file";
 
+const char progname[] = "ris2xml";
+
 int 
 main( int argc, char *argv[] )
 {
 	param p;
-	bibl_initparams( &p, BIBL_RISIN, BIBL_MODSOUT, "ris2xml" );
+	risin_initparams( &p, progname );
+	modsout_initparams( &p, progname );
 	tomods_processargs( &argc, argv, &p, help1, help2 );
 	bibprog( argc, argv, &p );
 	bibl_freeparams( &p );

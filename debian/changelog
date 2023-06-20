@@ -1,3 +1,41 @@
+bibutils (4.12-5) unstable; urgency=low
+
+  * Remove extraneous backslashes from libbibutils.pc. 
+    (Closes: #644257). 
+
+ -- David Bremner <bremner@debian.org>  Sun, 09 Oct 2011 09:10:45 -0300
+
+bibutils (4.12-4) unstable; urgency=low
+
+  * Install modsout.h and wordout.h (Closes: #637692). Thanks to Giovanni
+    Mascellani for the patch.
+
+ -- David Bremner <bremner@debian.org>  Mon, 26 Sep 2011 19:11:43 -0300
+
+bibutils (4.12-3) unstable; urgency=low
+
+  * Bug fix: "CLI option --version does not display version at all",
+    thanks to Patrice Pillot (Closes: #630707).
+  * Update to standards version 3.9.2 (no changes)
+
+ -- David Bremner <bremner@debian.org>  Mon, 20 Jun 2011 19:48:26 -0300
+
+bibutils (4.12-2) unstable; urgency=low
+
+  * Upload to unstable
+
+ -- David Bremner <bremner@debian.org>  Fri, 06 May 2011 23:59:42 -0300
+
+bibutils (4.12-1) experimental; urgency=low
+
+  * New upstream release
+    - new commands: biblatex2xml ebi2xml and wordbib2xml
+  * Major packaging update, now using upstream build system to make
+    shared libraries.
+  * Update to standards version 3.9.1 (no changes)
+
+ -- David Bremner <bremner@debian.org>  Fri, 10 Dec 2010 21:46:26 -0400
+
 bibutils (4.8-1) unstable; urgency=low
 
   * New upstream release

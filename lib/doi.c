@@ -9,9 +9,10 @@
  * is_doi()
  * Check for DOI buried in another field.
  *
- * Copyright (c) Chris Putnam 2008-2009
+ * Copyright (c) Chris Putnam 2008-2013
  *
- * Source code released under the GPL
+ * Source code released under the GPL version 2
+ *
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -33,46 +34,47 @@ construct_url( char *prefix, newstr *id, newstr *id_url )
 }
 
 static int
-url_exists( fields *info, char *urltag, newstr *doi_url )
+url_exists( fields *f, char *urltag, newstr *doi_url )
 {
-	int i, found = 0;
+	int i, n;
 	if ( urltag ) {
-		for ( i=0; i<info->nfields && !found; ++i ) {
-			if ( strcmp( info->tag[i].data, urltag ) )
-				continue;
-			if ( !strcmp( info->data[i].data, doi_url->data ) )
-				found=1;
+		n = fields_num( f );
+		for ( i=0; i<n; ++i ) {
+			if ( strcmp( fields_tag( f, i, FIELDS_CHRP ), urltag ) ) continue;
+			if ( strcmp( fields_value( f, i, FIELDS_CHRP ), doi_url->data ) ) continue;
+			return 1;
 		}
 	}
-	return found;
+	return 0;
 }
 
-void
-doi_to_url( fields *info, int n, char *urltag, newstr *doi_url )
+static void
+xxx_to_url( fields *f, int n, char *http_prefix, char *urltag, newstr *xxx_url )
 {
-	newstr_empty( doi_url );
-	construct_url( "http://dx.doi.org", &(info->data[n]), doi_url );
-	if ( url_exists( info, urltag, doi_url ) )
-		newstr_empty( doi_url );
+	newstr_empty( xxx_url );
+	construct_url( http_prefix, fields_value( f, n, FIELDS_STRP ), xxx_url );
+	if ( url_exists( f, urltag, xxx_url ) )
+		newstr_empty( xxx_url );
 }
-
 void
-pmid_to_url( fields *info, int n, char *urltag, newstr *pmid_url )
+doi_to_url( fields *f, int n, char *urltag, newstr *url )
 {
-	newstr_empty( pmid_url );
-	construct_url( "http://www.ncbi.nlm.nih.gov/pubmed", &(info->data[n]),
-			pmid_url );
-	if ( url_exists( info, urltag, pmid_url ) )
-		newstr_empty( pmid_url );
+	xxx_to_url( f, n, "http://dx.doi.org", urltag, url );
 }
-
 void
-arxiv_to_url( fields *info, int n, char *urltag, newstr *arxiv_url )
+jstor_to_url( fields *f, int n, char *urltag, newstr *url )
 {
-	newstr_empty( arxiv_url );
-	construct_url( "http://arxiv.org/abs", &(info->data[n]), arxiv_url );
-	if ( url_exists( info, urltag, arxiv_url ) )
-		newstr_empty( arxiv_url );
+	xxx_to_url( f, n, "http://www.jstor.org/stable", urltag, url );
+}
+void
+pmid_to_url( fields *f, int n, char *urltag, newstr *url )
+{
+	xxx_to_url( f, n, "http://www.ncbi.nlm.nih.gov/pubmed", urltag, url );
+}
+void
+arxiv_to_url( fields *f, int n, char *urltag, newstr *url )
+{
+	xxx_to_url( f, n, "http://arxiv.org/abs", urltag, url );
 }
 
 /* Rules for the pattern:
@@ -90,9 +92,9 @@ string_pattern( char *s, char *pattern, int matchcase )
 	for ( i=0; i<patlen; ++i ) {
 		match = 0;
 		if ( pattern[i]=='#' ) {
-			if ( isdigit( s[i] ) ) match = 1;
-		} else if ( !matchcase && isalpha( pattern[i] ) ) {
-			if ( tolower(pattern[i])==tolower(s[i])) match = 1;
+			if ( isdigit( (unsigned char)s[i] ) ) match = 1;
+		} else if ( !matchcase && isalpha( (unsigned char)pattern[i] ) ) {
+			if ( tolower((unsigned char)pattern[i])==tolower((unsigned char)s[i])) match = 1;
 		} else {
 			if ( pattern[i] == s[i] ) match = 1;
 		}

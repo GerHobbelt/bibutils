@@ -1,14 +1,15 @@
 /*
  * xml_getencoding.c
  *
- * Copyright (c) Chris Putnam 2007-2009
+ * Copyright (c) Chris Putnam 2007-2013
  *
- * Source code released under the GPL
+ * Source code released under the GPL version 2
  *
  */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "charsets.h"
 #include "newstr.h"
 #include "newstr_conv.h"
 #include "xml.h"
@@ -22,9 +23,13 @@ xml_getencodingr( xml *node )
 	if ( xml_tagexact( node, "xml" ) ) {
 		s = xml_getattrib( node, "encoding" );
 		if ( s && s->data ) {
-			if ( !strcasecmp( s->data, "UTF-8" ) ) 
+			if ( !strcasecmp( s->data, "UTF-8" ) )
 				n = CHARSET_UNICODE;
-			else n = get_charset( s->data );
+			else if ( !strcasecmp( s->data, "UTF8" ) )
+				n = CHARSET_UNICODE;
+			else if ( !strcasecmp( s->data, "GB18030" ) )
+				n = CHARSET_GB18030;
+			else n = charset_find( s->data );
 			if ( n==CHARSET_UNKNOWN ) {
 				fprintf( stderr, "Warning: did not recognize "
 					"encoding '%s'\n", s->data );

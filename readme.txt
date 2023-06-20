@@ -1,7 +1,8 @@
 
                               COMPILING BIBUTILS.
 
-Step 1.  Configure the makefile by running the configure script.
+------------------------------------------------------------------------
+STEP 1.  Configure the makefile by running the configure script.
 
 The configure script attempts to auto-identify your operating system
 and does a reasonable job for a number of platforms (including x86 Linux,
@@ -21,33 +22,58 @@ To configure the makefile, simply run:
 
 or alternatively
 
-% csh -f configure
+% sh -f configure
+
+The output should look something like:
+
+'
+'Bibutils Configuration
+'----------------------
+'
+'Operating system:               Linux_x86_64
+'Library and binary type:        static
+'Binary installation directory:  /usr/local/bin
+'Library installation directory: /usr/local/lib
+'
+' - If auto-identification of operating system failed, e-mail cdputnam@ucsd.edu
+'   with the output of the command: uname -a
+'
+' - Use --static or --dynamic to specify library and binary type;
+'   the --static option is the default
+'
+' - Set binary installation directory with:  --install-dir DIR
+'
+' - Set library installation directory with: --install-lib DIR
+'
+'
+'To compile,                  type: make
+'To install,                  type: make install
+'To make tgz package,         type: make package
+'To make deb package,         type: make deb
+'
+'To clean up temporary files, type: make clean
+'To clean up all files,       type: make realclean
 
 
-Bibutils Configuration
-----------------------
+By default, the configure script generates Makefiles to generate statically
+linked binaries.  These binaries are the largest, but require no management of
+dynamic libraries, which can be subtle for users not used to installing
+them and ensuring that the operating system knows where they are.
+Dynamically linked binaries take up substantially less disk space, but require
+real machine and distribution specific knowledge for handling the dynamic
+library installation and usage.  All of the distributed binaries are statically
+linked for obvious reasons.
 
-Configured Makefile to operating system Linux_x86.
-    If auto-identification of operating system failed, please
-    e-mail cdputnam@ucsd.edu with the system type and output of
-    the command: uname -a
-
-Set installation directory to /usr/local/bin.
-    To modify install directory type: configure --install-dir DIR
-    where DIR is the desired directory.
-
-To compile,          type: make
-To install,          type: make install
-To make tgz package, type: make package
-To make deb package, type: make deb
-
-
-Step 2.  Make the package with make
+-----------------------------------------------------------------------
+STEP 2.  Make the package with make
 
 % make
 
-Step 3.  Install the package
+----------------------------------------------------------------------
+STEP 3.  Install the package
 
 % make install
 
+Note that 'make install' won't install the libraries with statically-
+linked binaries but will (naturally) with dynamically-linked binaries.
 

@@ -1,9 +1,9 @@
 /*
  * wordout.h
  *
- * Copyright (c) Chris Putnam 2008-2009
+ * Copyright (c) Chris Putnam 2008-2013
  *
- * Source code released under the GPL
+ * Source code released under the GPL version 2
  *
  */
 #ifndef WORDOUT_H
@@ -20,6 +20,8 @@ extern void wordout_writeheader( FILE *outptr, param *p );
 extern void wordout_writefooter( FILE *outptr );
 extern void wordout_write( fields *info, FILE *outptr, param *p,
 	unsigned long numrefs );
+extern void wordout_initparams( param *p, const char *progname );
+
 
 #endif
 

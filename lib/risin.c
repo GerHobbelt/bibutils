@@ -1,9 +1,9 @@
 /*
  * risin.c
  *
- * Copyright (c) Chris Putnam 2003-2009
+ * Copyright (c) Chris Putnam 2003-2013
  *
- * Program and source code released under the GPL
+ * Source code released under the GPL version 2
  *
  */
 #include <stdio.h>
@@ -19,6 +19,35 @@
 #include "reftypes.h"
 #include "doi.h"
 #include "risin.h"
+
+void
+risin_initparams( param *p, const char *progname )
+{
+	p->readformat       = BIBL_RISIN;
+	p->charsetin        = BIBL_CHARSET_DEFAULT;
+	p->charsetin_src    = BIBL_SRC_DEFAULT;
+	p->latexin          = 0;
+	p->xmlin            = 0;
+	p->utf8in           = 0;
+	p->nosplittitle     = 0;
+	p->verbose          = 0;
+	p->addcount         = 0;
+	p->output_raw       = 0;
+
+	p->readf    = risin_readf;
+	p->processf = risin_processf;
+	p->cleanf   = NULL;
+	p->typef    = risin_typef;
+	p->convertf = risin_convertf;
+	p->all      = ris_all;
+	p->nall     = ris_nall;
+
+	list_init( &(p->asis) );
+	list_init( &(p->corps) );
+
+	if ( !progname ) p->progname = NULL;
+	else p->progname = strdup( progname );
+}
 
 /* RIS definition of a tag is strict:
     character 1 = uppercase alphabetic character
@@ -132,6 +161,8 @@ int
 risin_processf( fields *risin, char *p, char *filename, long nref )
 {
 	newstr tag, data;
+	int n;
+
 	newstrs_init( &tag, &data, NULL );
 
 	while ( *p ) {
@@ -142,9 +173,10 @@ risin_processf( fields *risin, char *p, char *filename, long nref )
 			fields_add( risin, tag.data, data.data, 0 );
 		} else {
 			p = process_line2( &tag, &data, p );
-			if ( data.len && risin->nfields>0 ) {
+			n = fields_num( risin );
+			if ( data.len && n>0 ) {
 				newstr *od;
-				od = &(risin->data[risin->nfields-1] );
+				od = fields_value( risin, n-1, FIELDS_STRP );
 				newstr_addchar( od, ' ' );
 				newstr_strcat( od, data.data );
 			}
@@ -157,62 +189,112 @@ risin_processf( fields *risin, char *p, char *filename, long nref )
 }
 
 /* oxfordjournals hide the DOI in the NOTES N1 field */
-static void
-notes_add( fields *info, char *tag, newstr *s, int level )
+static int
+risin_addnotes( fields *f, char *tag, newstr *s, int level )
 {
 	int doi = is_doi( s->data );
 	if ( doi!=-1 )
-		fields_add( info, "DOI", &(s->data[doi]), level );
+		return fields_add( f, "DOI", &(s->data[doi]), level );
 	else
-		fields_add( info, tag, s->data, level );
+		return fields_add( f, tag, s->data, level );
+}
+
+static int
+is_uri_file_scheme( char *p )
+{
+	if ( !strncmp( p, "file:", 5 ) ) return 5;
+	return 0;
+}
+
+static int
+is_uri_remote_scheme( char *p )
+{
+	char *scheme[] = { "http:", "ftp:", "git:", "gopher:" };
+	int i, len, nschemes = sizeof( scheme ) / sizeof( scheme[0] );
+	for ( i=0; i<nschemes; ++i ) {
+		len = strlen( scheme[i] );
+		if ( !strncmp( p, scheme[i], len ) ) return len;
+	}
+	return 0;
+}
+
+static int
+risin_addfile( fields *f, char *tag, newstr *s, int level )
+{
+	char *p;
+	int n;
+
+	/* if URL is file:///path/to/xyz.pdf, only store "///path/to/xyz.pdf" */
+	n = is_uri_file_scheme( s->data );
+	if ( n ) {
+		/* skip past "file:" and store only actual path */
+		p = s->data + n;
+		return fields_add( f, tag, p, level );
+	}
+
+	/* if URL is http:, ftp:, etc. store as a URL */
+	n = is_uri_remote_scheme( s->data );
+	if ( n ) {
+		return fields_add( f, "URL", s->data, level );
+	}
+
+	/* badly formed, RIS wants URI, but store value anyway */
+	return fields_add( f, tag, s->data, level );
 }
 
 /* scopus puts DOI in the DO or DI tag, but it needs cleaning */
-static void
-doi_add( fields *info, char *tag, newstr *s, int level )
+static int
+risin_adddoi( fields *f, char *tag, newstr *s, int level )
 {
 	int doi = is_doi( s->data );
 	if ( doi!=-1 )
-		fields_add( info, "DOI", &(s->data[doi]), level );
+		return fields_add( f, "DOI", &(s->data[doi]), level );
+	else return 1;
 }
 
-static void
-adddate( fields *info, char *tag, char *p, int level )
+static int
+risin_adddate( fields *f, char *tag, newstr *d, int level )
 {
+	char *p = d->data;
 	newstr date;
-	int part = ( !strncasecmp( tag, "PART", 4 ) );
+	int part = ( !strncasecmp( tag, "PART", 4 ) ), ok;
 
 	newstr_init( &date );
 	while ( *p && *p!='/' ) newstr_addchar( &date, *p++ );
 	if ( *p=='/' ) p++;
 	if ( date.len>0 ) {
-		if ( part ) fields_add( info, "PARTYEAR", date.data, level );
-		else        fields_add( info, "YEAR",     date.data, level );
+		if ( part ) ok = fields_add( f, "PARTYEAR", date.data, level );
+		else        ok = fields_add( f, "YEAR",     date.data, level );
+		if ( !ok ) return 0;
 	}
 
 	newstr_empty( &date );
 	while ( *p && *p!='/' ) newstr_addchar( &date, *p++ );
 	if ( *p=='/' ) p++;
 	if ( date.len>0 ) {
-		if ( part ) fields_add( info, "PARTMONTH", date.data, level );
-		else        fields_add( info, "MONTH",     date.data, level );
+		if ( part ) ok = fields_add( f, "PARTMONTH", date.data, level );
+		else        ok = fields_add( f, "MONTH",     date.data, level );
+		if ( !ok ) return 0;
 	}
 
 	newstr_empty( &date );
 	while ( *p && *p!='/' ) newstr_addchar( &date, *p++ );
 	if ( *p=='/' ) p++;
 	if ( date.len>0 ) {
-		if ( part ) fields_add( info, "PARTDAY", date.data, level );
-		else        fields_add( info, "DAY",     date.data, level );
+		if ( part ) ok = fields_add( f, "PARTDAY", date.data, level );
+		else        ok = fields_add( f, "DAY",     date.data, level );
+		if ( !ok ) return 0;
 	}
 
 	newstr_empty( &date );
 	while ( *p ) newstr_addchar( &date, *p++ );
 	if ( date.len>0 ) {
-		if ( part ) fields_add( info, "PARTDATEOTHER", date.data,level);
-		else        fields_add( info, "DATEOTHER", date.data, level );
+		if ( part ) ok = fields_add( f, "PARTDATEOTHER", date.data,level);
+		else        ok = fields_add( f, "DATEOTHER", date.data, level );
+		if ( !ok ) return 0;
 	}
 	newstr_free( &date );
+	return 1;
 }
 
 int
@@ -240,53 +322,84 @@ risin_report_notag( param *p, char *tag )
 	}
 }
 
-void
-risin_convertf( fields *risin, fields *info, int reftype, param *p, variants *all, int nall )
+int
+risin_convertf( fields *risin, fields *f, int reftype, param *p, variants *all, int nall )
 {
+	int process, level, i, n, nfields, ok;
+	char *outtag, *tag, *value;
 	newstr *t, *d;
-	int process, level, i, n;
-	char *newtag;
-	for ( i=0; i<risin->nfields; ++i ) {
-		t = &( risin->tag[i] );
-		d = &( risin->data[i] );
-		n = process_findoldtag( t->data, reftype, all, nall );
+
+	nfields = fields_num( risin );
+
+	for ( i=0; i<nfields; ++i ) {
+		t = fields_tag( risin, i, FIELDS_STRP );
+		n = translate_oldtag( t->data, reftype, all, nall, &process, &level, &outtag );
 		if ( n==-1 ) {
 			risin_report_notag( p, t->data );
 			continue;
 		}
-		process = ((all[reftype]).tags[n]).processingtype;
-		level   = ((all[reftype]).tags[n]).level;
-		newtag  = ((all[reftype]).tags[n]).newstr;
-		if ( process==SIMPLE )
-			fields_add( info, newtag, d->data, level );
-		else if ( process==PERSON )
-			name_add( info, newtag, d->data, level, &(p->asis), 
-					&(p->corps) );
-		else if ( process==TITLE )
-			title_process( info, newtag, d->data, level, 
-					p->nosplittitle );
-		else if ( process==DATE )
-			adddate( info, newtag, d->data, level );
-		else if ( process==SERIALNO )
-			addsn( info, d->data, level );
-		else if ( process==NOTES )
-			notes_add( info, newtag, d, level );
-		else if ( process==DOI )
-			doi_add( info, newtag, d, level );
-		else { /* do nothing */ }
+		if ( process==ALWAYS ) continue; /* add in core code */
+
+		d = fields_value( risin, i, FIELDS_STRP );
+
+		switch ( process ) {
+
+		case SIMPLE:
+			ok = fields_add( f, outtag, d->data, level );
+			break;
+
+		case PERSON:
+			ok = name_add( f, outtag, d->data, level, &(p->asis), &(p->corps) );
+			break;
+
+		case TITLE:
+			ok = title_process( f, outtag, d->data, level, p->nosplittitle );
+			break;
+
+		case SERIALNO:
+			ok = addsn( f, d->data, level );
+			break;
+
+		case DATE:
+			ok = risin_adddate( f, outtag, d, level );
+			break;
+
+		case NOTES:
+			ok = risin_addnotes( f, outtag, d, level );
+			break;
+
+		case DOI:
+			ok = risin_adddoi( f, outtag, d, level );
+			break;
+
+		case LINKEDFILE:
+			ok = risin_addfile( f, outtag, d, level );
+			break;
+
+		default:
+			ok = 1;
+			break;
+
+		}
+		if ( !ok ) return BIBL_ERR_MEMERR;
 	}
+
 	/* look for thesis-type hint */
 	if ( !strcasecmp( all[reftype].type, "THES" ) ) {
-		for ( i=0; i<risin->nfields; ++i ) {
-			if ( strcasecmp(risin->tag[i].data, "U1") )
-				continue;
-			if ( !strcasecmp(risin->data[i].data,"Ph.D. Thesis")||
-			     !strcasecmp(risin->data[i].data,"Masters Thesis")||
-			     !strcasecmp(risin->data[i].data,"Diploma Thesis")||
-			     !strcasecmp(risin->data[i].data,"Doctoral Thesis")||
-			     !strcasecmp(risin->data[i].data,"Habilitation Thesis"))
-				fields_add( info, "GENRE", risin->data[i].data,
-					0 );
+		for ( i=0; i<nfields; ++i ) {
+			tag = fields_tag( risin, i, FIELDS_CHRP );
+			if ( strcasecmp( tag, "U1" ) ) continue;
+			value = fields_value( risin, i, FIELDS_CHRP );
+			if ( !strcasecmp(value,"Ph.D. Thesis")||
+			     !strcasecmp(value,"Masters Thesis")||
+			     !strcasecmp(value,"Diploma Thesis")||
+			     !strcasecmp(value,"Doctoral Thesis")||
+			     !strcasecmp(value,"Habilitation Thesis")) {
+				ok = fields_add( f, "GENRE", value, 0 );
+				if ( !ok ) return BIBL_ERR_MEMERR;
+			}
 		}
 	}
+
+	return BIBL_OK;
 }

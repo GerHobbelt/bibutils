@@ -1,9 +1,9 @@
 /*
  * ebiin.c
  *
- * Copyright (c) Chris Putnam 2004-8
+ * Copyright (c) Chris Putnam 2004-2013
  *
- * Program and source code released under the GPL
+ * Program and source code released under the GPL version 2
  *
  */
 #include <stdio.h>
@@ -15,6 +15,36 @@
 #include "xml.h"
 #include "xml_encoding.h"
 #include "ebiin.h"
+
+void
+ebiin_initparams( param *p, const char *progname )
+{
+	p->readformat       = BIBL_EBIIN;
+	p->charsetin        = BIBL_CHARSET_UNICODE;
+	p->charsetin_src    = BIBL_SRC_DEFAULT;
+	p->latexin          = 0;
+	p->xmlin            = 1;
+	p->utf8in           = 1;
+	p->nosplittitle     = 0;
+	p->verbose          = 0;
+	p->addcount         = 0;
+	p->output_raw       = BIBL_RAW_WITHMAKEREFID |
+	                      BIBL_RAW_WITHCHARCONVERT;
+
+	p->readf    = ebiin_readf;
+	p->processf = ebiin_processf;
+	p->cleanf   = NULL;
+	p->typef    = NULL;
+	p->convertf = NULL;
+	p->all      = NULL;
+	p->nall     = 0;
+
+	list_init( &(p->asis) );
+	list_init( &(p->corps) );
+
+	if ( !progname ) p->progname = NULL;
+	else p->progname = strdup( progname );
+}
 
 int
 ebiin_readf( FILE *fp, char *buf, int bufsize, int *bufpos, newstr *line, newstr *reference, int *fcharset )
@@ -476,14 +506,4 @@ ebiin_processf( fields *ebiin, char *data, char *filename, long nref )
 	ebiin_assembleref( &top, ebiin );
 	xml_free( &top );
 	return 1;
-}
-
-void
-ebiin_convertf( fields *ebiin, fields *info, int reftype, int verbose, 
-	variants *all, int nall )
-{
-	int i;
-	for ( i=0; i<ebiin->nfields; ++i )
-		fields_add( info, ebiin->tag[i].data, ebiin->data[i].data,
-				ebiin->level[i] );
 }

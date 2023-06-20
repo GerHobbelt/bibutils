@@ -1,7 +1,9 @@
 /*
  * bibutils.h
  *
- * Copyright (c) Chris Putnam 2005-2009
+ * Copyright (c) Chris Putnam 2005-2013
+ *
+ * Source code released under GPL version 2
  *
  */
 #ifndef BIBUTILS_H
@@ -14,6 +16,7 @@ extern "C" {
 #include <stdio.h>
 #include "bibl.h"
 #include "list.h"
+#include "charsets.h"
 
 #define BIBL_OK           (0)
 #define BIBL_ERR_BADINPUT (-1)
@@ -49,10 +52,12 @@ extern "C" {
 #define BIBL_RAW_WITHCHARCONVERT (4)
 #define BIBL_RAW_WITHMAKEREFID   (8)
 
-#define BIBL_CHARSET_UNKNOWN (-1)
-#define BIBL_CHARSET_UNICODE (-2)
-#define BIBL_CHARSET_GB18030 (-3)
-#define BIBL_CHARSET_DEFAULT (66)  /* Latin-1/ISO8859-1 */
+#define BIBL_CHARSET_UNKNOWN      CHARSET_UNKNOWN
+#define BIBL_CHARSET_UNICODE      CHARSET_UNICODE
+#define BIBL_CHARSET_GB18030      CHARSET_GB18030
+#define BIBL_CHARSET_DEFAULT      CHARSET_DEFAULT
+#define BIBL_CHARSET_UTF8_DEFAULT CHARSET_UTF8_DEFAULT
+#define BIBL_CHARSET_BOM_DEFAULT  CHARSET_BOM_DEFAULT
 
 #define BIBL_SRC_DEFAULT (0)  /* value from program default */
 #define BIBL_SRC_FILE    (1)  /* value from file, priority over default */
@@ -89,6 +94,19 @@ typedef struct param {
 	list corps; /* Names that shouldn't be mangled-MODS corporation type */
 
 	char *progname;
+
+
+        int  (*readf)(FILE*,char*,int,int*,newstr*,newstr*,int*);
+        int  (*processf)(fields*,char*,char*,long);
+        void (*cleanf)(bibl*,struct param*);
+        int  (*typef) (fields*,char*,int,struct param*,variants*,int);
+        int  (*convertf)(fields*,fields*,int,struct param*,variants*,int);
+        void (*headerf)(FILE*,struct param*);
+        void (*footerf)(FILE*);
+        void (*writef)(fields*,FILE*,struct param*,unsigned long);
+        variants *all;
+        int  nall;
+
 
 } param;
 

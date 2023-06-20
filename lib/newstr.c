@@ -1,14 +1,14 @@
 /*
  * newstr.c
  *
- * Copyright (c) Chris Putnam 1999-2009
+ * Version: 04/21/13
  *
- * Source code released under the GPL
+ * Copyright (c) Chris Putnam 1999-2013
+ *
+ * Source code released under the GPL version 2
  *
  *
- * newstring routines for dynamically allocated strings
- *
- * C. Putnam 3/29/02  Clean up newstr_findreplace() (x4 speed increase too)
+ * routines for dynamically allocated strings
  *
  */
 #include <stdio.h>
@@ -91,6 +91,15 @@ newstr_init( newstr *s )
 }
 
 void
+newstr_initstr( newstr *s, char *initstr )
+{
+	assert( s );
+	assert( initstr );
+	newstr_init( s );
+	newstr_strcpy( s, initstr );
+}
+
+void
 newstrs_init( newstr *s, ... )
 {
 	newstr *s2;
@@ -101,6 +110,20 @@ newstrs_init( newstr *s, ... )
 		s2 = va_arg( ap, newstr * );
 		if ( s2 ) newstr_init( s2 );
 	} while ( s2 );
+	va_end( ap );
+}
+
+void
+newstr_mergestrs( newstr *s, ... )
+{
+	va_list ap;
+	char *cp;
+	newstr_empty( s );
+	va_start( ap, s );
+	do {
+		cp = va_arg( ap, char * );
+		if ( cp ) newstr_strcat( s, cp );
+	} while ( cp );
 	va_end( ap );
 }
 
@@ -191,6 +214,29 @@ newstr_addchar( newstr *s, char newchar )
 		newstr_realloc( s, s->len+2 );
 	s->data[s->len++] = newchar;
 	s->data[s->len] = '\0';
+}
+
+/* newstr_addutf8
+ *
+ * Add potential multibyte character to s starting at pointer p.
+ * Multibyte Unicode characters have the high bit set.
+ *
+ * Since we can progress more than one byte at p, return the
+ * properly updated pointer p.
+ */
+char *
+newstr_addutf8( newstr *s, char *p )
+{
+	if ( ! ((*p) & 128 ) ) {
+		newstr_addchar( s, *p );
+		p++;
+	} else {
+		while ( ((*p) & 128) ) {
+			newstr_addchar( s, *p );
+			p++;
+		}
+	}
+	return p;
 }
 
 void 
@@ -299,9 +345,9 @@ newstr_strcpy_internal( newstr *s, char *p, unsigned long n )
 void
 newstr_newstrcpy( newstr *s, newstr *old )
 {
-	assert( s && old );
+	assert( s );
 	if ( s==old ) return;
-	if ( !old->data || !old->dim ) newstr_empty( s );
+	else if ( !old || old->len==0 ) newstr_empty( s );
 	else newstr_strcpy_internal( s, old->data, old->len );
 }
 
@@ -321,6 +367,36 @@ newstr_strdup( char *s1 )
 	if ( s2 )
 		newstr_strcpy( s2, s1 );
 	return s2;
+}
+
+/*
+ * newstr_indxcpy( s, in, start, stop );
+ *
+ * copies in[start] to in[stop] (includes stop) into s
+ */
+void
+newstr_indxcpy( newstr *s, char *p, int start, int stop )
+{
+	int i;
+	assert( s );
+	assert( p );
+	assert( start <= stop );
+	newstr_strcpy_ensurespace( s, stop-start+1 );
+	for ( i=start; i<=stop; ++i )
+		s->data[i-start] = p[i];
+	s->data[i] = '\0';
+	s->len = stop-start+1;
+}
+
+void
+newstr_indxcat( newstr *s, char *p, int start, int stop )
+{
+	int i;
+	assert( s );
+	assert( p );
+	assert( start <= stop );
+	for ( i=start; i<=stop; ++i )
+		newstr_addchar( s, p[i] );
 }
 
 /* newstr_segcpy( s, start, end );
@@ -454,7 +530,16 @@ newstr_toupper( newstr *s )
 	unsigned long i;
 	assert( s );
 	for ( i=0; i<s->len; ++i )
-		s->data[i] = toupper( s->data[i] );
+		s->data[i] = toupper( (unsigned char)s->data[i] );
+}
+
+void
+newstr_tolower( newstr *s )
+{
+	unsigned long i;
+	assert( s );
+	for ( i=0; i<s->len; ++i )
+		s->data[i] = tolower( (unsigned char)s->data[i] );
 }
 
 /* newstr_swapstrings( s1, s2 )
@@ -486,6 +571,33 @@ newstr_swapstrings( newstr *s1, newstr *s2 )
 }
 
 void
+newstr_trimstartingws( newstr *s )
+{
+	unsigned char still_ws;
+	unsigned long n, m;
+
+	assert( s );
+
+	if ( s->len==0 || !is_ws( s->data[0] ) ) return;
+
+	m = n = 0;
+	still_ws = 1;
+	while ( m <= s->len ) {
+		if ( still_ws && !is_ws( s->data[ m ] ) ) {
+			still_ws = 0;
+		}
+		if ( !still_ws ) {
+			s->data[ n ] = s->data[ m ];
+			n++;
+		}
+		m++;
+	}
+
+	s->len = n;
+}
+	
+
+void
 newstr_trimendingws( newstr *s )
 {
 	assert( s );
@@ -495,3 +607,175 @@ newstr_trimendingws( newstr *s )
 	}
 }
 
+int
+newstr_match_first( newstr *s, char ch )
+{
+	if ( !s->len ) return 0;
+	if ( s->data[0] == ch ) return 1;
+	return 0;
+}
+
+int
+newstr_match_end( newstr *s, char ch )
+{
+	if ( !s->len ) return 0;
+	if ( s->data[ s->len - 1 ] == ch ) return 1;
+	return 0;
+}
+
+void
+newstr_trimbegin( newstr *s, int n )
+{
+	int i;
+	assert( s );
+	if ( s->len - n < 1 ) newstr_empty( s );
+	for ( i=1; i<=s->len; ++i ) /* pick up '\0' with '<=' */
+		s->data[i-1] = s->data[i];
+	s->len -= n;
+}
+
+void
+newstr_trimend( newstr *s, int n )
+{
+	assert( s );
+	if ( s->len - n < 1 ) newstr_empty( s );
+	else {
+		s->len -= n;
+		s->data[ s->len ] = '\0';
+	}
+}
+
+static void
+newstr_check_case( newstr *s, int *lowercase, int *uppercase )
+{
+	int i;
+	*lowercase = 0;
+	*uppercase = 0;
+	if ( s->len < 1 ) return;
+	for ( i=0; i<s->len && !( *lowercase && *uppercase ); ++i ) {
+		if ( isalpha( (unsigned char)s->data[i] ) ) {
+			if ( isupper( (unsigned char)s->data[i] ) ) *uppercase += 1;
+			else if ( islower( (unsigned char)s->data[i] ) ) *lowercase += 1;
+		}
+	}
+}
+
+int
+newstr_is_mixedcase( newstr *s )
+{
+	int lowercase, uppercase;
+	newstr_check_case( s, &lowercase, &uppercase );
+	if ( lowercase > 0 && uppercase > 0 ) return 1;
+	return 0;
+}
+
+int
+newstr_is_lowercase( newstr *s )
+{
+	int lowercase, uppercase;
+	newstr_check_case( s, &lowercase, &uppercase );
+	if ( lowercase > 0 && uppercase == 0 ) return 1;
+	return 0;
+}
+
+int
+newstr_is_uppercase( newstr *s )
+{
+	int lowercase, uppercase;
+	newstr_check_case( s, &lowercase, &uppercase );
+	if ( lowercase == 0 && uppercase > 0 ) return 1;
+	return 0;
+}
+
+void
+newstr_stripws( newstr *s )
+{
+	unsigned long len = 0;
+	char *p, *q;
+	assert( s );
+	if ( s->len ) {
+		p = q = s->data;
+		while ( *p ) {
+			if ( !is_ws( *p ) ) {
+				*q = *p;
+				q++;
+				len++;
+			}
+			p++;
+		}
+		*q = '\0';
+	}
+	s->len = len;
+}
+
+int
+newstr_newstrcmp( newstr *s, newstr *t )
+{
+	assert( s );
+	assert( t );
+	if ( s->len == 0 && t->len == 0 ) return 0;
+	return strcmp( s->data, t->data );
+}
+
+void
+newstr_reverse( newstr *s )
+{
+	newstr ns;
+	unsigned long i;
+
+	assert( s );
+
+	if ( s->len==0 ) return;
+	newstr_init( &ns );
+	i = s->len;
+	do {
+		i--;
+		newstr_addchar( &ns, s->data[i] );
+	} while ( i>0 );
+	newstr_swapstrings( s, &ns );
+	newstr_free( &ns );
+}
+
+int
+newstr_fgetline( newstr *s, FILE *fp )
+{
+	int ch, eol = 0;
+	assert( s );
+	newstr_empty( s );
+	if ( feof( fp ) ) return 0;
+	while ( !feof( fp ) && !eol ) {
+		ch = fgetc( fp );
+		if ( ch == EOF ) eol = 1;
+		else if ( ch == '\n' ) eol = 1;
+		else if ( ch == '\r' ) {
+			ch = fgetc( fp );
+			if ( ch != '\n' ) ungetc( ch, fp );
+			eol = 1;
+		} else {
+			newstr_addchar( s, (char) ch );
+		}
+	}
+	return 1;
+}
+
+/*
+ * s = "Hi!\0", s.len = 3
+ *
+ * newstr_char( s, 0 ) = 'H'  newstr_revchar( s, 0 ) = '\0'
+ * newstr_char( s, 1 ) = 'i'  newstr_revchar( s, 1 ) = '!'
+ * newstr_char( s, 2 ) = '!'  newstr_revchar( s, 2 ) = 'i'
+ * newstr_char( s, 3 ) = '\0' newstr_revchar( s, 3 ) = 'H'
+ */
+char
+newstr_char( newstr *s, unsigned long n )
+{
+	if ( s->len==0 || n >= s->len ) return '\0';
+	return s->data[ n ];
+}
+
+char
+newstr_revchar( newstr *s, unsigned long n )
+{
+	if ( s->len==0 || n >= s->len ) return '\0';
+	return s->data[ s->len - n ];
+}

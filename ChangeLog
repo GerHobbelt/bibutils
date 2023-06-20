@@ -1,6 +1,259 @@
 
 BIBUTILS
 
+5.0
+05/27/13
+
+USER VISIBLE CHANGES
++ Make default character set unicode
++ Enable -o --output-encoding for the xxx2xml converters
+
+BUILD
++ Ensure binary directory target exists (reported by Thomas Fischer)
++ Tell cp to preserve symbolic links when copying dynamic library (reported by Thomas Fischer)
++ Remove bashisms from sh script (reported by JeffH)
+
+BIBLATEXIN
++ Handle 'shorttitle' tag (reported by Nick Bart)
++ Make asis/corp file work again (reported by JeffH)
++ Map 'pubstate' tag to note type="publication status" similar to http://ufdc.ufl.edu/help/pubstatus (suggested by Nick Bart)
++ Handle 'series' tag in @report (reported by Nick Bart)
++ Map 'series' in @article to partName of journal title (reported by Nick Bart)
++ Write 'annotation' as special type of note (reported by Nick Bart)
+
+BIBTEXIN
++ Make asis/corp file work again (reported by JeffH)
+
+RISOUT
++ Ensure that BT fields are written for conference publications (reported by Matthias Stevens)
++ Ensure that ED fields are used for editors of conference publications (reported by Matthias Stevens)
+
+MODS
++ Fix inappropriate "language" tags under languageOfCataloging (reported by Nick Bart)
+
+NAME MANGLING
++ Improve handling of prefixes to given names, e.g. "van der" in "van der Sande"
+
+4.17
+01/24/13
+
+BUILD
++ Large changes to build process; more changes for MINGW32/Cygwin
++ Remove attempt to build powerpc-supporting binaries for MacOSX
+
+GLOBAL
++ Attempt to include iso639-2b codes for languages when possible
++ Make output consistent with MODS version 3.4 by adding language/languageTerm (reported by Nick Bart)
++ Fix accidental duplication of roles in MODS output (reported by Nick Bart)
+
+BIBLATEXIN
++ Map 'hyphenation' to recordInfo/languageOfCataloging (reported by Nick Bart)
++ Map biblatex 'version' to edition (reported by Nick Bart)
++ Fix series fields in @inbook (reported by Nick Bart)
++ Fix issues with @periodical (reported by Nick Bart)
++ Handle entrysubtypes for @article (reported by Nick Bart)
++ Handle origdate (reported by Nick Bart)
++ Fix corporate editors (reported by Nick Bart)
++ Process report 'isrn' field (reported by Nick Bart)
+
+MEDIN
++ Handle iso639-2b language input and output as full language name
+
+4.16
+01/09/13
+
+BUILD
++ Add version to GPL for Fedora/Redhat
++ Add recognition of x86_64 MacOSX as Intel Macintoshes to configure
++ Add recognition of OpenBSD to configure
++ Add recognition of MINGW32 architecture to configure
++ Remove explicit use of 'make' in Makefiles and use $(MAKE) instead
++ Switch to sh version of configure script (thanks to Adrian Devries)
++ Switch to sh version of maketgz script (thanks to Adrian Devries)
++ Switch to sh version of makedeb script
+
+GLOBAL
++ Improve propagation of memory errors in libraries to calling programs
++ Update help messages
++ Rewrite name parsing/mangling code
++ Do cast for ctype.h functions to handle MINGW32 architecture (reported by Adrian Devries)
+
+ADSOUT
++ Fix bug where partial matches for journal titles identified journals
++ Add Windows-specific format string for MINGW32 architecture (reported by Adrian Devries)
++ Update list of journal abbreviations
+
+BIBTEXIN
++ Fix bug where spaces following an escaped quotation mark (as with the -nl, no latex, flag) are lost (reported by Raoul Blankertz)
++ Fix bug where pages had to be completely numeric (reported by Nick Bart)
++ Import series information for @Techreport
++ Rewrite name parsing
++ Improve recognition of urls put in inappropriate fields
++ Improve handling of tilde/sticky space
++ Add latex recognition of alternative ways to express the (Polish) capital and lowercase slashed L
++ Improve recognition of URL identifiers in note fields
++ Map 'howpublished' to publisher (reported by Nick Bart)
+
+BIBLATEXIN
++ Add 'date' field to every reference type, regardless if it's in the reference documentation or not (reported by Nick Bart)
++ Fix bug where pages had to be completely numeric (reported by Nick Bart)
++ Add support for 'institution' and 'type' for report references (reported by Nick Bart)
++ Add strings support (reported by Nick Bart)
++ Handle editor types, including bibtex-chicago variants (reported by Nick Bart)
++ Map 'introduction', 'foreward', 'afterward' to "author of introduction/foreward/afterward" (reported by Nick Bart)
++ Ignore 'school' in biblatexin reference if 'institution' is available like biblatex(reported by Nick Bart)
++ Improve biblatex thesis type recognition
++ Rewrite name parsing
++ Improve handlning of tilde/sticky space
++ Map 'howpublished' to publisher (reported by Nick Bart)
++ Handle 'titleaddon' field (reported by Nick Bart)
++ Output number field differently for type report (reported by Nick Bart)
+
+BIBTEXOUT
++ Output series information for @Techreport
++ Output all keywords in single entry as semi-colon deliminated list
+
+COPACIN
++ Fix pre-name mangling that prevents recognition by asis/corporation lists
+
+ENDIN
++ Add better support for series information
+
+ENDOUT
++ Add better support for series information
+
+MODSIN
++ Add support for common MARC role codes (role abbreviations)
+
+RISIN
++ Add recognition of map type
++ Improve support for series information (reported by Mattheis Steffens)
+
+RISOUT
++ Add recognition of map type (reported by Mattheis Steffens)
++ Fix bug in date output (reported by Mattheis Steffens)
++ Improve support for series information (reported by Mattheis Steffens)
+
+4.15
+9/26/12
+
+BIBTEXIN
++ @article 'number' -> MODS 'issue'
++ @conference = @inproceedings
++ 'organization' -> publisher if publisher not available, otherwise output
+  as <name><namePart>xx</namePart><role><roleTerm>organizer of meeting</roleTerm></role></name>
+
+BIBLATEXIN
++ Add missing month parsing
+
+4.14
+9/04/12
+
+BIBTEXIN
++ Split individual keywords in the keywords field separated by semi-colons
+
+RISIN
++ Handle URL schemes from L1 and L4 fields (reported by Martin Kucej)
+
+RISOUT
++ PY outputs only year, DA outputs year/month/day combination (reported by Nelson Hart)
++ L1 and L4 fields need to be URL's (reported by Martin Kucej)
+
+WORD2007OUT
++ Replace b:PeriodicalName with b:PeriodicalTitle
+
+4.13
+8/28/12
+
+BUILD
++ Fix build problem with test subdirectory (patch by David Bremner)
++ Avoid hard-coded dynamic library to help out Debian (path by David Bremner)
++ Add patch to bibutils.dbk (patch by David Bremner)
+
+CHARSETS
++ Add more latex character <-> Unicode conversions
+
+FIELDS
++ Update internals, add vplist component, and convert to new interface
+
+BIBTEXIN
++ Fix chapter in @inbook, @inproceedings, and @incollection from overwriting
+  the title of the section being cited (reported by Brian Keese)
++ Cleanly handle "illegal" @inbook entries that have both "title" and "booktitle"
+  fields and really want to be @incollection entries (reported by Brian Keese)
++ Remove mbox commands from input
+
+RISIN
++ Add recognition of more RIS fields (reported by Nelson Hart)
+
+RISOUT
++ Use 'AB' instead of 'N2' tag for abstracts (reported by Nelson Hart)
++ Use 'DO' tag instead of building a complete URL for DOI's (reported by Nelson Hart)
++ Use 'ET' tag for edition output (reported by Nelson Hart)
++ Use 'LA' tag for language
++ Add recognition of non-official genres "book chapter" and "journal article"
+  (reported by Nelson Hart)
+
+
+4.12
+10/10/10
+
+BUILD
++ Allow smaller static libraries to be built
++ Add --dynamic and --static (default) options to configure script
++ Add --install-lib to configure script to controll installation of dynamic libraries
+
+XML2ADS
++ Fix overflow of page value with really large page numbers
++ Update journal abbreviation list
+
+XML2BIB
++ Add command-line option -d or --drop-key to prevent xml2bib from
+  adding tags (so they can be generated by programs like JabRef)
+
+
+4.11
+9/14/10
+
+BUILD
++ Include some "unused" flags like LDFLAGS so that people with particular build
+  environments can have these flags respected (from Gentoo 
+  http://bugs.gentoo.org/show_bug.cgi?id=336237)
++ Add test programs to "make test" protocol
+
+TEST
++ Fix some signedness issues (bit rot) in the test programs (from Mandriva
+  packager, Stéphane Téletchéa)
+
+XML2BIB
++ Add command-line option  -at or --abbreviatedtitles to force xml2bib to
+  use abbreviated titles for journals (books and other host types), if present
+  in the MODS input
+
+
+4.10
+8/30/10
+
+BIBLATEX2XML
++ fix organization/event handling (thanks to Johannes Wilms)
+
+MODSIN
++ support the presence of the reference identifier/key in 
+  mods:recordInfo:recordIdentifier
+
+4.9
+4/9/10
+
+BIBLATEX2XML
++ Many, many changes thanks to Johannes Wilms
+
+BIB2XML
++ Some improvements in thesis handling derived from biblatex2xml changes
+
+BUILD
++ Fix build for _x86_64 (amd64) (Thanks to patch from Colin Bell).
+
+
 4.8
 2/2/10
 
@@ -163,11 +416,11 @@ XML2BIB
 
 XML2END
 + Add export of DOI as %U http://dx.doi.org/.... Thanks to Mattheis
-  Stevens for the report
+  Steffens for the report
 
 XML2RIS
 + Add export of DOI as UR  - http://dx.doi.org/....  Thanks to Mattheis
-  Stevens for the report
+  Steffens for the report
 
 XML2WORD
 + Add support for more types of sources.
