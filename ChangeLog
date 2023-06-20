@@ -1,6 +1,168 @@
 
 BIBUTILS
 
+6.10
+3/23/20
++ Fix build errors in version 6.9
+
+6.9
+3/17/20
++ Add xml2biblatex converter
++ Fix bug where --no-latex/-nl isn't respected when outputting names
++ Replace latex parser
++ xml2isi - add publisher address to output
++ Cleanups to converter core
++ Fixes to some fuzzer-identified bugs
+
+6.8
+8/27/19
++ Improve ISI output
++ Lots of cleanups
+
+6.7
+8/31/18
++ Remove exit() calls from library and fully implement error tracking in 
+struct str (requested by Vasiliy Glazov)
++ Add "DOI:" to doi entries in xml2ads (reported by Richard Mathar)
++ Eliminate duplication of doi information in xml2ads (reported by Richard
+Mathar)
++ Improve handling of non-ascii letters for ADS %R tags (patch from Richard
+Mathar)
++ Suppress warnings on Windows compilers with 32 bit longs (reported by Vaclav
+Haisman)
+
+6.6
+7/02/18
++ Allow distros to inject LDFLAGS via LDFLAGSIN into bibutils builds (reported
+by Jens-Ulrik Petersen)
++ Add xml2nbib converter
+
+6.5
+6/12/18
++ Handle both genres "unpublished" and "manuscript" (reported by Chip Maguire)
++ Recognize all MARC role abbreviations (reported by Chip Maguire)
++ Handle Licentiate theses (reported by Chip Maguire)
++ Fix bug in nbib2xml (reported by Vaclav Haisman)
++ Fix hangs in bib2xml/biblatex2xml found by american-fuzzy-lop
+
+6.4
+6/05/18
++ Add missing return in bibtexout.c (reported by Vaclav Haisman)
++ Fix accidentally deleted extern in xml.h to fix hs-bibutils build (reported
+by Vaclav Haisman)
+
+6.3
+6/04/18
++ Add bibdiff program
++ Fix header guards in iso639_1.h and iso639_3.h (reported by Vaclav Haisman)
++ Fix nbib support for bibutils as a library (reported by Vaclav Haisman)
++ Add authority="bibutilsgt" for bibutils-recognized genres not in MARC
+authority
++ Switch from GENRE/NGENRE/UGENRE to GENRE:MARC/GENRE:BIBUTILS/GENRE:UNKNOWN
++ General cleanups and fixes to cppcheck/clang warnings
++ Fix CVE-2018-10773, CVE-2018-10774, CVE-2018-10775
+
+6.2
+8/09/17
+
+DOI
++ Output as url in addition to doi for ads, bibtex, and ris formats
+
+6.1
+7/31/17
+
+BUILD
++ Fix recognition of Linux ppc64le machines (reported by Michaela Buchanan)
+
+GLOBAL
++ Handle new crossref URL for DOI's https://doi.org/ (reported by Murali Raju)
+
+RISIN
++ Handle mangled RIS sources that have three spaces in the tag instead of two
+(reported by Vaclav Haisman)
+
+6.0
+7/4/17
+
+GLOBAL
++ Switch newstr/list to str/slist
++ Fix build problems
+
+RISIN
++ Fix parsing bug in RIS (patch from Vaclav Haisman)
+
+BIBTEXIN/OUT
++ Improve handling of eprintClass/primaryClass for arXiv references (reported
+by Chris Karakas)
+
+5.11
+11/8/16
+
+NBIB2XML
++ Add program
+
+BIBTEXOUT
++ Handle MRNUMBER
+
+5.10
+11/2/16
+
+BIBTEXIN
++ Handle MRNUMBER and CODEN tags
+
+5.9
+9/12/16
+
+GLOBAL
++ Allow bibutils to properly process references with several authors of the
+same name (reported by Jason Annadani).
+
+MODSIN
++ Fix processing of mods input files where given name information isn't as
+finely parsed as bibutils mods files are (reported by Dan Gildea).
+
+5.8
+5/23/16
+
+INTERNAL
++ Change xxx_convertf() functions to use tables of function pointers
++ Use generic function pointers whenever possible to decrease duplicated code
+
+ADSOUT
++ Improve URL handling
+
+BIBLATEXIN
++ Identify JSTOR
+
+BIBTEXOUT
++ Handle PMC identifiers
++ Fix chapter/title for @inbook references (reported by Vivek Botcha)
+
+RISOUT
++ Handle PMC identifiers
+
+
+5.7
+2/15/16
+
+MODSIN
++ Handle relatedItem original information (reported by John Vandenberg)
+
+BIBTEXOUT
++ Resolve INBOOK/MISC problems (reported by John Vandenberg)
++ Improve output of latex macros (reported by John Vandenberg)
+
+RISIN
++ Recognize URL's buried in the notes field
++ Properly propagate situation when journal name in RIS is under "T2"--short
+title, not "JF"--journal title (reported by Mary Martin)
+
+GLOBAL
++ Update library components to current versions
++ Improve error propagation
++ Lots of small fixes found by clang --analyze
+
+
 5.6
 1/26/15
 

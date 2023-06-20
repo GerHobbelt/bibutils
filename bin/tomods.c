@@ -1,17 +1,16 @@
 /*
  * tomods.c
  *
- * Copyright (c) Chris Putnam 2004-2015
+ * Copyright (c) Chris Putnam 2004-2020
  *
- * Source code released under the GPL version 2
+ * Program and source code released under the GPL version 2
  *
  */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "list.h"
+#include "slist.h"
 #include "bibl.h"
-#include "modsout.h"
 #include "bibutils.h"
 #include "tomods.h"
 #include "args.h"
@@ -68,11 +67,9 @@ tomods_processargs( int *argc, char *argv[], param *p,
 	while ( i<*argc ) {
 		subtract = 0;
 		if ( args_match( argv[i], "-h", "--help" ) ) {
-			subtract = 1;
 			args_tomods_help( p->progname, help1, help2 );
 			exit( EXIT_SUCCESS );
 		} else if ( args_match( argv[i], "-v", "--version" ) ) {
-			subtract = 1;
 			args_tellversion( p->progname );
 			exit( EXIT_SUCCESS );
 		} else if ( args_match( argv[i], "-a", "--add-refcount" ) ) {
@@ -88,7 +85,7 @@ tomods_processargs( int *argc, char *argv[], param *p,
 			p->format_opts |= BIBL_FORMAT_VERBOSE;
 			subtract = 1;
 		} else if ( args_match( argv[i], "-d", "--drop-key" ) ) {
-			p->format_opts |= MODSOUT_DROPKEY;
+			p->format_opts |= BIBL_FORMAT_MODSOUT_DROPKEY;
 			subtract = 1;
 		} else if ( args_match( argv[i], "-s", "--single-refperfile" )){
 			p->singlerefperfile = 1;

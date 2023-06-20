@@ -1,8 +1,8 @@
 /*
  * bltypes.c
  *
- * Copyright (c) Chris Putnam 2008-2015
- * Copyright (c) Johannes Wilm 2010-2015
+ * Copyright (c) Chris Putnam 2008-2020
+ * Copyright (c) Johannes Wilm 2010-2020
  *
  * Program and source code released under the GPL version 2
  *
@@ -47,7 +47,7 @@ static lookups article[] = {
 	{ "issuesubtitle",   "SUBTITLE",               TITLE,           LEVEL_SERIES }, /*WRONG*/
 	{ "language",        "LANGUAGE",               SIMPLE,          LEVEL_MAIN   },
 	{ "origlanguage",    "LANGUAGE",               SIMPLE,          LEVEL_ORIG   },
-	{ "origyear",        "YEAR",                   SIMPLE,          LEVEL_ORIG   },
+	{ "origyear",        "DATE:YEAR",              SIMPLE,          LEVEL_ORIG   },
 	{ "origdate",        "DATE",                   SIMPLE,          LEVEL_ORIG   },
 	{ "origtitle",       "TITLE",                  SIMPLE,          LEVEL_ORIG   },
 	{ "origlocation",    "ADDRESS",                SIMPLE,          LEVEL_ORIG   },
@@ -58,22 +58,23 @@ static lookups article[] = {
 	{ "eid",             "EID",                    SIMPLE,          LEVEL_MAIN   },
 	{ "issue",           "ISSUE",                  SIMPLE,          LEVEL_MAIN   },
 	{ "date",            "DATE",                   SIMPLE,          LEVEL_MAIN   },   /*WRONG*/
-	{ "day",             "PARTDAY",                SIMPLE,          LEVEL_MAIN   },
-	{ "month",           "PARTMONTH",              SIMPLE,          LEVEL_MAIN   },
-	{ "year",            "PARTYEAR",               SIMPLE,          LEVEL_MAIN   },
+	{ "day",             "PARTDATE:DAY",           SIMPLE,          LEVEL_MAIN   },
+	{ "month",           "PARTDATE:MONTH",         SIMPLE,          LEVEL_MAIN   },
+	{ "year",            "PARTDATE:YEAR",          SIMPLE,          LEVEL_MAIN   },
 	{ "pages",           "PAGES",                  PAGES,           LEVEL_MAIN   },
 	{ "version",         "EDITION",                SIMPLE,          LEVEL_MAIN   },
-	{ "note",            "NOTES",                  SIMPLE,          LEVEL_MAIN   },
+	{ "note",            "NOTES",                  NOTES,           LEVEL_MAIN   },
 	{ "annote",          "ANNOTATION",             SIMPLE,          LEVEL_MAIN   },
 	{ "annotation",      "ANNOTATION",             SIMPLE,          LEVEL_MAIN   },
 	{ "issn",            "ISSN",                   SIMPLE,          LEVEL_HOST   },
+	{ "coden",           "CODEN",                  SIMPLE,          LEVEL_HOST   },
 	{ "abstract",        "ABSTRACT",               SIMPLE,          LEVEL_MAIN   },
 	{ "addendum",        "ADDENDUM",               SIMPLE,          LEVEL_MAIN   },
 	{ "doi",             "DOI",                    SIMPLE,          LEVEL_MAIN   },
 	{ "pubstate",        "PUBSTATE",               SIMPLE,          LEVEL_MAIN   },
 	{ "eprint",          "",                       BT_EPRINT,       LEVEL_MAIN   },
 	{ "eprinttype",      "",                       BT_EPRINT,       LEVEL_MAIN   },
-	{ "url",             "",                       BT_URL,          LEVEL_MAIN   },
+	{ "url",             "",                       URL,             LEVEL_MAIN   },
 	{ "urldate",         "URLDATE",                SIMPLE,          LEVEL_MAIN   },
 	{ "urlday",          "?urlday?",               SIMPLE,          LEVEL_MAIN   }, /* WRONG */
 	{ "urlmonth",        "?urlmonth?",             SIMPLE,          LEVEL_MAIN   }, /* WRONG */
@@ -85,8 +86,8 @@ static lookups article[] = {
 	{ "",                "INTERNAL_TYPE|ARTICLE",  ALWAYS,          LEVEL_MAIN   },
 	{ "",                "ISSUANCE|continuing",    ALWAYS,          LEVEL_HOST   },
 	{ "",                "RESOURCE|text",          ALWAYS,          LEVEL_MAIN   },
-	{ "",                "NGENRE|journal article", DEFAULT,         LEVEL_MAIN   },
-	{ "",                "GENRE|periodical",       DEFAULT,         LEVEL_HOST   }
+	{ "",                "GENRE:BIBUTILS|journal article", DEFAULT, LEVEL_MAIN   },
+	{ "",                "GENRE:MARC|periodical",          DEFAULT, LEVEL_HOST   }
 };
 
 /* Book */
@@ -120,11 +121,11 @@ static lookups book[] = {
 	{ "mainsubtitle",    "SUBTITLE",               TITLE,           LEVEL_HOST   },
 	{ "maintitleaddon",  "TITLEADDON",             TITLE,           LEVEL_HOST   },
 	{ "language",        "LANGUAGE",               SIMPLE,          LEVEL_MAIN   },
-	{ "year",            "YEAR",                   SIMPLE,          LEVEL_MAIN   },
-	{ "month",           "MONTH",                  SIMPLE,          LEVEL_MAIN   },
+	{ "year",            "DATE:YEAR",              SIMPLE,          LEVEL_MAIN   },
+	{ "month",           "DATE:MONTH",             SIMPLE,          LEVEL_MAIN   },
 	{ "date",            "DATE",                   SIMPLE,          LEVEL_MAIN   },   /*WRONG*/
 	{ "origlanguage",    "LANGUAGE",               SIMPLE,          LEVEL_ORIG   },
-	{ "origyear",        "YEAR",                   SIMPLE,          LEVEL_ORIG   },
+	{ "origyear",        "DATE:YEAR",              SIMPLE,          LEVEL_ORIG   },
 	{ "origdate",        "DATE",                   SIMPLE,          LEVEL_ORIG   },
 	{ "origtitle",       "TITLE",                  SIMPLE,          LEVEL_ORIG   },
 	{ "origlocation",    "ADDRESS",                SIMPLE,          LEVEL_ORIG   },
@@ -135,7 +136,7 @@ static lookups book[] = {
 	{ "volumes",         "NUMVOLUMES",             SIMPLE,          LEVEL_HOST   },
 	{ "series",          "TITLE",                  SIMPLE,          LEVEL_HOST   }, /* WRONG */
 	{ "number",          "NUMBER",                 SIMPLE,          LEVEL_MAIN   },
-	{ "note",            "NOTES",                  SIMPLE,          LEVEL_MAIN   },
+	{ "note",            "NOTES",                  NOTES,           LEVEL_MAIN   },
 	{ "annote",          "ANNOTATION",             SIMPLE,          LEVEL_MAIN   },
 	{ "annotation",      "ANNOTATION",             SIMPLE,          LEVEL_MAIN   },
 	{ "publisher",       "PUBLISHER",              SIMPLE,          LEVEL_MAIN   },
@@ -143,13 +144,13 @@ static lookups book[] = {
 	{ "isbn",            "ISBN",                   SIMPLE,          LEVEL_MAIN   },
 	{ "chapter",         "CHAPTER",                SIMPLE,          LEVEL_MAIN   },
 	{ "pages",           "PAGES",                  PAGES,           LEVEL_MAIN   }, /* WRONG */
-	{ "pagetotal",       "TOTALPAGES",             SIMPLE,          LEVEL_MAIN   },
+	{ "pagetotal",       "PAGES:TOTAL",            SIMPLE,          LEVEL_MAIN   },
 	{ "addendum",        "ADDENDUM",               SIMPLE,          LEVEL_MAIN   },
 	{ "doi",             "DOI",                    SIMPLE,          LEVEL_MAIN   },
 	{ "pubstate",        "PUBSTATE",               SIMPLE,          LEVEL_MAIN   },
 	{ "eprint",          "",                       BT_EPRINT,       LEVEL_MAIN   },
 	{ "eprinttype",      "",                       BT_EPRINT,       LEVEL_MAIN   },
-	{ "url",             "",                       BT_URL,          LEVEL_MAIN   },
+	{ "url",             "",                       URL,             LEVEL_MAIN   },
 	{ "urldate",         "URLDATE",                SIMPLE,          LEVEL_MAIN   },
 	{ "urlday",          "?urlday?",               SIMPLE,          LEVEL_MAIN   },
 	{ "urlmonth",        "?urlmonth?",             SIMPLE,          LEVEL_MAIN   },
@@ -160,7 +161,7 @@ static lookups book[] = {
 	{ "",                "INTERNAL_TYPE|BOOK",     ALWAYS,          LEVEL_MAIN   },
 	{ "",                "RESOURCE|text",          ALWAYS,          LEVEL_MAIN   },
 	{ "",                "ISSUANCE|monographic",   ALWAYS,          LEVEL_MAIN   },
-	{ "",                "GENRE|book",             ALWAYS,          LEVEL_MAIN   }
+	{ "",                "GENRE:MARC|book",        ALWAYS,          LEVEL_MAIN   }
 };
 
 /* Booklet */
@@ -184,25 +185,25 @@ static lookups booklet[] = {
 	{ "titleaddon",      "TITLEADDON",             TITLE,           LEVEL_MAIN   },
 	{ "shorttitle",      "SHORTTITLE",             SIMPLE,          LEVEL_MAIN   },
 	{ "howpublished",    "",                       HOWPUBLISHED,    LEVEL_MAIN   },
-	{ "year",            "YEAR",                   SIMPLE,          LEVEL_MAIN   },
-	{ "month",           "MONTH",                  SIMPLE,          LEVEL_MAIN   },
+	{ "year",            "DATE:YEAR",              SIMPLE,          LEVEL_MAIN   },
+	{ "month",           "DATE:MONTH",             SIMPLE,          LEVEL_MAIN   },
 	{ "date",            "DATE",                   SIMPLE,          LEVEL_MAIN   },   /*WRONG*/
 	{ "language",        "LANGUAGE",               SIMPLE,          LEVEL_MAIN   },
-	{ "type",            "GENRE",                  BT_GENRE,        LEVEL_MAIN   },
-	{ "note",            "NOTES",                  SIMPLE,          LEVEL_MAIN   },
+	{ "type",            "GENRE:UNKNOWN",          GENRE,           LEVEL_MAIN   },
+	{ "note",            "NOTES",                  NOTES,           LEVEL_MAIN   },
 	{ "annote",          "ANNOTATION",             SIMPLE,          LEVEL_MAIN   },
 	{ "annotation",      "ANNOTATION",             SIMPLE,          LEVEL_MAIN   },
 	{ "publisher",       "PUBLISHER",              SIMPLE,          LEVEL_MAIN   },
 	{ "location",        "ADDRESS",                SIMPLE,          LEVEL_MAIN   },
 	{ "chapter",         "CHAPTER",                SIMPLE,          LEVEL_MAIN   },
 	{ "pages",           "PAGES",                  PAGES,           LEVEL_MAIN   },
-	{ "pagetotal",       "TOTALPAGES",             SIMPLE,          LEVEL_MAIN   },
+	{ "pagetotal",       "PAGES:TOTAL",            SIMPLE,          LEVEL_MAIN   },
 	{ "addendum",        "ADDENDUM",               SIMPLE,          LEVEL_MAIN   },
 	{ "doi",             "DOI",                    SIMPLE,          LEVEL_MAIN   },
 	{ "pubstate",        "PUBSTATE",               SIMPLE,          LEVEL_MAIN   },
 	{ "eprint",          "",                       BT_EPRINT,       LEVEL_MAIN   },
 	{ "eprinttype",      "",                       BT_EPRINT,       LEVEL_MAIN   },
-	{ "url",             "",                       BT_URL,          LEVEL_MAIN   },
+	{ "url",             "",                       URL,             LEVEL_MAIN   },
 	{ "urldate",         "URLDATE",                SIMPLE,          LEVEL_MAIN   },
 	{ "urlday",          "?urlday?",               SIMPLE,          LEVEL_MAIN   },
 	{ "urlmonth",        "?urlmonth?",             SIMPLE,          LEVEL_MAIN   },
@@ -213,7 +214,7 @@ static lookups booklet[] = {
 	{ "",                "INTERNAL_TYPE|BOOK",     ALWAYS,          LEVEL_MAIN   },
 	{ "",                "RESOURCE|text",          ALWAYS,          LEVEL_MAIN   },
 	{ "",                "ISSUANCE|monographic",   ALWAYS,          LEVEL_MAIN   },
-	{ "",                "GENRE|book",             ALWAYS,          LEVEL_MAIN   }
+	{ "",                "GENRE:MARC|book",        ALWAYS,          LEVEL_MAIN   }
 };
 
 static lookups collection[] = {
@@ -233,8 +234,8 @@ static lookups collection[] = {
 	{ "annotator",       "ANNOTATOR",              PERSON,          LEVEL_MAIN   },
 	{ "commentator",     "COMMENTATOR",            PERSON,          LEVEL_MAIN   },
 	{ "translator",      "TRANSLATOR",             PERSON,          LEVEL_MAIN   },
-	{ "year",            "YEAR",                   SIMPLE,          LEVEL_MAIN   },
-	{ "month",           "MONTH",                  SIMPLE,          LEVEL_MAIN   },
+	{ "year",            "DATE:YEAR",              SIMPLE,          LEVEL_MAIN   },
+	{ "month",           "DATE:MONTH",             SIMPLE,          LEVEL_MAIN   },
 	{ "date",            "DATE",                   SIMPLE,          LEVEL_MAIN   },   /*WRONG*/
 	{ "introduction",    "INTROAUTHOR",            PERSON,          LEVEL_MAIN   },
 	{ "foreword",        "INTROAUTHOR",            PERSON,          LEVEL_MAIN   },
@@ -248,7 +249,7 @@ static lookups collection[] = {
 	{ "maintitleaddon",  "TITLEADDON",             TITLE,           LEVEL_HOST   },
 	{ "language",        "LANGUAGE",               SIMPLE,          LEVEL_MAIN   },
 	{ "origlanguage",    "LANGUAGE",               SIMPLE,          LEVEL_ORIG   },
-	{ "origyear",        "YEAR",                   SIMPLE,          LEVEL_ORIG   },
+	{ "origyear",        "DATE:YEAR",              SIMPLE,          LEVEL_ORIG   },
 	{ "origdate",        "DATE",                   SIMPLE,          LEVEL_ORIG   },
 	{ "origtitle",       "TITLE",                  SIMPLE,          LEVEL_ORIG   },
 	{ "origlocation",    "ADDRESS",                SIMPLE,          LEVEL_ORIG   },
@@ -259,7 +260,7 @@ static lookups collection[] = {
 	{ "volumes",         "NUMVOLUMES",             SIMPLE,          LEVEL_HOST   },
 	{ "series",          "TITLE",                  SIMPLE,          LEVEL_HOST   },
 	{ "number",          "NUMBER",                 SIMPLE,          LEVEL_MAIN   },
-	{ "note",            "NOTES",                  SIMPLE,          LEVEL_MAIN   },
+	{ "note",            "NOTES",                  NOTES,           LEVEL_MAIN   },
 	{ "annote",          "ANNOTATION",             SIMPLE,          LEVEL_MAIN   },
 	{ "annotation",      "ANNOTATION",             SIMPLE,          LEVEL_MAIN   },
 	{ "publisher",       "PUBLISHER",              SIMPLE,          LEVEL_MAIN   },
@@ -267,13 +268,13 @@ static lookups collection[] = {
 	{ "isbn",            "ISBN",                   SIMPLE,          LEVEL_MAIN   },
 	{ "chapter",         "CHAPTER",                SIMPLE,          LEVEL_MAIN   },
 	{ "pages",           "PAGES",                  PAGES,           LEVEL_MAIN   },
-	{ "pagetotal",       "TOTALPAGES",             SIMPLE,          LEVEL_MAIN   },
+	{ "pagetotal",       "PAGES:TOTAL",            SIMPLE,          LEVEL_MAIN   },
 	{ "addendum",        "ADDENDUM",               SIMPLE,          LEVEL_MAIN   },
 	{ "doi",             "DOI",                    SIMPLE,          LEVEL_MAIN   },
 	{ "pubstate",        "PUBSTATE",               SIMPLE,          LEVEL_MAIN   },
 	{ "eprint",          "",                       BT_EPRINT,       LEVEL_MAIN   },
 	{ "eprinttype",      "",                       BT_EPRINT,       LEVEL_MAIN   },
-	{ "url",             "",                       BT_URL,          LEVEL_MAIN   },
+	{ "url",             "",                       URL,             LEVEL_MAIN   },
 	{ "urldate",         "URLDATE",                SIMPLE,          LEVEL_MAIN   },
 	{ "urlday",          "?urlday?",               SIMPLE,          LEVEL_MAIN   },
 	{ "urlmonth",        "?urlmonth?",             SIMPLE,          LEVEL_MAIN   },
@@ -284,7 +285,7 @@ static lookups collection[] = {
 	{ "",                "INTERNAL_TYPE|BOOK",     ALWAYS,          LEVEL_MAIN   },
 	{ "",                "RESOURCE|text",          ALWAYS,          LEVEL_MAIN   },
 	{ "",                "ISSUANCE|monographic",   ALWAYS,          LEVEL_MAIN   },
-	{ "",                "GENRE|book",             ALWAYS,          LEVEL_MAIN   }
+	{ "",                "GENRE:MARC|book",        ALWAYS,          LEVEL_MAIN   }
 };
 
 /* Part of a book (e.g. chapter or section) */
@@ -307,8 +308,8 @@ static lookups inbook[] = {
 	{ "annotator",       "ANNOTATOR",              PERSON,          LEVEL_HOST   },
 	{ "commentator",     "COMMENTATOR",            PERSON,          LEVEL_HOST   },
 	{ "translator",      "TRANSLATOR",             PERSON,          LEVEL_HOST   },
-	{ "year",            "YEAR",                   SIMPLE,          LEVEL_MAIN   },
-	{ "month",           "MONTH",                  SIMPLE,          LEVEL_MAIN   },
+	{ "year",            "DATE:YEAR",              SIMPLE,          LEVEL_MAIN   },
+	{ "month",           "DATE:MONTH",             SIMPLE,          LEVEL_MAIN   },
 	{ "date",            "DATE",                   SIMPLE,          LEVEL_MAIN   },   /*WRONG*/
 	{ "introduction",    "INTROAUTHOR",            PERSON,          LEVEL_HOST   },
 	{ "foreword",        "INTROAUTHOR",            PERSON,          LEVEL_HOST   },
@@ -326,7 +327,7 @@ static lookups inbook[] = {
 	{ "maintitleaddon",  "TITLEADDON",             TITLE,           LEVEL_SERIES },
 	{ "language",        "LANGUAGE",               SIMPLE,          LEVEL_MAIN   },
 	{ "origlanguage",    "LANGUAGE",               SIMPLE,          LEVEL_ORIG   },
-	{ "origyear",        "YEAR",                   SIMPLE,          LEVEL_ORIG   },
+	{ "origyear",        "DATE:YEAR",              SIMPLE,          LEVEL_ORIG   },
 	{ "origdate",        "DATE",                   SIMPLE,          LEVEL_ORIG   },
 	{ "origtitle",       "TITLE",                  SIMPLE,          LEVEL_ORIG   },
 	{ "origlocation",    "ADDRESS",                SIMPLE,          LEVEL_ORIG   },
@@ -338,7 +339,7 @@ static lookups inbook[] = {
 	{ "volumes",         "NUMVOLUMES",             SIMPLE,          LEVEL_HOST   },
 	{ "series",          "TITLE",                  SIMPLE,          LEVEL_SERIES+1 }, /* WRONG */
 	{ "number",          "NUMBER",                 SIMPLE,          LEVEL_MAIN   },
-	{ "note",            "NOTES",                  SIMPLE,          LEVEL_MAIN   },
+	{ "note",            "NOTES",                  NOTES,           LEVEL_MAIN   },
 	{ "annote",          "ANNOTATION",             SIMPLE,          LEVEL_MAIN   },
 	{ "annotation",      "ANNOTATION",             SIMPLE,          LEVEL_MAIN   },
 	{ "publisher",       "PUBLISHER",              SIMPLE,          LEVEL_MAIN   },
@@ -350,7 +351,7 @@ static lookups inbook[] = {
 	{ "pubstate",        "PUBSTATE",               SIMPLE,          LEVEL_MAIN   },
 	{ "eprint",          "",                       BT_EPRINT,       LEVEL_MAIN   },
 	{ "eprinttype",      "",                       BT_EPRINT,       LEVEL_MAIN   },
-	{ "url",             "",                       BT_URL,          LEVEL_MAIN   },
+	{ "url",             "",                       URL,             LEVEL_MAIN   },
 	{ "urldate",         "URLDATE",                SIMPLE,          LEVEL_MAIN   },
 	{ "urlday",          "?urlday?",               SIMPLE,          LEVEL_MAIN   },
 	{ "urlmonth",        "?urlmonth?",             SIMPLE,          LEVEL_MAIN   },
@@ -361,16 +362,16 @@ static lookups inbook[] = {
 	{ "",                "INTERNAL_TYPE|INBOOK",   ALWAYS,          LEVEL_MAIN   },
 	{ "",                "RESOURCE|text",          ALWAYS,          LEVEL_MAIN   },
 	{ "",                "ISSUANCE|monographic",   ALWAYS,          LEVEL_HOST   },
-        { "",                "NGENRE|book chapter",    ALWAYS,          LEVEL_MAIN   },
-	{ "",                "GENRE|book",             ALWAYS,          LEVEL_HOST   }
+        { "",                "GENRE:BIBUTILS|book chapter", ALWAYS,          LEVEL_MAIN   },
+	{ "",                "GENRE:MARC|book",             ALWAYS,          LEVEL_HOST   }
 };
 
 /* incollection */
 
 static lookups incollection[] = {
 	{ "author",          "AUTHOR",                 PERSON,          LEVEL_MAIN   },
-	{ "year",            "YEAR",                   SIMPLE,          LEVEL_MAIN   },
-	{ "month",           "MONTH",                  SIMPLE,          LEVEL_MAIN   },
+	{ "year",            "DATE:YEAR",              SIMPLE,          LEVEL_MAIN   },
+	{ "month",           "DATE:MONTH",             SIMPLE,          LEVEL_MAIN   },
 	{ "date",            "DATE",                   SIMPLE,          LEVEL_MAIN   },   /*WRONG*/
 	{ "title",           "TITLE",                  TITLE,           LEVEL_MAIN   },
 	{ "subtitle",        "SUBTITLE",               TITLE,           LEVEL_MAIN   },
@@ -379,7 +380,7 @@ static lookups incollection[] = {
 	{ "language",        "LANGUAGE",               SIMPLE,          LEVEL_MAIN   },
 	{ "edition",         "EDITION",                SIMPLE,          LEVEL_MAIN   },
 	{ "number",          "NUMBER",                 SIMPLE,          LEVEL_MAIN   },
-	{ "note",            "NOTES",                  SIMPLE,          LEVEL_MAIN   },
+	{ "note",            "NOTES",                  NOTES,           LEVEL_MAIN   },
 	{ "annote",          "ANNOTATION",             SIMPLE,          LEVEL_MAIN   },
 	{ "annotation",      "ANNOTATION",             SIMPLE,          LEVEL_MAIN   },
 	{ "introduction",    "INTROAUTHOR",            PERSON,          LEVEL_HOST   },
@@ -416,7 +417,7 @@ static lookups incollection[] = {
 	{ "series",          "TITLE",                  SIMPLE,          LEVEL_SERIES+1 }, /* WRONG */
 
 	{ "origlanguage",    "LANGUAGE",               SIMPLE,          LEVEL_ORIG   },
-	{ "origyear",        "YEAR",                   SIMPLE,          LEVEL_ORIG   },
+	{ "origyear",        "DATE:YEAR",              SIMPLE,          LEVEL_ORIG   },
 	{ "origdate",        "DATE",                   SIMPLE,          LEVEL_ORIG   },
 	{ "origtitle",       "TITLE",                  SIMPLE,          LEVEL_ORIG   },
 	{ "origlocation",    "ADDRESS",                SIMPLE,          LEVEL_ORIG   },
@@ -432,7 +433,7 @@ static lookups incollection[] = {
 	{ "pubstate",        "PUBSTATE",               SIMPLE,          LEVEL_MAIN   },
 	{ "eprint",          "",                       BT_EPRINT,       LEVEL_MAIN   },
 	{ "eprinttype",      "",                       BT_EPRINT,       LEVEL_MAIN   },
-	{ "url",             "",                       BT_URL,          LEVEL_MAIN   },
+	{ "url",             "",                       URL,             LEVEL_MAIN   },
 	{ "urldate",         "URLDATE",                SIMPLE,          LEVEL_MAIN   },
 	{ "urlday",          "?urlday?",               SIMPLE,          LEVEL_MAIN   },
 	{ "urlmonth",        "?urlmonth?",             SIMPLE,          LEVEL_MAIN   },
@@ -443,7 +444,7 @@ static lookups incollection[] = {
 	{ "",                "INTERNAL_TYPE|INCOLLECTION", ALWAYS,      LEVEL_MAIN   },
 	{ "",                "RESOURCE|text",          ALWAYS,          LEVEL_MAIN   },
 	{ "",                "ISSUANCE|monographic",   ALWAYS,          LEVEL_MAIN   },
-	{ "",                "GENRE|collection",       ALWAYS,          LEVEL_HOST   }
+	{ "",                "GENRE:BIBUTILS|collection",      ALWAYS,          LEVEL_HOST   }
 };
 
 /* inproceedings */
@@ -467,8 +468,8 @@ static lookups inproceedings[] = {
 	{ "commentator",     "COMMENTATOR",            PERSON,          LEVEL_HOST   },
 	{ "translator",      "TRANSLATOR",             PERSON,          LEVEL_HOST   },
 	{ "eventtitle",      "EVENT:CONF",             SIMPLE,          LEVEL_MAIN   },
-	{ "year",            "YEAR",                   SIMPLE,          LEVEL_MAIN   },
-	{ "month",           "MONTH",                  SIMPLE,          LEVEL_MAIN   },
+	{ "year",            "DATE:YEAR",              SIMPLE,          LEVEL_MAIN   },
+	{ "month",           "DATE:MONTH",             SIMPLE,          LEVEL_MAIN   },
 	{ "date",            "DATE",                   SIMPLE,          LEVEL_MAIN   },   /*WRONG*/
 	{ "introduction",    "INTROAUTHOR",            PERSON,          LEVEL_HOST   },
 	{ "foreword",        "INTROAUTHOR",            PERSON,          LEVEL_HOST   },
@@ -493,7 +494,7 @@ static lookups inproceedings[] = {
 	{ "language",        "LANGUAGE",               SIMPLE,          LEVEL_MAIN   },
 	{ "origlanguage",    "LANGUAGE",               SIMPLE,          LEVEL_ORIG   },
 	{ "origdate",        "DATE",                   SIMPLE,          LEVEL_ORIG   },
-	{ "origyear",        "YEAR",                   SIMPLE,          LEVEL_ORIG   },
+	{ "origyear",        "DATE:YEAR",              SIMPLE,          LEVEL_ORIG   },
 	{ "origtitle",       "TITLE",                  SIMPLE,          LEVEL_ORIG   },
 	{ "origlocation",    "ADDRESS",                SIMPLE,          LEVEL_ORIG   },
 	{ "origpublisher",   "PUBLISHER",              SIMPLE,          LEVEL_ORIG   },
@@ -502,7 +503,7 @@ static lookups inproceedings[] = {
 	{ "edition",         "EDITION",                SIMPLE,          LEVEL_MAIN   },
 	{ "volumes",         "NUMVOLUMES",             SIMPLE,          LEVEL_HOST   },
 	{ "number",          "NUMBER",                 SIMPLE,          LEVEL_MAIN   },
-	{ "note",            "NOTES",                  SIMPLE,          LEVEL_MAIN   },
+	{ "note",            "NOTES",                  NOTES,           LEVEL_MAIN   },
 	{ "annote",          "ANNOTATION",             SIMPLE,          LEVEL_MAIN   },
 	{ "annotation",      "ANNOTATION",             SIMPLE,          LEVEL_MAIN   },
 	{ "publisher",       "PUBLISHER",              SIMPLE,          LEVEL_HOST   },
@@ -515,7 +516,7 @@ static lookups inproceedings[] = {
 	{ "pubstate",        "PUBSTATE",               SIMPLE,          LEVEL_MAIN   },
 	{ "eprint",          "",                       BT_EPRINT,       LEVEL_MAIN   },
 	{ "eprinttype",      "",                       BT_EPRINT,       LEVEL_MAIN   },
-	{ "url",             "",                       BT_URL,          LEVEL_MAIN   },
+	{ "url",             "",                       URL,             LEVEL_MAIN   },
 	{ "urldate",         "URLDATE",                SIMPLE,          LEVEL_MAIN   },
 	{ "urlday",          "?urlday?",               SIMPLE,          LEVEL_MAIN   },
 	{ "urlmonth",        "?urlmonth?",             SIMPLE,          LEVEL_MAIN   },
@@ -526,7 +527,7 @@ static lookups inproceedings[] = {
 	{ "",                "INTERNAL_TYPE|INPROCEEDINGS", ALWAYS,     LEVEL_MAIN   },
 	{ "",                "RESOURCE|text",          ALWAYS,          LEVEL_MAIN   },
 	{ "",                "ISSUANCE|monographic",   ALWAYS,          LEVEL_MAIN   },
-	{ "",                "GENRE|conference publication", ALWAYS,    LEVEL_HOST   }
+	{ "",                "GENRE:MARC|conference publication", ALWAYS,    LEVEL_HOST   }
 };
 
 static lookups manual[] = {
@@ -547,8 +548,8 @@ static lookups manual[] = {
 	{ "annotator",       "ANNOTATOR",              PERSON,          LEVEL_MAIN   },
 	{ "commentator",     "COMMENTATOR",            PERSON,          LEVEL_MAIN   },
 	{ "translator",      "TRANSLATOR",             PERSON,          LEVEL_MAIN   },
-	{ "year",            "YEAR",                   SIMPLE,          LEVEL_MAIN   },
-	{ "month",           "MONTH",                  SIMPLE,          LEVEL_MAIN   },
+	{ "year",            "DATE:YEAR",              SIMPLE,          LEVEL_MAIN   },
+	{ "month",           "DATE:MONTH",             SIMPLE,          LEVEL_MAIN   },
 	{ "date",            "DATE",                   SIMPLE,          LEVEL_MAIN   }, /*WRONG*/
 	{ "introduction",    "INTROAUTHOR",            PERSON,          LEVEL_MAIN   },
 	{ "foreword",        "INTROAUTHOR",            PERSON,          LEVEL_MAIN   },
@@ -560,10 +561,10 @@ static lookups manual[] = {
 	{ "language",        "LANGUAGE",               SIMPLE,          LEVEL_MAIN   },
 	{ "edition",         "EDITION",                SIMPLE,          LEVEL_MAIN   },
 	{ "version",         "EDITION",                SIMPLE,          LEVEL_MAIN   },
-	{ "type",            "GENRE",                  BT_GENRE,        LEVEL_MAIN   },
+	{ "type",            "GENRE:UNKNOWN",          GENRE,           LEVEL_MAIN   },
 	{ "series",          "TITLE",                  SIMPLE,          LEVEL_HOST   },
 	{ "number",          "NUMBER",                 SIMPLE,          LEVEL_MAIN   },
-	{ "note",            "NOTES",                  SIMPLE,          LEVEL_MAIN   },
+	{ "note",            "NOTES",                  NOTES,           LEVEL_MAIN   },
 	{ "annote",          "ANNOTATION",             SIMPLE,          LEVEL_MAIN   },
 	{ "annotation",      "ANNOTATION",             SIMPLE,          LEVEL_MAIN   },
 	{ "organization",    "ORGANIZER:CORP",         SIMPLE,          LEVEL_MAIN   },
@@ -572,13 +573,13 @@ static lookups manual[] = {
 	{ "isbn",            "ISBN",                   SIMPLE,          LEVEL_MAIN   },
 	{ "chapter",         "CHAPTER",                SIMPLE,          LEVEL_MAIN   },
 	{ "pages",           "PAGES",                  PAGES,           LEVEL_MAIN   },
-	{ "pagetotal",       "TOTALPAGES",             SIMPLE,          LEVEL_MAIN   },
+	{ "pagetotal",       "PAGES:TOTAL",            SIMPLE,          LEVEL_MAIN   },
 	{ "addendum",        "ADDENDUM",               SIMPLE,          LEVEL_MAIN   },
 	{ "doi",             "DOI",                    SIMPLE,          LEVEL_MAIN   },
 	{ "pubstate",        "PUBSTATE",               SIMPLE,          LEVEL_MAIN   },
 	{ "eprint",          "",                       BT_EPRINT,       LEVEL_MAIN   },
 	{ "eprinttype",      "",                       BT_EPRINT,       LEVEL_MAIN   },
-	{ "url",             "",                       BT_URL,          LEVEL_MAIN   },
+	{ "url",             "",                       URL,             LEVEL_MAIN   },
 	{ "urldate",         "URLDATE",                SIMPLE,          LEVEL_MAIN   },
 	{ "urlday",          "?????????",              SIMPLE,          LEVEL_MAIN   },
 	{ "urlmonth",        "?????????",              SIMPLE,          LEVEL_MAIN   },
@@ -588,7 +589,7 @@ static lookups manual[] = {
 	{ "refnum",          "REFNUM",                 SIMPLE,          LEVEL_MAIN   },
 	{ "",                "INTERNAL_TYPE|REPORT",   ALWAYS,          LEVEL_MAIN   },
 	{ "",                "RESOURCE|text",          ALWAYS,          LEVEL_MAIN   },
-	{ "",                "GENRE|instruction",      ALWAYS,          LEVEL_MAIN   }
+	{ "",                "GENRE:MARC|instruction",      ALWAYS,          LEVEL_MAIN   }
 };
 
 static lookups misc[] = {
@@ -609,15 +610,15 @@ static lookups misc[] = {
 	{ "subtitle",        "SUBTITLE",               TITLE,           LEVEL_MAIN   },
 	{ "titleaddon",      "TITLEADDON",             TITLE,           LEVEL_MAIN   },
 	{ "shorttitle",      "SHORTTITLE",             SIMPLE,          LEVEL_MAIN   },
-	{ "day",             "DAY",                    SIMPLE,          LEVEL_MAIN   },
-	{ "month",           "MONTH",                  SIMPLE,          LEVEL_MAIN   },
-	{ "year",            "YEAR",                   SIMPLE,          LEVEL_MAIN   },
+	{ "day",             "DATE:DAY",               SIMPLE,          LEVEL_MAIN   },
+	{ "month",           "DATE:MONTH",             SIMPLE,          LEVEL_MAIN   },
+	{ "year",            "DATE:YEAR",              SIMPLE,          LEVEL_MAIN   },
 	{ "date",            "DATE",                   SIMPLE,          LEVEL_MAIN   },   /*WRONG*/
 	{ "language",        "LANGUAGE",               SIMPLE,          LEVEL_MAIN   },
 	{ "howpublished",    "",                       HOWPUBLISHED,    LEVEL_MAIN   },
 	{ "version",         "EDITION",                SIMPLE,          LEVEL_MAIN   },
-	{ "type",            "GENRE",                  BT_GENRE,        LEVEL_MAIN   },
-	{ "note",            "NOTES",                  SIMPLE,          LEVEL_MAIN   },
+	{ "type",            "GENRE:UNKNOWN",          GENRE,           LEVEL_MAIN   },
+	{ "note",            "NOTES",                  NOTES,           LEVEL_MAIN   },
 	{ "annote",          "ANNOTATION",             SIMPLE,          LEVEL_MAIN   },
 	{ "annotation",      "ANNOTATION",             SIMPLE,          LEVEL_MAIN   },
 	{ "organization",    "ORGANIZER:CORP",         SIMPLE,          LEVEL_MAIN   },
@@ -629,7 +630,7 @@ static lookups misc[] = {
 	{ "pubstate",        "PUBSTATE",               SIMPLE,          LEVEL_MAIN   },
 	{ "eprint",          "",                       BT_EPRINT,       LEVEL_MAIN   },
 	{ "eprinttype",      "",                       BT_EPRINT,       LEVEL_MAIN   },
-	{ "url",             "",                       BT_URL,          LEVEL_MAIN   },
+	{ "url",             "",                       URL,             LEVEL_MAIN   },
 	{ "urldate",         "URLDATE",                SIMPLE,          LEVEL_MAIN   },
 	{ "urlday",          "?????????",              SIMPLE,          LEVEL_MAIN   },
 	{ "urlmonth",        "?????????",              SIMPLE,          LEVEL_MAIN   },
@@ -637,6 +638,7 @@ static lookups misc[] = {
 	{ "hyphenation",     "LANGCATALOG",            SIMPLE,          LEVEL_MAIN   },
 	{ "refnum",          "REFNUM",                 SIMPLE,          LEVEL_MAIN   },
 	{ "",                "INTERNAL_TYPE|MISC",     ALWAYS,          LEVEL_MAIN   },
+	{ "",                "GENRE:BIBUTILS|miscellaneous",   ALWAYS,          LEVEL_MAIN   },
 };
 
 static lookups online[] = {
@@ -658,13 +660,13 @@ static lookups online[] = {
 	{ "titleaddon",      "TITLEADDON",             TITLE,           LEVEL_MAIN   },
 	{ "shorttitle",      "SHORTTITLE",             SIMPLE,          LEVEL_MAIN   },
 	{ "date",            "DATE",                   SIMPLE,          LEVEL_MAIN   },
-	{ "day",             "DAY",                    SIMPLE,          LEVEL_MAIN   },
-	{ "month",           "MONTH",                  SIMPLE,          LEVEL_MAIN   },
-	{ "year",            "YEAR",                   SIMPLE,          LEVEL_MAIN   },
+	{ "day",             "DATE:DAY",               SIMPLE,          LEVEL_MAIN   },
+	{ "month",           "DATE:MONTH",             SIMPLE,          LEVEL_MAIN   },
+	{ "year",            "DATE:YEAR",              SIMPLE,          LEVEL_MAIN   },
 	{ "language",        "LANGUAGE",               SIMPLE,          LEVEL_MAIN   },
 	{ "version",         "EDITION",                SIMPLE,          LEVEL_MAIN   },
-	{ "type",            "GENRE",                  BT_GENRE,        LEVEL_MAIN   },
-	{ "note",            "NOTES",                  SIMPLE,          LEVEL_MAIN   },
+	{ "type",            "GENRE:UNKNOWN",          GENRE,           LEVEL_MAIN   },
+	{ "note",            "NOTES",                  NOTES,           LEVEL_MAIN   },
 	{ "annote",          "ANNOTATION",             SIMPLE,          LEVEL_MAIN   },
 	{ "annotation",      "ANNOTATION",             SIMPLE,          LEVEL_MAIN   },
 	{ "organization",    "ORGANIZER:CORP",         SIMPLE,          LEVEL_MAIN   },
@@ -675,7 +677,7 @@ static lookups online[] = {
 	{ "pubstate",        "PUBSTATE",               SIMPLE,          LEVEL_MAIN   },
 	{ "eprint",          "",                       BT_EPRINT,       LEVEL_MAIN   },
 	{ "eprinttype",      "",                       BT_EPRINT,       LEVEL_MAIN   },
-	{ "url",             "",                       BT_URL,          LEVEL_MAIN   },
+	{ "url",             "",                       URL,             LEVEL_MAIN   },
 	{ "urldate",         "URLDATE",                SIMPLE,          LEVEL_MAIN   },
 	{ "urlday",          "?????????",              SIMPLE,          LEVEL_MAIN   },
 	{ "urlmonth",        "?????????",              SIMPLE,          LEVEL_MAIN   },
@@ -684,7 +686,7 @@ static lookups online[] = {
 	{ "hyphenation",     "LANGCATALOG",            SIMPLE,          LEVEL_MAIN   },
 	{ "refnum",          "REFNUM",                 SIMPLE,          LEVEL_MAIN   },
         { "",                "RESOURCE|software, multimedia", ALWAYS,   LEVEL_MAIN   },
-	{ "",                "NGENRE|web page",        ALWAYS,          LEVEL_MAIN   },
+	{ "",                "GENRE:MARC|web page",    ALWAYS,          LEVEL_MAIN   },
 };
 
 static lookups patent[] = {
@@ -695,19 +697,19 @@ static lookups patent[] = {
 	{ "titleaddon",      "TITLEADDON",             TITLE,           LEVEL_MAIN   },
 	{ "shorttitle",      "SHORTTITLE",             SIMPLE,          LEVEL_MAIN   },
 	{ "date",            "DATE",                   SIMPLE,          LEVEL_MAIN   },
-	{ "day",             "DAY",                    SIMPLE,          LEVEL_MAIN   },
-	{ "month",           "MONTH",                  SIMPLE,          LEVEL_MAIN   },
-	{ "year",            "YEAR",                   SIMPLE,          LEVEL_MAIN   },
+	{ "day",             "DATE:DAY",               SIMPLE,          LEVEL_MAIN   },
+	{ "month",           "DATE:MONTH",             SIMPLE,          LEVEL_MAIN   },
+	{ "year",            "DATE:YEAR",              SIMPLE,          LEVEL_MAIN   },
 	{ "version",         "EDITION",                SIMPLE,          LEVEL_MAIN   },
-	{ "type",            "GENRE",                  BT_GENRE,        LEVEL_MAIN   },
-	{ "note",            "NOTES",                  SIMPLE,          LEVEL_MAIN   },
+	{ "type",            "GENRE:UKNOWN",           GENRE,           LEVEL_MAIN   },
+	{ "note",            "NOTES",                  NOTES,           LEVEL_MAIN   },
 	{ "annote",          "ANNOTATION",             SIMPLE,          LEVEL_MAIN   },
 	{ "annotation",      "ANNOTATION",             SIMPLE,          LEVEL_MAIN   },
 	{ "organization",    "ORGANIZER:CORP",         SIMPLE,          LEVEL_MAIN   },
 	{ "location",        "ADDRESS",                SIMPLE,          LEVEL_MAIN   },
 	{ "number",          "NUMBER",                 SIMPLE,          LEVEL_MAIN   },
 	{ "addendum",        "ADDENDUM",               SIMPLE,          LEVEL_MAIN   },
-	{ "url",             "",                       BT_URL,          LEVEL_MAIN   },
+	{ "url",             "",                       URL,             LEVEL_MAIN   },
 	{ "urldate",         "URLDATE",                SIMPLE,          LEVEL_MAIN   },
 	{ "urlday",          "?????????",              SIMPLE,          LEVEL_MAIN   },
 	{ "urlmonth",        "?????????",              SIMPLE,          LEVEL_MAIN   },
@@ -718,7 +720,7 @@ static lookups patent[] = {
 	{ "refnum",          "REFNUM",                 SIMPLE,          LEVEL_MAIN   },
 	{ "",                "RESOURCE|text",          ALWAYS,          LEVEL_MAIN   },
 	{ "",                "INTERNAL_TYPE|PATENT",   ALWAYS,          LEVEL_MAIN   },
-	{ "",                "GENRE|patent",           ALWAYS,          LEVEL_MAIN   },
+	{ "",                "GENRE:MARC|patent",      ALWAYS,          LEVEL_MAIN   },
 };
 
 /*
@@ -753,20 +755,21 @@ static lookups periodical[] = {
 	{ "number",          "NUMBER",                 SIMPLE,          LEVEL_MAIN   },
 	{ "issue",           "ISSUE",                  SIMPLE,          LEVEL_MAIN   },
 	{ "date",            "DATE",                   SIMPLE,          LEVEL_MAIN   },   /*WRONG*/
-	{ "day",             "PARTDAY",                SIMPLE,          LEVEL_MAIN   },
-	{ "month",           "PARTMONTH",              SIMPLE,          LEVEL_MAIN   },
-	{ "year",            "PARTYEAR",               SIMPLE,          LEVEL_MAIN   },
+	{ "day",             "PARTDATE:DAY",           SIMPLE,          LEVEL_MAIN   },
+	{ "month",           "PARTDATE:MONTH",         SIMPLE,          LEVEL_MAIN   },
+	{ "year",            "PARTDATE:YEAR",          SIMPLE,          LEVEL_MAIN   },
 	{ "pages",           "PAGES",                  PAGES,           LEVEL_MAIN   },
-	{ "note",            "NOTES",                  SIMPLE,          LEVEL_MAIN   },
+	{ "note",            "NOTES",                  NOTES,           LEVEL_MAIN   },
 	{ "annote",          "ANNOTATION",             SIMPLE,          LEVEL_MAIN   },
 	{ "annotation",      "ANNOTATION",             SIMPLE,          LEVEL_MAIN   },
 	{ "issn",            "ISSN",                   SIMPLE,          LEVEL_HOST   },
+	{ "coden",           "CODEN",                  SIMPLE,          LEVEL_HOST   },
 	{ "addendum",        "ADDENDUM",               SIMPLE,          LEVEL_MAIN   },
 	{ "doi",             "DOI",                    SIMPLE,          LEVEL_MAIN   },
 	{ "pubstate",        "PUBSTATE",               SIMPLE,          LEVEL_MAIN   },
 	{ "eprint",          "",                       BT_EPRINT,       LEVEL_MAIN   },
 	{ "eprinttype",      "",                       BT_EPRINT,       LEVEL_MAIN   },
-	{ "url",             "",                       BT_URL,          LEVEL_MAIN   },
+	{ "url",             "",                       URL,             LEVEL_MAIN   },
 	{ "urldate",         "URLDATE",                SIMPLE,          LEVEL_MAIN   },
 	{ "urlday",          "?????",                  SIMPLE,          LEVEL_MAIN   }, /* WRONG */
 	{ "urlmonth",        "?????",                  SIMPLE,          LEVEL_MAIN   }, /* WRONG */
@@ -776,8 +779,8 @@ static lookups periodical[] = {
 	{ "refnum",          "REFNUM",                 SIMPLE,          LEVEL_MAIN   },
 	{ "",                "ISSUANCE|continuing",    ALWAYS,          LEVEL_HOST   },
 	{ "",                "RESOURCE|text",          ALWAYS,          LEVEL_MAIN   },
-	{ "",                "GENRE|issue",            ALWAYS,          LEVEL_MAIN   },
-	{ "",                "GENRE|periodical",       ALWAYS,          LEVEL_HOST   }
+	{ "",                "GENRE:MARC|issue",       ALWAYS,          LEVEL_MAIN   },
+	{ "",                "GENRE:MARC|periodical",  ALWAYS,          LEVEL_HOST   }
 };
 
 static lookups proceedings[] = {
@@ -798,8 +801,8 @@ static lookups proceedings[] = {
 	{ "commentator",     "COMMENTATOR",            PERSON,          LEVEL_MAIN   },
 	{ "translator",      "TRANSLATOR",             PERSON,          LEVEL_MAIN   },
 	{ "eventtitle",      "EVENT:CONF",             SIMPLE,          LEVEL_MAIN   },
-	{ "year",            "YEAR",                   SIMPLE,          LEVEL_MAIN   },
-	{ "month",           "MONTH",                  SIMPLE,          LEVEL_MAIN   },
+	{ "year",            "DATE:YEAR",              SIMPLE,          LEVEL_MAIN   },
+	{ "month",           "DATE:MONTH",             SIMPLE,          LEVEL_MAIN   },
 	{ "date",            "DATE",                   SIMPLE,          LEVEL_MAIN   },   /*WRONG*/
 	{ "introduction",    "INTROAUTHOR",            PERSON,          LEVEL_MAIN   },
 	{ "foreword",        "INTROAUTHOR",            PERSON,          LEVEL_MAIN   },
@@ -814,7 +817,7 @@ static lookups proceedings[] = {
 	{ "language",        "LANGUAGE",               SIMPLE,          LEVEL_MAIN   },
 	{ "origlanguage",    "LANGUAGE",               SIMPLE,          LEVEL_ORIG   },
 	{ "origdate",        "DATE",                   SIMPLE,          LEVEL_ORIG   },
-	{ "origyear",        "YEAR",                   SIMPLE,          LEVEL_ORIG   },
+	{ "origyear",        "DATE:YEAR",              SIMPLE,          LEVEL_ORIG   },
 	{ "origtitle",       "TITLE",                  SIMPLE,          LEVEL_ORIG   },
 	{ "origlocation",    "ADDRESS",                SIMPLE,          LEVEL_ORIG   },
 	{ "origpublisher",   "PUBLISHER",              SIMPLE,          LEVEL_ORIG   },
@@ -824,7 +827,7 @@ static lookups proceedings[] = {
 	{ "volumes",         "NUMVOLUMES",             SIMPLE,          LEVEL_HOST   },
 	{ "series",          "TITLE",                  SIMPLE,          LEVEL_SERIES },
 	{ "number",          "NUMBER",                 SIMPLE,          LEVEL_MAIN   },
-	{ "note",            "NOTES",                  SIMPLE,          LEVEL_MAIN   },
+	{ "note",            "NOTES",                  NOTES,           LEVEL_MAIN   },
 	{ "annote",          "ANNOTATION",             SIMPLE,          LEVEL_MAIN   },
 	{ "annotation",      "ANNOTATION",             SIMPLE,          LEVEL_MAIN   },
 	{ "organization",    "ORGANIZER:CORP",         SIMPLE,          LEVEL_MAIN   },
@@ -833,13 +836,13 @@ static lookups proceedings[] = {
 	{ "isbn",            "ISBN",                   SIMPLE,          LEVEL_MAIN   },
 	{ "chapter",         "CHAPTER",                SIMPLE,          LEVEL_MAIN   },
 	{ "pages",           "PAGES",                  SIMPLE,          LEVEL_MAIN   },
-	{ "pagetotal",       "TOTALPAGES",             SIMPLE,          LEVEL_MAIN   },
+	{ "pagetotal",       "PAGES:TOTAL",            SIMPLE,          LEVEL_MAIN   },
 	{ "addendum",        "ADDENDUM",               SIMPLE,          LEVEL_MAIN   },
 	{ "doi",             "DOI",                    SIMPLE,          LEVEL_MAIN   },
 	{ "pubstate",        "PUBSTATE",               SIMPLE,          LEVEL_MAIN   },
 	{ "eprint",          "",                       BT_EPRINT,       LEVEL_MAIN   },
 	{ "eprinttype",      "",                       BT_EPRINT,       LEVEL_MAIN   },
-	{ "url",             "",                       BT_URL,          LEVEL_MAIN   },
+	{ "url",             "",                       URL,             LEVEL_MAIN   },
 	{ "urldate",         "URLDATE",                SIMPLE,          LEVEL_MAIN   },
 	{ "urlday",          "?????????",              SIMPLE,          LEVEL_MAIN   },
 	{ "urlmonth",        "?????????",              SIMPLE,          LEVEL_MAIN   },
@@ -849,7 +852,7 @@ static lookups proceedings[] = {
 	{ "refnum",          "REFNUM",                 SIMPLE,          LEVEL_MAIN   },
 	{ "",                "INTERNAL_TYPE|BOOK",     ALWAYS,          LEVEL_MAIN   },
         { "",                "RESOURCE|text",          ALWAYS,          LEVEL_MAIN   },
-        { "",                "GENRE|conference publication", ALWAYS,    LEVEL_MAIN   }
+        { "",                "GENRE:MARC|conference publication", ALWAYS,    LEVEL_MAIN   }
 };
 
 /* Technical reports */
@@ -860,14 +863,14 @@ static lookups report[] = {
 	{ "titleaddon",      "TITLEADDON",             TITLE,           LEVEL_MAIN   },
 	{ "shorttitle",      "SHORTTITLE",             SIMPLE,          LEVEL_MAIN   },
 	{ "series",          "TITLE",                  TITLE,           LEVEL_HOST   },
-	{ "type",            "GENRE",                  BT_GENRE,        LEVEL_MAIN   },
+	{ "type",            "GENRE:UNKNOWN",          GENRE,           LEVEL_MAIN   },
 	{ "institution",     "SPONSOR:ASIS",           SIMPLE,          LEVEL_MAIN   },
-	{ "year",            "YEAR",                   SIMPLE,          LEVEL_MAIN   },
-	{ "month",           "MONTH",                  SIMPLE,          LEVEL_MAIN   },
+	{ "year",            "DATE:YEAR",              SIMPLE,          LEVEL_MAIN   },
+	{ "month",           "DATE:MONTH",             SIMPLE,          LEVEL_MAIN   },
 	{ "date",            "DATE",                   SIMPLE,          LEVEL_MAIN   },   /*WRONG*/
 	{ "language",        "LANGUAGE",               SIMPLE,          LEVEL_MAIN   },
 	{ "number",          "REPORTNUMBER",           SIMPLE,          LEVEL_MAIN   },
-	{ "note",            "NOTES",                  SIMPLE,          LEVEL_MAIN   },
+	{ "note",            "NOTES",                  NOTES,           LEVEL_MAIN   },
 	{ "annote",          "ANNOTATION",             SIMPLE,          LEVEL_MAIN   },
 	{ "annotation",      "ANNOTATION",             SIMPLE,          LEVEL_MAIN   },
 	{ "version",         "EDITION",                SIMPLE,          LEVEL_MAIN   },
@@ -875,13 +878,13 @@ static lookups report[] = {
 	{ "isrn",            "ISRN",                   SIMPLE,          LEVEL_MAIN   },
 	{ "chapter",         "CHAPTER",                SIMPLE,          LEVEL_MAIN   },
 	{ "pages",           "PAGES",                  SIMPLE,          LEVEL_MAIN   },
-	{ "pagetotal",       "TOTALPAGES",             SIMPLE,          LEVEL_MAIN   },
+	{ "pagetotal",       "PAGES:TOTAL",            SIMPLE,          LEVEL_MAIN   },
 	{ "addendum",        "ADDENDUM",               SIMPLE,          LEVEL_MAIN   },
 	{ "doi",             "DOI",                    SIMPLE,          LEVEL_MAIN   },
 	{ "pubstate",        "PUBSTATE",               SIMPLE,          LEVEL_MAIN   },
 	{ "eprint",          "",                       BT_EPRINT,       LEVEL_MAIN   },
 	{ "eprinttype",      "",                       BT_EPRINT,       LEVEL_MAIN   },
-	{ "url",             "",                       BT_URL,          LEVEL_MAIN   },
+	{ "url",             "",                       URL,             LEVEL_MAIN   },
 	{ "urldate",         "URLDATE",                SIMPLE,          LEVEL_MAIN   },
 	{ "urlday",          "?????????",              SIMPLE,          LEVEL_MAIN   },
 	{ "urlmonth",        "?????????",              SIMPLE,          LEVEL_MAIN   },
@@ -889,9 +892,9 @@ static lookups report[] = {
 	{ "address",         "ADDRESS",                SIMPLE,          LEVEL_MAIN   },
 	{ "hyphenation",     "LANGCATALOG",            SIMPLE,          LEVEL_MAIN   },
 	{ "refnum",          "REFNUM",                 SIMPLE,          LEVEL_MAIN   },
-	{ "",                "INTERNAL_TYPE|REPORT",   ALWAYS,          LEVEL_MAIN   },
-	{ "",                "RESOURCE|text",          ALWAYS,          LEVEL_MAIN   },
-	{ "",                "GENRE|report",           ALWAYS,          LEVEL_MAIN   }
+	{ "",                "INTERNAL_TYPE|REPORT",        ALWAYS,     LEVEL_MAIN   },
+	{ "",                "RESOURCE|text",               ALWAYS,     LEVEL_MAIN   },
+	{ "",                "GENRE:MARC|technical report", ALWAYS,     LEVEL_MAIN   },
 };
 
 /* Unpublished */
@@ -902,16 +905,16 @@ static lookups unpublished[] = {
 	{ "titleaddon",      "TITLEADDON",             TITLE,           LEVEL_MAIN   },
 	{ "shorttitle",      "SHORTTITLE",             SIMPLE,          LEVEL_MAIN   },
 	{ "howpublished",    "",                       HOWPUBLISHED,    LEVEL_MAIN   },
-	{ "year",            "YEAR",                   SIMPLE,          LEVEL_MAIN   },
-	{ "month",           "MONTH",                  SIMPLE,          LEVEL_MAIN   },
-	{ "day",             "DAY",                    SIMPLE,          LEVEL_MAIN   },
+	{ "year",            "DATE:YEAR",              SIMPLE,          LEVEL_MAIN   },
+	{ "month",           "DATE:MONTH",             SIMPLE,          LEVEL_MAIN   },
+	{ "day",             "DATE:DAY",               SIMPLE,          LEVEL_MAIN   },
 	{ "date",            "DATE",                   SIMPLE,          LEVEL_MAIN   },
-	{ "url",             "",                       BT_URL,          LEVEL_MAIN   },
+	{ "url",             "",                       URL,             LEVEL_MAIN   },
 	{ "urlday",          "?????????",              SIMPLE,          LEVEL_MAIN   },
 	{ "urlmonth",        "?????????",              SIMPLE,          LEVEL_MAIN   },
 	{ "urlyear",         "?????????",              SIMPLE,          LEVEL_MAIN   },
 	{ "language",        "LANGUAGE",               SIMPLE,          LEVEL_MAIN   },
-	{ "note",            "NOTES",                  SIMPLE,          LEVEL_MAIN   },
+	{ "note",            "NOTES",                  NOTES,           LEVEL_MAIN   },
 	{ "annote",          "ANNOTATION",             SIMPLE,          LEVEL_MAIN   },
 	{ "annotation",      "ANNOTATION",             SIMPLE,          LEVEL_MAIN   },
 	{ "addendum",        "ADDENDUM",               SIMPLE,          LEVEL_MAIN   },
@@ -921,7 +924,7 @@ static lookups unpublished[] = {
 	{ "refnum",          "REFNUM",                 SIMPLE,          LEVEL_MAIN   },
 	{ "",                "INTERNAL_TYPE|BOOK",     ALWAYS,          LEVEL_MAIN   },
 	{ "",                "RESOURCE|text",          ALWAYS,          LEVEL_MAIN   },
-	{ "",                "GENRE|unpublished",      ALWAYS,          LEVEL_MAIN   }
+	{ "",                "GENRE:BIBUTILS|unpublished",     ALWAYS,          LEVEL_MAIN   }
 };
 
 static lookups thesis[] = {
@@ -930,23 +933,23 @@ static lookups thesis[] = {
 	{ "subtitle",        "SUBTITLE",               TITLE,           LEVEL_MAIN   },
 	{ "titleaddon",      "TITLEADDON",             TITLE,           LEVEL_MAIN   },
 	{ "shorttitle",      "SHORTTITLE",             SIMPLE,          LEVEL_MAIN   },
-	{ "year",            "YEAR",                   SIMPLE,          LEVEL_MAIN   },
-	{ "month",           "MONTH",                  SIMPLE,          LEVEL_MAIN   },
-	{ "day",             "DAY",                    SIMPLE,          LEVEL_MAIN   },
+	{ "year",            "DATE:YEAR",              SIMPLE,          LEVEL_MAIN   },
+	{ "month",           "DATE:MONTH",             SIMPLE,          LEVEL_MAIN   },
+	{ "day",             "DATE:DAY",               SIMPLE,          LEVEL_MAIN   },
 	{ "date",            "DATE",                   SIMPLE,          LEVEL_MAIN   },   /*WRONG*/
 	{ "type",            "",                       BLT_THESIS_TYPE, LEVEL_MAIN   },
 	{ "institution",     "DEGREEGRANTOR:ASIS",     SIMPLE,          LEVEL_MAIN   },
 	{ "school",          "DEGREEGRANTOR:ASIS",     BLT_SCHOOL,      LEVEL_MAIN   },
 	{ "doi",             "DOI",                    SIMPLE,          LEVEL_MAIN   },
 	{ "howpublished",    "",                       HOWPUBLISHED,    LEVEL_MAIN   },
-	{ "url",             "",                       BT_URL,          LEVEL_MAIN   },
+	{ "url",             "",                       URL,             LEVEL_MAIN   },
 	{ "urldate",         "URLDATE",                SIMPLE,          LEVEL_MAIN   },
 	{ "urlday",          "?urlday?",               SIMPLE,          LEVEL_MAIN   },
 	{ "urlmonth",        "?urlmonth?",             SIMPLE,          LEVEL_MAIN   },
 	{ "urlyear",         "?urlyear?",              SIMPLE,          LEVEL_MAIN   },
 	{ "language",        "LANGUAGE",               SIMPLE,          LEVEL_MAIN   },
 	{ "location",        "ADDRESS",                SIMPLE,          LEVEL_MAIN   },
-	{ "note",            "NOTES",                  SIMPLE,          LEVEL_MAIN   },
+	{ "note",            "NOTES",                  NOTES,           LEVEL_MAIN   },
 	{ "annote",          "ANNOTATION",             SIMPLE,          LEVEL_MAIN   },
 	{ "annotation",      "ANNOTATION",             SIMPLE,          LEVEL_MAIN   },
 	{ "address",         "ADDRESS",                SIMPLE,          LEVEL_MAIN   },
@@ -955,7 +958,7 @@ static lookups thesis[] = {
 	{ "refnum",          "REFNUM",                 SIMPLE,          LEVEL_MAIN   },
 	{ "",                "INTERNAL_TYPE|THESIS",   ALWAYS,          LEVEL_MAIN   },
 	{ "",                "RESOURCE|text",          ALWAYS,          LEVEL_MAIN   },
-	{ "",                "GENRE|thesis",           ALWAYS,          LEVEL_MAIN   },
+	{ "",                "GENRE:MARC|thesis",      ALWAYS,          LEVEL_MAIN   },
 };
 
 static lookups phdthesis[] = {
@@ -964,23 +967,23 @@ static lookups phdthesis[] = {
 	{ "subtitle",        "SUBTITLE",               TITLE,           LEVEL_MAIN   },
 	{ "titleaddon",      "TITLEADDON",             TITLE,           LEVEL_MAIN   },
 	{ "shorttitle",      "SHORTTITLE",             SIMPLE,          LEVEL_MAIN   },
-	{ "year",            "YEAR",                   SIMPLE,          LEVEL_MAIN   },
-	{ "month",           "MONTH",                  SIMPLE,          LEVEL_MAIN   },
-	{ "day",             "DAY",                    SIMPLE,          LEVEL_MAIN   },
+	{ "year",            "DATE:YEAR",              SIMPLE,          LEVEL_MAIN   },
+	{ "month",           "DATE:MONTH",             SIMPLE,          LEVEL_MAIN   },
+	{ "day",             "DATE:DAY",               SIMPLE,          LEVEL_MAIN   },
 	{ "date",            "DATE",                   SIMPLE,          LEVEL_MAIN   },   /*WRONG*/
 	{ "type",            "",                       BLT_THESIS_TYPE, LEVEL_MAIN   },
 	{ "institution",     "DEGREEGRANTOR:ASIS",     SIMPLE,          LEVEL_MAIN   },
 	{ "school",          "DEGREEGRANTOR:ASIS",     BLT_SCHOOL,      LEVEL_MAIN   },
 	{ "doi",             "DOI",                    SIMPLE,          LEVEL_MAIN   },
 	{ "howpublished",    "",                       HOWPUBLISHED,    LEVEL_MAIN   },
-	{ "url",             "",                       BT_URL,          LEVEL_MAIN   },
+	{ "url",             "",                       URL,             LEVEL_MAIN   },
 	{ "urldate",         "URLDATE",                SIMPLE,          LEVEL_MAIN   },
 	{ "urlday",          "?urlday?",               SIMPLE,          LEVEL_MAIN   },
 	{ "urlmonth",        "?urlmonth?",             SIMPLE,          LEVEL_MAIN   },
 	{ "urlyear",         "?urlyear?",              SIMPLE,          LEVEL_MAIN   },
 	{ "language",        "LANGUAGE",               SIMPLE,          LEVEL_MAIN   },
 	{ "location",        "ADDRESS",                SIMPLE,          LEVEL_MAIN   },
-	{ "note",            "NOTES",                  SIMPLE,          LEVEL_MAIN   },
+	{ "note",            "NOTES",                  NOTES,           LEVEL_MAIN   },
 	{ "annote",          "ANNOTATION",             SIMPLE,          LEVEL_MAIN   },
 	{ "annotation",      "ANNOTATION",             SIMPLE,          LEVEL_MAIN   },
 	{ "address",         "ADDRESS",                SIMPLE,          LEVEL_MAIN   },
@@ -989,8 +992,8 @@ static lookups phdthesis[] = {
 	{ "refnum",          "REFNUM",                 SIMPLE,          LEVEL_MAIN   },
 	{ "",                "INTERNAL_TYPE|THESIS",   ALWAYS,          LEVEL_MAIN   },
 	{ "",                "RESOURCE|text",          ALWAYS,          LEVEL_MAIN   },
-	{ "",                "GENRE|thesis",           ALWAYS,          LEVEL_MAIN   },
-	{ "",                "NGENRE|Ph.D. thesis",    DEFAULT,         LEVEL_MAIN   },
+	{ "",                "GENRE:MARC|thesis",      ALWAYS,          LEVEL_MAIN   },
+	{ "",                "GENRE:BIBUTILS|Ph.D. thesis",DEFAULT,     LEVEL_MAIN   },
 };
 
 static lookups mastersthesis[] = {
@@ -999,23 +1002,23 @@ static lookups mastersthesis[] = {
 	{ "subtitle",        "SUBTITLE",               TITLE,           LEVEL_MAIN   },
 	{ "titleaddon",      "TITLEADDON",             TITLE,           LEVEL_MAIN   },
 	{ "shorttitle",      "SHORTTITLE",             SIMPLE,          LEVEL_MAIN   },
-	{ "year",            "YEAR",                   SIMPLE,          LEVEL_MAIN   },
-	{ "month",           "MONTH",                  SIMPLE,          LEVEL_MAIN   },
-	{ "day",             "DAY",                    SIMPLE,          LEVEL_MAIN   },
+	{ "year",            "DATE:YEAR",              SIMPLE,          LEVEL_MAIN   },
+	{ "month",           "DATE:MONTH",             SIMPLE,          LEVEL_MAIN   },
+	{ "day",             "DATE:DAY",               SIMPLE,          LEVEL_MAIN   },
 	{ "date",            "DATE",                   SIMPLE,          LEVEL_MAIN   },   /*WRONG*/
 	{ "type",            "",                       BLT_THESIS_TYPE, LEVEL_MAIN   },
 	{ "institution",     "DEGREEGRANTOR:ASIS",     SIMPLE,          LEVEL_MAIN   },
 	{ "school",          "DEGREEGRANTOR:ASIS",     BLT_SCHOOL,      LEVEL_MAIN   },
 	{ "doi",             "DOI",                    SIMPLE,          LEVEL_MAIN   },
 	{ "howpublished",    "",                       HOWPUBLISHED,    LEVEL_MAIN   },
-	{ "url",             "",                       BT_URL,          LEVEL_MAIN   },
+	{ "url",             "",                       URL,             LEVEL_MAIN   },
 	{ "urldate",         "URLDATE",                SIMPLE,          LEVEL_MAIN   },
 	{ "urlday",          "?urlday?",               SIMPLE,          LEVEL_MAIN   },
 	{ "urlmonth",        "?urlmonth?",             SIMPLE,          LEVEL_MAIN   },
 	{ "urlyear",         "?urlyear?",              SIMPLE,          LEVEL_MAIN   },
 	{ "language",        "LANGUAGE",               SIMPLE,          LEVEL_MAIN   },
 	{ "location",        "ADDRESS",                SIMPLE,          LEVEL_MAIN   },
-	{ "note",            "NOTES",                  SIMPLE,          LEVEL_MAIN   },
+	{ "note",            "NOTES",                  NOTES,           LEVEL_MAIN   },
 	{ "annote",          "ANNOTATION",             SIMPLE,          LEVEL_MAIN   },
 	{ "annotation",      "ANNOTATION",             SIMPLE,          LEVEL_MAIN   },
 	{ "address",         "ADDRESS",                SIMPLE,          LEVEL_MAIN   },
@@ -1024,8 +1027,8 @@ static lookups mastersthesis[] = {
 	{ "refnum",          "REFNUM",                 SIMPLE,          LEVEL_MAIN   },
 	{ "",                "INTERNAL_TYPE|THESIS",   ALWAYS,          LEVEL_MAIN   },
 	{ "",                "RESOURCE|text",          ALWAYS,          LEVEL_MAIN   },
-	{ "",                "GENRE|thesis",           ALWAYS,          LEVEL_MAIN   },
-	{ "",                "NGENRE|Masters thesis",  DEFAULT,         LEVEL_MAIN   },
+	{ "",                "GENRE:MARC|thesis",      ALWAYS,          LEVEL_MAIN   },
+	{ "",                "GENRE:BIBUTILS|Masters thesis",  DEFAULT, LEVEL_MAIN   },
 };
 
 #define ORIG(a) ( &(a[0]) )

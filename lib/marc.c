@@ -1,7 +1,7 @@
 /*
  * marc.c
  *
- * Copyright (c) Chris Putnam 2004-2015
+ * Copyright (c) Chris Putnam 2004-2017
  *
  * Source code released under the GPL version 2
  *

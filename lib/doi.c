@@ -9,7 +9,7 @@
  * is_doi()
  * Check for DOI buried in another field.
  *
- * Copyright (c) Chris Putnam 2008-2015
+ * Copyright (c) Chris Putnam 2008-2016
  *
  * Source code released under the GPL version 2
  *
@@ -22,13 +22,15 @@
 #include "fields.h"
 
 static void
-construct_url( char *prefix, newstr *id, newstr *id_url )
+construct_url( char *prefix, newstr *id, newstr *id_url, char sep )
 {
 	if ( !strncasecmp( id->data, "http:", 5 ) )
 		newstr_newstrcpy( id_url, id );
 	else {
 		newstr_strcpy( id_url, prefix );
-		if ( id->data[0]!='/' ) newstr_addchar( id_url, '/' );
+		if ( sep!='\0' ) {
+			if ( id->data[0]!=sep ) newstr_addchar( id_url, sep );
+		}
 		newstr_newstrcat( id_url, id );
 	}
 }
@@ -49,32 +51,42 @@ url_exists( fields *f, char *urltag, newstr *doi_url )
 }
 
 static void
-xxx_to_url( fields *f, int n, char *http_prefix, char *urltag, newstr *xxx_url )
+xxx_to_url( fields *f, int n, char *http_prefix, char *urltag, newstr *xxx_url, char sep )
 {
 	newstr_empty( xxx_url );
-	construct_url( http_prefix, fields_value( f, n, FIELDS_STRP ), xxx_url );
+	construct_url( http_prefix, fields_value( f, n, FIELDS_STRP ), xxx_url, sep );
 	if ( url_exists( f, urltag, xxx_url ) )
 		newstr_empty( xxx_url );
 }
 void
 doi_to_url( fields *f, int n, char *urltag, newstr *url )
 {
-	xxx_to_url( f, n, "http://dx.doi.org", urltag, url );
+	xxx_to_url( f, n, "http://dx.doi.org", urltag, url, '/' );
 }
 void
 jstor_to_url( fields *f, int n, char *urltag, newstr *url )
 {
-	xxx_to_url( f, n, "http://www.jstor.org/stable", urltag, url );
+	xxx_to_url( f, n, "http://www.jstor.org/stable", urltag, url, '/' );
 }
 void
 pmid_to_url( fields *f, int n, char *urltag, newstr *url )
 {
-	xxx_to_url( f, n, "http://www.ncbi.nlm.nih.gov/pubmed", urltag, url );
+	xxx_to_url( f, n, "http://www.ncbi.nlm.nih.gov/pubmed", urltag, url, '/' );
+}
+void
+pmc_to_url( fields *f, int n, char *urltag, newstr *url )
+{
+	xxx_to_url( f, n, "http://www.ncbi.nlm.nih.gov/pmc/articles", urltag, url, '/' );
 }
 void
 arxiv_to_url( fields *f, int n, char *urltag, newstr *url )
 {
-	xxx_to_url( f, n, "http://arxiv.org/abs", urltag, url );
+	xxx_to_url( f, n, "http://arxiv.org/abs", urltag, url, '/' );
+}
+void
+mrnumber_to_url( fields *f, int n, char *urltag, newstr *url )
+{
+	xxx_to_url( f, n, "http://www.ams.org/mathscinet-getitem?mr=", urltag, url, '\0' );
 }
 
 /* Rules for the pattern:
@@ -112,4 +124,43 @@ is_doi( char *s )
 	if ( string_pattern( s, "doi: ##.####/", 0 ) ) return 5;
 	if ( string_pattern( s, "doi: DOI: ##.####/", 0 ) ) return 10;
 	return -1;
+}
+
+/* determine if string has the header of a Universal Resource Identifier
+ *
+ * returns -1, if not true
+ * returns offset that skips over the URI scheme, if true
+ */
+int
+is_uri_remote_scheme( char *p )
+{
+	char *scheme[]   = { "http:", "https:", "ftp:", "git:", "gopher:" };
+	int  schemelen[] = { 5,       6,         4,       4,     7 };
+        int i, nschemes = sizeof( scheme ) / sizeof( scheme[0] );
+        for ( i=0; i<nschemes; ++i ) {
+                if ( !strncasecmp( p, scheme[i], schemelen[i] ) ) return schemelen[i];
+        }
+        return -1;
+}
+
+int
+is_reference_database( char *p )
+{
+	char *scheme[]   = { "arXiv:", "pubmed:", "medline:", "isi:" };
+	int  schemelen[] = { 6,        7,         8,          4 };
+        int i, nschemes = sizeof( scheme ) / sizeof( scheme[0] );
+        for ( i=0; i<nschemes; ++i ) {
+                if ( !strncasecmp( p, scheme[i], schemelen[i] ) ) return schemelen[i];
+        }
+        return -1;
+}
+
+/* many fields have been abused to embed URLs, DOIs, etc. */
+int
+is_embedded_link( char *s )
+{
+	if ( is_uri_remote_scheme( s ) != -1 ) return 1;
+	if ( is_reference_database( s ) != -1 ) return 1;
+	if ( is_doi( s ) !=-1 ) return 1;
+	return 0;
 }
