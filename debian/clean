@@ -3,6 +3,5 @@ lib/*.lo
 lib/*.la
 lib/*.so.*
 lib/*.so
-
-
-
+test/buauth_test
+test/marcauth_test

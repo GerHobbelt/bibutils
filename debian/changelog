@@ -1,3 +1,10 @@
+bibutils (7.2-3) UNRELEASED; urgency=medium
+
+  * Fixing the clean target by adding missing files to d/clean
+    (Closes: #1043991)
+
+ -- Pierre Gruet <pgt@debian.org>  Mon, 14 Aug 2023 14:50:03 +0200
+
 bibutils (7.2-2) unstable; urgency=medium
 
   * Adding an autopkgtest
