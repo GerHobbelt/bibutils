@@ -1,4 +1,4 @@
 # Spelling errors are raised by Lintian, which in fact reads some 
 # abbreviations in the names of scientific reviews and wrongly interprets them
 # as spelling errors.
-libbibutils8 binary: spelling-error-in-binary usr/lib/*/libbibutils.so.8.0 * 
+libbibutils8 binary: spelling-error-in-binary * [usr/lib/*/libbibutils.so.*]
