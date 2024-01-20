@@ -2,8 +2,10 @@ bibutils (7.2-3) UNRELEASED; urgency=medium
 
   * Fixing the clean target by adding missing files to d/clean
     (Closes: #1043991)
+  * Raising Standards version to 4.6.2 (no change)
+  * Updating Lintian overrides syntax
 
- -- Pierre Gruet <pgt@debian.org>  Mon, 14 Aug 2023 14:50:03 +0200
+ -- Pierre Gruet <pgt@debian.org>  Sat, 20 Jan 2024 21:17:25 +0100
 
 bibutils (7.2-2) unstable; urgency=medium
 
