@@ -1,3 +1,22 @@
+# rbibutils 2.2.16 (CRAN)
+
+- fixed processing of the Polish suppressed-l `\l`. Previously the character
+  following it was enclosed in braces, which was harmless in most cases but the
+  superfluous braces could cause trouble in special circumstances. Did the same
+  for the uppercase version, `\L`, which was missing from the code.
+
+
+# rbibutils 2.2.15 (CRAN)
+
+- adapted some tests to a change in R-devel circa r84986.
+
+
+# rbibutils 2.2.14 (CRAN)
+
+- fixed a couple of tests in 'test-convert.R' which started failing (ca. R svn
+  rev 84760) due to an R-devel change in `person()`.
+
+
 # rbibutils 2.2.13 (CRAN)
 
 - Bugfix: the declaration of the return value of a C function was accidentally
