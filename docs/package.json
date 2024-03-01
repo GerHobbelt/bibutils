@@ -13,7 +13,7 @@
   "devDependencies": {
     "@gerhobbelt/nomnom": "1.8.4-30",
     "prettier": "2.0.5",
-    "sanitize-html": "1.23.0",
+    "sanitize-html": "2.12.1",
     "turndown": "6.0.0",
     "turndown-plugin-gfm": "^1.0.2"
   }
