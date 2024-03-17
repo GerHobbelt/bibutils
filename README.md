@@ -57,7 +57,7 @@ If you send me this question, I would immediately have to ask for more informati
 
 ### "command not found"
 
-The message "command not found" on Linux/UNIX/MacOSX systems indicates that the commands cannot be found. This could mean that the programs are not flagged as being executable (run "chmod ugo+x xml2bib" for the appropriate binaries) or the executables are not in your current path (and have to be specified directly like ./xml2bib). A quick web search on chmod or path variables should provide many detailed resources.
+The message "command not found" on Linux/UNIX/MacOSX systems indicates that the commands cannot be found. This could mean that the programs are not flagged as being executable (run "`chmod ugo+x xml2bib`" for the appropriate binaries) or the executables are not in your current path (and have to be specified directly like ./xml2bib). A quick web search on chmod or path variables should provide many detailed resources.
 
 ### I'm running MacOSX and I just get a terminal when I double-click on the programs.
 
@@ -71,22 +71,5 @@ I am interested in bug reports and problems in conversions. Feel free to e-mail 
 
 ## License
 
-All versions of bibutils are relased under the GNU Public License (GPL) version 2\. In a nutshell, feel free to download, run, and modify these programs as required. If you re-release these, you need to release the modified version of the source. (And I'd appreciate patches as well...if you care enough to make the change, then I'd like to see what you're adding or fixing.)
+All versions of bibutils are relased under the GNU Public License (GPL) version 2. In a nutshell, feel free to download, run, and modify these programs as required. If you re-release these, you need to release the modified version of the source. (And I'd appreciate patches as well...if you care enough to make the change, then I'd like to see what you're adding or fixing.)
 
-
-
-➜ ➔ 
-
-🠆 
-
-🠊 
-
-🠞 
-
-🡪 
-
-🡲 
-
-🡺 
-
-🢂
