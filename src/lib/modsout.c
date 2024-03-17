@@ -236,82 +236,88 @@ output_title( FILE *outptr, fields *f, int level )
 }
 
 static void
-output_name( FILE *outptr, const char *p, int level )
+output_name(FILE* outptr, const char* p, int level)
 {
-	newstr family, part, suffix, affiliation, ident;
-	int n=0;
+	str family, part, suffix, affiliation, ident;
+	int n = 0;
 
-	newstrs_init( &family, &part, &suffix, &affiliation, &ident, NULL );
+	strs_init(&family, &part, &suffix, &affiliation, &ident, NULL);
 
-	while ( *p && *p!='|' ) str_addchar( &family, *p++ );
-	if ( *p=='|' ) p++;
+	while (*p && *p != '|') str_addchar(&family, *p++);
+	if (*p == '|') p++;
 
-	while ( *p ) {
-		while ( *p && *p!='|' && *p!='#' ) newstr_addchar( &part, *p++ );
+	while (*p) {
+		while (*p && *p != '|' && *p != '#')
+			str_addchar(&part, *p++);
 		/* truncate periods from "A. B. Jones" names */
-		if ( part.len ) {
-			if ( part.len==2 && part.data[1]=='.' ) {
-				part.len=1;
-				part.data[1]='\0';
+		if (part.len) {
+			if (part.len == 2 && part.data[1] == '.') {
+				part.len = 1;
+				part.data[1] = '\0';
 			}
-			if ( n==0 )
-				output_tag( outptr, lvl2indent(level), "name", NULL, TAG_OPEN | TAG_NEWLINE, "type", "personal", NULL );
-			output_tag( outptr, lvl2indent(incr_level(level,1)), "namePart", part.data, TAG_OPENCLOSE | TAG_NEWLINE, "type", "given", NULL );
+			if (n == 0)
+				output_tag(outptr, lvl2indent(level), "name", NULL, TAG_OPEN | TAG_NEWLINE, "type", "personal", NULL);
+			output_tag(outptr, lvl2indent(incr_level(level, 1)), "namePart", part.data, TAG_OPENCLOSE | TAG_NEWLINE, "type", "given", NULL);
 			n++;
 		}
-		if ( *p=='|' ) {
+		if (*p == '|') {
 			p++;
-			if ( *p=='|' ) {
+			if (*p == '|') {
 				p++;
-				while ( *p && *p!='|' ) str_addchar( &suffix, *p++ );
+				while (*p && *p != '|') str_addchar(&suffix, *p++);
 			}
-			str_empty( &part );
+			str_empty(&part);
 		}
-		if ( *p=='#' ) {
+		if (*p == '#') {
 			p++;
-			if( *p=='1' ) {
+			if (*p == '1') {
 				p++;
-				if( *p=='~' ) {
+				if (*p == '~') {
 					p++;
-					newstr_strcat( &affiliation, "<affiliation>" );
-					while ( *p && *p!='|' ) newstr_addchar( &affiliation, *p++ );
-					newstr_strcat( &affiliation, "</affiliation>\n" );
+					while (*p && *p != '|')
+						str_addchar(&affiliation, *p++);
 				}
 			}
-			if( *p=='2' ) {
+			if (*p == '2') {
 				p++;
-				if( *p=='~' ) {
+				if (*p == '~') {
 					p++;
-					while ( *p && *p!='|' ) newstr_addchar( &ident, *p++ );
+					while (*p && *p != '|')
+						str_addchar(&ident, *p++);
 				}
 			}
 		}
 	}
 
-	if ( family.len ) {
-		if ( n==0 )
-			output_tag( outptr, lvl2indent(level), "name", NULL, TAG_OPEN | TAG_NEWLINE, "type", "personal", NULL );
-		output_tag( outptr, lvl2indent(incr_level(level,1)), "namePart", family.data, TAG_OPENCLOSE | TAG_NEWLINE, "type", "family", NULL );
+	if (family.len) {
+		if (n == 0)
+			output_tag(outptr, lvl2indent(level), "name", NULL, TAG_OPEN | TAG_NEWLINE, "type", "personal", NULL);
+		output_tag(outptr, lvl2indent(incr_level(level, 1)), "namePart", family.data, TAG_OPENCLOSE | TAG_NEWLINE, "type", "family", NULL);
 		n++;
 	}
 
-	if ( suffix.len ) {
-		if ( n==0 )
-			output_tag( outptr, lvl2indent(level), "name", NULL, TAG_OPEN | TAG_NEWLINE, "type", "personal", NULL );
-		output_tag( outptr, lvl2indent(incr_level(level,1)), "namePart", suffix.data, TAG_OPENCLOSE | TAG_NEWLINE, "type", "suffix", NULL );
+	if (suffix.len) {
+		if (n == 0)
+			output_tag(outptr, lvl2indent(level), "name", NULL, TAG_OPEN | TAG_NEWLINE, "type", "personal", NULL);
+		output_tag(outptr, lvl2indent(incr_level(level, 1)), "namePart", suffix.data, TAG_OPENCLOSE | TAG_NEWLINE, "type", "suffix", NULL);
+		n++;
 	}
 
-	if ( affiliation.len ) {
-		output_tab0( outptr, increment_level(level,1) );
-		fprintf( outptr, "%s", affiliation.data);
+	if (affiliation.len) {
+		if (n == 0)
+			output_tag(outptr, lvl2indent(level), "name", NULL, TAG_OPEN | TAG_NEWLINE, "type", "personal", NULL);
+		output_tag(outptr, lvl2indent(incr_level(level, 1)), "affiliation", affiliation.data, TAG_OPENCLOSE | TAG_NEWLINE, "type", "affiliation", NULL);
+		n++;
 	}
 
-	if ( ident.len ) {
-		output_tab0( outptr, increment_level(level,1) );
-		fprintf( outptr, "<description>%s</description>\n", ident.data);
+	if (ident.len) {
+		if (n == 0)
+			output_tag(outptr, lvl2indent(level), "name", NULL, TAG_OPEN | TAG_NEWLINE, "type", "personal", NULL);
+		output_tag(outptr, lvl2indent(incr_level(level, 1)), "description", ident.data, TAG_OPENCLOSE | TAG_NEWLINE, "type", "description", NULL);
+		n++;
 	}
 
-	newstrs_free( &part, &family, &suffix, &affiliation, &ident, NULL );
+	strs_free(&part, &family, &suffix, &affiliation, &ident, NULL);
 }
 
 
