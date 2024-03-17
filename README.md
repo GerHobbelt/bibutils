@@ -5,7 +5,7 @@ Original is at: https://sourceforge.net/projects/bibutils/
 
 ## Description:
 
-The bibutils program set interconverts between various bibliography formats using a common MODS-format XML intermediate. For example, one can convert RIS-format files to Bibtex by doing two transformations: RIS->MODS->Bibtex. By using a common intermediate for N formats, only 2N programs are required and not N²-N. These programs operate on the command line and are styled after standard UNIX-like filters.
+The bibutils program set interconverts between various bibliography formats using a common MODS-format XML intermediate. For example, one can convert RIS-format files to Bibtex by doing two transformations: RIS🡲MODS🡲Bibtex. By using a common intermediate for N formats, only 2N programs are required and not N²-N. These programs operate on the command line and are styled after standard UNIX-like filters.
 
 I primarily use these tools at the command line, but they are suitable for scripting and have been incorporated into a number of different bibliographic projects.
 
@@ -61,7 +61,7 @@ The message "command not found" on Linux/UNIX/MacOSX systems indicates that the 
 
 ### I'm running MacOSX and I just get a terminal when I double-click on the programs.
 
-Simply put, this is not the way to run the programs. You want to run the terminal first and then issue the commands at the command line. It should be under Applications->Utilities->Terminal on most MacOSX systems I've seen. If you just double-click the program, the terminal corresponds to the input to the tool. Not so useful. Some links to get you started running the terminal in a standard UNIX-like fashion are at [TerminalBasics.pdf](http://homepage.mac.com/rgriff/files/TerminalBasics.pdf), [macdevcenter.com](http://www.macdevcenter.com/pub/ct/51), and [ee.surrey.ac.uk](http://www.ee.surrey.ac.uk/Teaching/Unix/).
+Simply put, this is not the way to run the programs. You want to run the terminal first and then issue the commands at the command line. It should be under Applications🡲Utilities🡲Terminal on most MacOSX systems I've seen. If you just double-click the program, the terminal corresponds to the input to the tool. Not so useful. Some links to get you started running the terminal in a standard UNIX-like fashion are at [TerminalBasics.pdf](http://homepage.mac.com/rgriff/files/TerminalBasics.pdf), [macdevcenter.com](http://www.macdevcenter.com/pub/ct/51), and [ee.surrey.ac.uk](http://www.ee.surrey.ac.uk/Teaching/Unix/).
 
 ### This stuff is great, how can I help?
 
@@ -73,3 +73,20 @@ I am interested in bug reports and problems in conversions. Feel free to e-mail 
 
 All versions of bibutils are relased under the GNU Public License (GPL) version 2\. In a nutshell, feel free to download, run, and modify these programs as required. If you re-release these, you need to release the modified version of the source. (And I'd appreciate patches as well...if you care enough to make the change, then I'd like to see what you're adding or fixing.)
 
+
+
+➜ ➔ 
+
+🠆 
+
+🠊 
+
+🠞 
+
+🡪 
+
+🡲 
+
+🡺 
+
+🢂
