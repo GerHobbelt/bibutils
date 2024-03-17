@@ -357,6 +357,35 @@ medin_abstract( xml *node, fields *info )
  * </AuthorList>
  */
 static int
+medin_affiliation( xml *node, newstr *name )
+{
+	newstr affl;
+	if ( xml_tagexact( node, "Affiliation" ) ) {
+                newstr_init( &affl );
+	        newstr_strcat( &affl, xml_data( node ) );
+                newstr_findreplace( &affl, "|", "|#1~" );
+
+		if ( name->len ) newstr_addchar( name, '|' );
+		newstr_strcat( name, "#1~" );
+		newstr_newstrcat( name, &affl );
+                newstr_free( &affl );
+	} else if ( xml_tagexact( node, "Identifier" ) ) {
+		newstr_strcat( name, " INSTID:[" );
+		newstr *source;
+		source = xml_getattrib( node, "Source" );
+		if(source) {
+			newstr_newstrcat( name, source );
+			newstr_strcat( name, ":" );
+			newstr_empty( source );
+		}
+		newstr_strcat( name, xml_data( node ) );
+		newstr_strcat( name, "]" );
+	}
+	if ( node->next ) medin_affiliation( node->next, name );
+	return BIBL_OK;
+}
+
+static int
 medin_author( xml *node, newstr *name )
 {
 	char *p;
@@ -380,6 +409,19 @@ medin_author( xml *node, newstr *name )
 			if ( name->len ) newstr_addchar( name, '|' );
 			if ( !is_ws(*p) ) newstr_addchar( name, *p++ );
 		}
+	} else if ( xml_tagexact( node, "AffiliationInfo" ) ) {
+		medin_affiliation( node->down, name );
+	} else if ( xml_tagexact( node, "Identifier" ) ) {
+		if ( name->len ) newstr_addchar( name, '|' );
+		newstr_strcat( name, "#2~" );
+		newstr *source;
+		source = xml_getattrib( node, "Source" );
+		if(source) {
+			newstr_newstrcat( name, source );
+			newstr_strcat( name, ":" );
+			newstr_empty( source );
+		}
+		newstr_strcat( name, xml_data( node ) );
 	}
 	if ( node->next ) medin_author( node->next, name );
 	return BIBL_OK;
@@ -404,7 +446,7 @@ medin_authorlist( xml *node, fields *info )
 	node = node->down;
 	while ( node ) {
 		if ( xml_tagexact( node, "Author" ) && node->down ) {
-			status = medin_author( node->down, &name );
+			if ( !xml_tagexact( node->down, "CollectiveName" ) ) status = medin_author( node->down, &name );
 			tag = "AUTHOR";
 			if ( !name.len ) {
 				status = medin_corpauthor( node->down, &name );
@@ -489,6 +531,7 @@ medin_meshheadinglist( xml *node, fields *info )
  *     ....
  *     <ArticleIdList>
  *         <ArticleId IdType="pubmed">14523232</ArticleId>
+ *         <ArticleId IdType="pmc">PMC218721</ArticleId>
  *         <ArticleId IdType="doi">10.1073/pnas.2133463100</ArticleId>
  *         <ArticleId IdType="pii">2133463100</ArticleId>
  *         <ArticleId IdType="medline">22922082</ArticleId>
@@ -503,6 +546,7 @@ medin_pubmeddata( xml *node, fields *info )
 	xml_convert c[] = {
 		{ "ArticleId", "IdType", "doi",     "DOI",     0 },
 		{ "ArticleId", "IdType", "pubmed",  "PMID",    0 },
+		{ "ArticleId", "IdType", "pmc",     "PMCID",    0 },
 		{ "ArticleId", "IdType", "medline", "MEDLINE", 0 },
 		{ "ArticleId", "IdType", "pii",     "PII",     0 },
 	};
@@ -539,10 +583,49 @@ medin_article( xml *node, fields *info )
 	else if ( xml_tagexact( node, "Affiliation" ) ) {
 		fstatus = fields_add( info, "ADDRESS", xml_data( node ), 0 );
 		if ( fstatus!=FIELDS_OK ) status = BIBL_ERR_MEMERR;
+	} 
+	else if ( xml_tagexact( node, "ELocationID" ) ) {
+		xml_convert c[] = {
+			{"ELocationID", "EIdType", "doi", "DOI", 0},
+			{"ELocationID", "ValidYN", "Y", "DOI", 0}
+		};
+		if ( xml_tag_attrib( node, c[0].in, c[0].a, c[0].aval)
+			&& xml_tag_attrib( node, c[1].in, c[1].a, c[1].aval) ){
+			fstatus = fields_add( info, "DOI", xml_data( node ), 0 );
+			if ( fstatus!=FIELDS_OK ) status = BIBL_ERR_MEMERR;
+		}
 	}
 	if ( status!=BIBL_OK ) return status;
 	if ( node->next ) status = medin_article( node->next, info );
 	return BIBL_OK;
+}
+
+static int
+medin_otherid( xml *node, fields *info )
+{
+	int fstatus, status = BIBL_OK;
+	char* d = xml_data( node );;
+	char* pre = "PMC";
+	int i = 0;
+	int pmc = 1;
+	xml_convert c[] = {{"OtherID", "Source", "NLM", "PMCID", 0}};
+	if ( xml_tag_attrib( node, c[0].in, c[0].a, c[0].aval)){
+			while ( d && *d && i<3) {
+				if(*d == pre[i]) {
+					d++;
+					i++;
+				}
+				else {
+					pmc = 0;
+					break;
+				}
+			}
+			if(pmc == 1) {
+				fstatus = fields_add( info, c[0].out, xml_data( node ), 0 );
+				if ( fstatus!=FIELDS_OK ) status = BIBL_ERR_MEMERR;
+			}
+	}
+	return status;
 }
 
 static int
@@ -552,6 +635,9 @@ medin_medlinecitation( xml *node, fields *info )
 	if ( xml_tagexact( node, "PMID" ) && node->value->data ) {
 		fstatus = fields_add( info, "PMID", node->value->data, 0 );
 		if ( fstatus!=FIELDS_OK ) return BIBL_ERR_MEMERR;
+    }
+    if ( xml_tagexact( node, "OtherID" ) ) {
+        status = medin_otherid( node, info );
 	}
 	if ( node->down ) {
 		if ( xml_tagexact( node, "Article" ) ) {

@@ -174,16 +174,16 @@ output_personalstart( FILE *outptr, int level )
 static void
 output_name( FILE *outptr, char *p, int level )
 {
-	newstr family, part, suffix;
+	newstr family, part, suffix, affiliation, ident;
 	int n=0;
 
-	newstrs_init( &family, &part, &suffix, NULL );
+	newstrs_init( &family, &part, &suffix, &affiliation, &ident, NULL );
 
 	while ( *p && *p!='|' ) newstr_addchar( &family, *p++ );
 	if ( *p=='|' ) p++;
 
 	while ( *p ) {
-		while ( *p && *p!='|' ) newstr_addchar( &part, *p++ );
+		while ( *p && *p!='|' && *p!='#' ) newstr_addchar( &part, *p++ );
 		/* truncate periods from "A. B. Jones" names */
 		if ( part.len ) {
 			if ( part.len==2 && part.data[1]=='.' ) {
@@ -203,6 +203,25 @@ output_name( FILE *outptr, char *p, int level )
 			}
 			newstr_empty( &part );
 		}
+		if ( *p=='#' ) {
+			p++;
+			if( *p=='1' ) {
+				p++;
+				if( *p=='~' ) {
+					p++;
+					newstr_strcat( &affiliation, "<affiliation>" );
+					while ( *p && *p!='|' ) newstr_addchar( &affiliation, *p++ );
+					newstr_strcat( &affiliation, "</affiliation>\n" );
+				}
+			}
+			if( *p=='2' ) {
+				p++;
+				if( *p=='~' ) {
+					p++;
+					while ( *p && *p!='|' ) newstr_addchar( &ident, *p++ );
+				}
+			}
+		}
 	}
 
 	if ( family.len ) {
@@ -217,7 +236,17 @@ output_name( FILE *outptr, char *p, int level )
 				suffix.data, 1 );
 	}
 
-	newstrs_free( &part, &family, &suffix, NULL );
+	if ( affiliation.len ) {
+		output_tab0( outptr, increment_level(level,1) );
+		fprintf( outptr, "%s", affiliation.data);
+	}
+
+	if ( ident.len ) {
+		output_tab0( outptr, increment_level(level,1) );
+		fprintf( outptr, "<description>%s</description>\n", ident.data);
+	}
+
+	newstrs_free( &part, &family, &suffix, &affiliation, &ident, NULL );
 }
 
 
@@ -777,6 +806,7 @@ output_sn( fields *f, FILE *outptr, int level )
 		{ "eprint",    "EPRINT",    0 },
 		{ "eprinttype","EPRINTTYPE",0 },
 		{ "pubmed",    "PMID",      0 },
+		{ "pmc",       "PMCID",     0 },
 		{ "medline",   "MEDLINE",   0 },
 		{ "pii",       "PII",       0 },
 		{ "arXiv",     "ARXIV",     0 },
