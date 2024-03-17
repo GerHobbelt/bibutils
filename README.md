@@ -41,6 +41,7 @@ The Library of Congress's Metadata Object Description Schema (MODS) XML format i
 
 ## Development History:
 
+* [Version 7](https://sourceforge.net/p/bibutils/home/history_version7/)
 * [Version 6](http://sourceforge.net/p/bibutils/home/history_version6/). Library changes forced change of major version.
 * [Version 5](http://sourceforge.net/p/bibutils/home/history_version5/). User visible changes change default input and output character set to UTF-8 Unicode and ability to write MODS XML in multiple character sets.
 * [Version 4](http://sourceforge.net/p/bibutils/home/history_version4/). User visible changes are alteration of library API.
