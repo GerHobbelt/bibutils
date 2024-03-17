@@ -13,31 +13,11 @@ The Library of Congress's Metadata Object Description Schema (MODS) XML format i
 
 ## Programs:
 
-<table>
+| Program | Description |
+|----------|----------------|
+| [bib2xml](http://sourceforge.net/p/bibutils/home/bib2xml) | convert BibTeX to MODS XML intermediate |
 
-<thead>
 
-<tr>
-
-<th>Program</th>
-
-<th>Description</th>
-
-</tr>
-
-</thead>
-
-<tbody>
-
-<tr>
-
-<td>[bib2xml](http://sourceforge.net/p/bibutils/home/bib2xml)</td>
-
-<td>convert BibTeX to MODS XML intermediate</td>
-
-</tr>
-
-<tr>
 
 <td>[biblatex2xml](http://sourceforge.net/p/bibutils/home/biblatex2xml)</td>
 
