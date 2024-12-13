@@ -47,7 +47,7 @@ static int
 _check_len( slist *a, slist_index expected, const char *fn, int line )
 {
 	if ( a->n == expected ) return 1;
-	fprintf( stderr, "Failed: %s() line %d: Expected slist length of %lu, found %lu\n", fn, line, expected, a->n );
+	fprintf( stderr, "Failed: %s() line %d: Expected slist length of %u, found %u\n", fn, line, (unsigned int)expected, (unsigned int)a->n );
 	return 0;
 }
 
