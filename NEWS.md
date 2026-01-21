@@ -1,3 +1,20 @@
+# rbibutils 2.4.1
+
+## EDIT BEFORE RELEASE!
+
+- now '\slash' is handled by `toRd.bibentryExtra` (previously was in Rdpack).
+
+- don't interpret '\slash' if the leading slash is escaped.
+
+- export `bibstyle_JSSextra` - not exported in v2.4.
+
+- modified the `bibentryExtra` method for `toRd` to process `\slash`.
+
+- improved handling of latex accents and  Unicode combining characters.
+
+- removed the deprecated `register_JSSextra`.
+
+
 # rbibutils 2.4
 
 ## Advance warning about a future potentially incompatible change

@@ -233,7 +233,7 @@ format.bibentryExtra <- function (x, style = "text", .bibstyle = "JSSextra", col
 
     if(!is.null(.bibstyle) && .bibstyle == "JSSextra"  &&
        !("JSSextra" %in% getBibstyle(TRUE)))
-        register_JSSextra()
+        bibstyle_JSSextra()                 # 2025-11-12 was: register_JSSextra()
     
     x <- .mangle_nonstandard_types(x, TRUE)
 
@@ -598,6 +598,51 @@ toRd.bibentryExtra <- function(obj, style="JSSextra", ...) {
     obj <- .mangle_nonstandard_types(obj)
     class(obj) <- "bibentry"
     res <- NextMethod()
+
+    if(any(slash_ind <- grepl("\\slash ", res, fixed = TRUE))) {
+        res[slash_ind] <- gsub("([^{\\|^])\\\\slash *", "\\1\\\\ifelse{latex}{\\\\out{\\\\slash }}{/}",
+                               res[slash_ind])
+    }
+
+supported_combining <- paste(c(
+  "\U0300",
+  "\U0301",
+  "\U0302",
+  "\U0303",
+  "\U0304",
+  "\U0306",
+  "\U0307",
+  "\U0308",
+  "\U030B",
+  "\U030C",
+  "\U0323",
+  "\U0327",
+  "\U0328",
+  "\U0331"
+), collapse = "|")
+
+    if(any(ind <- grepl(supported_combining, res))) {
+        res[ind] <- gsub("([^{\\|^])(.)\U0300", "\\1\\\\ifelse{latex}{\\\\out{\\\\`\\2}}{\\2\U0300}", res[ind]) # grave
+        res[ind] <- gsub("([^{\\|^])(.)\U0301", "\\1\\\\ifelse{latex}{\\\\out{\\\\'\\2}}{\\2\U0301}", res[ind]) # acute
+        res[ind] <- gsub("([^{\\|^])(.)\U0302", "\\1\\\\ifelse{latex}{\\\\out{\\\\^\\2}}{\\2\U0302}", res[ind]) # circumflex/hat
+        res[ind] <- gsub("([^{\\|^])(.)\U0303", "\\1\\\\ifelse{latex}{\\\\out{\\\\~\\2}}{\\2\U0303}", res[ind]) # tilde/squiggle
+        res[ind] <- gsub("([^{\\|^])(.)\U0304", "\\1\\\\ifelse{latex}{\\\\out{\\\\=\\2}}{\\2\U0304}", res[ind]) # macron/bar
+
+        res[ind] <- gsub("([^{\\|^])(.)\U0306", "\\1\\\\ifelse{latex}{\\\\out{\\\\u \\2}}{\\2\U0306}", res[ind]) # breve   ## todo: wrap in braces (since bibtex)?
+        res[ind] <- gsub("([^{\\|^])(.)\U0307", "\\1\\\\ifelse{latex}{\\\\out{\\\\.\\2}}{\\2\U0307}", res[ind]) # dot above
+        res[ind] <- gsub("([^{\\|^])(.)\U0308", "\\1\\\\ifelse{latex}{\\\\out{\\\\\"\\2}}{\\2\U0308}", res[ind]) # umlaut/diaeresis
+
+        res[ind] <- gsub("([^{\\|^])(.)\U030B", "\\1\\\\ifelse{latex}{\\\\out{\\\\H \\2}}{\\2\U030B}", res[ind]) # double acute/long Hungarian
+        res[ind] <- gsub("([^{\\|^])(.)\U030C", "\\1\\\\ifelse{latex}{\\\\out{\\\\v \\2}}{\\2\U030C}", res[ind]) # caron/hacek/check/wedge/V above
+
+        res[ind] <- gsub("([^{\\|^])(.)\U0323", "\\1\\\\ifelse{latex}{\\\\out{\\\\d \\2}}{\\2\U0323}", res[ind]) # dot below
+
+        res[ind] <- gsub("([^{\\|^])(.)\U0327", "\\1\\\\ifelse{latex}{\\\\out{\\\\c \\2}}{\\2\U0327}", res[ind]) # cedilla
+        res[ind] <- gsub("([^{\\|^])(.)\U0328", "\\1\\\\ifelse{latex}{\\\\out{\\\\k \\2}}{\\2\U0328}", res[ind]) # ogonek
+
+        res[ind] <- gsub("([^{\\|^])(.)\U0331", "\\1\\\\ifelse{latex}{\\\\out{\\\\b \\2}}{\\2\U0331}", res[ind]) # macron below/bar under
+    }
+
     res
 }
 
