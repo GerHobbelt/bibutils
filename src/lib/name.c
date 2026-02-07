@@ -4,6 +4,7 @@
  * mangle names w/ and w/o commas
  *
  * Copyright (c) Chris Putnam 2004-2021
+ * Copyright (c) Georgi N. Boshnakov 2020-2023
  *
  * Source code released under the GPL version 2
  *
@@ -278,6 +279,216 @@ name_multielement_comma( intlist *given, intlist *family, slist *tokens, int beg
 	return 1;
 }
 
+static void
+name_fix_latex_escapes(str* name) {
+	// deals with issue #5 (the part ,
+	// (based on name_mutlielement_build) TODO: change name_mutlielement_build to call to this function?
+	const char* pastslash;
+	char ch;
+	str* mys = str_new();
+
+	if (str_strstrc(name, "\\")) { // crude patch; TODO: fix somewhere upstream!
+		str_free(mys);
+		str_initstr(mys, name);
+		str_free(name);  // str_init(name);
+
+		// REprintf("(name_fix_latex_escapes) before: %s\n", mys->data);
+
+		pastslash = str_cattodelim(name, mys->data, "\\", 1);
+		while (*pastslash) {
+			// Here we are after a backslash
+			// TODO: can pastslash be NULL?
+			if (pastslash && *pastslash) {
+
+				if (*pastslash == '=') {
+					// case '=': // 2025-12-03 - TEMPORARY! FOR TESTING!
+					// MACRON - emit it s UTF8 combining char, just for testing
+					//       TODO: should not put in braces but this is for testing, so ok.
+					// str_addchar( name, *pastslash );
+					pastslash++;
+					if (*pastslash == ' ') // is this allowed in TeX? anyway, people use
+						pastslash++;        // it
+					// str_strcatc(name, "{");
+					if (*pastslash == '{')
+						pastslash++;
+					// REprintf("\t%c\n", *pastslash );
+					str_addchar(name, *pastslash);
+					str_addchar(name, (char)0xCC);
+					str_addchar(name, (char)0x84);
+					// str_addchar( name, '}' );
+					pastslash++;
+					if (*pastslash == '}')
+						pastslash++;
+
+					pastslash = str_cattodelim(name, pastslash, "\\", 1);
+					continue;
+				}
+
+				if (pastslash[1]) { // the following char is not NULL
+					str_strcatc(name, "{\\");
+
+					ch = *pastslash;
+					// (2022-12-16) TODO: case '"'? !!!
+					switch (ch) {
+					case 'O':
+						str_addchar(name, *pastslash);
+						pastslash++;
+						if (*pastslash == 'E') { // \OE
+							str_addchar(name, *pastslash);
+							pastslash++;
+						}
+						break;
+
+					case 'o':
+						str_addchar(name, *pastslash);
+						pastslash++;
+						if (*pastslash == 'e') { // \oe
+							str_addchar(name, *pastslash);
+							pastslash++;
+						}
+						break;
+
+						// \DJ and \DH are handled by 'default:' since there is no \D on its
+						// own (note that there is \d, so it has separate case here
+					case 'd':
+						str_addchar(name, *pastslash);
+						pastslash++;
+						if (*pastslash == 'h' || *pastslash == 'j') { // \dh, \dj
+							str_addchar(name, *pastslash);
+							pastslash++;
+						}
+						break;
+
+					case 'L':
+					case 'l':
+						str_addchar(name, *pastslash);
+						pastslash++;
+						break;
+
+					case 't':      // \t{oo}, {\th}
+						str_addchar(name, *pastslash);
+						pastslash++;
+						if (*pastslash == 'h') {  // \th
+							str_addchar(name, *pastslash);
+						}
+						else { // \t{oo}
+							str_strcatc(name, "{");
+							str_addchar(name, *pastslash);
+							pastslash++;
+							str_addchar(name, *pastslash);
+							str_addchar(name, '}');
+						}
+						pastslash++;
+						// REprintf("(name_fix_latex_escapes) nafter:  %s\n", name->data);
+						break;
+
+					case 'H':
+					case 'c':
+					case 'k':
+					case 'b':
+					case 'r':
+					case 'u':
+					case 'v':
+						str_addchar(name, *pastslash);
+						pastslash++;
+						if (*pastslash == ' ') // is this allowed in TeX? anyway, people use
+							pastslash++;        // it
+						str_strcatc(name, "{");
+						str_addchar(name, *pastslash);
+						str_addchar(name, '}');
+						pastslash++;
+						// REprintf("(name_fix_latex_escapes) nafter:  %s\n", name->data);
+						break;
+
+					case 'i':   // new 2021-10-08, see issues #5-7
+						str_addchar(name, *pastslash);
+						pastslash++;
+						break;
+
+					case '\'':
+						str_addchar(name, *pastslash); // emit the '
+						pastslash++;
+						// pastslash[1] checks that the following char is not NULL
+						//                                            (it is probably an error if it is)
+						// Georgi (2021-10-13): issue #7 TODO: do this for Rdpack only!
+						// if(*pastslash == 'i'  &&  rdpack_patch_get() != 0 ) {
+						//   str_addchar( name, '\\' );     // \'i => \'\i, see issue #7
+						// }
+
+						if (*pastslash == '\\' && pastslash[1]) {
+							// Georgi (2021-10-09): issues #5-7
+							//     Don't change  \'\i  to  \'i
+							//     was:  pastslash++; // just skip '\' for now, so \'\i => \'i
+							str_addchar(name, *pastslash);       // emit the backslash
+							pastslash++;
+						}
+						str_addchar(name, *pastslash);
+						pastslash++;
+
+						break;
+
+					// case 'A':    // 2023-10-31
+					// 	str_addchar( name, *pastslash );
+					// 	pastslash++;
+					// 	if(*pastslash == 'A' || *pastslash == 'E' ) { // \AA or \AE
+					// 	    str_addchar( name, *pastslash );
+					// 	    pastslash++;
+					// 	}
+					// 	break;
+
+					case 'a':    // 2021-12-19
+						// this covers also \aa and \ae (but also \ab, etc., which should not
+						// be encountered.
+
+						str_addchar(name, *pastslash);   // emit 'a'
+						pastslash++;
+						// \a'o, \a`o, \a=o are used in latex's tabbing environment but
+						// latex seems to accept them elsewhere AND bibtex seems to
+						// convert them to \'o, etc. when writing bbl files AND base-R's
+						// bibtex stuff supports it.
+						//
+						// TODO: test more!
+						if (*pastslash == '\'' || *pastslash == '`' || *pastslash == '=') {
+							str_addchar(name, *pastslash);
+							pastslash++;
+						}
+						// the rest as for '\'' above
+						if (*pastslash == '\\' && pastslash[1]) {
+							str_addchar(name, *pastslash);    // emit the backslash
+							pastslash++;
+						}
+
+						str_addchar(name, *pastslash);
+						pastslash++;
+
+						break;
+
+					default:
+						str_addchar(name, *pastslash);
+						str_addchar(name, *(pastslash + 1));
+						pastslash += 2;
+					}
+
+					str_addchar(name, '}');
+				}
+
+				// REprintf("(name_fix_latex_escapes) after if clause:  %s\n", name->data);
+
+			}
+			else {
+				// just copy the backslash, but this almost certainly should not happen
+				str_strcatc(name, "\\");
+			}
+
+			pastslash = str_cattodelim(name, pastslash, "\\", 1);
+		}
+	}
+
+	// REprintf("\t(name_fix_latex_escapes) after:  name = %s\n", name->data);
+
+	str_delete(mys);
+}
+
 static int
 name_mutlielement_build( str *name, intlist *given, intlist *family, slist *tokens )
 {
@@ -314,6 +525,8 @@ name_mutlielement_build( str *name, intlist *given, intlist *family, slist *toke
 			str_strcat( name, s );
 		} else add_given_split( name, s );
 	}
+
+    name_fix_latex_escapes( name );
 
 	return 1;
 }
