@@ -330,7 +330,33 @@ name_fix_latex_escapes( str *name ) {
 	    // Here we are after a backslash
 	    // TODO: can pastslash be NULL?
 	    if(pastslash  && *pastslash) {
-		if(pastslash[1]) { // the following char is not NULL
+
+	      if(*pastslash == '=') {
+		// case '=': // 2025-12-03 - TEMPORARY! FOR TESTING!
+		      // MACRON - emit it s UTF8 combining char, just for testing
+		      //       TODO: should not put in braces but this is for testing, so ok.
+		      // str_addchar( name, *pastslash );
+			pastslash++;
+			if(*pastslash == ' ') // is this allowed in TeX? anyway, people use
+			    pastslash++;        // it
+			// str_strcatc(name, "{");
+			if(*pastslash == '{')
+			    pastslash++;
+// REprintf("\t%c\n", *pastslash );
+                        str_addchar( name, *pastslash );
+			str_addchar( name, (char)0xCC );
+			str_addchar( name, (char)0x84 );
+			// str_addchar( name, '}' );
+			pastslash++;
+			if(*pastslash == '}')
+			    pastslash++;
+
+			pastslash = str_cattodelim(name, pastslash, "\\", 1);
+		   	continue;
+	      }
+
+	      
+	      if(pastslash[1]) { // the following char is not NULL
 		    str_strcatc(name, "{\\");
 		
 		    ch = *pastslash;
